@@ -6,7 +6,7 @@
     "parcel": "parcel src/index.html"
   },
   "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
-  "license": "ISC",
+  "license": "GPL",
   "devDependencies": {
     "parcel": "^2.12.0"
   }
