@@ -1,0 +1,13 @@
+{
+  "name": "proto-lnr",
+  "version": "1.0.0",
+  "description": "Prototype version of Loot & Roam",
+  "scripts": {
+    "parcel": "parcel index.html"
+  },
+  "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.12.0"
+  }
+}
