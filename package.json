@@ -9,5 +9,8 @@
   "license": "GPL",
   "devDependencies": {
     "parcel": "^2.12.0"
+  },
+  "dependencies": {
+    "victor": "^1.1.0"
   }
 }
