@@ -4,6 +4,7 @@ const m_game = require('./game.js');
 const m_ship = require('./ship.js');
 const m_player = require('./player.js');
 const m_mouse = require('./mouse.js');
+const m_terrain = require('./terrain.js');
 
 m_mouse.registerMouseListener();
 
@@ -28,5 +29,7 @@ game.addShip(ship3);
 
 const player = new m_player.Player(ship1);
 game.setPlayer(player);
+
+game.setTerrain(new m_terrain.Terrain(m_terrain.defPlaceholder));
 
 requestAnimationFrame(m_tick.tick.bind(null, game));

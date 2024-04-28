@@ -1,5 +1,6 @@
 //@flow
 const Vec2 = require('victor');
+const m_terrain = require('./terrain.js');
 
 function renderShips(game) {
   let ctx = game.drawCtx;
@@ -44,10 +45,133 @@ function renderBackground(game: Game) {
   ctx.fillRect(0, 0, game.width, game.height);
 }
 
+function interpTerrainColor(game, height) {
+  // below waterLevel
+  let rgb1 = [0, 10, 45];
+  let rgb2 = [30, 60, 70]; 
+  // above waterLevel
+  let rgb3 = [80, 140, 40]; 
+  let rgb4 = [200, 200, 200];
+  
+  let from = null;
+  let to = null;
+  let alpha = null;
+  
+  if (height < game.waterLevel) {
+    from = rgb1;
+    to = rgb2;
+    alpha = height / game.waterLevel;
+  }
+  
+  else {
+    from = rgb3;
+    to = rgb4;
+    alpha = (height - game.waterLevel) / (1 - game.waterLevel)
+  }
+  
+  // lerp color
+  let rgbFinal = from.map((f, i) => f * (1 - alpha) + to[i] * alpha);
+  
+  return `rgb(${rgbFinal.join(', ')})`;
+}
+window.interpTerrainColor = interpTerrainColor; //DEBUG
+
+function drawTerrainSector(game, sdlef, sdtop, sector) {
+  let ctx = game.drawCtx;
+  
+  for (let tileIdx = 0; tileIdx < m_terrain.SECTOR_AREA; tileIdx++) {
+    let tx = tileIdx % m_terrain.SECTOR_SIZE;
+    let ty = (tileIdx - tx) / m_terrain.SECTOR_SIZE;
+    
+    let height = sector.heights[tileIdx];
+    let drawX = sdlef + tx * m_terrain.SECTOR_RES;
+    let drawY = sdtop + ty * m_terrain.SECTOR_RES;
+
+    ctx.lineWidth = 0;
+    ctx.fillStyle = interpTerrainColor(game, height);
+    ctx.fillRect(drawX, drawY, m_terrain.SECTOR_RES + 1, m_terrain.SECTOR_RES + 1);
+  }
+}
+
+function renderTerrain(game: Game) {
+  let ctx = game.drawCtx;
+
+  if (game.terrain == null) {
+    return;
+  }
+  
+  let camX = 0;
+  let camY = 0;
+  
+  if (game.player != null && game.player.possessed != null) {
+    camX = game.player.possessed.pos.x;
+    camY = game.player.possessed.pos.y;
+  }
+  
+  let minX = -(game.width  / 2) + camX;
+  let minY = -(game.height / 2) + camY;
+  let maxX =  (game.width  / 2) + camX;
+  let maxY =  (game.height / 2) + camY;
+
+  let minSectorX = Math.floor(minX / m_terrain.SECTOR_REAL_SIZE);
+  let minSectorY = Math.floor(minY / m_terrain.SECTOR_REAL_SIZE);
+  let maxSectorX = Math.ceil (maxX / m_terrain.SECTOR_REAL_SIZE);
+  let maxSectorY = Math.ceil (maxY / m_terrain.SECTOR_REAL_SIZE);
+  let minDrawX = minSectorX * m_terrain.SECTOR_REAL_SIZE + (game.width  / 2);
+  let minDrawY = minSectorY * m_terrain.SECTOR_REAL_SIZE + (game.height / 2);
+  let maxDrawX = maxSectorX * m_terrain.SECTOR_REAL_SIZE + (game.width  / 2);
+  let maxDrawY = maxSectorY * m_terrain.SECTOR_REAL_SIZE + (game.height / 2);
+  
+  // draw sectors as diversely coloured squares
+  let sectorW = maxSectorX - minSectorX;
+  let sectorH = maxSectorY - minSectorY;
+  let sectorArea = sectorW * sectorH;
+  
+  for (si = 0; si < sectorArea; si++) {
+    let sx = si % sectorW;
+    let sy = (si - sx) / sectorW;
+    let sdlef = minDrawX - camX + sx * m_terrain.SECTOR_REAL_SIZE;
+    let sdtop = minDrawY - camY + sy * m_terrain.SECTOR_REAL_SIZE;
+    
+    let sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
+    
+    drawTerrainSector(game, sdlef, sdtop, sector);
+    
+    ctx.strokeStyle = '#ffff00';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
+      sdlef,
+      sdtop,
+      m_terrain.SECTOR_REAL_SIZE,
+      m_terrain.SECTOR_REAL_SIZE
+    );
+    ctx.fillStyle = '#ffff44';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.font = "15px Arial";
+    ctx.textBaseline = 'top';
+    ctx.strokeText(
+      `(${sx + minSectorX}, ${sy + minSectorY})`,
+      sdlef + 25,
+      sdtop + 25
+    );
+    ctx.fillText(
+      `(${sx + minSectorX}, ${sy + minSectorY})`,
+      sdlef + 25,
+      sdtop + 25
+    );
+  }
+  
+  // debug: show sector boundaries except edge sectors
+  ctx.strokeStyle = '#ff0000';
+  ctx.lineWidth = 3;
+}
+
 export function render(game: Game) {
   game.canvas.width = game.width;
   game.canvas.height = game.height;
   
   renderBackground(game);
+  renderTerrain(game);
   renderShips(game);
 }
