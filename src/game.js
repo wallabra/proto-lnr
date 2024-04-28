@@ -1,9 +1,8 @@
+//@flow
 export class Game {
-  constructor(canvas) {
-    this.canvas =   canvas;
-    
-    let drawCtx = canvas.getContext('2d');
-    this.drawCtx = drawCtx;
+  constructor(canvas: Canvas) {
+    this.canvas = canvas;
+    this.drawCtx = canvas.getContext('2d');
     
     this.ships = []
   }
@@ -27,7 +26,7 @@ export class Game {
   }
   
   /// Order of tick operations
-  tick(deltaTime) {
+  tick(deltaTime: number) {
     this.tickShips(deltaTime);
   }
 }

@@ -6,11 +6,17 @@
     "parcel": "parcel src/index.html"
   },
   "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
-  "license": "GPL",
+  "license": "GPL-3.0",
   "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.4",
+    "@babel/preset-flow": "^7.24.1",
+    "babel-plugin-syntax-hermes-parser": "^0.20.1",
+    "flow-bin": "^0.235.1",
     "parcel": "^2.12.0"
   },
   "dependencies": {
     "victor": "^1.1.0"
-  }
+  },
+  "browserslist": "> 0.25%, not dead"
 }

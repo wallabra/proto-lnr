@@ -1,3 +1,4 @@
+//@flow
 function renderShips(game) {
   let ctx = game.drawCtx;
   
@@ -5,25 +6,27 @@ function renderShips(game) {
   let baseX = game.width / 2;
   let baseY = game.height / 2;
   
-  game.ships.forEach((ship) => {
+  game.ships.forEach((ship: Ship) => {
     let x = baseX + ship.pos.x;
     let y = baseY + ship.pos.y;
-
+    
     ctx.beginPath();
-    ctx.arc(x, y, ship.size * 4, 0, 2 * Math.PI);
+    ctx.arc(x, y, ship.size, 0, 2 * Math.PI);
     ctx.fillStyle = color;
     ctx.fill();
   })
 }
 
-function renderBackground(game) {
-  let bgColor = '#55aaff';
-  game.drawCtx.fillStyle = bgColor;
+function renderBackground(game: Game) {
+  let ctx = game.drawCtx;
   
-  game.drawCtx.fillRect(0, 0, game.width, game.height);
+  let bgColor = '#3377aa';
+  ctx.fillStyle = bgColor;
+  
+  ctx.fillRect(0, 0, game.width, game.height);
 }
 
-export function render(game) {
+export function render(game: Game) {
   renderBackground(game);
   renderShips(game);
 }

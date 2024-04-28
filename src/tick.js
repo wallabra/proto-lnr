@@ -1,26 +1,25 @@
-const m_game = require('./game.js');
+// @flow
 const m_render = require('./render.js');
-const m_player = require('./player.js');
-const m_ship = require('./ship.js');
 
 let lastTime = null;
 
-export function tick(game) {
-  requestAnimationFrame(tick, game);
-  let current = Date.now();
+export function tick(game: Game, current: Date) {
+  requestAnimationFrame(tick.bind(null, game));
   
   if (lastTime == null) {
     lastTime = current;
     return;
   }
   
-  let deltaTime = current - lastTime;
+  let deltaTime = (current - lastTime) / 1000;
   lastTime = current;
   
+  //console.log('delta time:', deltaTime);
+
   processTick(game, deltaTime);
 }
 
-function processTick(game, deltaTime) {
+function processTick(game: Game, deltaTime: Dates) {
   m_render.render(game);
   game.tick(deltaTime);
 }
