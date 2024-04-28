@@ -3,8 +3,13 @@ export class Game {
   constructor(canvas: Canvas) {
     this.canvas = canvas;
     this.drawCtx = canvas.getContext('2d');
+    this.player = null;
     
     this.ships = []
+  }
+  
+  setPlayer(player: Player) {
+    this.player = player;
   }
   
   get width() {
@@ -25,8 +30,15 @@ export class Game {
     })
   }
   
+  tickPlayer(deltaTime) {
+    if (this.player != null) {
+      this.player.tick(deltaTime);
+    }
+  }
+  
   /// Order of tick operations
   tick(deltaTime: number) {
+    this.tickPlayer(deltaTime);
     this.tickShips(deltaTime);
   }
 }

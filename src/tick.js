@@ -13,8 +13,6 @@ export function tick(game: Game, current: Date) {
   
   let deltaTime = (current - lastTime) / 1000;
   lastTime = current;
-  
-  //console.log('delta time:', deltaTime);
 
   processTick(game, deltaTime);
 }
