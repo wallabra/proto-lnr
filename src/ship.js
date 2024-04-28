@@ -5,7 +5,7 @@ export class Ship {
   constructor(size) {
     this.pos = Vec2(0, 0);
     this.lastPos = Vec2(-2, 0);
-    this.size = size || 8.0;
+    this.size = size || 12.0;
     this.angle = 0;
     this.angVel = 0;
     this.age = 0;

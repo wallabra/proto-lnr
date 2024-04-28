@@ -6,8 +6,7 @@ function renderShips(game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
   let baseY = game.height / 2;
-  
-  ctx.fillStyle = '#331100';
+
   ctx.strokeStyle = '#005500';
   ctx.lineWidth = 2;
   
@@ -23,8 +22,14 @@ function renderShips(game) {
     let y = baseY + ship.pos.y - cam.y;
     
     // Draw body
+    ctx.fillStyle = '#4a1800';
     ctx.beginPath();
     ctx.ellipse(x, y, ship.size * ship.lateralCrossSection, ship.size, ship.angle, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    ctx.fillStyle = '#331100';
+    ctx.beginPath();
+    ctx.ellipse(x, y, ship.size * ship.lateralCrossSection * 0.8, ship.size * 0.8, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
     
     // Draw forward direction
