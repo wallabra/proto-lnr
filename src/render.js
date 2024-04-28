@@ -102,6 +102,7 @@ function drawTerrainSector(ctx, sx, sy, sdlef, sdtop, sector) {
     renderCanvas.width = m_terrain.SECTOR_REAL_SIZE;
     renderCanvas.height = m_terrain.SECTOR_REAL_SIZE;
     let renderCtx = renderCanvas.getContext('2d');
+    renderCtx.imageSmoothingEnabled = false;
     renderTerrainSector(renderCtx, sector);
     let imgData = renderCanvas.toDataURL('image/png', 'image/octet-scream');
     let imgEl = document.createElement('img');
@@ -115,7 +116,9 @@ function drawTerrainSector(ctx, sx, sy, sdlef, sdtop, sector) {
     image = renderedSectors.get(key);
   }
   
-  ctx.drawImage(image, sdlef, sdtop);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(image, sdlef, sdtop, m_terrain.SECTOR_REAL_SIZE + 1, m_terrain.SECTOR_REAL_SIZE + 1);
+  ctx.imageSmoothingEnabled = true;
 }
 
 function renderTerrain(game: Game) {
@@ -162,7 +165,7 @@ function renderTerrain(game: Game) {
     
     drawTerrainSector(ctx, minSectorX + sx, minSectorY + sy, sdlef, sdtop, sector);
     
-    ctx.strokeStyle = '#ffff00';
+    /*ctx.strokeStyle = '#ffff00';
     ctx.lineWidth = 3;
     ctx.strokeRect(
       sdlef,
@@ -184,12 +187,8 @@ function renderTerrain(game: Game) {
       `(${sx + minSectorX}, ${sy + minSectorY})`,
       sdlef + 25,
       sdtop + 25
-    );
+    );*/
   }
-  
-  // debug: show sector boundaries except edge sectors
-  ctx.strokeStyle = '#ff0000';
-  ctx.lineWidth = 3;
 }
 
 export function render(game: Game) {
