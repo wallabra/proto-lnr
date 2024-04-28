@@ -76,21 +76,46 @@ function interpTerrainColor(game, height) {
 }
 window.interpTerrainColor = interpTerrainColor; //DEBUG
 
-function drawTerrainSector(game, sdlef, sdtop, sector) {
-  let ctx = game.drawCtx;
-  
+let renderedSectors = new Map();
+
+function renderTerrainSector(ctx, sector) {
   for (let tileIdx = 0; tileIdx < m_terrain.SECTOR_AREA; tileIdx++) {
     let tx = tileIdx % m_terrain.SECTOR_SIZE;
     let ty = (tileIdx - tx) / m_terrain.SECTOR_SIZE;
     
     let height = sector.heights[tileIdx];
-    let drawX = sdlef + tx * m_terrain.SECTOR_RES;
-    let drawY = sdtop + ty * m_terrain.SECTOR_RES;
+    let drawX = tx * m_terrain.SECTOR_RES;
+    let drawY = ty * m_terrain.SECTOR_RES;
 
     ctx.lineWidth = 0;
     ctx.fillStyle = interpTerrainColor(game, height);
     ctx.fillRect(drawX, drawY, m_terrain.SECTOR_RES + 1, m_terrain.SECTOR_RES + 1);
   }
+}
+
+function drawTerrainSector(ctx, sx, sy, sdlef, sdtop, sector) {
+  let key = `${sx},${sy}`;
+  let image = 0;
+  
+  if (!renderedSectors.has(key)) {
+    let renderCanvas = document.createElement('canvas');
+    renderCanvas.width = m_terrain.SECTOR_REAL_SIZE;
+    renderCanvas.height = m_terrain.SECTOR_REAL_SIZE;
+    let renderCtx = renderCanvas.getContext('2d');
+    renderTerrainSector(renderCtx, sector);
+    let imgData = renderCanvas.toDataURL('image/png', 'image/octet-scream');
+    let imgEl = document.createElement('img');
+    imgEl.src = imgData;
+    renderedSectors.set(key, imgEl);
+    image = imgEl;
+    renderCanvas.remove();
+  }
+  
+  else {
+    image = renderedSectors.get(key);
+  }
+  
+  ctx.drawImage(image, sdlef, sdtop);
 }
 
 function renderTerrain(game: Game) {
@@ -135,7 +160,7 @@ function renderTerrain(game: Game) {
     
     let sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
     
-    drawTerrainSector(game, sdlef, sdtop, sector);
+    drawTerrainSector(ctx, minSectorX + sx, minSectorY + sy, sdlef, sdtop, sector);
     
     ctx.strokeStyle = '#ffff00';
     ctx.lineWidth = 3;

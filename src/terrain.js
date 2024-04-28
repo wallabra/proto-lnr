@@ -14,7 +14,7 @@ class TerraSector {
 }
 
 export function defPlaceholder(x, y) {
-  return Math.pow((Math.sin((x + 60 * Math.cos(y / 80) ) / 50) + 1) / 2, 2);
+  return Math.pow((Math.sin((60 * (Math.sin(y / 100)+Math.sin(x / 80)) ) / 50) + 1) / 2, 4);
 }
 
 export class Terrain {
