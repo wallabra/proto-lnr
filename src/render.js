@@ -1,27 +1,29 @@
-function renderShips(drawCtx, game) {
+function renderShips(game) {
+  let ctx = game.drawCtx;
+  
   let color = '#331100';
-  let baseX = drawCtx.width / 2;
-  let baseY = drawCtx.height / 2;
+  let baseX = game.width / 2;
+  let baseY = game.height / 2;
   
   game.ships.forEach((ship) => {
     let x = baseX + ship.pos.x;
     let y = baseY + ship.pos.y;
 
-    drawCtx.beginPath();
-    drawCtx.arc(x, y, ship.size * 4, 0, 2 * Math.PI);
-    drawCtx.fillStyle = color;
-    drawCtx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, ship.size * 4, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.fill();
   })
 }
 
-function renderBackground(drawCtx, game) {
+function renderBackground(game) {
   let bgColor = '#55aaff';
-  drawCtx.fillStyle = bgColor;
+  game.drawCtx.fillStyle = bgColor;
   
-  drawCtx.fillRect(0, 0, drawCtx.width, drawCtx.height);
+  game.drawCtx.fillRect(0, 0, game.width, game.height);
 }
 
-export function render(drawCtx, game) {
-  renderBackground(drawCtx, game);
-  renderShips(drawCtx, game);
+export function render(game) {
+  renderBackground(game);
+  renderShips(game);
 }
