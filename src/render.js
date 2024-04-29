@@ -3,6 +3,53 @@ const Vec2 = require('victor');
 const m_terrain = require('./terrain.js');
 
 
+function renderDeathScreen(game) {
+  // render death screen
+  if (game.player != null && game.player.possessed != null) {
+    if (game.player.possessed.dying) {
+      ctx.fillStyle = '#22222210';
+      ctx.fillRect(0, 0, game.width, game.height);
+      
+      ctx.fillStyle = '#ffff00';
+      ctx.font = '60px Verdana serif';
+      ctx.textBaseline = 'center';
+      ctx.textAlign = 'center';
+      ctx.fillText('rip', game.width / 2, game.height / 2);
+    }
+  }
+}
+
+function renderCannonballs(game) {
+  let ctx = game.drawCtx;
+  let baseX = game.width / 2;
+  let baseY = game.height / 2;
+  
+  // set camera
+  let cam = Vec2(0, 0);
+  
+  if (game.player != null && game.player.possessed != null) {
+    cam = game.player.possessed.pos.clone();
+  }
+  
+  // render cannonballs
+  ctx.fillStyle = '#877';
+  
+  game.cannonballs.forEach((cball: Cannonball) => {
+    let x = baseX + cball.pos.x - cam.x;
+    let y = baseY + cball.pos.y - cam.y;
+    let proximityScale = 1 + Math.min(0, Math.log(1 + 0.1 + cball.height - game.waterLevel));
+    
+    ctx.beginPath();
+    ctx.arc(x, y, cball.size * proximityScale, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    ctx.font = '10px Arial';
+    ctx.textBaseline = 'center';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${Math.round(cball.height * 10)}m`, x, y - 25);
+  })
+}
+
 function renderShips(game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
@@ -18,6 +65,7 @@ function renderShips(game) {
     cam = game.player.possessed.pos.clone();
   }
   
+  // render ships
   game.ships.forEach((ship: Ship) => {
     let x = baseX + ship.pos.x - cam.x;
     let y = baseY + ship.pos.y - cam.y;
@@ -224,6 +272,10 @@ function renderTerrain(game: Game) {
   }
 }
 
+function renderUI(game) {
+  renderDeathScreen(game);
+}
+
 export function render(game: Game) {
   game.canvas.width = game.width;
   game.canvas.height = game.height;
@@ -232,4 +284,6 @@ export function render(game: Game) {
   renderBackground(game);
   renderTerrain(game);
   renderShips(game);
+  renderCannonballs(game);
+  renderUI(game);
 }

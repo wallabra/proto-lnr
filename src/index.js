@@ -6,12 +6,15 @@ const m_ai = require('./ai.js');
 const m_player = require('./player.js');
 const m_mouse = require('./mouse.js');
 const m_terrain = require('./terrain.js');
+const m_keyinput = require('./keyinput.js');
 
 m_mouse.registerMouseListener();
 
 const canvas = document.querySelector("#game-canvas");
 const game = new m_game.Game(canvas);
 window.game = game;
+
+m_keyinput.registerKeyListeners(game);
 
 let ship1 = new m_ship.Ship();
 game.addShip(ship1);

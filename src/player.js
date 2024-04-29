@@ -4,6 +4,9 @@ const Vec2 = require('victor');
 export class Player {
   constructor(ship: Ship) {
     this.possessed = ship;
+    this.inputState = null;
+    this.actions = [];
+    this.registerActions();
   }
   
   steer(offs, deltaTime) {
@@ -15,6 +18,31 @@ export class Player {
   approach(offs, deltaTime) {  
     let dot = Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
+  }
+  
+  inputEvent(name, event) {
+    if (name == 'shoot') {
+      this.inputState = 'shoot';
+    }
+  }
+  
+  registerAction(name, callback) {
+    this.actions.push((deltaTime) => {
+      if (this.inputState == name) {
+        this.inputState = null;
+        callback(deltaTime)
+      }
+    });
+  }
+    
+  registerActions() {
+    this.registerAction('shoot', (deltaTime) => {
+      this.possessed.tryShoot();
+    });
+  }
+    
+  doAction(deltaTime) {
+    this.actions.forEach((act) => act());
   }
   
   doSteer(deltaTime) {
@@ -34,6 +62,11 @@ export class Player {
   }
   
   tick(deltaTime) {
+    if (this.possessed.dying) {
+      return;
+    }
+
     this.doSteer(deltaTime);
+    this.doAction(deltaTime);
   }
 }

@@ -1,4 +1,6 @@
 //@flow
+const m_cannonball = require('./cannonball.js');
+
 export class Game {
   constructor(canvas: Canvas) {
     this.canvas = canvas;
@@ -8,6 +10,19 @@ export class Game {
     
     this.ships = [];
     this.ais = [];
+    this.cannonballs = [];
+  }
+  
+  spawnCannonball(ship, timeDelta) {
+    this.cannonballs.push(new m_cannonball.Cannonball(this, ship));
+  }
+  
+  inputHandler(name, event) {
+    if (this.player == null) {
+      return;
+    }
+    
+    this.player.inputEvent(name, event);
   }
   
   setTerrain(terrain: Terrain) {
@@ -50,21 +65,18 @@ export class Game {
   }
   
   tickShips(deltaTime) {
-    let dead = [];
     this.ships.forEach((ship, i) => {
       if (ship.dying) {
-        dead.push(i);
         return;
       }
       ship.tick(this, deltaTime);
-      if (ship.dying) {
-        dead.push(i);
-        return;
-      }
     });
-    dead.reverse().forEach((i) => {
-      this.ships.splice(i, 1);
-    });
+  }
+  
+  tickCannonballs(deltaTime) {
+    this.cannonballs.forEach((c) => {
+      c.tick(deltaTime);
+    })
   }
   
   tickPlayer(deltaTime) {
@@ -79,10 +91,23 @@ export class Game {
     })
   }
   
+  pruneDestroyedCannonballs() {
+    this.cannonballs = this.cannonballs.filter((c) => !c.dying);
+  }
+  
+  pruneDestroyedShips() {
+    this.ships = this.ships.filter((s) => !s.dying);
+  }
+  
   /// Order of tick operations
   tick(deltaTime: number) {
     this.tickPlayer(deltaTime);
     this.tickAIs(deltaTime);
     this.tickShips(deltaTime);
+    this.tickCannonballs(deltaTime);
+    
+    // prunes
+    this.pruneDestroyedShips();
+    this.pruneDestroyedCannonballs();
   }
 }

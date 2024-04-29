@@ -11,14 +11,57 @@ export class Ship {
     this.age = 0;
     this.damage = 0;
     this.dying = false;
+    this.shootCooldown = 0;
+    this.wannaShoot = false;
+    this.lastInstigator = null;
+    this.lastInstigTime = null;
   }
   
+  get instigMemory() {
+    return 12;
+  }
+  
+  setInstigator(instigator) {
+    let instigTime = Date.now();
+    if (this.isntigator != null && instigTime - this.lastInstigTime < 1000 * this.instigMemory) {
+      return;
+    }
+    this.lastInstigator = instigator;
+    this.lastInstigTime = instigTime;
+  }
+
   damageShip(damage) {
     this.damage += Math.max(0, damage);
     
     if (this.damage > this.maxDmg) {
       this.die();
     }
+  }
+  
+  tryShoot() {
+    if (this.shootCooldown > 0) {
+      // can't shoot, waiting on cooldown
+      return;
+    }
+    
+    this.wannaShoot = true;
+    this.shootCooldown = this.shootRate;
+  }
+  
+  checkWannaShoot(game, timeDelta) {
+    if (this.wannaShoot) {
+      this.wannaShoot = false;
+      this.shoot(game, timeDelta);
+    }
+  }
+  
+  shoot(game, timeDelta) {
+    game.spawnCannonball(this, timeDelta);
+  }
+  
+  get shootRate() {
+    // TODO: depend on ship makeup
+    return 2.0;
   }
   
   get maxDmg() {
@@ -206,13 +249,27 @@ export class Ship {
     })
   }
   
+  cooldownCannons(deltaTime) {
+    this.shootCooldown -= deltaTime;
+    if (this.shootCooldown < 0) this.shootCooldown = 0;
+  }
+  
+  prnueDeadInstigator() {
+    if (this.instigator != null && this.instigator.dying) {
+      this.instigator == null;
+    }
+  }
+  
   // TODO: split physics code into separate subsystem, integrated w/ ships & other objects
   tick(game, deltaTime) {
+    this.cooldownCannons(deltaTime);
+    this.checkWannaShoot(game, deltaTime);
     this.age += deltaTime;
     this.physAngle(deltaTime);
     this.physVel(deltaTime);
     this.checkShipCollisions(deltaTime, game);
     this.physDrag(deltaTime, game);
     this.slideDownLand(deltaTime, game);
+    this.prnueDeadInstigator();
   }
 }
