@@ -22,6 +22,6 @@ export function registerMouseListener() {
   }
   
   function onMouseUp(e) {
-    mouseState.steering = true;
+    mouseState.steering = false;
   }
 }
