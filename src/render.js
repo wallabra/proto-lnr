@@ -99,7 +99,7 @@ function renderShips(game) {
     
     dmgAlpha = 1 - dmgAlpha;
     
-    ctx.fillStyle = '#FF330088';
+    ctx.fillStyle = '#33AA0088';
     ctx.fillRect(x - 50, y - ship.size - 30, 100 * dmgAlpha, 3)
     ctx.fillStyle = '#00000088';
     ctx.fillRect(x - 50 + 100 * dmgAlpha, y - ship.size - 30, 100 * (1 - dmgAlpha), 3)
