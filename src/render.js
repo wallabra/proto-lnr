@@ -42,11 +42,6 @@ function renderCannonballs(game) {
     ctx.beginPath();
     ctx.arc(x, y, cball.size * proximityScale, 0, 2 * Math.PI);
     ctx.fill();
-    
-    ctx.font = '10px Arial';
-    ctx.textBaseline = 'center';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.round(cball.height * 10)}m`, x, y - 25);
   })
 }
 
@@ -69,14 +64,15 @@ function renderShips(game) {
   game.ships.forEach((ship: Ship) => {
     let x = baseX + ship.pos.x - cam.x;
     let y = baseY + ship.pos.y - cam.y;
+    let isPlayer = game.player != null && game.player.possessed === ship;
       
     // Draw body
-    ctx.fillStyle = '#4a1800';
+    ctx.fillStyle = isPlayer ? '#227766' : '#4a1800';
     ctx.beginPath();
     ctx.ellipse(x, y, ship.size * ship.lateralCrossSection, ship.size, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
       
-    ctx.fillStyle = '#331100';
+    ctx.fillStyle = isPlayer ? '#115533' : '#331100';
     ctx.beginPath();
     ctx.ellipse(x, y, ship.size * ship.lateralCrossSection * 0.8, ship.size * 0.8, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
