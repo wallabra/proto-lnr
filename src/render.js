@@ -5,17 +5,17 @@ const m_terrain = require('./terrain.js');
 
 function renderDeathScreen(game) {
   // render death screen
-  if (game.player != null && game.player.possessed != null) {
-    if (game.player.possessed.dying) {
-      ctx.fillStyle = '#22222210';
-      ctx.fillRect(0, 0, game.width, game.height);
-      
-      ctx.fillStyle = '#ffff00';
-      ctx.font = '60px Verdana serif';
-      ctx.textBaseline = 'center';
-      ctx.textAlign = 'center';
-      ctx.fillText('rip', game.width / 2, game.height / 2);
-    }
+  let ctx = game.drawCtx;
+  
+  if (game.player != null && game.player.possessed != null && game.player.possessed.dying) {
+    ctx.fillStyle = '#22222240';
+    ctx.fillRect(0, 0, game.width, game.height);
+  
+    ctx.fillStyle = '#ffff00';
+    ctx.font = '60px Verdana serif';
+    ctx.textBaseline = 'center';
+    ctx.textAlign = 'center';
+    ctx.fillText('rip', game.width / 2, game.height / 2);
   }
 }
 
