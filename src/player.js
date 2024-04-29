@@ -17,19 +17,23 @@ export class Player {
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
   
-  tick(deltaTime) {
-    if (window.mouseX == null) {
+  doSteer(deltaTime) {
+    if (!window.mouseState.steering) {
       return;
     }
     
-    let offs = Vec2(window.mouseX, window.mouseY);
+    let offs = Vec2(window.mouseState.x, window.mouseState.y);
     
-    if (offs.length() < 100) {
+    if (offs.length() < this.possessed.size * this.possessed.lateralCrossSection * 2) {
       // close enough
       return;
     }
     
     this.steer(offs, deltaTime);
     this.approach(offs, deltaTime);
+  }
+  
+  tick(deltaTime) {
+    this.doSteer(deltaTime);
   }
 }
