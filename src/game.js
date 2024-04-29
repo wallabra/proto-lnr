@@ -6,7 +6,8 @@ export class Game {
     this.player = null;
     this.terrain = null;
     
-    this.ships = []
+    this.ships = [];
+    this.ais = [];
   }
   
   setTerrain(terrain: Terrain) {
@@ -32,6 +33,10 @@ export class Game {
     this.player = player;
   }
   
+  addAI(ai: AI) {
+    this.ais.push(ai);
+  }
+  
   get width() {
     return this.canvas.getBoundingClientRect().width;
   }
@@ -46,7 +51,7 @@ export class Game {
   
   tickShips(deltaTime) {
     this.ships.forEach((ship) => {
-      ship.tick(deltaTime);
+      ship.tick(this, deltaTime);
     })
   }
   
@@ -56,9 +61,16 @@ export class Game {
     }
   }
   
+  tickAIs(deltaTime) {
+    this.ais.forEach((ai) => {
+      ai.tick(this, deltaTime);
+    })
+  }
+  
   /// Order of tick operations
   tick(deltaTime: number) {
     this.tickPlayer(deltaTime);
+    this.tickAIs(deltaTime);
     this.tickShips(deltaTime);
   }
 }

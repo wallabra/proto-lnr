@@ -9,6 +9,11 @@ export class Ship {
     this.angle = 0;
     this.angVel = 0;
     this.age = 0;
+    this.damage = 0;
+  }
+  
+  damageShip(damage) {
+    this.damage += Math.max(0, damage);
   }
   
   get thrust() {
@@ -82,20 +87,117 @@ export class Ship {
     this.lastPos = lastPos;
   }
   
-  physDrag(deltaTime) {
+  physDrag(deltaTime, game) {
+    let height = game.terrain.heightAt(this.pos.x, this.pos.y);
     let drag = this.drag;
+    
+    if (height > game.waterLevel) {
+      drag *= 3;
+    }
+    
     let currVel = this.vel;
     let slow = Vec2(deltaTime * drag, deltaTime * drag).multiply(currVel);
 
     this.lastPos.add(slow);
   }
   
+  heightGradient(game) {
+    return Vec2(
+      game.terrain.heightAt(this.pos.x+0.5, this.pos.y) - game.terrain.heightAt(this.pos.x-0.5, this.pos.y),
+      game.terrain.heightAt(this.pos.x, this.pos.y+0.5) - game.terrain.heightAt(this.pos.x, this.pos.y-0.5)
+    );
+  }
+  
+  slideDownLand(deltaTime, game) {
+    let height = game.terrain.heightAt(this.pos.x, this.pos.y);
+    if (height <= game.waterLevel) {
+      return;
+    }
+    let dHeight = this.heightGradient(game);
+    this.applyForce(deltaTime, Vec2(-dHeight.x*100, -dHeight.y*100 ));
+    
+    let steepness = dHeight.length();
+    this.damageShip((3 + steepness * 2) * deltaTime * 5);
+  }
+  
+  nearShip(ship) {
+    let r1 = this.size * this.lateralCrossSection;
+    let r2 = ship.size * ship.lateralCrossSection;
+    
+    let dist = this.pos.clone().subtract(ship.pos).length();
+    
+    return dist <= r1 + r2;
+  }
+  
+  intermediaryRadius(angle) {
+    angle = (angle - this.angle + Math.PI) % (Math.PI * 2) - Math.PI;
+    return this.size * this.size * this.lateralCrossSection / Math.sqrt(
+      Math.pow(this.size * this.lateralCrossSection, 2) * Math.pow(Math.sin(angle), 2) +
+      Math.pow(this.size, 2) * Math.pow(Math.cos(angle), 2)
+    )
+  } 
+  
+  touchingShip(ship) {
+    if (!this.nearShip(ship)) {
+      return 0;
+    }
+    
+    let angle1 = ship.pos.clone().subtract(this.pos).angle();
+    let angle2 = this.pos.clone().subtract(ship.pos).angle();
+    
+    let r1 = this.intermediaryRadius(angle1);
+    let r2 = ship.intermediaryRadius(angle2);
+    
+    let dist = this.pos.clone().subtract(ship.pos).length();
+    
+    if (dist > r1 + r2) {
+      return 0;
+    }
+    
+    return r1 + r2 - dist;
+  }
+  
+  checkShipCollision(deltaTime, ship) {
+    let closeness = this.touchingShip(ship);
+    if (closeness <= 0) {
+      return;
+    }
+    
+    let offs = this.pos.clone().subtract(ship.pos);
+    offs.multiply(Vec2(deltaTime, deltaTime));
+    
+    let offsNorm = offs.clone().normalize();
+    
+    this.applyForce(deltaTime * 5, offs.clone());
+    ship.applyForce(deltaTime * 5, offs.clone().invert());
+    this.damageShip(closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel));
+    ship.damageShip(closeness * 10 * deltaTime * offsNorm.invert().dot(this.vel));
+  }
+  
+  checkShipCollisions(deltaTime, game) {
+    let foundSelf = false;
+    
+    game.ships.forEach((ship) => {
+      if (foundSelf) {
+        return;
+      }
+      
+      if (ship === this) {
+        foundSelf = true;
+        return;
+      }
+      
+      this.checkShipCollision(deltaTime, ship);
+    })
+  }
+  
   // TODO: split physics code into separate subsystem, integrated w/ ships & other objects
-  tick(deltaTime) {
+  tick(game, deltaTime) {
     this.age += deltaTime;
     this.physAngle(deltaTime);
     this.physVel(deltaTime);
-    // TODO: check collisions
-    this.physDrag(deltaTime);
+    this.checkShipCollisions(deltaTime, game);
+    this.physDrag(deltaTime, game);
+    this.slideDownLand(deltaTime, game);
   }
 }

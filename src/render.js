@@ -2,6 +2,7 @@
 const Vec2 = require('victor');
 const m_terrain = require('./terrain.js');
 
+
 function renderShips(game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
@@ -20,22 +21,49 @@ function renderShips(game) {
   game.ships.forEach((ship: Ship) => {
     let x = baseX + ship.pos.x - cam.x;
     let y = baseY + ship.pos.y - cam.y;
-    
+      
     // Draw body
     ctx.fillStyle = '#4a1800';
     ctx.beginPath();
     ctx.ellipse(x, y, ship.size * ship.lateralCrossSection, ship.size, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
-    
+      
     ctx.fillStyle = '#331100';
     ctx.beginPath();
     ctx.ellipse(x, y, ship.size * ship.lateralCrossSection * 0.8, ship.size * 0.8, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
-    
+      
     // Draw forward direction
     ctx.beginPath();
     ctx.moveTo(x, y);
     let to = Vec2(ship.size * ship.lateralCrossSection).rotateBy(ship.angle).add(Vec2(x, y));
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  })
+  
+  game.ships.forEach((ship: Ship) => {
+    let x = baseX + ship.pos.x - cam.x;
+    let y = baseY + ship.pos.y - cam.y;
+    
+    // Draw damage bar
+    let maxDmg = 20 * ship.size; // WIP: change maxDmg in damage bar rendering
+    let dmgAlpha = ship.damage / maxDmg;
+    
+    if (dmgAlpha > 1) {
+      dmgAlpha = 1;
+    }
+    
+    ctx.fillStyle = '#FF330088';
+    ctx.fillRect(x - 50, y - ship.size - 30, 100 * dmgAlpha, 3)
+    ctx.fillStyle = '#00000088';
+    ctx.fillRect(x - 50 + 100 * dmgAlpha, y - ship.size - 30, 100 * (1 - dmgAlpha), 3)
+    
+    // Draw terrain gradient vector
+    ctx.strokeStyle = '#88008860';
+    ctx.strokeWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    let to = ship.heightGradient(game).multiply(Vec2(5000, 5000)).add(Vec2(x, y));
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
   })
@@ -200,6 +228,7 @@ export function render(game: Game) {
   game.canvas.width = game.width;
   game.canvas.height = game.height;
   
+  game.drawCtx.clearRect(0, 0, game.width, game.height);
   renderBackground(game);
   renderTerrain(game);
   renderShips(game);
