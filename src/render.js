@@ -19,6 +19,19 @@ function renderDeathScreen(game) {
   }
 }
 
+function renderKillScore(game) {
+  // render kill score
+  let ctx = game.drawCtx;
+  
+  if (game.player != null && game.player.possessed != null) {
+    ctx.fillStyle = '#0099ff';
+    ctx.font = '30px Verdana serif';
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    ctx.fillText(`K: ${game.player.possessed.killScore}`, 40, 40);
+  }
+}
+
 function renderCannonballs(game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
@@ -37,7 +50,7 @@ function renderCannonballs(game) {
   game.cannonballs.forEach((cball: Cannonball) => {
     let x = baseX + cball.pos.x - cam.x;
     let y = baseY + cball.pos.y - cam.y;
-    let proximityScale = 1 + Math.min(0, Math.log(1 + 0.1 + cball.height - game.waterLevel));
+    let proximityScale = 1 + Math.min(0, Math.log(2 + 20 * cball.height));
     
     ctx.beginPath();
     ctx.arc(x, y, cball.size * proximityScale, 0, 2 * Math.PI);
@@ -271,6 +284,7 @@ function renderTerrain(game: Game) {
 }
 
 function renderUI(game) {
+  renderKillScore(game);
   renderDeathScreen(game);
 }
 

@@ -6,8 +6,8 @@ export class Cannonball {
     this.instigator = ship;
     this.pos = ship.pos.clone();
     this.lastPos = this.pos.clone().subtract(Vec2(speed != null ? speed : 5, 0).rotateBy(ship.angle));
-    this.height = game.waterLevel;
-    this.vspeed = vspeed != null ? vspeed : 2;
+    this.height = game.waterLevel + 0.02;
+    this.vspeed = vspeed != null ? vspeed : 4;
     this.game = game;
     this.dying = false;
   }
@@ -93,8 +93,11 @@ export class Cannonball {
       return false;
     }
     
-    ship.damageShip(this.damage);
     ship.setInstigator(this.instigator);
+    ship.damageShip(this.damage);
+    if (ship.dying) {
+      this.instigator.killScore++;
+    }
     this.destroy();
     
     return true;
@@ -116,6 +119,12 @@ export class Cannonball {
     }
   }
   
+  checkTerrainCollision() {
+    if (this.height < this.game.terrain.heightAt(this.pos.x, this.pos.y)) {
+      this.destroy();
+    }
+  }
+  
   tick(deltaTime) {
     if (this.dying) {
       return;
@@ -123,6 +132,12 @@ export class Cannonball {
     
     this.physGravity(deltaTime);
     this.physVel(deltaTime);
+    this.checkTerrainCollision();
+    
+    if (this.dying) {
+      return;
+    }
+    
     this.checkShipCollisions(deltaTime);
     
     if (this.dying) {

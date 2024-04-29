@@ -15,6 +15,7 @@ export class Ship {
     this.wannaShoot = false;
     this.lastInstigator = null;
     this.lastInstigTime = null;
+    this.killScore = 0;
   }
   
   get instigMemory() {
@@ -70,7 +71,7 @@ export class Ship {
   }
   
   die() {
-    // TODO: trigger death fx
+    // TODO: trigger death FX
     this.dying = true;
   }
   
@@ -233,9 +234,9 @@ export class Ship {
     
     this.applyForce(deltaTime * 5, offs.clone());
     ship.applyForce(deltaTime * 5, offs.clone().invert());
+    ship.setInstigator(this);
     this.damageShip(closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel));
     ship.damageShip(closeness * 10 * deltaTime * offsNorm.invert().dot(this.vel));
-    ship.setInstigator(this);
   }
   
   checkShipCollisions(deltaTime, game) {
