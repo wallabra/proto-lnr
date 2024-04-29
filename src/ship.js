@@ -116,6 +116,11 @@ export class Ship {
     this.angVel += angOffs * this.vel.length();
   }
   
+  steerToward(otherPos) {
+    let angleTarg = otherPos.clone().subtract(this.pos).angle();
+    this.steer(angleTarg);
+  }
+  
   applyForce(deltaTime, force) {
     this.lastPos.subtract(force.clone().divide(Vec2(this.weight, this.weight)));
   }
@@ -230,6 +235,7 @@ export class Ship {
     ship.applyForce(deltaTime * 5, offs.clone().invert());
     this.damageShip(closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel));
     ship.damageShip(closeness * 10 * deltaTime * offsNorm.invert().dot(this.vel));
+    ship.setInstigator(this);
   }
   
   checkShipCollisions(deltaTime, game) {

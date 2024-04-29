@@ -4,6 +4,7 @@
 export class AIController {
   constructor(ship: Ship) {
     this.possessed = ship;
+    this.lastDamage = 0.5;
   }
   
   tick(game, deltaTime) {
@@ -13,6 +14,13 @@ export class AIController {
       this.possessed.thrustForward(deltaTime, 0.2);
     }
     else {
+      if (this.possessed.lastInstigator != null) {
+        let targetAngle = this.possessed.lastInstigator.pos.clone().subtract(this.possessed.pos).angle();
+        this.possessed.steer(targetAngle);
+        if (Math.abs((targetAngle - this.possessed.angle + Math.PI) % (Math.PI * 2) - Math.PI) < Math.PI / 4) {
+          this.possessed.tryShoot();
+        }
+      }
       this.possessed.thrustForward(deltaTime, 0.6);
     }
   }

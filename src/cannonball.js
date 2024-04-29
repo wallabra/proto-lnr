@@ -29,7 +29,7 @@ export class Cannonball {
   
   get damageFactor() {
     // TODO: make depend on munition type
-    return 5;
+    return 15;
   }
   
   get damage() {
