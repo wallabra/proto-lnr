@@ -46,7 +46,7 @@ function renderShips(game) {
     let y = baseY + ship.pos.y - cam.y;
     
     // Draw damage bar
-    let maxDmg = 20 * ship.size; // WIP: change maxDmg in damage bar rendering
+    let maxDmg = ship.maxDmg;
     let dmgAlpha = ship.damage / maxDmg;
     
     if (dmgAlpha > 1) {

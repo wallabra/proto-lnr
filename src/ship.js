@@ -10,10 +10,25 @@ export class Ship {
     this.angVel = 0;
     this.age = 0;
     this.damage = 0;
+    this.dying = false;
   }
   
   damageShip(damage) {
     this.damage += Math.max(0, damage);
+    
+    if (this.damage > this.maxDmg) {
+      this.die();
+    }
+  }
+  
+  get maxDmg() {
+    // TODO: make maxDmg depend on ship makeup
+    return 20 * this.size;
+  }
+  
+  die() {
+    // TODO: trigger death fx
+    this.dying = true;
   }
   
   get thrust() {

@@ -50,9 +50,21 @@ export class Game {
   }
   
   tickShips(deltaTime) {
-    this.ships.forEach((ship) => {
+    let dead = [];
+    this.ships.forEach((ship, i) => {
+      if (ship.dying) {
+        dead.push(i);
+        return;
+      }
       ship.tick(this, deltaTime);
-    })
+      if (ship.dying) {
+        dead.push(i);
+        return;
+      }
+    });
+    dead.reverse().forEach((i) => {
+      this.ships.splice(i, 1);
+    });
   }
   
   tickPlayer(deltaTime) {
