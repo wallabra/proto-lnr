@@ -7,6 +7,7 @@ const m_player = require('./player.js');
 const m_mouse = require('./mouse.js');
 const m_terrain = require('./terrain.js');
 const m_keyinput = require('./keyinput.js');
+const Vec2 = require('victor');
 
 m_mouse.registerMouseListener();
 
@@ -19,10 +20,10 @@ m_keyinput.registerKeyListeners(game);
 let ship1 = new m_ship.Ship();
 game.addShip(ship1);
 
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < 40; i++) {
   let aiship = new m_ship.Ship();
-  aiship.pos.y += 25 * i;
-  aiship.lastPos.y += 25 * i;
+  aiship.pos.add(Vec2(Math.random() * 100 + 20, 0).rotateBy(Math.random() * Math.PI * 2));
+  aiship.lastPos = aiship.pos.clone();
   aiship.angle += Math.PI / 5 * i;
   game.addShip(aiship);
   game.addAI(new m_ai.AIController(aiship));
