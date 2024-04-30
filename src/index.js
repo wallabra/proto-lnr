@@ -17,7 +17,7 @@ window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
-let ship1 = game.makeShip();
+let ship1 = game.makeShip(Vec2(0, -350));
 
 let toSpawn = 40;
 

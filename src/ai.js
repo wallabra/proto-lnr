@@ -10,7 +10,7 @@ export class AIController {
   tick(game, deltaTime) {
     if (game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) > game.waterLevel * 0.2) {
       let dHeight = this.possessed.heightGradient(game);
-      this.possessed.steer(deltaTime, dHeight.invert().angle() - this.possessed.angle);
+      this.possessed.steer(deltaTime, dHeight.invert().angle());
       this.possessed.thrustForward(deltaTime, 0.2);
     }
     else {

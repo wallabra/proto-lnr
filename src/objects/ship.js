@@ -3,7 +3,7 @@ var Vec2 = require('victor');
 
 export class Ship {
   constructor(game, pos, params) {
-    params = params || {};
+    if (params == null) params = {};
     params.size = params.size || 12;
     this.game = game;
     this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
@@ -163,10 +163,7 @@ export class Ship {
   }
   
   heightGradient(game) {
-    return Vec2(
-      game.terrain.heightAt(this.pos.x+0.5, this.pos.y) - game.terrain.heightAt(this.pos.x-0.5, this.pos.y),
-      game.terrain.heightAt(this.pos.x, this.pos.y+0.5) - game.terrain.heightAt(this.pos.x, this.pos.y-0.5)
-    );
+    return this.game.terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
   nearShip(ship) {

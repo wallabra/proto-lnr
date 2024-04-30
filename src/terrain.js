@@ -14,13 +14,20 @@ class TerraSector {
 }
 
 export function defPlaceholder(x, y) {
-  return Math.pow((Math.sin((60 * (Math.sin(y / 100)+Math.sin(x / 80)) ) / 50) + 1) / 2, 4);
+  return Math.pow(Math.min(1, Math.max(0, 1 - Math.sqrt((x*x) + (y*y)) / 900)), 5);
 }
 
 export class Terrain {
   constructor(definition) {
     this.definition = definition;
     this.sectors = new Map();
+  }
+  
+  gradientAt(x, y) {
+    return Vec2(
+      game.terrain.heightAt(x+0.5, y) - game.terrain.heightAt(x-0.5, y),
+      game.terrain.heightAt(x, y+0.5) - game.terrain.heightAt(x, y-0.5)
+    );
   }
   
   heightAt(x, y) {

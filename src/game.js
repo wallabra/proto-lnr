@@ -26,10 +26,16 @@ export class Game {
   }
   
   spawnCannonball(ship, params) {
-    this.cannonballs.push(new m_cannonball.Cannonball(this, ship, {
-      vel: Vec2(params.speed != null ? params.speed : 8, 0).rotateBy(params.angle != null ? params.angle : ship.angle),
-      size: params.size != null ? params.size : 3.5
-    }));
+    if (params == null) params = {};
+    if (params.speed == null) params.speed = 2;
+    if (params.angle == null) params.angle = ship.angle;
+    if (params.vel == null) params.vel = Vec2(params.speed, 0).rotateBy(params.angle).add(ship.vel);
+    if (params.size == null) params.size = 3.5;
+    if (params.vspeed == null) params.vspeed = 1.3;
+    if (params.height == null) params.height = ship.height + 0.2;
+    if (params.buoyancy == null) params.buoyancy = 0;
+    
+    this.cannonballs.push(new m_cannonball.Cannonball(this, ship, params));
   }
   
   inputHandler(name, event) {

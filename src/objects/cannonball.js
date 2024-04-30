@@ -88,7 +88,7 @@ export class Cannonball {
   }
   
   checkShipCollisions(deltaTime) {
-    if (this.height > 4) {
+    if (this.height > 0.7) {
       return;
     }
     
@@ -104,7 +104,7 @@ export class Cannonball {
   }
   
   checkTerrainCollision() {
-    if (this.height < this.game.terrain.heightAt(this.pos.x, this.pos.y)) {
+    if (this.height < Math.max(this.game.waterLevel, this.phys.floor)) {
       this.destroy();
     }
   }

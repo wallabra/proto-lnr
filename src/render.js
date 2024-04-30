@@ -45,13 +45,31 @@ function renderCannonballs(game) {
   }
   
   // render cannonballs
-  ctx.fillStyle = '#877';
   
   game.cannonballs.forEach((cball: Cannonball) => {
     let x = baseX + cball.pos.x - cam.x;
     let y = baseY + cball.pos.y - cam.y;
-    let proximityScale = 1 + Math.min(0, Math.log(2 + 20 * cball.height));
+    let camheight = 4;
+    let cdist = Vec2(x, y).subtract(Vec2(game.width / 2, game.height / 2)).length() / Math.min(game.width, game.height) * 0.5;
+    let hdist = camheight - cball.height;
+    let proximityScale = camheight / Vec2(hdist + cdist).length();
+    let size = cball.size * proximityScale;
     
+    if (hdist < 0.1) {
+      return;
+    }
+    
+    let hoffs = cball.height * 20 + 5;
+    let shoffs = Math.max(0, hoffs - Math.max(cball.phys.floor, game.waterLevel) * 20);
+    
+    // draw shadow
+    ctx.fillStyle = '#0008';
+    ctx.beginPath();
+    ctx.arc(x, y + shoffs, cball.size * proximityScale, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // draw cball
+    ctx.fillStyle = '#877';
     ctx.beginPath();
     ctx.arc(x, y, cball.size * proximityScale, 0, 2 * Math.PI);
     ctx.fill();
@@ -82,6 +100,19 @@ function renderShips(game) {
     let hdist = camheight - ship.height;
     let proximityScale = camheight / hdist;
     let size = ship.size * proximityScale;
+      
+    if (hdist < 0.1) {
+      return;
+    }
+      
+    let hoffs = (ship.height * 20) + 10;
+    let shoffs = Math.max(0, hoffs - Math.max(ship.phys.floor, game.waterLevel) * 20);
+    
+    // Draw shadow
+    ctx.fillStyle = '#0008';
+    ctx.beginPath();
+    ctx.ellipse(x, y + shoffs, size * ship.lateralCrossSection, size, ship.angle, 0, 2 * Math.PI);
+    ctx.fill();
       
     // Draw body
     ctx.fillStyle = isPlayer ? '#227766' : '#4a1800';
@@ -156,8 +187,8 @@ function interpTerrainColor(game, height) {
   let rgb1 = [0, 10, 45];
   let rgb2 = [30, 60, 70]; 
   // above waterLevel
-  let rgb3 = [80, 140, 40]; 
-  let rgb4 = [200, 200, 200];
+  let rgb3 = [50, 90, 30]; 
+  let rgb4 = [180, 182, 197];
   
   let from = null;
   let to = null;
@@ -176,15 +207,24 @@ function interpTerrainColor(game, height) {
   }
   
   // lerp color
-  let rgbFinal = from.map((f, i) => f * (1 - alpha) + to[i] * alpha);
+  let rgbFinal = interpColor(from, to, alpha);
   
-  return `rgb(${rgbFinal.join(', ')})`;
+  return rgbFinal;
 }
+
+function rgbString(rgb) {
+  return `rgb(${rgb.join(', ')})`
+}
+
+function interpColor(from, to, alpha) {
+  return from.map((f, i) => f * (1 - alpha) + to[i] * alpha);
+}
+
 window.interpTerrainColor = interpTerrainColor; //DEBUG
 
 let renderedSectors = new Map();
 
-function renderTerrainSector(ctx, sector) {
+function renderTerrainSector(ctx, cx, cy, game, sector) {
   for (let tileIdx = 0; tileIdx < m_terrain.SECTOR_AREA; tileIdx++) {
     let tx = tileIdx % m_terrain.SECTOR_SIZE;
     let ty = (tileIdx - tx) / m_terrain.SECTOR_SIZE;
@@ -192,24 +232,32 @@ function renderTerrainSector(ctx, sector) {
     let height = sector.heights[tileIdx];
     let drawX = tx * m_terrain.SECTOR_RES;
     let drawY = ty * m_terrain.SECTOR_RES;
+    
+    let gradient = game.terrain.gradientAt(cx + tx * m_terrain.SECTOR_RES, cy + ty * m_terrain.SECTOR_RES);
+    let shadowness = height < game.waterLevel ? 0 : Math.max(0, 30 * gradient.dot(Vec2(0, -1)));
 
     ctx.lineWidth = 0;
-    ctx.fillStyle = interpTerrainColor(game, height);
+    ctx.fillStyle = rgbString(interpColor(interpTerrainColor(game, height), [12, 12, 12], shadowness));
     ctx.fillRect(drawX, drawY, m_terrain.SECTOR_RES + 1, m_terrain.SECTOR_RES + 1);
   }
 }
 
-function drawTerrainSector(ctx, sx, sy, sdlef, sdtop, sector) {
+function drawTerrainSector(ctx, sx, sy, game, sdlef, sdtop, sector) {
   let key = `${sx},${sy}`;
   let image = 0;
   
   if (!renderedSectors.has(key)) {
+    let x = sx * m_terrain.SECTOR_REAL_SIZE;
+    let y = sx * m_terrain.SECTOR_REAL_SIZE;
+    
     let renderCanvas = document.createElement('canvas');
     renderCanvas.width = m_terrain.SECTOR_REAL_SIZE;
     renderCanvas.height = m_terrain.SECTOR_REAL_SIZE;
     let renderCtx = renderCanvas.getContext('2d');
     renderCtx.imageSmoothingEnabled = false;
-    renderTerrainSector(renderCtx, sector);
+    
+    renderTerrainSector(renderCtx, x, y, game, sector);
+    
     let imgData = renderCanvas.toDataURL('image/png', 'image/octet-scream');
     let imgEl = document.createElement('img');
     imgEl.src = imgData;
@@ -269,7 +317,7 @@ function renderTerrain(game: Game) {
     
     let sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
     
-    drawTerrainSector(ctx, minSectorX + sx, minSectorY + sy, sdlef, sdtop, sector);
+    drawTerrainSector(ctx, minSectorX + sx, minSectorY + sy, game, sdlef, sdtop, sector);
     
     /*ctx.strokeStyle = '#ffff00';
     ctx.lineWidth = 3;
@@ -306,7 +354,7 @@ export function render(game: Game) {
   game.canvas.width = game.width;
   game.canvas.height = game.height;
   
-  game.drawCtx.clearRect(0, 0, game.width, game.height);
+  //game.drawCtx.clearRect(0, 0, game.width, game.height);
   renderBackground(game);
   renderTerrain(game);
   renderShips(game);

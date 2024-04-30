@@ -24,7 +24,7 @@ export class PhysicsSimulation {
 
 export class PhysicsObject {
   constructor(game, pos, params) {
-    params = params || {};
+    if (params == null) params = {};
     this.game = game;
     this.pos = pos;
     this.lastPos = pos.clone();
@@ -34,14 +34,14 @@ export class PhysicsObject {
     this.angVel = 0;
     this.age = 0;
     this.height = params.height != null ? params.height : Math.max(game.waterLevel, this.floor);
-    this.vspeed = params.vspeed || 0;
+    this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
     this.baseDrag = 0.6;
     this.baseFriction = 0.5;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
-    this.gravity = params.gravity != null ? params.gravity : 10;
-    this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.2;
+    this.gravity = params.gravity != null ? params.gravity : 1.5;
+    this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.06;
   }
   
   get floor() {
@@ -55,7 +55,7 @@ export class PhysicsObject {
       return;
     }
     let dHeight = this.heightGradient();
-    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 10, -dHeight.y * this.gravity * this.weight * 10));
+    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 50, -dHeight.y * this.gravity * this.weight * 50));
   }
   
   get vel() {
@@ -143,19 +143,19 @@ export class PhysicsObject {
   }
   
   physGravity(deltaTime) {
-    let floor = this.floor;
-    
-    let inWater = floor < this.game.waterLevel;
-
     this.height += this.vspeed * deltaTime;
+
+    let floor = this.floor;
+    let inWater = floor < this.game.waterLevel;
   
     if (this.height < floor) {
       this.height = floor;
       this.vspeed = 0;
+      return;
     }
     
-    else if (inWater && this.height < this.game.waterLevel) {
-      this.vspeed += this.buoyancy;
+    if (inWater && this.height < this.game.waterLevel) {
+      this.vspeed += this.buoyancy * deltaTime;
     }
     
     else {
