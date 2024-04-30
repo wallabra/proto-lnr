@@ -78,16 +78,20 @@ function renderShips(game) {
     let x = baseX + ship.pos.x - cam.x;
     let y = baseY + ship.pos.y - cam.y;
     let isPlayer = game.player != null && game.player.possessed === ship;
+    let camheight = 4;
+    let hdist = camheight - ship.height;
+    let proximityScale = camheight / hdist;
+    let size = ship.size * proximityScale;
       
     // Draw body
     ctx.fillStyle = isPlayer ? '#227766' : '#4a1800';
     ctx.beginPath();
-    ctx.ellipse(x, y, ship.size * ship.lateralCrossSection, ship.size, ship.angle, 0, 2 * Math.PI);
+    ctx.ellipse(x, y, size * ship.lateralCrossSection, size, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
       
     ctx.fillStyle = isPlayer ? '#115533' : '#331100';
     ctx.beginPath();
-    ctx.ellipse(x, y, ship.size * ship.lateralCrossSection * 0.8, ship.size * 0.8, ship.angle, 0, 2 * Math.PI);
+    ctx.ellipse(x, y, size * ship.lateralCrossSection * 0.8, size * 0.8, ship.angle, 0, 2 * Math.PI);
     ctx.fill();
       
     // Draw forward direction
@@ -96,6 +100,16 @@ function renderShips(game) {
     let to = Vec2(ship.size * ship.lateralCrossSection).rotateBy(ship.angle).add(Vec2(x, y));
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
+    
+    // Draw height
+    /*
+    ctx.font = '12px Arial';
+    ctx.fillStyle = '#220000';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.strokeText(Math.round((ship.height - ship.floor) * 10)+'m', x - 15, y - 15);
+    ctx.fillText(Math.round((ship.height - ship.floor) * 10)+'m', x - 15, y - 15);
+    */
   })
   
   game.ships.forEach((ship: Ship) => {

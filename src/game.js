@@ -2,14 +2,17 @@
 const m_cannonball = require('./objects/cannonball.js');
 const m_ship = require('./objects/ship.js');
 const m_physics = require('./objects/physics.js');
+const m_terrain = require('./terrain.js');
 
 export class Game {
-  constructor(canvas: Canvas) {
+  constructor(canvas: Canvas, terraDef) {
     this.canvas = canvas;
     this.drawCtx = canvas.getContext('2d');
     this.physics = new m_physics.PhysicsSimulation(this);
     this.player = null;
     this.terrain = null;
+    
+    this.setTerrain(new m_terrain.Terrain(terraDef));
     
     this.ships = [];
     this.ais = [];

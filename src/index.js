@@ -12,7 +12,7 @@ const Vec2 = require('victor');
 m_mouse.registerMouseListener();
 
 const canvas = document.querySelector("#game-canvas");
-const game = new m_game.Game(canvas);
+const game = new m_game.Game(canvas, m_terrain.defPlaceholder);
 window.game = game;
 
 m_keyinput.registerKeyListeners(game);
@@ -29,7 +29,5 @@ for (let i = 0; i < 40; i++) {
 
 const player = new m_player.Player(ship1);
 game.setPlayer(player);
-
-game.setTerrain(new m_terrain.Terrain(m_terrain.defPlaceholder));
 
 requestAnimationFrame(m_tick.tick.bind(null, game));

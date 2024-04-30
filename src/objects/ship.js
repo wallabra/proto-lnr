@@ -27,6 +27,14 @@ export class Ship {
     }
   }
   
+  get floor() {
+    return this.phys.floor;
+  }
+  
+  get height() {
+    return this.phys.height;
+  }
+  
   get pos() {
     return this.phys.pos;
   }
@@ -223,17 +231,16 @@ export class Ship {
     if (this.shootCooldown < 0) this.shootCooldown = 0;
   }
   
-  prnueDeadInstigator() {
+  pruneDeadInstigator() {
     if (this.instigator != null && this.instigator.dying) {
       this.instigator == null;
     }
   }
-  
-  // TODO: split physics code into separate subsystem, integrated w/ ships & other objects
+
   tick(deltaTime) {
     this.cooldownCannons(deltaTime);
     this.checkWannaShoot(deltaTime);
     this.checkShipCollisions(deltaTime);
-    this.prnueDeadInstigator();
+    this.pruneDeadInstigator();
   }
 }
