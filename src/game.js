@@ -1,10 +1,13 @@
 //@flow
-const m_cannonball = require('./cannonball.js');
+const m_cannonball = require('./objects/cannonball.js');
+const m_ship = require('./objects/ship.js');
+const m_physics = require('./objects/physics.js');
 
 export class Game {
   constructor(canvas: Canvas) {
     this.canvas = canvas;
     this.drawCtx = canvas.getContext('2d');
+    this.physics = new m_physics.PhysicsSimulation(this);
     this.player = null;
     this.terrain = null;
     
@@ -13,8 +16,12 @@ export class Game {
     this.cannonballs = [];
   }
   
+  makePhysObj(pos, params) {
+    return this.physics.makePhysObj(pos, params);
+  }
+  
   spawnCannonball(ship, timeDelta) {
-    this.cannonballs.push(new m_cannonball.Cannonball(this, ship));
+    //this.cannonballs.push(new m_cannonball.Cannonball(this, ship));
   }
   
   inputHandler(name, event) {
@@ -64,6 +71,12 @@ export class Game {
     this.ships.push(ship)
   }
   
+  makeShip(pos, params) {
+    let res = new m_ship.Ship(this, pos, params);
+    this.addShip(res);
+    return res;
+  }
+  
   tickShips(deltaTime) {
     this.ships.forEach((ship, i) => {
       if (ship.dying) {
@@ -103,6 +116,7 @@ export class Game {
   tick(deltaTime: number) {
     this.tickPlayer(deltaTime);
     this.tickAIs(deltaTime);
+    this.physics.tick(deltaTime);
     this.tickShips(deltaTime);
     this.tickCannonballs(deltaTime);
     

@@ -2,19 +2,20 @@
 const Vec2 = require('victor');
 
 export class Cannonball {
-  constructor(game, ship, speed, vspeed) {
-    this.instigator = ship;
-    this.pos = ship.pos.clone();
-    this.lastPos = this.pos.clone().subtract(Vec2(speed != null ? speed : 5, 0).rotateBy(ship.angle));
-    this.height = game.waterLevel + 0.02;
-    this.vspeed = vspeed != null ? vspeed : 4;
+  constructor(game, shipOwner, params) {
+    this.instigator = shipOwner;
+    this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
     this.game = game;
     this.dying = false;
   }
   
+  get pos() {
+    return this.phys.pos;
+  }
+  
   get size() {
     // TODO: make depend on munition type
-    return 3;
+    return this.phys.size;
   }
   
   get airDrag() {

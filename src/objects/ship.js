@@ -2,13 +2,11 @@
 var Vec2 = require('victor');
 
 export class Ship {
-  constructor(size) {
-    this.pos = Vec2(0, 0);
-    this.lastPos = Vec2(-2, 0);
-    this.size = size || 12.0;
-    this.angle = 0;
-    this.angVel = 0;
-    this.age = 0;
+  constructor(game, pos, params) {
+    params = params || {};
+    params.size = params.size || 12;
+    this.game = game;
+    this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
     this.damage = 0;
     this.dying = false;
     this.shootCooldown = 0;
@@ -16,8 +14,31 @@ export class Ship {
     this.lastInstigator = null;
     this.lastInstigTime = null;
     this.killScore = 0;
+
+    this.dragMixin();
   }
   
+  dragMixin() {
+    let ship = this;
+    this.phys.waterDrag = function() {
+      let alpha = 1 - Math.abs(Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
+      let cs = this.size * (1 + alpha * (ship.lateralCrossSection - 1));
+      return this.baseDrag * cs;
+    }
+  }
+  
+  get pos() {
+    return this.phys.pos;
+  }
+  
+  get size() {
+    return this.phys.size;
+  }
+  
+  get angle() {
+    return this.phys.angle;
+  }
+
   get instigMemory() {
     return 12;
   }
@@ -73,6 +94,7 @@ export class Ship {
   die() {
     // TODO: trigger death FX
     this.dying = true;
+    this.phys.dying = true;
   }
   
   get thrust() {
@@ -80,50 +102,28 @@ export class Ship {
     return 0.4;
   }
   
-  get weight() {
-    // TODO: depend on ship makeup
-    return 5;
-  }
-  
   get lateralCrossSection() {
     // TODO: depend on ship makeup
     return 2;
   }
-  
-  get waterDrag() {
-    // TODO: proper drag calculations, maybe vary depending on water depth or smth
-    return 0.9;
-  }
-  
+
   get vel() {
-    return this.pos.clone().subtract(this.lastPos);
-  }
-  
-  get drag() {
-    let drag = this.waterDrag;
-    let alpha = 1 - Math.abs(Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
-    let cs = this.size * (1 + alpha * (this.lateralCrossSection - 1));
-    
-    return drag * cs / this.weight;
+    return this.phys.vel;
   }
   
   steer(angleTarg) {
-    let angOffs = (angleTarg - this.angVel);
+    let angOffs = (angleTarg - this.phys.angVel);
     
     if (Math.abs(angOffs) > Math.PI / 5) {
       angOffs = Math.PI / 5 * Math.sign(angOffs);
     }
     
-    this.angVel += angOffs * this.vel.length();
+    this.phys.angVel += angOffs * this.vel.length();
   }
   
   steerToward(otherPos) {
     let angleTarg = otherPos.clone().subtract(this.pos).angle();
     this.steer(angleTarg);
-  }
-  
-  applyForce(deltaTime, force) {
-    this.lastPos.subtract(force.clone().divide(Vec2(this.weight, this.weight)));
   }
   
   thrustForward(deltaTime, amount) {
@@ -136,33 +136,7 @@ export class Ship {
     }
 
     let thrust = this.thrust * amount;
-    this.applyForce(deltaTime, Vec2(1, 0).rotateBy(this.angle).multiply(Vec2(thrust, thrust)));
-  }
-  
-  physAngle(deltaTime) {
-    this.angle += this.angVel * deltaTime;
-    this.angVel -= this.angVel * this.waterDrag * deltaTime;
-    this.angle = this.angle % (Math.PI * 2);
-  }
-  
-  physVel(deltaTime) {
-    let lastPos = this.pos.clone();
-    this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
-    this.lastPos = lastPos;
-  }
-  
-  physDrag(deltaTime, game) {
-    let height = game.terrain.heightAt(this.pos.x, this.pos.y);
-    let drag = this.drag;
-    
-    if (height > game.waterLevel) {
-      drag *= 3;
-    }
-    
-    let currVel = this.vel;
-    let slow = Vec2(deltaTime * drag, deltaTime * drag).multiply(currVel);
-
-    this.lastPos.add(slow);
+    this.phys.applyForce(deltaTime, Vec2(1, 0).rotateBy(this.angle).multiply(Vec2(thrust, thrust)));
   }
   
   heightGradient(game) {
@@ -171,19 +145,7 @@ export class Ship {
       game.terrain.heightAt(this.pos.x, this.pos.y+0.5) - game.terrain.heightAt(this.pos.x, this.pos.y-0.5)
     );
   }
-  
-  slideDownLand(deltaTime, game) {
-    let height = game.terrain.heightAt(this.pos.x, this.pos.y);
-    if (height <= game.waterLevel) {
-      return;
-    }
-    let dHeight = this.heightGradient(game);
-    this.applyForce(deltaTime, Vec2(-dHeight.x*100, -dHeight.y*100 ));
-    
-    let steepness = dHeight.length();
-    this.damageShip((3 + steepness * 2) * deltaTime * 5);
-  }
-  
+
   nearShip(ship) {
     let r1 = this.size * this.lateralCrossSection;
     let r2 = ship.size * ship.lateralCrossSection;
@@ -232,14 +194,14 @@ export class Ship {
     
     let offsNorm = offs.clone().normalize();
     
-    this.applyForce(deltaTime * 5, offs.clone());
-    ship.applyForce(deltaTime * 5, offs.clone().invert());
+    this.phys.applyForce(deltaTime * 5, offs.clone());
+    ship.phys.applyForce(deltaTime * 5, offs.clone().invert());
     ship.setInstigator(this);
     this.damageShip(closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel));
     ship.damageShip(closeness * 10 * deltaTime * offsNorm.invert().dot(this.vel));
   }
   
-  checkShipCollisions(deltaTime, game) {
+  checkShipCollisions(deltaTime) {
     let foundSelf = false;
     
     game.ships.forEach((ship) => {
@@ -268,15 +230,10 @@ export class Ship {
   }
   
   // TODO: split physics code into separate subsystem, integrated w/ ships & other objects
-  tick(game, deltaTime) {
+  tick(deltaTime) {
     this.cooldownCannons(deltaTime);
-    this.checkWannaShoot(game, deltaTime);
-    this.age += deltaTime;
-    this.physAngle(deltaTime);
-    this.physVel(deltaTime);
-    this.checkShipCollisions(deltaTime, game);
-    this.physDrag(deltaTime, game);
-    this.slideDownLand(deltaTime, game);
+    this.checkWannaShoot(deltaTime);
+    this.checkShipCollisions(deltaTime);
     this.prnueDeadInstigator();
   }
 }

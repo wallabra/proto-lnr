@@ -1,7 +1,7 @@
 //@flow
 const m_tick = require('./tick.js');
 const m_game = require('./game.js');
-const m_ship = require('./ship.js');
+const m_ship = require('./objects/ship.js');
 const m_ai = require('./ai.js');
 const m_player = require('./player.js');
 const m_mouse = require('./mouse.js');
@@ -17,15 +17,13 @@ window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
-let ship1 = new m_ship.Ship();
-game.addShip(ship1);
+let ship1 = game.makeShip();
 
 for (let i = 0; i < 40; i++) {
-  let aiship = new m_ship.Ship();
-  aiship.pos.add(Vec2(Math.random() * 500 + 150, 0).rotateBy(Math.random() * Math.PI * 2));
-  aiship.lastPos = aiship.pos.clone();
-  aiship.angle += Math.PI / 5 * i;
-  game.addShip(aiship);
+  let aiship = game.makeShip(
+    /*pos   */ Vec2(Math.random() * 500 + 150, 0).rotateBy(Math.random() * Math.PI * 2),
+    /*params*/ { angle: Math.random() * Math.PI * 2 }
+  );
   game.addAI(new m_ai.AIController(aiship));
 }
 
