@@ -22,7 +22,7 @@ game.addShip(ship1);
 
 for (let i = 0; i < 40; i++) {
   let aiship = new m_ship.Ship();
-  aiship.pos.add(Vec2(Math.random() * 400 + 30, 0).rotateBy(Math.random() * Math.PI * 2));
+  aiship.pos.add(Vec2(Math.random() * 500 + 150, 0).rotateBy(Math.random() * Math.PI * 2));
   aiship.lastPos = aiship.pos.clone();
   aiship.angle += Math.PI / 5 * i;
   game.addShip(aiship);
