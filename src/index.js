@@ -19,12 +19,19 @@ m_keyinput.registerKeyListeners(game);
 
 let ship1 = game.makeShip();
 
-for (let i = 0; i < 40; i++) {
+let toSpawn = 40;
+
+while (toSpawn > 0) {
   let aiship = game.makeShip(
     /*pos   */ Vec2(Math.random() * 500 + 150, 0).rotateBy(Math.random() * Math.PI * 2),
     /*params*/ { angle: Math.random() * Math.PI * 2 }
   );
+  if (aiship.floor > game.waterLevel) {
+    aiship.die();
+    continue;
+  }
   game.addAI(new m_ai.AIController(aiship));
+  toSpawn--;
 }
 
 const player = new m_player.Player(ship1);
