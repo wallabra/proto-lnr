@@ -12,7 +12,7 @@ export class Player {
   steer(offs, deltaTime) {
     let targ = offs.angle() - this.possessed.angle;
     let angleOffs = (targ + Math.PI) % (Math.PI * 2) - Math.PI;
-    this.possessed.steer(angleOffs);
+    this.possessed.steer(deltaTime, angleOffs);
   }
   
   approach(offs, deltaTime) {  

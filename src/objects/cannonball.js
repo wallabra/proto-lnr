@@ -3,10 +3,27 @@ const Vec2 = require('victor');
 
 export class Cannonball {
   constructor(game, shipOwner, params) {
-    this.instigator = shipOwner;
-    this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
     this.game = game;
+    this.instigator = shipOwner;
+    this.phys = this.game.makePhysObj(shipOwner.cannonballSpawnSpot(), params);
     this.dying = false;
+  }
+  
+  // -- phys util getters
+  get vel() {
+    return this.phys.vel;
+  }
+  
+  set vel(vel) {
+    this.phys.vel = vel;
+  }
+  
+  get floor() {
+    return this.phys.floor;
+  }
+  
+  get height() {
+    return this.phys.height;
   }
   
   get pos() {
@@ -14,19 +31,17 @@ export class Cannonball {
   }
   
   get size() {
-    // TODO: make depend on munition type
     return this.phys.size;
   }
   
-  get airDrag() {
-    // TODO: make depend on munition type
-    return 0.02;
+  get angle() {
+    return this.phys.angle;
   }
   
   get weight() {
-    // TODO: make depend on munition type
-    return 8;
+    return this.phys.weight;
   }
+  // --
   
   get damageFactor() {
     // TODO: make depend on munition type
@@ -37,41 +52,9 @@ export class Cannonball {
     return this.damageFactor * (1 + this.vel.length());
   }
   
-  get vel() {
-    return this.pos.clone().subtract(this.lastPos);
-  }
-  
-  set vel(vel) {
-    this.lastPos = this.pos.clone().subtract(vel);
-  }
-  
-  get gravity() {
-    return 2;
-  }
-  
-  physAirDrag(deltaTime) {
-    let drag = this.airDrag / this.weight;
-    this.vel = this.vel.clone().subtract(this.vel.multiply(Vec2(drag, drag)));
-    this.vspeed = this.vspeed - this.vspeed * drag * deltaTime;
-  }
-  
-  physVel(deltaTime) {
-    let lastPos = this.pos.clone();
-    this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
-    this.lastPos = lastPos;
-  }
-  
   destroy() {
     this.dying = true;
-  }
-  
-  physGravity(deltaTime) {
-    this.height += this.vspeed * deltaTime;
-    this.vspeed -= this.gravity * deltaTime;
-    
-    if (this.height < game.waterLevel) {
-      this.destroy();
-    }
+    this.phys.dying = true;
   }
   
   touchingShip(ship) {
@@ -127,24 +110,7 @@ export class Cannonball {
   }
   
   tick(deltaTime) {
-    if (this.dying) {
-      return;
-    }
-    
-    this.physGravity(deltaTime);
-    this.physVel(deltaTime);
     this.checkTerrainCollision();
-    
-    if (this.dying) {
-      return;
-    }
-    
     this.checkShipCollisions(deltaTime);
-    
-    if (this.dying) {
-      return;
-    }
-    
-    this.physAirDrag(deltaTime);
   }
 }

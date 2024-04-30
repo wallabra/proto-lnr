@@ -27,6 +27,15 @@ export class Ship {
     }
   }
   
+  // -- phys util getters
+  get vel() {
+    return this.phys.vel;
+  }
+  
+  set vel(vel) {
+    this.phys.vel = vel;
+  }
+  
   get floor() {
     return this.phys.floor;
   }
@@ -46,6 +55,11 @@ export class Ship {
   get angle() {
     return this.phys.angle;
   }
+  
+  get weight() {
+    return this.phys.weight;
+  }
+  // --
 
   get instigMemory() {
     return 12;
@@ -78,15 +92,15 @@ export class Ship {
     this.shootCooldown = this.shootRate;
   }
   
-  checkWannaShoot(game, timeDelta) {
+  checkWannaShoot(timeDelta) {
     if (this.wannaShoot) {
       this.wannaShoot = false;
-      this.shoot(game, timeDelta);
+      this.shoot(timeDelta);
     }
   }
   
-  shoot(game, timeDelta) {
-    game.spawnCannonball(this, timeDelta);
+  shoot(timeDelta) {
+    this.game.spawnCannonball(this, {});
   }
   
   get shootRate() {
@@ -114,22 +128,23 @@ export class Ship {
     // TODO: depend on ship makeup
     return 2;
   }
-
-  get vel() {
-    return this.phys.vel;
+  
+  get steerForce() {
+    return (0.2 + this.vel.length) * Math.PI / 6;
   }
   
-  steer(angleTarg) {
+  steer(deltaTime, angleTarg) {
     let angOffs = (angleTarg - this.phys.angVel);
+    let steerForce = this.steerForce;
     
-    if (Math.abs(angOffs) > Math.PI / 5) {
-      angOffs = Math.PI / 5 * Math.sign(angOffs);
+    if (Math.abs(angOffs) > steerForce) {
+      angOffs = steerForce * Math.sign(angOffs);
     }
     
-    this.phys.angVel += angOffs * this.vel.length();
+    this.phys.angVel += angOffs * deltaTime;
   }
   
-  steerToward(otherPos) {
+  steerToward(deltaTime, otherPos) {
     let angleTarg = otherPos.clone().subtract(this.pos).angle();
     this.steer(angleTarg);
   }
@@ -226,6 +241,12 @@ export class Ship {
     })
   }
   
+  checkTerrainDamage(deltaTime) {
+    if (this.phys.floor > this.game.waterLevel) {
+      this.damageShip(10 * deltaTime);
+    }
+  }
+  
   cooldownCannons(deltaTime) {
     this.shootCooldown -= deltaTime;
     if (this.shootCooldown < 0) this.shootCooldown = 0;
@@ -236,11 +257,16 @@ export class Ship {
       this.instigator == null;
     }
   }
+  
+  cannonballSpawnSpot() {
+    return this.pos.clone().add(Vec2(this.size * this.lateralCrossSection * 0.4, 0).rotateBy(this.angle));
+  }
 
   tick(deltaTime) {
     this.cooldownCannons(deltaTime);
     this.checkWannaShoot(deltaTime);
     this.checkShipCollisions(deltaTime);
+    this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
   }
 }

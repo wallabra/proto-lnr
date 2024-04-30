@@ -4,6 +4,8 @@ const m_ship = require('./objects/ship.js');
 const m_physics = require('./objects/physics.js');
 const m_terrain = require('./terrain.js');
 
+const Vec2 = require('victor');
+
 export class Game {
   constructor(canvas: Canvas, terraDef) {
     this.canvas = canvas;
@@ -23,8 +25,11 @@ export class Game {
     return this.physics.makePhysObj(pos, params);
   }
   
-  spawnCannonball(ship, timeDelta) {
-    //this.cannonballs.push(new m_cannonball.Cannonball(this, ship));
+  spawnCannonball(ship, params) {
+    this.cannonballs.push(new m_cannonball.Cannonball(this, ship, {
+      vel: Vec2(params.speed != null ? params.speed : 8, 0).rotateBy(params.angle != null ? params.angle : ship.angle),
+      size: params.size != null ? params.size : 3.5
+    }));
   }
   
   inputHandler(name, event) {
@@ -85,7 +90,7 @@ export class Game {
       if (ship.dying) {
         return;
       }
-      ship.tick(this, deltaTime);
+      ship.tick(deltaTime);
     });
   }
   
