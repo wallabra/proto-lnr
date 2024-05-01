@@ -136,7 +136,7 @@ export class Ship {
   }
   
   steer(deltaTime, angleTarg) {
-    let angOffs = (angleTarg - this.phys.angVel);
+    let angOffs = (angleTarg - this.phys.angVel + Math.PI) % (Math.PI * 2) - Math.PI;
     let steerForce = this.steerForce;
     
     if (Math.abs(angOffs) > steerForce) {
