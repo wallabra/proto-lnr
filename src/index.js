@@ -31,6 +31,7 @@ while (toSpawn > 0) {
     continue;
   }
   game.addAI(new m_ai.AIController(aiship));
+  aiship.setInstigator(ship1);
   toSpawn--;
 }
 
