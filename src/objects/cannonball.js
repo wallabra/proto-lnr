@@ -58,6 +58,10 @@ export class Cannonball {
   }
   
   touchingShip(ship) {
+    if (Math.abs(this.height - ship.height) > 0.6) {
+      return 0;
+    }
+    
     let angle2 = this.pos.clone().subtract(ship.pos).angle();
     let r1 = this.size;
     let r2 = ship.intermediaryRadius(angle2);
@@ -88,10 +92,6 @@ export class Cannonball {
   }
   
   checkShipCollisions(deltaTime) {
-    if (this.height > 0.7) {
-      return;
-    }
-    
     for (let ship of this.game.ships) {
       if (ship === this.instigator) {
         continue;
