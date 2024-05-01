@@ -28,11 +28,12 @@ while (toSpawn > 0) {
     /*pos   */ Vec2(Math.random() * 500 + 150, 0).rotateBy(Math.random() * Math.PI * 2),
     /*params*/ { angle: Math.random() * Math.PI * 2 }
   );
-  if (aiship.floor > game.waterLevel) {
+  if (aiship.floor > game.waterLevel * 0.5) {
     aiship.die();
     continue;
   }
   game.addAI(new m_ai.AIController(aiship));
+  aiship.setInstigator(playerShip);
   toSpawn--;
 }
 

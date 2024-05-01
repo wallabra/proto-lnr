@@ -37,7 +37,7 @@ export class PhysicsObject {
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
     this.baseDrag = 0.6;
-    this.baseFriction = 0.5;
+    this.baseFriction = 0.2;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
@@ -54,8 +54,8 @@ export class PhysicsObject {
     if (floor <= game.waterLevel || this.height > floor + 0.1) {
       return;
     }
-    let dHeight = this.heightGradient();
-    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 500, -dHeight.y * this.gravity * this.weight * 500));
+    let dHeight = this.heightGradient().norm();
+    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight, -dHeight.y * this.gravity * this.weight));
   }
   
   get vel() {
