@@ -309,7 +309,7 @@ function renderTerrain(game: Game) {
   let sectorH = maxSectorY - minSectorY;
   let sectorArea = sectorW * sectorH;
   
-  for (si = 0; si < sectorArea; si++) {
+  for (let si = 0; si < sectorArea; si++) {
     let sx = si % sectorW;
     let sy = (si - sx) / sectorW;
     let sdlef = minDrawX - camX + sx * m_terrain.SECTOR_REAL_SIZE;
