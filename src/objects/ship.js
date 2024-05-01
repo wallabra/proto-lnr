@@ -73,7 +73,7 @@ export class Ship {
     let instigTime = Date.now();
     
     // check reinforced aggression
-    if (instigator == this.lastInstigator) {
+    if (instigator === this.lastInstigator) {
       this.lastInstigTime = instigTime;
       return;
     }

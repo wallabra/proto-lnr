@@ -19,7 +19,7 @@ export class AIController {
         let targetAngle = this.possessed.lastInstigator.pos.clone().subtract(this.possessed.pos).angle();
         if (
           Math.abs(angDiff(this.possessed.angle, targetAngle)) < Math.PI / 6 &&
-          this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length() < 300
+          this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length() < 250
         ) {
           this.possessed.tryShoot();
         } else {
