@@ -128,7 +128,7 @@ export class Ship {
     let b = cball.phys.vspeed;
     let c = cball.phys.height - this.game.waterLevel * 2;
     let airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
-    console.log(dist, airtime);
+    //console.log(dist, airtime);
     dist = dist - this.pos.clone().subtract(this.cannonballSpawnSpot()).length();
     let targSpeed = dist / airtime * timeDelta;
     cball.phys.vel = cball.phys.vel.norm().multiply(Vec2(targSpeed, targSpeed));
