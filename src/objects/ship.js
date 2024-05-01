@@ -13,6 +13,7 @@ export class Ship {
     this.wannaShoot = false;
     this.lastInstigator = null;
     this.lastInstigTime = null;
+    this.currShootDist = null;
     this.killScore = 0;
 
     this.dragMixin();
@@ -82,13 +83,18 @@ export class Ship {
     }
   }
   
-  tryShoot() {
+  tryShoot(shootDist) {
+    if (shootDist == null) shootDist = 100;
+    if (shootDist < 20) shootDist = 20;
+    if (shootDist > this.maxShootRange) shootDist = this.maxShootRange;
+    
     if (this.shootCooldown > 0) {
       // can't shoot, waiting on cooldown
       return;
     }
     
     this.wannaShoot = true;
+    this.currShootDist = shootDist;
     this.shootCooldown = this.shootRate;
   }
   
@@ -100,7 +106,21 @@ export class Ship {
   }
   
   shoot(timeDelta) {
-    this.game.spawnCannonball(this, {});
+    let dist = this.currShootDist;
+    this.currShootDist = null;
+    
+    let cball = this.game.spawnCannonball(this, {});
+    
+    cball.phys.vspeed = dist / 150;
+    
+    let a = cball.phys.gravity;
+    let b = cball.phys.vspeed;
+    let c = cball.phys.height - this.game.waterLevel * 2;
+    let airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
+    console.log(dist, airtime);
+    dist = dist - this.pos.clone().subtract(this.cannonballSpawnSpot()).length();
+    let targSpeed = dist / airtime * timeDelta;
+    cball.phys.vel = cball.phys.vel.norm().multiply(Vec2(targSpeed, targSpeed));
   }
   
   get shootRate() {
@@ -122,6 +142,11 @@ export class Ship {
   get thrust() {
     // TODO: depend on ship makeup
     return 0.4;
+  }
+  
+  get maxShootRange() {
+    // TODO: depend on ship makeup
+    return 500;
   }
   
   get lateralCrossSection() {

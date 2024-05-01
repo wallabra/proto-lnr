@@ -55,7 +55,7 @@ export class PhysicsObject {
       return;
     }
     let dHeight = this.heightGradient();
-    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 50, -dHeight.y * this.gravity * this.weight * 50));
+    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 500, -dHeight.y * this.gravity * this.weight * 500));
   }
   
   get vel() {

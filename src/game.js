@@ -35,7 +35,9 @@ export class Game {
     if (params.height == null) params.height = ship.height + 0.2;
     if (params.buoyancy == null) params.buoyancy = 0;
     
-    this.cannonballs.push(new m_cannonball.Cannonball(this, ship, params));
+    let cball = new m_cannonball.Cannonball(this, ship, params);
+    this.cannonballs.push(cball);
+    return cball;
   }
   
   inputHandler(name, event) {

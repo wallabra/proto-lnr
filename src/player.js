@@ -37,7 +37,8 @@ export class Player {
     
   registerActions() {
     this.registerAction('shoot', (deltaTime) => {
-      this.possessed.tryShoot();
+      let ms = window.mouseState;
+      this.possessed.tryShoot(Vec2(ms.x, ms.y).length());
     });
   }
     

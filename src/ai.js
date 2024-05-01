@@ -8,7 +8,7 @@ export class AIController {
   }
   
   tick(game, deltaTime) {
-    if (game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) > game.waterLevel * 0.2) {
+    if (game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) > game.waterLevel * 0.9) {
       let dHeight = this.possessed.heightGradient(game);
       this.possessed.steer(deltaTime, dHeight.invert().angle());
       this.possessed.thrustForward(deltaTime, 0.2);
@@ -17,7 +17,7 @@ export class AIController {
       if (this.possessed.lastInstigator != null) {
         let targetAngle = this.possessed.lastInstigator.pos.clone().subtract(this.possessed.pos).angle();
         if (Math.abs((targetAngle - this.possessed.angle + Math.PI) % (Math.PI * 2) - Math.PI) < Math.PI / 4) {
-          this.possessed.tryShoot();
+          this.possessed.tryShoot(this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length());
         } else {
           this.possessed.steer(deltaTime, targetAngle);
         }

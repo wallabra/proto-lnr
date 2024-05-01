@@ -51,11 +51,11 @@ function renderCannonballs(game) {
     let y = baseY + cball.pos.y - cam.y;
     let camheight = 4;
     let cdist = Vec2(x, y).subtract(Vec2(game.width / 2, game.height / 2)).length() / Math.min(game.width, game.height) * 0.5;
-    let hdist = camheight - cball.height;
+    let hdist = camheight - cball.height/2;
     let proximityScale = camheight / Vec2(hdist + cdist).length();
     let size = cball.size * proximityScale;
     
-    if (hdist < 0.1) {
+    if (hdist < 0.02) {
       return;
     }
     
@@ -97,7 +97,7 @@ function renderShips(game) {
     let y = baseY + ship.pos.y - cam.y;
     let isPlayer = game.player != null && game.player.possessed === ship;
     let camheight = 4;
-    let hdist = camheight - ship.height;
+    let hdist = camheight - ship.height/2;
     let proximityScale = camheight / hdist;
     let size = ship.size * proximityScale;
       

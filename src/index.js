@@ -17,7 +17,9 @@ window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
-let ship1 = game.makeShip(Vec2(0, -350));
+let playerShip = game.makeShip(Vec2(0, -350));
+const player = new m_player.Player(playerShip);
+game.setPlayer(player);
 
 let toSpawn = 40;
 
@@ -33,8 +35,5 @@ while (toSpawn > 0) {
   game.addAI(new m_ai.AIController(aiship));
   toSpawn--;
 }
-
-const player = new m_player.Player(ship1);
-game.setPlayer(player);
 
 requestAnimationFrame(m_tick.tick.bind(null, game));
