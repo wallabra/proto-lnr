@@ -4,7 +4,9 @@ var Vec2 = require('victor');
 export class Ship {
   constructor(game, pos, params) {
     if (params == null) params = {};
-    params.size = params.size || 12;
+    if (params.size == null) params.size = 14;
+    if (params.baseFricition == null) params.baseFricition = 0.02;
+    
     this.game = game;
     this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
     this.damage = 0;
