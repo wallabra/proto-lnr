@@ -1,6 +1,6 @@
 //@flow
 var Vec2 = require('victor');
-const angDiff = require('../util.js').angDiff;
+const { angDiff, umod } = require('../util.js');
 
 export class Ship {
   constructor(game, pos, params) {
@@ -71,6 +71,14 @@ export class Ship {
   
   setInstigator(instigator) {
     let instigTime = Date.now();
+    
+    // check reinforced aggression
+    if (instigator == this.lastInstigator) {
+      this.lastInstigTime = instigTime;
+      return;
+    }
+    
+    // check infight timer
     if (this.isntigator != null && instigTime - this.lastInstigTime < 1000 * this.instigMemory) {
       return;
     }
@@ -164,7 +172,7 @@ export class Ship {
   steer(deltaTime, angleTarg) {
     let angOffs = angDiff(this.angle, angleTarg);
     let steerForce = this.steerForce;
-    let steerCompensate = angDiff(this.angle + this.phys.angVel, angleTarg);
+    let steerCompensate = angDiff(umod(this.angle + this.phys.angVel, Math.PI * 2), angleTarg);
     angOffs += steerCompensate;
     
     if (Math.abs(angOffs) > steerForce) {
