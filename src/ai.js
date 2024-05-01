@@ -1,4 +1,5 @@
 //@flow
+let angDiff = require('./util.js').angDiff;
 
 /// Basic placeholder AI
 export class AIController {
@@ -16,7 +17,10 @@ export class AIController {
     else {
       if (this.possessed.lastInstigator != null) {
         let targetAngle = this.possessed.lastInstigator.pos.clone().subtract(this.possessed.pos).angle();
-        if (Math.abs((targetAngle - this.possessed.angle + Math.PI) % (Math.PI * 2) - Math.PI) < Math.PI / 4) {
+        if (
+          Math.abs(angDiff(this.possessed.angle, targetAngle)) < Math.PI / 6 &&
+          this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length() < 300
+        ) {
           this.possessed.tryShoot();
         } else {
           this.possessed.steer(deltaTime, targetAngle);
