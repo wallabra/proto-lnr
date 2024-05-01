@@ -54,8 +54,8 @@ export class PhysicsObject {
     if (floor <= game.waterLevel || this.height > floor + 0.1) {
       return;
     }
-    let dHeight = this.heightGradient();
-    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight * 50, -dHeight.y * this.gravity * this.weight * 50));
+    let dHeight = this.heightGradient().norm();
+    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight, -dHeight.y * this.gravity * this.weight));
   }
   
   get vel() {

@@ -5,7 +5,7 @@ export class Ship {
   constructor(game, pos, params) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
-    if (params.baseFricition == null) params.baseFricition = 0.02;
+    if (params.baseFricition == null) params.baseFricition = 0.005;
     
     this.game = game;
     this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
