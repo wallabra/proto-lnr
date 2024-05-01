@@ -1,5 +1,6 @@
 //@flow
 var Vec2 = require('victor');
+const angDiff = require('../util.js').angDiff;
 
 export class Ship {
   constructor(game, pos, params) {
@@ -136,8 +137,10 @@ export class Ship {
   }
   
   steer(deltaTime, angleTarg) {
-    let angOffs = (angleTarg - this.phys.angVel + Math.PI) % (Math.PI * 2) - Math.PI;
+    let angOffs = angDiff(this.angle, angleTarg);
     let steerForce = this.steerForce;
+    let steerCompensate = angDiff(this.angle + this.phys.angVel, angleTarg);
+    angOffs += steerCompensate;
     
     if (Math.abs(angOffs) > steerForce) {
       angOffs = steerForce * Math.sign(angOffs);
