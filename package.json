@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Prototype version of Loot & Roam",
   "scripts": {
-    "parcel": "parcel src/index.html"
+    "test": "jest",
+    "run": "parcel src/index.html --public-url=.",
+    "build": "parcel build src/index.html --public-url=." 
   },
   "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
   "license": "GPL-3.0",
@@ -11,6 +13,7 @@
     "@eslint/js": "^9.1.1",
     "eslint": "^9.1.1",
     "globals": "^15.1.0",
+    "jest": "^29.7.0",
     "parcel": "^2.12.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
