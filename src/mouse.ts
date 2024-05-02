@@ -4,23 +4,23 @@ export function registerMouseListener() {
     x: null,
     y: null,
     steering: false,
-    attack: false
-  }
+    attack: false,
+  };
   window.mouseState = mouseState;
-  
-  document.addEventListener('mousemove', onMouseUpdate, false);
-  document.addEventListener('mousedown', onMouseDown, false);
-  document.addEventListener('mouseup', onMouseUp, false);
-      
+
+  document.addEventListener("mousemove", onMouseUpdate, false);
+  document.addEventListener("mousedown", onMouseDown, false);
+  document.addEventListener("mouseup", onMouseUp, false);
+
   function onMouseUpdate(e: MouseEvent) {
-    mouseState.x = e.clientX - window.innerWidth  / 2;
+    mouseState.x = e.clientX - window.innerWidth / 2;
     mouseState.y = e.clientY - window.innerHeight / 2;
   }
-  
+
   function onMouseDown(e: MouseEvent) {
     mouseState.steering = true;
   }
-  
+
   function onMouseUp(e: MouseEvent) {
     mouseState.steering = false;
   }

@@ -7,9 +7,9 @@ function registerKey(key: string, callback: InputCallback) {
     }
   }
 
-  document.addEventListener('keydown', _listener);
+  document.addEventListener("keydown", _listener);
 }
 
 export function registerKeyListeners(game) {
-  registerKey(' ', game.inputHandler.bind(game, 'shoot'));
+  registerKey(" ", game.inputHandler.bind(game, "shoot"));
 }
