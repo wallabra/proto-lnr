@@ -36,11 +36,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
+          yarn
 
       - name: Lint
         run: |
-          npx eslint src
+          yarn lint
 
   test:
     strategy:
@@ -60,11 +60,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
+          yarn
 
       - name: Test
         run: |
-          npm test
+          yarn test
 
   build:
     strategy:
@@ -84,11 +84,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
+          yarn
 
       - name: Build
         run: |
-          npm run build
+          yarn build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

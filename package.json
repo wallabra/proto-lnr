@@ -4,6 +4,7 @@
   "description": "Prototype version of Loot & Roam",
   "scripts": {
     "test": "jest",
+    "lint": "eslint src/",
     "server": "parcel src/index.html",
     "build": "parcel build src/index.html --public-url=."
   },
