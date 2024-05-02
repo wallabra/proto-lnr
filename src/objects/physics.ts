@@ -1,18 +1,32 @@
-const Vec2 = require('victor');
+import Vec2 from 'victor';
+
+interface PhysicsParams {
+  size: number,
+  angle: number,
+  vel: Vec2,
+  height: number,
+  vspeed: number,
+  weight: number,
+  baseDrag: number,
+  baseFriction: number,
+  angleDrag: number,
+  gravity: number,
+  buoyancy: number
+}
 
 export class PhysicsSimulation {
-  constructor(game) {
+  constructor(game: Game) {
     this.game = game;
     this.objects = [];
   }
   
-  makePhysObj(pos, params) {
+  makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
     let res = new PhysicsObject(this.game, pos, params);
     this.objects.push(res);
     return res;
   }
   
-  tick(timeDelta) {
+  tick(timeDelta: number) {
     this.objects = this.objects.filter((o) => !o.dying);
     
     for (let obj of this.objects) {
@@ -22,7 +36,7 @@ export class PhysicsSimulation {
 }
 
 export class PhysicsObject {
-  constructor(game, pos, params) {
+  constructor(game: Game, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.game = game;
     this.pos = pos;
@@ -37,8 +51,8 @@ export class PhysicsObject {
       : Math.max(game.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
-    this.baseDrag = 0.6;
-    this.baseFriction = 0.2;
+    this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.6;
+    this.baseFriction = params.baseFriction != null ? params.baseFriction : 0.2;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
@@ -50,7 +64,7 @@ export class PhysicsObject {
     return this.game.terrain.heightAt(this.pos.x, this.pos.y);
   }
   
-  slideDownLand(deltaTime) {
+  slideDownLand(deltaTime: number) {
     let floor = this.floor;
     if (floor <= game.waterLevel || this.height > floor + 0.1) {
       return;
@@ -69,11 +83,11 @@ export class PhysicsObject {
     return this.pos.clone().subtract(this.lastPos);
   }
   
-  set vel(vel) {
+  set vel(vel: Vec2) {
     this.lastPos = this.pos.clone().subtract(vel);
   }
   
-  applyForce(deltaTime, force) {
+  applyForce(deltaTime: number, force: Vec2) {
     this.lastPos.subtract(
       force.clone().multiply(
         Vec2(deltaTime * this.weight, deltaTime * this.weight),
@@ -81,13 +95,13 @@ export class PhysicsObject {
     );
   }
   
-  physAngle(deltaTime) {
+  physAngle(deltaTime: number) {
     this.angle += this.angVel * deltaTime;
     this.angVel -= this.angVel * this.waterDrag * deltaTime;
     this.angle = this.angle % (Math.PI * 2);
   }
   
-  physVel(deltaTime) {
+  physVel(deltaTime: number) {
     let lastPos = this.pos.clone();
     this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
     this.lastPos = lastPos;
@@ -101,7 +115,7 @@ export class PhysicsObject {
     return this.baseDrag * 0.02;
   }
   
-  physDrag(deltaTime) {
+  physDrag(deltaTime: number) {
     let floor = this.floor;
     let inWater = floor < this.game.waterLevel &&
       this.height <= this.game.waterLevel + 0.01;
@@ -114,7 +128,7 @@ export class PhysicsObject {
     this.applyForce(deltaTime, dragForce);
   }
   
-  physFriction(deltaTime) {
+  physFriction(deltaTime: number) {
     let floor = this.floor;
     
     if (this.height > this.floor + 0.01) {
@@ -149,7 +163,7 @@ export class PhysicsObject {
     );
   }
   
-  circleIntersect(otherObj, scale) {
+  circleIntersect(otherObj: PhysicsObject, scale: number) {
     let r1 = this.size * (scale || 1);
     let r2 = otherObj.size * (scale || 1);
     
@@ -158,7 +172,7 @@ export class PhysicsObject {
     return dist <= r1 + r2;
   }
   
-  physGravity(deltaTime) {
+  physGravity(deltaTime: number) {
     this.height += this.vspeed * deltaTime;
     
     let floor = this.floor;
@@ -177,13 +191,13 @@ export class PhysicsObject {
     }
   }
   
-  physAngle(deltaTime) {
+  physAngle(deltaTime: number) {
     this.angle += this.angVel * deltaTime;
     this.angVel -= this.angVel * this.angleDrag * deltaTime;
     this.angle = this.angle % (Math.PI * 2);
   }
   
-  tick(deltaTime) {
+  tick(deltaTime: number) {
     this.age += deltaTime;
     
     this.physAngle(deltaTime);

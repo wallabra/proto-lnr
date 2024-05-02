@@ -1,5 +1,5 @@
-var Vec2 = require('victor');
-const { angDiff, umod } = require('../util.js');
+import Vec2 from 'victor';
+import { angDiff, umod } from '../util.js';
 
 export class Ship {
   constructor(game, pos, params) {
@@ -35,7 +35,7 @@ export class Ship {
     return this.phys.vel;
   }
   
-  set vel(vel) {
+  set vel(vel: Vec2) {
     this.phys.vel = vel;
   }
   
@@ -68,7 +68,7 @@ export class Ship {
     return 12;
   }
   
-  setInstigator(instigator) {
+  setInstigator(instigator: Ship) {
     let instigTime = Date.now();
     
     // check reinforced aggression
@@ -85,7 +85,7 @@ export class Ship {
     this.lastInstigTime = instigTime;
   }
 
-  damageShip(damage) {
+  damageShip(damage: number) {
     this.damage += Math.max(0, damage);
     
     if (this.damage > this.maxDmg) {
@@ -93,7 +93,7 @@ export class Ship {
     }
   }
   
-  tryShoot(shootDist) {
+  tryShoot(shootDist: number) {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
     if (shootDist > this.maxShootRange) shootDist = this.maxShootRange;

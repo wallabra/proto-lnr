@@ -1,4 +1,4 @@
-let angDiff = require('./util.js').angDiff;
+import { angDiff } from './util.js';
 
 /// Basic placeholder AI
 export class AIController {
@@ -7,7 +7,7 @@ export class AIController {
     this.lastDamage = 0.5;
   }
   
-  tick(game, deltaTime) {
+  tick(game: Game, deltaTime: number) {
     if (game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) > game.waterLevel * 0.9) {
       let dHeight = this.possessed.heightGradient(game);
       this.possessed.steer(deltaTime, dHeight.invert().angle());

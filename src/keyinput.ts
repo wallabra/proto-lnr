@@ -1,4 +1,6 @@
-function registerKey(key, callback) {
+export type InputCallback = (event: KeyboardEvent) => null;
+
+function registerKey(key: string, callback: InputCallback) {
   function _listener(event) {
     if (event.key == key) {
       callback(event);

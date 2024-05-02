@@ -1,4 +1,4 @@
-const m_render = require('./render.js');
+import { render } from './render.js';
 
 let lastTime = null;
 const frameDuration = 1000 / 60;
@@ -21,7 +21,7 @@ export function tick(game: Game, current: Date) {
   requestAnimationFrame(tick.bind(null, game));
 
   processTick(game, deltaTime);
-  m_render.render(game);
+  render(game);
 }
 
 function processTick(game: Game, deltaTime: Dates) {

@@ -1,8 +1,9 @@
-const Vec2 = require('victor');
-const m_terrain = require('./terrain.js');
+import Vec2 from 'victor';
+import { Terrain, TerraSector, SECTOR_AREA, SECTOR_SIZE, SECTOR_REAL_SIZE, SECTOR_RES } from './terrain.js';
+import { lerp } from './util.ts';
 
 
-function renderDeathScreen(game) {
+function renderDeathScreen(game: Game) {
   // render death screen
   let ctx = game.drawCtx;
   
@@ -18,7 +19,7 @@ function renderDeathScreen(game) {
   }
 }
 
-function renderKillScore(game) {
+function renderKillScore(game: Game) {
   // render kill score
   let ctx = game.drawCtx;
   
@@ -31,7 +32,7 @@ function renderKillScore(game) {
   }
 }
 
-function renderCannonballs(game) {
+function renderCannonballs(game: Game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
   let baseY = game.height / 2;
@@ -75,7 +76,7 @@ function renderCannonballs(game) {
   })
 }
 
-function renderShips(game) {
+function renderShips(game: Game) {
   let ctx = game.drawCtx;
   let baseX = game.width / 2;
   let baseY = game.height / 2;
@@ -181,7 +182,7 @@ function renderBackground(game: Game) {
   ctx.fillRect(0, 0, game.width, game.height);
 }
 
-function interpTerrainColor(game, height) {
+function interpTerrainColor(game: Game, height: number) {
   // below waterLevel
   let rgb1 = [0, 10, 45];
   let rgb2 = [30, 60, 70]; 
@@ -211,47 +212,47 @@ function interpTerrainColor(game, height) {
   return rgbFinal;
 }
 
-function rgbString(rgb) {
+function rgbString(rgb: [number, number, number]) {
   return `rgb(${rgb.join(', ')})`
 }
 
-function interpColor(from, to, alpha) {
-  return from.map((f, i) => f * (1 - alpha) + to[i] * alpha);
+function interpColor(from: [number, number, number], to: [number, number, number], alpha: number) {
+  return from.map((f, i) => lerp(f, to[i], alpha));
 }
 
 window.interpTerrainColor = interpTerrainColor; //DEBUG
 
 let renderedSectors = new Map();
 
-function renderTerrainSector(ctx, cx, cy, game, sector) {
-  for (let tileIdx = 0; tileIdx < m_terrain.SECTOR_AREA; tileIdx++) {
-    let tx = tileIdx % m_terrain.SECTOR_SIZE;
-    let ty = (tileIdx - tx) / m_terrain.SECTOR_SIZE;
+function renderTerrainSector(ctx: CanvasRenderingContext2D, cx: number, cy: number, game: Game, sector: TerraSector) {
+  for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
+    let tx = tileIdx % SECTOR_SIZE;
+    let ty = (tileIdx - tx) / SECTOR_SIZE;
     
     let height = sector.heights[tileIdx];
-    let drawX = tx * m_terrain.SECTOR_RES;
-    let drawY = ty * m_terrain.SECTOR_RES;
+    let drawX = tx * SECTOR_RES;
+    let drawY = ty * SECTOR_RES;
     
-    let gradient = game.terrain.gradientAt(cx + tx * m_terrain.SECTOR_RES, cy + ty * m_terrain.SECTOR_RES);
+    let gradient = game.terrain.gradientAt(cx + tx * SECTOR_RES, cy + ty * SECTOR_RES);
     let shadowness = height < game.waterLevel ? 0 : Math.max(0, 30 * gradient.dot(Vec2(0, -1)));
 
     ctx.lineWidth = 0;
     ctx.fillStyle = rgbString(interpColor(interpTerrainColor(game, height), [12, 12, 12], shadowness));
-    ctx.fillRect(drawX, drawY, m_terrain.SECTOR_RES + 1, m_terrain.SECTOR_RES + 1);
+    ctx.fillRect(drawX, drawY, SECTOR_RES + 1, SECTOR_RES + 1);
   }
 }
 
-function drawTerrainSector(ctx, sx, sy, game, sdlef, sdtop, sector) {
+function drawTerrainSector(ctx: CanvasRenderingContext2D, sx: number, sy: number, game: Game, sdlef: number, sdtop: number, sector: TerraSector) {
   let key = `${sx},${sy}`;
   let image = 0;
   
   if (!renderedSectors.has(key)) {
-    let x = sx * m_terrain.SECTOR_REAL_SIZE;
-    let y = sx * m_terrain.SECTOR_REAL_SIZE;
+    let x = sx * SECTOR_REAL_SIZE;
+    let y = sx * SECTOR_REAL_SIZE;
     
     let renderCanvas = document.createElement('canvas');
-    renderCanvas.width = m_terrain.SECTOR_REAL_SIZE;
-    renderCanvas.height = m_terrain.SECTOR_REAL_SIZE;
+    renderCanvas.width = SECTOR_REAL_SIZE;
+    renderCanvas.height = SECTOR_REAL_SIZE;
     let renderCtx = renderCanvas.getContext('2d');
     renderCtx.imageSmoothingEnabled = false;
     
@@ -270,7 +271,7 @@ function drawTerrainSector(ctx, sx, sy, game, sdlef, sdtop, sector) {
   }
   
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(image, sdlef, sdtop, m_terrain.SECTOR_REAL_SIZE + 1, m_terrain.SECTOR_REAL_SIZE + 1);
+  ctx.drawImage(image, sdlef, sdtop, SECTOR_REAL_SIZE + 1, SECTOR_REAL_SIZE + 1);
   ctx.imageSmoothingEnabled = true;
 }
 
@@ -294,14 +295,14 @@ function renderTerrain(game: Game) {
   let maxX =  (game.width  / 2) + camX;
   let maxY =  (game.height / 2) + camY;
 
-  let minSectorX = Math.floor(minX / m_terrain.SECTOR_REAL_SIZE);
-  let minSectorY = Math.floor(minY / m_terrain.SECTOR_REAL_SIZE);
-  let maxSectorX = Math.ceil (maxX / m_terrain.SECTOR_REAL_SIZE);
-  let maxSectorY = Math.ceil (maxY / m_terrain.SECTOR_REAL_SIZE);
-  let minDrawX = minSectorX * m_terrain.SECTOR_REAL_SIZE + (game.width  / 2);
-  let minDrawY = minSectorY * m_terrain.SECTOR_REAL_SIZE + (game.height / 2);
-  let maxDrawX = maxSectorX * m_terrain.SECTOR_REAL_SIZE + (game.width  / 2);
-  let maxDrawY = maxSectorY * m_terrain.SECTOR_REAL_SIZE + (game.height / 2);
+  let minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
+  let minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
+  let maxSectorX = Math.ceil (maxX / SECTOR_REAL_SIZE);
+  let maxSectorY = Math.ceil (maxY / SECTOR_REAL_SIZE);
+  let minDrawX = minSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
+  let minDrawY = minSectorY * SECTOR_REAL_SIZE + (game.height / 2);
+  let maxDrawX = maxSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
+  let maxDrawY = maxSectorY * SECTOR_REAL_SIZE + (game.height / 2);
   
   // draw sectors as diversely coloured squares
   let sectorW = maxSectorX - minSectorX;
@@ -311,8 +312,8 @@ function renderTerrain(game: Game) {
   for (let si = 0; si < sectorArea; si++) {
     let sx = si % sectorW;
     let sy = (si - sx) / sectorW;
-    let sdlef = minDrawX - camX + sx * m_terrain.SECTOR_REAL_SIZE;
-    let sdtop = minDrawY - camY + sy * m_terrain.SECTOR_REAL_SIZE;
+    let sdlef = minDrawX - camX + sx * SECTOR_REAL_SIZE;
+    let sdtop = minDrawY - camY + sy * SECTOR_REAL_SIZE;
     
     let sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
     
@@ -323,8 +324,8 @@ function renderTerrain(game: Game) {
     ctx.strokeRect(
       sdlef,
       sdtop,
-      m_terrain.SECTOR_REAL_SIZE,
-      m_terrain.SECTOR_REAL_SIZE
+      SECTOR_REAL_SIZE,
+      SECTOR_REAL_SIZE
     );
     ctx.fillStyle = '#ffff44';
     ctx.strokeStyle = '#000000';
@@ -344,7 +345,7 @@ function renderTerrain(game: Game) {
   }
 }
 
-function renderUI(game) {
+function renderUI(game: Game) {
   renderKillScore(game);
   renderDeathScreen(game);
 }

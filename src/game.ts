@@ -1,30 +1,34 @@
-const m_cannonball = require('./objects/cannonball.js');
-const m_ship = require('./objects/ship.js');
-const m_physics = require('./objects/physics.js');
-const m_terrain = require('./terrain.js');
+import { Cannonball } from './objects/cannonball.js';
+import { Ship } from './objects/ship.js';
+import { PhysicsSimulation, PhysicsParams } from './objects/physics.js';
+import { Terrain, TerraDef } from './terrain.js';
 
-const Vec2 = require('victor');
+import Vec2 from 'victor';
+
+export interface CannonballParams extends PhysicsParams {
+  speed: number;
+}
 
 export class Game {
-  constructor(canvas: Canvas, terraDef) {
+  constructor(canvas: Canvas, terraDef: TerraDef) {
     this.canvas = canvas;
     this.drawCtx = canvas.getContext('2d');
-    this.physics = new m_physics.PhysicsSimulation(this);
+    this.physics = new PhysicsSimulation(this);
     this.player = null;
     this.terrain = null;
     
-    this.setTerrain(new m_terrain.Terrain(terraDef));
+    this.setTerrain(new Terrain(terraDef));
     
     this.ships = [];
     this.ais = [];
     this.cannonballs = [];
   }
   
-  makePhysObj(pos, params) {
+  makePhysObj(pos: Vec2, params?: PhysicsParams) {
     return this.physics.makePhysObj(pos, params);
   }
   
-  spawnCannonball(ship, params) {
+  spawnCannonball(ship: Ship, params?: CannonballParams) {
     if (params == null) params = {};
     if (params.speed == null) params.speed = 2;
     if (params.angle == null) params.angle = ship.angle;
@@ -34,12 +38,12 @@ export class Game {
     if (params.height == null) params.height = ship.height + 0.2;
     if (params.buoyancy == null) params.buoyancy = 0;
     
-    let cball = new m_cannonball.Cannonball(this, ship, params);
+    let cball = new Cannonball(this, ship, params);
     this.cannonballs.push(cball);
     return cball;
   }
   
-  inputHandler(name, event) {
+  inputHandler(name: string, event) {
     if (this.player == null) {
       return;
     }
@@ -55,7 +59,7 @@ export class Game {
     return 0.1;
   }
   
-  heightAt(x, y) {
+  heightAt(x: number, y: number) {
     // from 0 to 1
     if (this.terrain == null) {
       return 0;
@@ -82,17 +86,17 @@ export class Game {
     return this.canvas.getBoundingClientRect().height;
   }
   
-  addShip(ship) {
+  addShip(ship: Ship) {
     this.ships.push(ship)
   }
   
-  makeShip(pos, params) {
-    let res = new m_ship.Ship(this, pos, params);
+  makeShip(pos: Vec2, params) {
+    let res = new Ship(this, pos, params);
     this.addShip(res);
     return res;
   }
   
-  tickShips(deltaTime) {
+  tickShips(deltaTime: float) {
     this.ships.forEach((ship, i) => {
       if (ship.dying) {
         return;
@@ -101,19 +105,19 @@ export class Game {
     });
   }
   
-  tickCannonballs(deltaTime) {
+  tickCannonballs(deltaTime: float) {
     this.cannonballs.forEach((c) => {
       c.tick(deltaTime);
     })
   }
   
-  tickPlayer(deltaTime) {
+  tickPlayer(deltaTime: number) {
     if (this.player != null) {
       this.player.tick(deltaTime);
     }
   }
   
-  tickAIs(deltaTime) {
+  tickAIs(deltaTime: number) {
     this.ais.forEach((ai) => {
       ai.tick(this, deltaTime);
     })

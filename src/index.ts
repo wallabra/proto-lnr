@@ -1,23 +1,23 @@
-const m_tick = require('./tick.js');
-const m_game = require('./game.js');
-const m_ship = require('./objects/ship.js');
-const m_ai = require('./ai.js');
-const m_player = require('./player.js');
-const m_mouse = require('./mouse.js');
-const m_terrain = require('./terrain.js');
-const m_keyinput = require('./keyinput.js');
-const Vec2 = require('victor');
+import { tick } from './tick.js';
+import { Game } from './game.js';
+import { Ship } from './objects/ship.js';
+import { AIController } from './ai.js';
+import { Player } from './player.js';
+import { Terrain, defPlaceholder } from './terrain.js';
+import Vec2 from 'victor';
+import * as m_mouse from './mouse.js';
+import * as m_keyinput from './keyinput.js';
 
 m_mouse.registerMouseListener();
 
 const canvas = document.querySelector("#game-canvas");
-const game = new m_game.Game(canvas, m_terrain.defPlaceholder);
+const game = new Game(canvas, defPlaceholder);
 window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
 let playerShip = game.makeShip(Vec2(0, -350));
-const player = new m_player.Player(playerShip);
+const player = new Player(playerShip);
 game.setPlayer(player);
 
 let toSpawn = 40;
@@ -31,9 +31,9 @@ while (toSpawn > 0) {
     aiship.die();
     continue;
   }
-  game.addAI(new m_ai.AIController(aiship));
+  game.addAI(new AIController(aiship));
   aiship.setInstigator(playerShip);
   toSpawn--;
 }
 
-requestAnimationFrame(m_tick.tick.bind(null, game));
+requestAnimationFrame(tick.bind(null, game));

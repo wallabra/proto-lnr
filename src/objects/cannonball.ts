@@ -1,4 +1,4 @@
-const Vec2 = require('victor');
+import Vec2 from 'victor';
 
 export class Cannonball {
   constructor(game, shipOwner, params) {

@@ -1,4 +1,4 @@
-const Vec2 = require('victor');
+import Vec2 from 'victor';
 
 export const SECTOR_SIZE = 32;
 export const SECTOR_RES = 16;
@@ -11,28 +11,30 @@ class TerraSector {
   }
 }
 
-export function defPlaceholder(x, y) {
+export function defPlaceholder(x: number, y: number): number {
   return Math.pow(Math.min(1, Math.max(0, 1 - Math.sqrt((x*x) + (y*y)) / 900)), 5);
 }
 
+export type TerraDef = (x: number, y: number) => number;
+
 export class Terrain {
-  constructor(definition) {
+  constructor(definition: TerraDef) {
     this.definition = definition;
     this.sectors = new Map();
   }
   
-  gradientAt(x, y) {
+  gradientAt(x: number, y: number) {
     return Vec2(
       game.terrain.heightAt(x+0.5, y) - game.terrain.heightAt(x-0.5, y),
       game.terrain.heightAt(x, y+0.5) - game.terrain.heightAt(x, y-0.5)
     );
   }
   
-  heightAt(x, y) {
+  heightAt(x: number, y: number) {
     return this.definition(x, y);
   }
   
-  getSector(x, y) {
+  getSector(x: number, y: number) {
     if (!this.sectors.has(""+x+","+y)) {
       this.renderSector(x, y);
     }
@@ -40,11 +42,11 @@ export class Terrain {
     return this.sectors.get(""+x+","+y);
   }
   
-  setSector(x, y, sector) {
+  setSector(x: number, y: number, sector: TerraSector) {
     this.sectors.set(""+x+","+y, sector);
   }
   
-  renderSector(x, y) {
+  renderSector(x: number, y: number) {
     let sector = new TerraSector();
     let baseX = x * SECTOR_REAL_SIZE;
     let baseY = y * SECTOR_REAL_SIZE;
