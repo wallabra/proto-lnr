@@ -4,7 +4,7 @@
   "description": "Prototype version of Loot & Roam",
   "scripts": {
     "test": "jest",
-    "server": "parcel src/index.html --public-url=.",
+    "server": "parcel src/index.html",
     "build": "parcel build src/index.html --public-url=." 
   },
   "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
