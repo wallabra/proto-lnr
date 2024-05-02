@@ -1,4 +1,3 @@
-// @flow
 const m_render = require('./render.js');
 
 let lastTime = null;

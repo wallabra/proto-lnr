@@ -1,5 +1,3 @@
-//@flow
-
 const Vec2 = require('victor');
 
 export const SECTOR_SIZE = 32;

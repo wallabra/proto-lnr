@@ -1,4 +1,3 @@
-//@flow
 const m_cannonball = require('./objects/cannonball.js');
 const m_ship = require('./objects/ship.js');
 const m_physics = require('./objects/physics.js');

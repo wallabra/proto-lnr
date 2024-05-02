@@ -1,4 +1,3 @@
-//@flow
 const Vec2 = require('victor');
 
 export class Player {

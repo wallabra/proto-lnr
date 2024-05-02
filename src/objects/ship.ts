@@ -1,4 +1,3 @@
-//@flow
 var Vec2 = require('victor');
 const { angDiff, umod } = require('../util.js');
 

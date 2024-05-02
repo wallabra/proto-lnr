@@ -1,4 +1,3 @@
-//@flow
 function registerKey(key, callback) {
   function _listener(event) {
     if (event.key == key) {

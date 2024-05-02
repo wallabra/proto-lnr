@@ -1,4 +1,3 @@
-//@flow
 let angDiff = require('./util.js').angDiff;
 
 /// Basic placeholder AI

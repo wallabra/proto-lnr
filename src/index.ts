@@ -1,4 +1,3 @@
-//@flow
 const m_tick = require('./tick.js');
 const m_game = require('./game.js');
 const m_ship = require('./objects/ship.js');

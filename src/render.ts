@@ -1,4 +1,3 @@
-//@flow
 const Vec2 = require('victor');
 const m_terrain = require('./terrain.js');
 
