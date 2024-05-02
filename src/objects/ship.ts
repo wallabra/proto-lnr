@@ -126,7 +126,7 @@ export class Ship {
 
     cball.phys.vspeed = dist / 150;
 
-    const a = cball.phys.gravity;
+    const a = cball.phys.gravity / 2;
     const b = cball.phys.vspeed;
     const c = cball.phys.height - this.game.waterLevel * 2;
     const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
