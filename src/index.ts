@@ -1,9 +1,8 @@
 import { tick } from "./tick.js";
 import { Game } from "./game.js";
-import { Ship } from "./objects/ship.js";
 import { AIController } from "./ai.js";
 import { Player } from "./player.js";
-import { Terrain, defPlaceholder } from "./terrain.js";
+import { defPlaceholder } from "./terrain.js";
 import Vec2 from "victor";
 import * as m_mouse from "./mouse.js";
 import * as m_keyinput from "./keyinput.js";

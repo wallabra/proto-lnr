@@ -1,5 +1,3 @@
-import Vec2 from "victor";
-
 export class Cannonball {
   constructor(game, shipOwner, params) {
     this.game = game;

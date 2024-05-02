@@ -18,7 +18,7 @@ export class Player {
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
 
-  inputEvent(name: string, event: KeyboardEvent) {
+  inputEvent(name: string /*, event: KeyboardEvent*/) {
     if (name == "shoot") {
       this.inputState = "shoot";
     }
@@ -34,14 +34,14 @@ export class Player {
   }
 
   registerActions() {
-    this.registerAction("shoot", (deltaTime) => {
+    this.registerAction("shoot", (/*deltaTime*/) => {
       const ms = window.mouseState;
       this.possessed.tryShoot(Vec2(ms.x, ms.y).length());
     });
   }
 
   doAction(deltaTime: number) {
-    this.actions.forEach((act) => act());
+    this.actions.forEach((act) => act(deltaTime));
   }
 
   doSteer(deltaTime: number) {

@@ -17,11 +17,11 @@ export function registerMouseListener() {
     mouseState.y = e.clientY - window.innerHeight / 2;
   }
 
-  function onMouseDown(e: MouseEvent) {
+  function onMouseDown() {
     mouseState.steering = true;
   }
 
-  function onMouseUp(e: MouseEvent) {
+  function onMouseUp() {
     mouseState.steering = false;
   }
 }

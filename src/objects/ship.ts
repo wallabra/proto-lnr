@@ -22,13 +22,12 @@ export class Ship {
   }
 
   dragMixin() {
-    const ship = this;
     this.phys.waterDrag = function () {
       const alpha =
         1 - Math.abs(Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
-      const cs = this.size * (1 + alpha * (ship.lateralCrossSection - 1));
+      const cs = this.size * (1 + alpha * (this.lateralCrossSection - 1));
       return this.baseDrag * cs;
-    };
+    }.bind(this);
   }
 
   // -- phys util getters
@@ -208,7 +207,7 @@ export class Ship {
     );
   }
 
-  heightGradient(game) {
+  heightGradient() {
     return this.game.terrain.gradientAt(this.pos.x, this.pos.y);
   }
 

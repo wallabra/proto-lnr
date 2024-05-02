@@ -102,7 +102,7 @@ export class PhysicsObject {
     this.angle = this.angle % (Math.PI * 2);
   }
 
-  physVel(deltaTime: number) {
+  physVel() {
     const lastPos = this.pos.clone();
     this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
     this.lastPos = lastPos;
@@ -205,7 +205,7 @@ export class PhysicsObject {
 
     this.physAngle(deltaTime);
     this.physGravity(deltaTime);
-    this.physVel(deltaTime);
+    this.physVel();
     this.physDrag(deltaTime);
     this.physFriction(deltaTime);
     this.slideDownLand(deltaTime);

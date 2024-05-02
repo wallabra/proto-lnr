@@ -1,6 +1,5 @@
 import Vec2 from "victor";
 import {
-  Terrain,
   TerraSector,
   SECTOR_AREA,
   SECTOR_SIZE,
@@ -83,13 +82,13 @@ function renderCannonballs(game: Game) {
     // draw shadow
     ctx.fillStyle = "#0008";
     ctx.beginPath();
-    ctx.arc(x, y + shoffs, cball.size * proximityScale, 0, 2 * Math.PI);
+    ctx.arc(x, y + shoffs, size, 0, 2 * Math.PI);
     ctx.fill();
 
     // draw cball
     ctx.fillStyle = "#877";
     ctx.beginPath();
-    ctx.arc(x, y, cball.size * proximityScale, 0, 2 * Math.PI);
+    ctx.arc(x, y, size, 0, 2 * Math.PI);
     ctx.fill();
   });
 }
@@ -384,8 +383,6 @@ function renderTerrain(game: Game) {
   const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
   const minDrawX = minSectorX * SECTOR_REAL_SIZE + game.width / 2;
   const minDrawY = minSectorY * SECTOR_REAL_SIZE + game.height / 2;
-  const maxDrawX = maxSectorX * SECTOR_REAL_SIZE + game.width / 2;
-  const maxDrawY = maxSectorY * SECTOR_REAL_SIZE + game.height / 2;
 
   // draw sectors as diversely coloured squares
   const sectorW = maxSectorX - minSectorX;

@@ -96,7 +96,7 @@ export class Game {
   }
 
   tickShips(deltaTime: float) {
-    this.ships.forEach((ship, i) => {
+    this.ships.forEach((ship) => {
       if (ship.dying) {
         return;
       }
