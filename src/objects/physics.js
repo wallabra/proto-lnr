@@ -33,7 +33,9 @@ export class PhysicsObject {
     this.angle = params.angle != null ? params.angle : 0;
     this.angVel = 0;
     this.age = 0;
-    this.height = params.height != null ? params.height : Math.max(game.waterLevel, this.floor);
+    this.height = params.height != null
+      ? params.height
+      : Math.max(game.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
     this.baseDrag = 0.6;
@@ -55,7 +57,13 @@ export class PhysicsObject {
       return;
     }
     let dHeight = this.heightGradient().norm();
-    this.applyForce(deltaTime, Vec2(-dHeight.x * this.gravity * this.weight, -dHeight.y * this.gravity * this.weight));
+    this.applyForce(
+      deltaTime,
+      Vec2(
+        -dHeight.x * this.gravity * this.weight,
+        -dHeight.y * this.gravity * this.weight,
+      ),
+    );
   }
   
   get vel() {
@@ -67,7 +75,11 @@ export class PhysicsObject {
   }
   
   applyForce(deltaTime, force) {
-    this.lastPos.subtract(force.clone().multiply(Vec2(deltaTime * this.weight, deltaTime * this.weight)));
+    this.lastPos.subtract(
+      force.clone().multiply(
+        Vec2(deltaTime * this.weight, deltaTime * this.weight),
+      ),
+    );
   }
   
   physAngle(deltaTime) {
@@ -84,7 +96,7 @@ export class PhysicsObject {
   
   waterDrag() {
     return this.baseDrag;
-  }
+  };
   
   airDrag() {
     return this.baseDrag * 0.02;
@@ -92,13 +104,14 @@ export class PhysicsObject {
   
   physDrag(deltaTime) {
     let floor = this.floor;
-    let inWater = floor < this.game.waterLevel && this.height <= this.game.waterLevel + 0.01;
+    let inWater = floor < this.game.waterLevel &&
+      this.height <= this.game.waterLevel + 0.01;
     
     let drag = inWater ? this.waterDrag() : this.airDrag();
     
     let currVel = this.vel;
     let dragForce = Vec2(-deltaTime * drag, -deltaTime * drag).multiply(currVel);
-
+    
     this.applyForce(deltaTime, dragForce);
   }
   
@@ -118,9 +131,7 @@ export class PhysicsObject {
     
     if (fricForce.length() * deltaTime > this.vel.length()) {
       this.vel = Vec2(0, 0);
-    }
-    
-    else {
+    } else {
       this.applyForce(deltaTime, fricForce);
     }
   }
@@ -128,8 +139,14 @@ export class PhysicsObject {
   heightGradient() {
     let terrain = this.game.terrain;
     return Vec2(
-      terrain.heightAt(this.pos.x+0.5, this.pos.y) - this.game.terrain.heightAt(this.pos.x-0.5, this.pos.y),
-      this.game.terrain.heightAt(this.pos.x, this.pos.y+0.5) - this.game.terrain.heightAt(this.pos.x, this.pos.y-0.5)
+      terrain.heightAt(this.pos.x + 0.5, this.pos.y) - this.game.terrain.heightAt(
+        this.pos.x - 0.5,
+        this.pos.y,
+      ),
+      this.game.terrain.heightAt(this.pos.x, this.pos.y + 0.5) - this.game.terrain.heightAt(
+        this.pos.x,
+        this.pos.y - 0.5,
+      ),
     );
   }
   
@@ -144,10 +161,10 @@ export class PhysicsObject {
   
   physGravity(deltaTime) {
     this.height += this.vspeed * deltaTime;
-
+    
     let floor = this.floor;
     let inWater = floor < this.game.waterLevel;
-  
+    
     if (this.height < floor) {
       this.height = floor;
       this.vspeed = 0;
@@ -156,9 +173,7 @@ export class PhysicsObject {
     
     if (inWater && this.height < this.game.waterLevel) {
       this.vspeed += this.buoyancy * deltaTime;
-    }
-    
-    else {
+    } else {
       this.vspeed -= this.gravity * deltaTime;
     }
   }
@@ -171,7 +186,7 @@ export class PhysicsObject {
   
   tick(deltaTime) {
     this.age += deltaTime;
-
+    
     this.physAngle(deltaTime);
     this.physGravity(deltaTime);
     this.physVel(deltaTime);

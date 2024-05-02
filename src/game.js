@@ -58,7 +58,7 @@ export class Game {
   
   heightAt(x, y) {
     // from 0 to 1
-    if (!this.terrain) {
+    if (this.terrain == null) {
       return 0;
     }
     
