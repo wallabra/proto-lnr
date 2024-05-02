@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Prototype version of Loot & Roam",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint src/",
     "server": "parcel src/index.html",
     "build": "parcel build src/index.html --public-url=."
