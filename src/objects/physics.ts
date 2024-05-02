@@ -21,7 +21,7 @@ export class PhysicsSimulation {
   }
   
   makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
-    let res = new PhysicsObject(this.game, pos, params);
+    const res = new PhysicsObject(this.game, pos, params);
     this.objects.push(res);
     return res;
   }
@@ -29,7 +29,7 @@ export class PhysicsSimulation {
   tick(timeDelta: number) {
     this.objects = this.objects.filter((o) => !o.dying);
     
-    for (let obj of this.objects) {
+    for (const obj of this.objects) {
       obj.tick(timeDelta);
     }
   }
@@ -65,11 +65,11 @@ export class PhysicsObject {
   }
   
   slideDownLand(deltaTime: number) {
-    let floor = this.floor;
+    const floor = this.floor;
     if (floor <= game.waterLevel || this.height > floor + 0.1) {
       return;
     }
-    let dHeight = this.heightGradient().norm();
+    const dHeight = this.heightGradient().norm();
     this.applyForce(
       deltaTime,
       Vec2(
@@ -102,7 +102,7 @@ export class PhysicsObject {
   }
   
   physVel(deltaTime: number) {
-    let lastPos = this.pos.clone();
+    const lastPos = this.pos.clone();
     this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
     this.lastPos = lastPos;
   }
@@ -116,20 +116,20 @@ export class PhysicsObject {
   }
   
   physDrag(deltaTime: number) {
-    let floor = this.floor;
-    let inWater = floor < this.game.waterLevel &&
+    const floor = this.floor;
+    const inWater = floor < this.game.waterLevel &&
       this.height <= this.game.waterLevel + 0.01;
     
-    let drag = inWater ? this.waterDrag() : this.airDrag();
+    const drag = inWater ? this.waterDrag() : this.airDrag();
     
-    let currVel = this.vel;
-    let dragForce = Vec2(-deltaTime * drag, -deltaTime * drag).multiply(currVel);
+    const currVel = this.vel;
+    const dragForce = Vec2(-deltaTime * drag, -deltaTime * drag).multiply(currVel);
     
     this.applyForce(deltaTime, dragForce);
   }
   
   physFriction(deltaTime: number) {
-    let floor = this.floor;
+    const floor = this.floor;
     
     if (this.height > this.floor + 0.01) {
       return;
@@ -139,8 +139,8 @@ export class PhysicsObject {
       return;
     }
     
-    let friction = this.baseFriction * this.weight;
-    let fricForce = this.vel.clone().norm().multiply(Vec2(-friction, -friction));
+    const friction = this.baseFriction * this.weight;
+    const fricForce = this.vel.clone().norm().multiply(Vec2(-friction, -friction));
     
     if (fricForce.length() * deltaTime > this.vel.length()) {
       this.vel = Vec2(0, 0);
@@ -150,7 +150,7 @@ export class PhysicsObject {
   }
   
   heightGradient() {
-    let terrain = this.game.terrain;
+    const terrain = this.game.terrain;
     return Vec2(
       terrain.heightAt(this.pos.x + 0.5, this.pos.y) - this.game.terrain.heightAt(
         this.pos.x - 0.5,
@@ -164,10 +164,10 @@ export class PhysicsObject {
   }
   
   circleIntersect(otherObj: PhysicsObject, scale: number) {
-    let r1 = this.size * (scale || 1);
-    let r2 = otherObj.size * (scale || 1);
+    const r1 = this.size * (scale || 1);
+    const r2 = otherObj.size * (scale || 1);
     
-    let dist = this.pos.clone().subtract(otherObj.pos).length();
+    const dist = this.pos.clone().subtract(otherObj.pos).length();
     
     return dist <= r1 + r2;
   }
@@ -175,8 +175,8 @@ export class PhysicsObject {
   physGravity(deltaTime: number) {
     this.height += this.vspeed * deltaTime;
     
-    let floor = this.floor;
-    let inWater = floor < this.game.waterLevel;
+    const floor = this.floor;
+    const inWater = floor < this.game.waterLevel;
     
     if (this.height < floor) {
       this.height = floor;

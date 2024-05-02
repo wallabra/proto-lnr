@@ -1,6 +1,6 @@
 export function registerMouseListener() {
   // Adapted from https://stackoverflow.com/a/22986867/5129091
-  let mouseState = {
+  const mouseState = {
     x: null,
     y: null,
     steering: false,

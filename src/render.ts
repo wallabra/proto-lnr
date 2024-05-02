@@ -5,7 +5,7 @@ import { lerp } from './util.ts';
 
 function renderDeathScreen(game: Game) {
   // render death screen
-  let ctx = game.drawCtx;
+  const ctx = game.drawCtx;
   
   if (game.player != null && game.player.possessed != null && game.player.possessed.dying) {
     ctx.fillStyle = '#22222240';
@@ -21,7 +21,7 @@ function renderDeathScreen(game: Game) {
 
 function renderKillScore(game: Game) {
   // render kill score
-  let ctx = game.drawCtx;
+  const ctx = game.drawCtx;
   
   if (game.player != null && game.player.possessed != null) {
     ctx.fillStyle = '#0099ff';
@@ -33,9 +33,9 @@ function renderKillScore(game: Game) {
 }
 
 function renderCannonballs(game: Game) {
-  let ctx = game.drawCtx;
-  let baseX = game.width / 2;
-  let baseY = game.height / 2;
+  const ctx = game.drawCtx;
+  const baseX = game.width / 2;
+  const baseY = game.height / 2;
   
   // set camera
   let cam = Vec2(0, 0);
@@ -47,20 +47,20 @@ function renderCannonballs(game: Game) {
   // render cannonballs
   
   game.cannonballs.forEach((cball: Cannonball) => {
-    let x = baseX + cball.pos.x - cam.x;
-    let y = baseY + cball.pos.y - cam.y;
-    let camheight = 4;
-    let cdist = Vec2(x, y).subtract(Vec2(game.width / 2, game.height / 2)).length() / Math.min(game.width, game.height) * 0.5;
-    let hdist = camheight - cball.height/2;
-    let proximityScale = camheight / Vec2(hdist + cdist).length();
-    let size = cball.size * proximityScale;
+    const x = baseX + cball.pos.x - cam.x;
+    const y = baseY + cball.pos.y - cam.y;
+    const camheight = 4;
+    const cdist = Vec2(x, y).subtract(Vec2(game.width / 2, game.height / 2)).length() / Math.min(game.width, game.height) * 0.5;
+    const hdist = camheight - cball.height/2;
+    const proximityScale = camheight / Vec2(hdist + cdist).length();
+    const size = cball.size * proximityScale;
     
     if (hdist < 0.02) {
       return;
     }
     
-    let hoffs = cball.height * 20 + 5;
-    let shoffs = Math.max(0, hoffs - Math.max(cball.phys.floor, game.waterLevel) * 20);
+    const hoffs = cball.height * 20 + 5;
+    const shoffs = Math.max(0, hoffs - Math.max(cball.phys.floor, game.waterLevel) * 20);
     
     // draw shadow
     ctx.fillStyle = '#0008';
@@ -77,9 +77,9 @@ function renderCannonballs(game: Game) {
 }
 
 function renderShips(game: Game) {
-  let ctx = game.drawCtx;
-  let baseX = game.width / 2;
-  let baseY = game.height / 2;
+  const ctx = game.drawCtx;
+  const baseX = game.width / 2;
+  const baseY = game.height / 2;
 
   ctx.strokeStyle = '#005500';
   ctx.lineWidth = 2;
@@ -93,20 +93,20 @@ function renderShips(game: Game) {
   
   // render ships
   game.ships.forEach((ship: Ship) => {
-    let x = baseX + ship.pos.x - cam.x;
-    let y = baseY + ship.pos.y - cam.y;
-    let isPlayer = game.player != null && game.player.possessed === ship;
-    let camheight = 4;
-    let hdist = camheight - ship.height/2;
-    let proximityScale = camheight / hdist;
-    let size = ship.size * proximityScale;
+    const x = baseX + ship.pos.x - cam.x;
+    const y = baseY + ship.pos.y - cam.y;
+    const isPlayer = game.player != null && game.player.possessed === ship;
+    const camheight = 4;
+    const hdist = camheight - ship.height/2;
+    const proximityScale = camheight / hdist;
+    const size = ship.size * proximityScale;
       
     if (hdist < 0.1) {
       return;
     }
       
-    let hoffs = (ship.height * 20) + 10;
-    let shoffs = Math.max(0, hoffs - Math.max(ship.phys.floor, game.waterLevel) * 20);
+    const hoffs = (ship.height * 20) + 10;
+    const shoffs = Math.max(0, hoffs - Math.max(ship.phys.floor, game.waterLevel) * 20);
     
     // Draw shadow
     ctx.fillStyle = '#0008';
@@ -128,7 +128,7 @@ function renderShips(game: Game) {
     // Draw forward direction
     ctx.beginPath();
     ctx.moveTo(x, y);
-    let to = Vec2(ship.size * ship.lateralCrossSection).rotateBy(ship.angle).add(Vec2(x, y));
+    const to = Vec2(ship.size * ship.lateralCrossSection).rotateBy(ship.angle).add(Vec2(x, y));
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
     
@@ -144,11 +144,11 @@ function renderShips(game: Game) {
   })
   
   game.ships.forEach((ship: Ship) => {
-    let x = baseX + ship.pos.x - cam.x;
-    let y = baseY + ship.pos.y - cam.y;
+    const x = baseX + ship.pos.x - cam.x;
+    const y = baseY + ship.pos.y - cam.y;
     
     // Draw damage bar
-    let maxDmg = ship.maxDmg;
+    const maxDmg = ship.maxDmg;
     let dmgAlpha = ship.damage / maxDmg;
     
     if (dmgAlpha > 1) {
@@ -167,16 +167,16 @@ function renderShips(game: Game) {
     ctx.strokeWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x, y);
-    let to = ship.heightGradient(game).multiply(Vec2(5000, 5000)).add(Vec2(x, y));
+    const to = ship.heightGradient(game).multiply(Vec2(5000, 5000)).add(Vec2(x, y));
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
   })
 }
 
 function renderBackground(game: Game) {
-  let ctx = game.drawCtx;
+  const ctx = game.drawCtx;
   
-  let bgColor = '#3377aa';
+  const bgColor = '#3377aa';
   ctx.fillStyle = bgColor;
   
   ctx.fillRect(0, 0, game.width, game.height);
@@ -184,11 +184,11 @@ function renderBackground(game: Game) {
 
 function interpTerrainColor(game: Game, height: number) {
   // below waterLevel
-  let rgb1 = [0, 10, 45];
-  let rgb2 = [30, 60, 70]; 
+  const rgb1 = [0, 10, 45];
+  const rgb2 = [30, 60, 70]; 
   // above waterLevel
-  let rgb3 = [50, 90, 30]; 
-  let rgb4 = [180, 182, 197];
+  const rgb3 = [50, 90, 30]; 
+  const rgb4 = [180, 182, 197];
   
   let from = null;
   let to = null;
@@ -207,7 +207,7 @@ function interpTerrainColor(game: Game, height: number) {
   }
   
   // lerp color
-  let rgbFinal = interpColor(from, to, alpha);
+  const rgbFinal = interpColor(from, to, alpha);
   
   return rgbFinal;
 }
@@ -222,19 +222,19 @@ function interpColor(from: [number, number, number], to: [number, number, number
 
 window.interpTerrainColor = interpTerrainColor; //DEBUG
 
-let renderedSectors = new Map();
+const renderedSectors = new Map();
 
 function renderTerrainSector(ctx: CanvasRenderingContext2D, cx: number, cy: number, game: Game, sector: TerraSector) {
   for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
-    let tx = tileIdx % SECTOR_SIZE;
-    let ty = (tileIdx - tx) / SECTOR_SIZE;
+    const tx = tileIdx % SECTOR_SIZE;
+    const ty = (tileIdx - tx) / SECTOR_SIZE;
     
-    let height = sector.heights[tileIdx];
-    let drawX = tx * SECTOR_RES;
-    let drawY = ty * SECTOR_RES;
+    const height = sector.heights[tileIdx];
+    const drawX = tx * SECTOR_RES;
+    const drawY = ty * SECTOR_RES;
     
-    let gradient = game.terrain.gradientAt(cx + tx * SECTOR_RES, cy + ty * SECTOR_RES);
-    let shadowness = height < game.waterLevel ? 0 : Math.max(0, 30 * gradient.dot(Vec2(0, -1)));
+    const gradient = game.terrain.gradientAt(cx + tx * SECTOR_RES, cy + ty * SECTOR_RES);
+    const shadowness = height < game.waterLevel ? 0 : Math.max(0, 30 * gradient.dot(Vec2(0, -1)));
 
     ctx.lineWidth = 0;
     ctx.fillStyle = rgbString(interpColor(interpTerrainColor(game, height), [12, 12, 12], shadowness));
@@ -243,23 +243,23 @@ function renderTerrainSector(ctx: CanvasRenderingContext2D, cx: number, cy: numb
 }
 
 function drawTerrainSector(ctx: CanvasRenderingContext2D, sx: number, sy: number, game: Game, sdlef: number, sdtop: number, sector: TerraSector) {
-  let key = `${sx},${sy}`;
+  const key = `${sx},${sy}`;
   let image = 0;
   
   if (!renderedSectors.has(key)) {
-    let x = sx * SECTOR_REAL_SIZE;
-    let y = sx * SECTOR_REAL_SIZE;
+    const x = sx * SECTOR_REAL_SIZE;
+    const y = sx * SECTOR_REAL_SIZE;
     
-    let renderCanvas = document.createElement('canvas');
+    const renderCanvas = document.createElement('canvas');
     renderCanvas.width = SECTOR_REAL_SIZE;
     renderCanvas.height = SECTOR_REAL_SIZE;
-    let renderCtx = renderCanvas.getContext('2d');
+    const renderCtx = renderCanvas.getContext('2d');
     renderCtx.imageSmoothingEnabled = false;
     
     renderTerrainSector(renderCtx, x, y, game, sector);
     
-    let imgData = renderCanvas.toDataURL('image/png', 'image/octet-scream');
-    let imgEl = document.createElement('img');
+    const imgData = renderCanvas.toDataURL('image/png', 'image/octet-scream');
+    const imgEl = document.createElement('img');
     imgEl.src = imgData;
     renderedSectors.set(key, imgEl);
     image = imgEl;
@@ -276,7 +276,7 @@ function drawTerrainSector(ctx: CanvasRenderingContext2D, sx: number, sy: number
 }
 
 function renderTerrain(game: Game) {
-  let ctx = game.drawCtx;
+  const ctx = game.drawCtx;
 
   if (game.terrain == null) {
     return;
@@ -290,32 +290,32 @@ function renderTerrain(game: Game) {
     camY = game.player.possessed.pos.y;
   }
   
-  let minX = -(game.width  / 2) + camX;
-  let minY = -(game.height / 2) + camY;
-  let maxX =  (game.width  / 2) + camX;
-  let maxY =  (game.height / 2) + camY;
+  const minX = -(game.width  / 2) + camX;
+  const minY = -(game.height / 2) + camY;
+  const maxX =  (game.width  / 2) + camX;
+  const maxY =  (game.height / 2) + camY;
 
-  let minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
-  let minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
-  let maxSectorX = Math.ceil (maxX / SECTOR_REAL_SIZE);
-  let maxSectorY = Math.ceil (maxY / SECTOR_REAL_SIZE);
-  let minDrawX = minSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
-  let minDrawY = minSectorY * SECTOR_REAL_SIZE + (game.height / 2);
-  let maxDrawX = maxSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
-  let maxDrawY = maxSectorY * SECTOR_REAL_SIZE + (game.height / 2);
+  const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
+  const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
+  const maxSectorX = Math.ceil (maxX / SECTOR_REAL_SIZE);
+  const maxSectorY = Math.ceil (maxY / SECTOR_REAL_SIZE);
+  const minDrawX = minSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
+  const minDrawY = minSectorY * SECTOR_REAL_SIZE + (game.height / 2);
+  const maxDrawX = maxSectorX * SECTOR_REAL_SIZE + (game.width  / 2);
+  const maxDrawY = maxSectorY * SECTOR_REAL_SIZE + (game.height / 2);
   
   // draw sectors as diversely coloured squares
-  let sectorW = maxSectorX - minSectorX;
-  let sectorH = maxSectorY - minSectorY;
-  let sectorArea = sectorW * sectorH;
+  const sectorW = maxSectorX - minSectorX;
+  const sectorH = maxSectorY - minSectorY;
+  const sectorArea = sectorW * sectorH;
   
   for (let si = 0; si < sectorArea; si++) {
-    let sx = si % sectorW;
-    let sy = (si - sx) / sectorW;
-    let sdlef = minDrawX - camX + sx * SECTOR_REAL_SIZE;
-    let sdtop = minDrawY - camY + sy * SECTOR_REAL_SIZE;
+    const sx = si % sectorW;
+    const sy = (si - sx) / sectorW;
+    const sdlef = minDrawX - camX + sx * SECTOR_REAL_SIZE;
+    const sdtop = minDrawY - camY + sy * SECTOR_REAL_SIZE;
     
-    let sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
+    const sector = game.terrain.getSector(minSectorX + sx, minSectorY + sy);
     
     drawTerrainSector(ctx, minSectorX + sx, minSectorY + sy, game, sdlef, sdtop, sector);
     

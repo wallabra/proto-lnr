@@ -47,12 +47,12 @@ export class Terrain {
   }
   
   renderSector(x: number, y: number) {
-    let sector = new TerraSector();
-    let baseX = x * SECTOR_REAL_SIZE;
-    let baseY = y * SECTOR_REAL_SIZE;
+    const sector = new TerraSector();
+    const baseX = x * SECTOR_REAL_SIZE;
+    const baseY = y * SECTOR_REAL_SIZE;
     for (let i = 0; i < SECTOR_AREA; i++) {
-      let cx = i % SECTOR_SIZE;
-      let cy = (i - cx) / SECTOR_SIZE;
+      const cx = i % SECTOR_SIZE;
+      const cy = (i - cx) / SECTOR_SIZE;
       sector.heights[i] = this.definition(baseX + cx * SECTOR_RES, baseY + cy * SECTOR_RES);
     }
     this.setSector(x, y, sector);

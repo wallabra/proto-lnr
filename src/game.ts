@@ -38,7 +38,7 @@ export class Game {
     if (params.height == null) params.height = ship.height + 0.2;
     if (params.buoyancy == null) params.buoyancy = 0;
     
-    let cball = new Cannonball(this, ship, params);
+    const cball = new Cannonball(this, ship, params);
     this.cannonballs.push(cball);
     return cball;
   }
@@ -91,7 +91,7 @@ export class Game {
   }
   
   makeShip(pos: Vec2, params) {
-    let res = new Ship(this, pos, params);
+    const res = new Ship(this, pos, params);
     this.addShip(res);
     return res;
   }

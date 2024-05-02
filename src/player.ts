@@ -9,12 +9,12 @@ export class Player {
   }
   
   steer(offs: Vec2, deltaTime: number) {
-    let targ = offs.angle();
+    const targ = offs.angle();
     this.possessed.steer(deltaTime, targ);
   }
   
   approach(offs: Vec2, deltaTime: number) {  
-    let dot = Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
+    const dot = Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
   
@@ -35,7 +35,7 @@ export class Player {
     
   registerActions() {
     this.registerAction('shoot', (deltaTime) => {
-      let ms = window.mouseState;
+      const ms = window.mouseState;
       this.possessed.tryShoot(Vec2(ms.x, ms.y).length());
     });
   }
@@ -49,7 +49,7 @@ export class Player {
       return;
     }
     
-    let offs = Vec2(window.mouseState.x, window.mouseState.y);
+    const offs = Vec2(window.mouseState.x, window.mouseState.y);
     
     if (offs.length() < this.possessed.size * this.possessed.lateralCrossSection * 2) {
       // close enough

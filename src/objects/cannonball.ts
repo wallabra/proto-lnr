@@ -61,11 +61,11 @@ export class Cannonball {
       return 0;
     }
     
-    let angle2 = this.pos.clone().subtract(ship.pos).angle();
-    let r1 = this.size;
-    let r2 = ship.intermediaryRadius(angle2);
+    const angle2 = this.pos.clone().subtract(ship.pos).angle();
+    const r1 = this.size;
+    const r2 = ship.intermediaryRadius(angle2);
     
-    let dist = this.pos.clone().subtract(ship.pos).length();
+    const dist = this.pos.clone().subtract(ship.pos).length();
     
     if (dist > r1 + r2) {
       return 0;
@@ -75,7 +75,7 @@ export class Cannonball {
   }
   
   checkShipCollision(deltaTime, ship) {
-    let closeness = this.touchingShip(ship);
+    const closeness = this.touchingShip(ship);
     if (closeness <= 0) {
       return false;
     }
@@ -91,7 +91,7 @@ export class Cannonball {
   }
   
   checkShipCollisions(deltaTime) {
-    for (let ship of this.game.ships) {
+    for (const ship of this.game.ships) {
       if (ship === this.instigator) {
         continue;
       }
