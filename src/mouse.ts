@@ -1,4 +1,4 @@
-export var mouseState = {
+export const mouseState = {
   x: 0,
   y: 0,
   steering: false,

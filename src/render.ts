@@ -9,7 +9,6 @@ import {
 } from "./terrain.js";
 import { rgbString, interpColor } from "./util.ts";
 import { Game } from "./game.ts";
-import { Cannonball } from "./objects/cannonball.ts";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -69,7 +68,7 @@ export class ObjectRenderer {
       renderer: this
     };
     
-    for (let obj of this.renderables) {
+    for (const obj of this.renderables) {
       obj.render(info);
     }
   }
@@ -200,10 +199,8 @@ export class TerrainRenderer {
     if (this.terrain == null) {
       return;
     }
-    
-    const ctx = this.game.drawCtx;
   
-    let cam = this.game.cameraPos();
+    const cam = this.game.cameraPos();
   
     const minX = -(this.game.width / 2) + cam.x;
     const minY = -(this.game.height / 2) + cam.y;
@@ -237,30 +234,6 @@ export class TerrainRenderer {
         sdtop,
         sector,
       );
-  
-      /*ctx.strokeStyle = '#ffff00';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(
-        sdlef,
-        sdtop,
-        SECTOR_REAL_SIZE,
-        SECTOR_REAL_SIZE
-      );
-      ctx.fillStyle = '#ffff44';
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 4;
-      ctx.font = "15px Arial";
-      ctx.textBaseline = 'top';
-      ctx.strokeText(
-        `(${sx + minSectorX}, ${sy + minSectorY})`,
-        sdlef + 25,
-        sdtop + 25
-      );
-      ctx.fillText(
-        `(${sx + minSectorX}, ${sy + minSectorY})`,
-        sdlef + 25,
-        sdtop + 25
-      );*/
     }
   }
 }

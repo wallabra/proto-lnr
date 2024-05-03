@@ -1,5 +1,4 @@
 import Vec2 from "victor";
-import { Game } from "./game";
 
 export const SECTOR_SIZE = 32;
 export const SECTOR_RES = 16;

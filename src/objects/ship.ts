@@ -3,7 +3,7 @@ import { Cannonball } from "./cannonball.ts";
 import { angDiff, umod } from "../util.ts";
 import type { Game } from "../game.ts";
 import type { PhysicsObject } from "./physics.ts";
-import { ObjectRenderInfo, ObjectRenderer } from "../render.ts";
+import { ObjectRenderInfo } from "../render.ts";
 
 export class Ship {
   game: Game;
@@ -416,7 +416,7 @@ export class Ship {
   checkShipCollisions(deltaTime) {
     let foundSelf = false;
 
-    for (let ship of this.game.tickables) {
+    for (const ship of this.game.tickables) {
       if (!(ship instanceof Ship)) {
         return;
       }

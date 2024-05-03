@@ -26,6 +26,7 @@ export class Player {
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   inputEvent(name: string, event: KeyboardEvent) {
     if (name == "shoot") {
       this.inputState = "shoot";

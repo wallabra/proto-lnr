@@ -1,6 +1,6 @@
 import Vec2 from 'victor';
 import { Game } from "../game";
-import { ObjectRenderInfo, ObjectRenderer } from "../render";
+import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 

@@ -1,6 +1,5 @@
 import { tickLoop } from "./tick.js";
 import { Game } from "./game.js";
-import { AIController } from "./ai.js";
 import { Player } from "./player.js";
 import { defPlaceholder } from "./terrain.js";
 import Vec2 from "victor";
