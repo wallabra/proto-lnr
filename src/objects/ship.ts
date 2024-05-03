@@ -309,7 +309,7 @@ export class Ship {
 
   get thrust() {
     // TODO: depend on ship makeup
-    return 0.4;
+    return 0.7;
   }
 
   get maxShootRange() {
