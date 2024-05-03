@@ -140,9 +140,7 @@ export class PhysicsObject {
 
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
-    const currVel = this.vel;
-    const dragForce = Vec2(-drag, -drag).multiply(currVel);
-
+    const dragForce = Vec2(-drag, -drag).multiply(this.vel);
     this.applyForce(deltaTime, dragForce);
   }
 

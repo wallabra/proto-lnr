@@ -37,7 +37,7 @@ export class Ship {
 
     this.dragMixin();
   }
-  
+
   defaultMaxCannonPower() {
     const airtime = this.shotAirtime();
     return this.maxShootRange / airtime;
@@ -47,8 +47,8 @@ export class Ship {
     this.phys.waterDrag = function () {
       const alpha =
         1 - Math.abs(Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
-      const cs = this.size * (1 + alpha * (this.lateralCrossSection - 1));
-      return this.baseDrag * cs;
+      const cs = 1 + (alpha * this.lateralCrossSection) / this.size;
+      return this.phys.baseDrag * cs;
     }.bind(this);
   }
 
@@ -150,7 +150,9 @@ export class Ship {
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
-    const drawPos = info.base.clone().add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
+    const drawPos = info.base
+      .clone()
+      .add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
@@ -211,12 +213,21 @@ export class Ship {
     ctx.fill();
 
     // Draw forward direction
+    ctx.strokeStyle = "#0008";
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
     const to = Vec2(this.size * this.lateralCrossSection)
       .rotateBy(this.angle)
       .add(drawPos);
     ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    // Draw velocity
+    ctx.strokeStyle = "#00f";
+    ctx.beginPath();
+    ctx.moveTo(drawPos.x, drawPos.y);
+    const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
+    ctx.lineTo(vto.x, vto.y);
     ctx.stroke();
 
     // Draw damage bar
@@ -273,7 +284,10 @@ export class Ship {
       dist -
       this.pos.clone().subtract(this.cannonballSpawnSpot()).length() -
       velComp * airtime;
-    const targSpeed = Math.min(this.maxCannonPower, (dist / airtime) * timeDelta);
+    const targSpeed = Math.min(
+      this.maxCannonPower,
+      (dist / airtime) * timeDelta,
+    );
     cball.phys.vel = Vec2(targSpeed, 0).rotateBy(this.angle).add(this.vel);
   }
 

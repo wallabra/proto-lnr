@@ -152,7 +152,7 @@ export class TerrainRenderer {
     sdlef: number,
     sdtop: number,
     sector: TerraSector,
-    zoom: number
+    zoom: number,
   ) {
     const ctx = this.game.drawCtx;
     const key = `${sx},${sy}`;
@@ -187,13 +187,7 @@ export class TerrainRenderer {
     }
 
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(
-      image,
-      sdlef,
-      sdtop,
-      sectorSize + 1,
-      sectorSize + 1,
-    );
+    ctx.drawImage(image, sdlef, sdtop, sectorSize + 1, sectorSize + 1);
     ctx.imageSmoothingEnabled = true;
   }
 
@@ -201,7 +195,7 @@ export class TerrainRenderer {
     if (this.terrain == null) {
       return;
     }
-    
+
     const smallEdge = Math.min(this.game.width, this.game.height);
     const zoom = smallEdge / this.game.renderer.zoom;
 
@@ -211,7 +205,7 @@ export class TerrainRenderer {
     const minY = -(this.game.height / 2) + cam.y;
     const maxX = this.game.width / 2 + cam.x;
     const maxY = this.game.height / 2 + cam.y;
-    
+
     const sectorSize = SECTOR_REAL_SIZE * zoom;
 
     const minSectorX = Math.floor(minX / sectorSize);
@@ -240,7 +234,7 @@ export class TerrainRenderer {
         sdlef,
         sdtop,
         sector,
-        zoom
+        zoom,
       );
     }
   }

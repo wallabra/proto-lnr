@@ -139,7 +139,9 @@ export class Cannonball {
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
-    const drawPos = info.base.clone().add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
+    const drawPos = info.base
+      .clone()
+      .add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
