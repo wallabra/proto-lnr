@@ -38,7 +38,7 @@ function main() {
       continue;
     }
     game.makeAIFor(aiship);
-    aiship.setInstigator(playerShip);
+    //aiship.setInstigator(playerShip);
     toSpawn--;
   }
 
