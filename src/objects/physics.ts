@@ -70,12 +70,12 @@ export class PhysicsObject {
     if (floor <= game.waterLevel || this.height > floor + 0.1) {
       return;
     }
-    const dHeight = this.heightGradient().norm();
+    const dHeight = this.heightGradient();
     this.applyForce(
       deltaTime,
       Vec2(
-        -dHeight.x * this.gravity * this.weight,
-        -dHeight.y * this.gravity * this.weight,
+        -dHeight.x * this.gravity * this.weight * 100,
+        -dHeight.y * this.gravity * this.weight * 100,
       ),
     );
   }
@@ -113,7 +113,7 @@ export class PhysicsObject {
   }
 
   airDrag() {
-    return this.baseDrag * 0.02;
+    return this.baseDrag * 0.2;
   }
 
   physDrag(deltaTime: number) {
