@@ -1,14 +1,14 @@
-import Vec2 from 'victor';
+import Vec2 from "victor";
 import { angDiff } from "./util.ts";
-import { Game } from './game.ts';
-import { Ship } from './objects/ship.ts';
+import { Game } from "./game.ts";
+import { Ship } from "./objects/ship.ts";
 
 /// Basic placeholder AI
 export class AIController {
   game: Game;
   possessed: Ship;
   dying: boolean;
-  
+
   constructor(game: Game, ship: Ship) {
     this.game = game;
     this.possessed = ship;
@@ -20,7 +20,7 @@ export class AIController {
     if (
       game.terrain != null &&
       game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) >
-      game.waterLevel * 0.9
+        game.waterLevel * 0.9
     ) {
       const dHeight = this.possessed.heightGradient();
       this.possessed.steer(deltaTime, dHeight.invert().angle());
@@ -30,12 +30,16 @@ export class AIController {
         const airtime = this.possessed.shotAirtime();
         const steerAngle = this.possessed.lastInstigator.pos
           .clone()
-          .add(this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)))
+          .add(
+            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
+          )
           .subtract(this.possessed.pos.clone().add(this.possessed.vel))
           .angle();
         const targetAngle = this.possessed.lastInstigator.pos
           .clone()
-          .add(this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)))
+          .add(
+            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
+          )
           .subtract(this.possessed.pos)
           .angle();
         const dist = this.possessed.lastInstigator.pos
@@ -49,8 +53,7 @@ export class AIController {
                 this.possessed.lastInstigator.lateralCrossSection) /
                 2 /
                 dist,
-            ) *
-              1.5 &&
+            ) &&
           this.possessed.pos
             .clone()
             .subtract(this.possessed.lastInstigator.pos)

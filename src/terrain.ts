@@ -7,7 +7,7 @@ export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
 export class TerraSector {
   heights: Array<number>;
-  
+
   constructor() {
     this.heights = new Array(SECTOR_AREA).fill(0);
   }
@@ -25,7 +25,7 @@ export type TerraDef = (x: number, y: number) => number;
 export class Terrain {
   definition: TerraDef;
   sectors: Map<string, TerraSector>;
-  
+
   constructor(definition: TerraDef) {
     this.definition = definition;
     this.sectors = new Map();
@@ -47,7 +47,7 @@ export class Terrain {
       this.renderSector(x, y);
     }
 
-    return <TerraSector> this.sectors.get("" + x + "," + y);
+    return <TerraSector>this.sectors.get("" + x + "," + y);
   }
 
   setSector(x: number, y: number, sector: TerraSector) {

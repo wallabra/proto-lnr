@@ -1,4 +1,4 @@
-import Vec2 from 'victor';
+import Vec2 from "victor";
 import { Game } from "../game";
 import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
@@ -13,7 +13,7 @@ export class Cannonball {
   instigator: Ship;
   phys: PhysicsObject;
   dying: boolean;
-  
+
   constructor(game: Game, shipOwner: Ship, params: Partial<CannonballParams>) {
     this.game = game;
     this.instigator = shipOwner;
@@ -114,7 +114,7 @@ export class Cannonball {
       if (!(ship instanceof Ship)) {
         continue;
       }
-      
+
       if (ship === this.instigator) {
         continue;
       }
@@ -135,18 +135,14 @@ export class Cannonball {
     this.checkTerrainCollision();
     this.checkShipCollisions(deltaTime);
   }
-  
+
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
-    
+
     const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
     const camheight = 4;
     const cdist =
-      drawPos.clone()
-        .subtract(info.base)
-        .length() /
-        info.smallEdge *
-      0.5;
+      (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.height / 2;
     const proximityScale = camheight / Vec2(hdist + cdist).length();
     const size = this.size * proximityScale;

@@ -16,7 +16,7 @@ export class Ship {
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
-  
+
   constructor(game, pos, params) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
@@ -110,7 +110,7 @@ export class Ship {
       this.die();
     }
   }
-  
+
   get isPlayer() {
     return this.game.player != null && this.game.player.possessed === this;
   }
@@ -140,23 +140,19 @@ export class Ship {
   get angNorm() {
     return this.phys.angNorm;
   }
-  
+
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
-    
+
     const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
     const camheight = 4;
     const cdist =
-      drawPos.clone()
-        .subtract(info.base)
-        .length() /
-        info.smallEdge *
-      0.5;
+      (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.height / 2;
     const proximityScale = camheight / Vec2(hdist + cdist).length();
     const size = this.size * proximityScale;
     const isPlayer = this.isPlayer;
-    
+
     if (hdist < 0.1) {
       return;
     }
@@ -257,7 +253,7 @@ export class Ship {
   shoot(timeDelta: number) {
     let dist = this.currShootDist;
     if (dist == null) return;
-    
+
     this.currShootDist = null;
 
     const cball = this.game.spawnCannonball(this, {});
@@ -420,7 +416,7 @@ export class Ship {
       if (!(ship instanceof Ship)) {
         return;
       }
-      
+
       if (foundSelf) {
         return;
       }

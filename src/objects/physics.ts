@@ -18,8 +18,8 @@ export interface PhysicsParams {
 
 export class PhysicsSimulation {
   game: Game;
-  objects: Array<PhysicsObject>; 
-  
+  objects: Array<PhysicsObject>;
+
   constructor(game: Game) {
     this.game = game;
     this.objects = [];
@@ -57,7 +57,7 @@ export class PhysicsObject {
   buoyancy: number;
   age: number;
   dying: boolean;
-  
+
   constructor(game: Game, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.game = game;

@@ -8,22 +8,24 @@ import * as m_keyinput from "./keyinput.js";
 
 function main() {
   m_mouse.registerMouseListener();
-  
-  const canvas = <HTMLCanvasElement | undefined> document.querySelector("#game-canvas");
+
+  const canvas = <HTMLCanvasElement | undefined>(
+    document.querySelector("#game-canvas")
+  );
   if (canvas == null) {
     return;
   }
-  
+
   const game = new Game(canvas, defPlaceholder);
-  
+
   m_keyinput.registerKeyListeners(game);
-  
+
   const playerShip = game.makeShip(Vec2(0, -600));
   const player = new Player(playerShip);
   game.setPlayer(player);
-  
+
   let toSpawn = 40;
-  
+
   while (toSpawn > 0) {
     const aiship = game.makeShip(
       /*pos   */ Vec2(Math.random() * 1500 + 400, 0).rotateBy(
@@ -39,7 +41,7 @@ function main() {
     aiship.setInstigator(playerShip);
     toSpawn--;
   }
-  
+
   requestAnimationFrame(tickLoop.bind(null, game));
 }
 

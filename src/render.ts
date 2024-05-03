@@ -12,12 +12,12 @@ import { Game } from "./game.ts";
 
 export type ObjectRenderInfo = {
   scale: number;
-  ctx: CanvasRenderingContext2D,
-  base: Vec2,
-  cam: Vec2,
-  smallEdge: number,
-  renderer: ObjectRenderer,
-}
+  ctx: CanvasRenderingContext2D;
+  base: Vec2;
+  cam: Vec2;
+  smallEdge: number;
+  renderer: ObjectRenderer;
+};
 
 export interface Renderable {
   render: (info: ObjectRenderInfo) => void;
@@ -30,7 +30,7 @@ export class ObjectRenderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   zoom: number;
-  
+
   constructor(game: Game) {
     this.game = game;
     this.canvas = game.canvas;
@@ -38,36 +38,34 @@ export class ObjectRenderer {
     this.renderables = [];
     this.zoom = 1000;
   }
-  
+
   renderObjects() {
     this.renderables = this.renderables.filter((o) => !o.dying);
-    
+
     const ctx = this.game.drawCtx;
     const baseX = this.game.width / 2;
     const baseY = this.game.height / 2;
-    
+
     const smallEdge = Math.min(this.canvas.width, this.canvas.height);
     const zoom = this.zoom / smallEdge;
-    
+
     let cam;
-    
+
     if (this.game.player != null && this.game.player.possessed != null) {
       cam = this.game.player.possessed.pos.clone();
-    }
-    
-    else {
+    } else {
       cam = Vec2(0, 0);
     }
-    
+
     const info: ObjectRenderInfo = {
       scale: zoom,
       ctx: ctx,
       base: Vec2(baseX, baseY),
       cam: cam,
       smallEdge: smallEdge,
-      renderer: this
+      renderer: this,
     };
-    
+
     for (const obj of this.renderables) {
       obj.render(info);
     }
@@ -84,7 +82,7 @@ export class TerrainRenderer {
     this.terrain = game.terrain;
     this.renderedSectors = new Map();
   }
-  
+
   interpTerrainColor(height: number) {
     // below waterLevel
     const rgb1 = [0, 10, 45];
@@ -92,11 +90,11 @@ export class TerrainRenderer {
     // above waterLevel
     const rgb3 = [50, 90, 30];
     const rgb4 = [180, 182, 197];
-  
+
     let from;
     let to;
     let alpha;
-  
+
     if (height < this.game.waterLevel) {
       from = rgb1;
       to = rgb2;
@@ -109,7 +107,7 @@ export class TerrainRenderer {
 
     // lerp color
     const rgbFinal = interpColor(from, to, alpha);
-  
+
     return rgbFinal;
   }
 
@@ -122,15 +120,15 @@ export class TerrainRenderer {
     if (this.terrain == null) {
       return;
     }
-    
+
     for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
       const tx = tileIdx % SECTOR_SIZE;
       const ty = (tileIdx - tx) / SECTOR_SIZE;
-  
+
       const height = sector.heights[tileIdx];
       const drawX = tx * SECTOR_RES;
       const drawY = ty * SECTOR_RES;
-  
+
       const gradient = this.terrain.gradientAt(
         cx + tx * SECTOR_RES,
         cy + ty * SECTOR_RES,
@@ -139,7 +137,7 @@ export class TerrainRenderer {
         height < this.game.waterLevel
           ? 0
           : Math.max(0, 30 * gradient.dot(Vec2(0, -1)));
-  
+
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(
         interpColor(this.interpTerrainColor(height), [12, 12, 12], shadowness),
@@ -158,24 +156,26 @@ export class TerrainRenderer {
     const ctx = this.game.drawCtx;
     const key = `${sx},${sy}`;
     let image = this.renderedSectors.get(key);
-  
+
     if (image == null) {
       const x = sx * SECTOR_REAL_SIZE;
       const y = sx * SECTOR_REAL_SIZE;
-  
+
       const renderCanvas = document.createElement("canvas");
       renderCanvas.width = SECTOR_REAL_SIZE;
       renderCanvas.height = SECTOR_REAL_SIZE;
       const renderCtx = renderCanvas.getContext("2d");
-      
+
       if (renderCtx == null) {
-        throw new Error("Could not make internal buffer to draw terrain chunk!");
+        throw new Error(
+          "Could not make internal buffer to draw terrain chunk!",
+        );
       }
-      
+
       renderCtx.imageSmoothingEnabled = false;
-  
+
       this.renderTerrainSector(renderCtx, x, y, sector);
-  
+
       const imgData = renderCanvas.toDataURL("image/png", "image/octet-scream");
       const imgEl = document.createElement("img");
       imgEl.src = imgData;
@@ -183,7 +183,7 @@ export class TerrainRenderer {
       image = imgEl;
       renderCanvas.remove();
     }
-  
+
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(
       image,
@@ -199,34 +199,34 @@ export class TerrainRenderer {
     if (this.terrain == null) {
       return;
     }
-  
+
     const cam = this.game.cameraPos();
-  
+
     const minX = -(this.game.width / 2) + cam.x;
     const minY = -(this.game.height / 2) + cam.y;
     const maxX = this.game.width / 2 + cam.x;
     const maxY = this.game.height / 2 + cam.y;
-  
+
     const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
     const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
     const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
     const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
     const minDrawX = minSectorX * SECTOR_REAL_SIZE + this.game.width / 2;
     const minDrawY = minSectorY * SECTOR_REAL_SIZE + this.game.height / 2;
-  
+
     // draw sectors as diversely coloured squares
     const sectorW = maxSectorX - minSectorX;
     const sectorH = maxSectorY - minSectorY;
     const sectorArea = sectorW * sectorH;
-  
+
     for (let si = 0; si < sectorArea; si++) {
       const sx = si % sectorW;
       const sy = (si - sx) / sectorW;
       const sdlef = minDrawX - cam.x + sx * SECTOR_REAL_SIZE;
       const sdtop = minDrawY - cam.y + sy * SECTOR_REAL_SIZE;
-  
+
       const sector = this.terrain.getSector(minSectorX + sx, minSectorY + sy);
-  
+
       this.drawTerrainSector(
         minSectorX + sx,
         minSectorY + sy,
@@ -240,17 +240,17 @@ export class TerrainRenderer {
 
 class UIRenderer {
   game: Game;
-  
+
   constructor(game) {
     this.game = game;
   }
-  
+
   renderDeathScreen() {
     const game = this.game;
-    
+
     // render death screen
     const ctx = game.drawCtx;
-  
+
     if (
       game.player != null &&
       game.player.possessed != null &&
@@ -258,7 +258,7 @@ class UIRenderer {
     ) {
       ctx.fillStyle = "#22222240";
       ctx.fillRect(0, 0, game.width, game.height);
-  
+
       ctx.fillStyle = "#ffff00";
       ctx.font = "60px Verdana serif";
       ctx.textBaseline = "middle";
@@ -266,13 +266,13 @@ class UIRenderer {
       ctx.fillText("rip", game.width / 2, game.height / 2);
     }
   }
-  
+
   renderKillScore() {
     const game = this.game;
-    
+
     // render kill score
     const ctx = game.drawCtx;
-  
+
     if (game.player != null && game.player.possessed != null) {
       ctx.fillStyle = "#0099ff";
       ctx.font = "30px Verdana serif";
@@ -281,7 +281,7 @@ class UIRenderer {
       ctx.fillText(`K: ${game.player.possessed.killScore}`, 40, 40);
     }
   }
-  
+
   renderUI() {
     this.renderKillScore();
     this.renderDeathScreen();
@@ -293,30 +293,30 @@ export class Renderer {
   r_objects: ObjectRenderer;
   r_terrain: TerrainRenderer;
   r_ui: UIRenderer;
-  
+
   constructor(game) {
     this.game = game;
     this.r_objects = new ObjectRenderer(game);
     this.r_terrain = new TerrainRenderer(game);
     this.r_ui = new UIRenderer(game);
   }
-  
+
   addRenderObj(obj: Renderable) {
     this.r_objects.renderables.push(obj);
   }
 
   renderBackground() {
     const ctx = this.game.drawCtx;
-  
+
     const bgColor = "#3377aa";
     ctx.fillStyle = bgColor;
-  
+
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
-  
+
   public render() {
     const game = this.game;
-    
+
     game.canvas.width = game.width;
     game.canvas.height = game.height;
 
@@ -326,4 +326,3 @@ export class Renderer {
     this.r_ui.renderUI();
   }
 }
-

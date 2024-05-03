@@ -21,11 +21,12 @@ export class Game {
   terrain: Terrain | null;
   tickables: Array<Tickable>;
   renderer: Renderer;
-  
+
   constructor(canvas: HTMLCanvasElement, terraDef: TerraDef) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
-    if (ctx == null) throw new Error("Couldn't get a drawing context from the game canvas!");
+    if (ctx == null)
+      throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
     this.physics = new PhysicsSimulation(this);
     this.player = null;
@@ -36,7 +37,7 @@ export class Game {
     this.renderer = new Renderer(this);
     this.tickables = [];
   }
-  
+
   cameraPos(): Vec2 {
     if (this.player != null && this.player.possessed != null) {
       return this.player.possessed.pos.clone();
@@ -117,7 +118,7 @@ export class Game {
     this.addShip(res);
     return res;
   }
-  
+
   makeAIFor(ship: Ship) {
     const res = new AIController(this, ship);
     this.addAI(res);
@@ -150,7 +151,7 @@ export class Game {
     this.tickTickables(deltaTime);
     this.pruneDestroyedTickables();
   }
-  
+
   render() {
     this.renderer.render();
   }

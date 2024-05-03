@@ -8,7 +8,7 @@ export class Player {
   possessed: Ship;
   inputState: string | null;
   actions: Array<PlayerAction>;
-  
+
   constructor(ship: Ship) {
     this.possessed = ship;
     this.inputState = null;
