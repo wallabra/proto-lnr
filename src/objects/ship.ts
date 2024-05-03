@@ -430,20 +430,13 @@ export class Ship {
   }
 
   checkShipCollisions(deltaTime) {
-    let foundSelf = false;
-
     for (const ship of this.game.tickables) {
       if (!(ship instanceof Ship)) {
-        return;
-      }
-
-      if (foundSelf) {
-        return;
+        continue;
       }
 
       if (ship === this) {
-        foundSelf = true;
-        return;
+        break;
       }
 
       this.checkShipCollision(deltaTime, ship);
