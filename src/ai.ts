@@ -17,12 +17,12 @@ export class AIController {
 
   tick(deltaTime: number) {
     const game = this.game;
+    const dHeight = this.possessed.heightGradient();
     if (
       game.terrain != null &&
       game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) >
-        game.waterLevel * 0.9
+        game.waterLevel * 0.7
     ) {
-      const dHeight = this.possessed.heightGradient();
       this.possessed.steer(deltaTime, dHeight.invert().angle());
       this.possessed.thrustForward(deltaTime, 0.2);
     } else {
@@ -72,6 +72,14 @@ export class AIController {
           .subtract(this.possessed.lastInstigator.pos)
           .length() > 400
       ) {
+        if (
+          game.terrain != null &&
+          game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) <
+            game.waterLevel * 0.001
+        ) {
+          // steer toward shallow water
+          this.possessed.steer(deltaTime, dHeight.angle());
+        }
         this.possessed.thrustForward(deltaTime, 0.6);
       }
     }
