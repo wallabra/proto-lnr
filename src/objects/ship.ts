@@ -128,7 +128,7 @@ export class Ship {
 
     const cball = this.game.spawnCannonball(this, {});
     
-    let velComp = this.angNorm().dot(this.vel);
+    let velComp = this.angNorm.dot(this.vel);
 
     cball.phys.vspeed = dist / 150;
 
@@ -139,9 +139,9 @@ export class Ship {
     //console.log(dist, airtime);
     dist =
       dist - this.pos.clone().subtract(this.cannonballSpawnSpot()).length()
-      - velComp * airime;
+      - velComp * airtime;
     const targSpeed = (dist / airtime) * timeDelta;
-    cball.phys.vel = Vec2(targSpeed, 0).rotate_by(this.angle).add(this.vel);
+    cball.phys.vel = Vec2(targSpeed, 0).rotateBy(this.angle).add(this.vel);
   }
 
   get shootRate() {
