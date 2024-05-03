@@ -21,8 +21,13 @@ export class AIController {
           .clone()
           .subtract(this.possessed.pos.clone().add(this.possessed.vel))
           .angle();
+        const dist = this.possessed.lastInstigator.pos
+          .clone()
+          .subtract(this.possessed.pos)
+          .length();
         if (
-          Math.abs(angDiff(this.possessed.angle, targetAngle)) < Math.PI / 6 &&
+          Math.abs(angDiff(this.possessed.angle, targetAngle)) <
+            Math.atan((this.possessed.lastInstigator.size * 2) / dist) &&
           this.possessed.pos
             .clone()
             .subtract(this.possessed.lastInstigator.pos)
