@@ -15,7 +15,7 @@ window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
-const playerShip = game.makeShip(Vec2(0, -500));
+const playerShip = game.makeShip(Vec2(0, -600));
 const player = new Player(playerShip);
 game.setPlayer(player);
 
