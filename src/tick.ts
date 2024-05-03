@@ -1,7 +1,7 @@
 import { render } from "./render.js";
 
 let lastTime = null;
-const frameDuration = 1000 / 60;
+const frameDuration = 1000 / 30;
 
 export function tick(game: Game, current: Date) {
   if (lastTime == null) {
@@ -13,6 +13,10 @@ export function tick(game: Game, current: Date) {
   let deltaTime = (current - lastTime) / 1000;
   lastTime = current;
 
+  if (deltaTime > frameDuration) {
+    console.warn(`Compensating for lag: {deltaTime - frameDuration}ms behind target framerate!`);
+  }
+  
   while (deltaTime > frameDuration) {
     processTick(game, frameDuration);
     deltaTime -= frameDuration;
