@@ -101,7 +101,7 @@ export class Cannonball {
   }
 
   checkTerrainCollision() {
-    if (this.height < Math.max(this.game.waterLevel, this.phys.floor)) {
+    if (this.height < this.game.waterLevel) {
       this.destroy();
     }
   }
