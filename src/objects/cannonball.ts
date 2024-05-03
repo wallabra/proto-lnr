@@ -1,5 +1,20 @@
+import Vec2 from 'victor';
+import { Game } from "../game";
+import { ObjectRenderInfo, ObjectRenderer } from "../render";
+import { PhysicsObject, PhysicsParams } from "./physics";
+import { Ship } from "./ship";
+
+export interface CannonballParams extends PhysicsParams {
+  speed: number;
+}
+
 export class Cannonball {
-  constructor(game, shipOwner, params) {
+  game: Game;
+  instigator: Ship;
+  phys: PhysicsObject;
+  dying: boolean;
+  
+  constructor(game: Game, shipOwner: Ship, params: Partial<CannonballParams>) {
     this.game = game;
     this.instigator = shipOwner;
     this.phys = this.game.makePhysObj(shipOwner.cannonballSpawnSpot(), params);
@@ -79,9 +94,12 @@ export class Cannonball {
     }
 
     ship.setInstigator(this.instigator);
-    
-    let toward = ship.pos.clone().subtract(this.pos).norm();
-    let damageScale = Math.min(0.75, Math.pow(1.5, this.vel.subtract(ship.vel).dot(toward))));
+
+    const toward = ship.pos.clone().subtract(this.pos).norm();
+    const damageScale = Math.min(
+      0.75,
+      Math.pow(1.5, this.vel.subtract(ship.vel).dot(toward)),
+    );
     ship.damageShip(this.damage * damageScale);
     if (ship.dying) {
       this.instigator.killScore++;
@@ -92,7 +110,11 @@ export class Cannonball {
   }
 
   checkShipCollisions(deltaTime) {
-    for (const ship of this.game.ships) {
+    for (const ship of this.game.tickables) {
+      if (!(ship instanceof Ship)) {
+        continue;
+      }
+      
       if (ship === this.instigator) {
         continue;
       }
@@ -112,5 +134,43 @@ export class Cannonball {
   tick(deltaTime) {
     this.checkTerrainCollision();
     this.checkShipCollisions(deltaTime);
+  }
+  
+  render(info: ObjectRenderInfo) {
+    const ctx = info.ctx;
+    
+    const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
+    const camheight = 4;
+    const cdist =
+      drawPos.clone()
+        .subtract(info.base)
+        .length() /
+        info.smallEdge *
+      0.5;
+    const hdist = camheight - this.height / 2;
+    const proximityScale = camheight / Vec2(hdist + cdist).length();
+    const size = this.size * proximityScale;
+
+    if (hdist < 0.02) {
+      return;
+    }
+
+    const hoffs = this.height * 20 + 5;
+    const shoffs = Math.max(
+      0,
+      hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
+    );
+
+    // draw shadow
+    ctx.fillStyle = "#0008";
+    ctx.beginPath();
+    ctx.arc(drawPos.x, drawPos.y + shoffs, size, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // draw cball
+    ctx.fillStyle = "#877";
+    ctx.beginPath();
+    ctx.arc(drawPos.x, drawPos.y, size, 0, 2 * Math.PI);
+    ctx.fill();
   }
 }

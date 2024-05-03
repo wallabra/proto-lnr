@@ -1,34 +1,55 @@
-import { Cannonball } from "./objects/cannonball.js";
+import { Cannonball, CannonballParams } from "./objects/cannonball.js";
 import { Ship } from "./objects/ship.js";
 import { PhysicsSimulation, PhysicsParams } from "./objects/physics.js";
 import { Terrain, TerraDef } from "./terrain.js";
 
 import Vec2 from "victor";
+import { AIController } from "./ai.js";
+import { Player } from "./player.js";
+import { Renderer } from "./render.js";
 
-export interface CannonballParams extends PhysicsParams {
-  speed: number;
+export interface Tickable {
+  tick: (deltaTime: number) => void;
+  dying: boolean;
 }
 
 export class Game {
-  constructor(canvas: Canvas, terraDef: TerraDef) {
+  canvas: HTMLCanvasElement;
+  drawCtx: CanvasRenderingContext2D;
+  physics: PhysicsSimulation;
+  player: Player | null;
+  terrain: Terrain | null;
+  tickables: Array<Tickable>;
+  renderer: Renderer;
+  
+  constructor(canvas: HTMLCanvasElement, terraDef: TerraDef) {
     this.canvas = canvas;
-    this.drawCtx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
+    if (ctx == null) throw new Error("Couldn't get a drawing context from the game canvas!");
+    this.drawCtx = ctx;
     this.physics = new PhysicsSimulation(this);
     this.player = null;
     this.terrain = null;
 
     this.setTerrain(new Terrain(terraDef));
 
-    this.ships = [];
-    this.ais = [];
-    this.cannonballs = [];
+    this.renderer = new Renderer(this);
+    this.tickables = [];
+  }
+  
+  cameraPos(): Vec2 {
+    if (this.player != null && this.player.possessed != null) {
+      return this.player.possessed.pos.clone();
+    } else {
+      return Vec2(0, 0);
+    }
   }
 
-  makePhysObj(pos: Vec2, params?: PhysicsParams) {
+  makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
     return this.physics.makePhysObj(pos, params);
   }
 
-  spawnCannonball(ship: Ship, params?: CannonballParams) {
+  spawnCannonball(ship: Ship, params?: Partial<CannonballParams>) {
     if (params == null) params = {};
     if (params.speed == null) params.speed = 2;
     if (params.angle == null) params.angle = ship.angle;
@@ -40,7 +61,8 @@ export class Game {
     if (params.buoyancy == null) params.buoyancy = 0;
 
     const cball = new Cannonball(this, ship, params);
-    this.cannonballs.push(cball);
+    this.tickables.push(cball);
+    this.renderer.addRenderObj(cball);
     return cball;
   }
 
@@ -73,8 +95,8 @@ export class Game {
     this.player = player;
   }
 
-  addAI(ai: AI) {
-    this.ais.push(ai);
+  addAI(ai: AIController) {
+    this.tickables.push(ai);
   }
 
   get width() {
@@ -86,27 +108,28 @@ export class Game {
   }
 
   addShip(ship: Ship) {
-    this.ships.push(ship);
+    this.tickables.push(ship);
+    this.renderer.addRenderObj(ship);
   }
 
-  makeShip(pos: Vec2, params) {
+  makeShip(pos: Vec2, params?: Partial<PhysicsParams>) {
     const res = new Ship(this, pos, params);
     this.addShip(res);
     return res;
   }
-
-  tickShips(deltaTime: float) {
-    this.ships.forEach((ship) => {
-      if (ship.dying) {
-        return;
-      }
-      ship.tick(deltaTime);
-    });
+  
+  makeAIFor(ship: Ship) {
+    const res = new AIController(this, ship);
+    this.addAI(res);
+    return res;
   }
 
-  tickCannonballs(deltaTime: float) {
-    this.cannonballs.forEach((c) => {
-      c.tick(deltaTime);
+  tickTickables(deltaTime: number) {
+    this.tickables.forEach((obj) => {
+      if (obj.dying) {
+        return;
+      }
+      obj.tick(deltaTime);
     });
   }
 
@@ -116,30 +139,19 @@ export class Game {
     }
   }
 
-  tickAIs(deltaTime: number) {
-    this.ais.forEach((ai) => {
-      ai.tick(this, deltaTime);
-    });
-  }
-
-  pruneDestroyedCannonballs() {
-    this.cannonballs = this.cannonballs.filter((c) => !c.dying);
-  }
-
-  pruneDestroyedShips() {
-    this.ships = this.ships.filter((s) => !s.dying);
+  pruneDestroyedTickables() {
+    this.tickables = this.tickables.filter((t) => !t.dying);
   }
 
   /// Order of tick operations
   tick(deltaTime: number) {
     this.tickPlayer(deltaTime);
-    this.tickAIs(deltaTime);
     this.physics.tick(deltaTime);
-    this.tickShips(deltaTime);
-    this.tickCannonballs(deltaTime);
-
-    // prunes
-    this.pruneDestroyedShips();
-    this.pruneDestroyedCannonballs();
+    this.tickTickables(deltaTime);
+    this.pruneDestroyedTickables();
+  }
+  
+  render() {
+    this.renderer.render();
   }
 }

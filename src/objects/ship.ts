@@ -1,7 +1,22 @@
 import Vec2 from "victor";
-import { angDiff, umod } from "../util.js";
+import { Cannonball } from "./cannonball.ts";
+import { angDiff, umod } from "../util.ts";
+import type { Game } from "../game.ts";
+import type { PhysicsObject } from "./physics.ts";
+import { ObjectRenderInfo, ObjectRenderer } from "../render.ts";
 
 export class Ship {
+  game: Game;
+  phys: PhysicsObject;
+  damage: number;
+  dying: boolean;
+  shootCooldown: number;
+  wannaShoot: boolean;
+  lastInstigator: Ship | null;
+  lastInstigTime: number | null;
+  currShootDist: number | null;
+  killScore: number;
+  
   constructor(game, pos, params) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
@@ -79,7 +94,7 @@ export class Ship {
 
     // check infight timer
     if (
-      this.isntigator != null &&
+      this.lastInstigTime != null &&
       instigTime - this.lastInstigTime < 1000 * this.instigMemory
     ) {
       return;
@@ -94,6 +109,10 @@ export class Ship {
     if (this.damage > this.maxDmg) {
       this.die();
     }
+  }
+  
+  get isPlayer() {
+    return this.game.player != null && this.game.player.possessed === this;
   }
 
   tryShoot(shootDist: number) {
@@ -117,29 +136,141 @@ export class Ship {
       this.shoot(timeDelta);
     }
   }
-  
+
   get angNorm() {
     return this.phys.angNorm;
   }
-
-  shoot(timeDelta) {
-    let dist = this.currShootDist;
-    this.currShootDist = null;
-
-    const cball = this.game.spawnCannonball(this, {});
+  
+  render(info: ObjectRenderInfo) {
+    const ctx = info.ctx;
     
-    let velComp = this.angNorm.dot(this.vel);
+    const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
+    const camheight = 4;
+    const cdist =
+      drawPos.clone()
+        .subtract(info.base)
+        .length() /
+        info.smallEdge *
+      0.5;
+    const hdist = camheight - this.height / 2;
+    const proximityScale = camheight / Vec2(hdist + cdist).length();
+    const size = this.size * proximityScale;
+    const isPlayer = this.isPlayer;
+    
+    if (hdist < 0.1) {
+      return;
+    }
 
-    cball.phys.vspeed = dist / 150;
+    const hoffs = this.height * 20 + 10;
+    const shoffs = Math.max(
+      0,
+      hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
+    );
 
+    // Draw shadow
+    ctx.fillStyle = "#0008";
+    ctx.beginPath();
+    ctx.ellipse(
+      drawPos.x,
+      drawPos.y + shoffs,
+      size * this.lateralCrossSection,
+      size,
+      this.angle,
+      0,
+      2 * Math.PI,
+    );
+    ctx.fill();
+
+    // Draw body
+    ctx.fillStyle = isPlayer ? "#227766" : "#4a1800";
+    ctx.beginPath();
+    ctx.ellipse(
+      drawPos.x,
+      drawPos.y,
+      size * this.lateralCrossSection,
+      size,
+      this.angle,
+      0,
+      2 * Math.PI,
+    );
+    ctx.fill();
+
+    ctx.fillStyle = isPlayer ? "#115533" : "#331100";
+    ctx.beginPath();
+    ctx.ellipse(
+      drawPos.x,
+      drawPos.y,
+      size * this.lateralCrossSection * 0.8,
+      size * 0.8,
+      this.angle,
+      0,
+      2 * Math.PI,
+    );
+    ctx.fill();
+
+    // Draw forward direction
+    ctx.beginPath();
+    ctx.moveTo(drawPos.x, drawPos.y);
+    const to = Vec2(this.size * this.lateralCrossSection)
+      .rotateBy(this.angle)
+      .add(drawPos);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    // Draw damage bar
+    const maxDmg = this.maxDmg;
+    let dmgAlpha = this.damage / maxDmg;
+
+    if (dmgAlpha > 1) {
+      dmgAlpha = 1;
+    }
+
+    dmgAlpha = 1 - dmgAlpha;
+
+    ctx.fillStyle = "#33AA0088";
+    ctx.fillRect(drawPos.x - 50, drawPos.y - this.size - 30, 100 * dmgAlpha, 3);
+    ctx.fillStyle = "#00000088";
+    ctx.fillRect(
+      drawPos.x - 50 + 100 * dmgAlpha,
+      drawPos.y - this.size - 30,
+      100 * (1 - dmgAlpha),
+      3,
+    );
+  }
+
+  shotAirtime(cball?: Cannonball) {
+    let tempCball = false;
+    if (cball == null) {
+      cball = this.game.spawnCannonball(this);
+      tempCball = true;
+    }
     const a = cball.phys.gravity / 2;
     const b = cball.phys.vspeed;
     const c = cball.phys.height - this.game.waterLevel * 2;
     const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
+    if (tempCball) {
+      cball.destroy();
+    }
+    return airtime;
+  }
+
+  shoot(timeDelta: number) {
+    let dist = this.currShootDist;
+    if (dist == null) return;
+    
+    this.currShootDist = null;
+
+    const cball = this.game.spawnCannonball(this, {});
+    const airtime = this.shotAirtime(cball);
+
+    const velComp = this.angNorm.dot(this.vel);
+    cball.phys.vspeed = dist / 150;
+
     //console.log(dist, airtime);
     dist =
-      dist - this.pos.clone().subtract(this.cannonballSpawnSpot()).length()
-      - velComp * airtime;
+      dist -
+      this.pos.clone().subtract(this.cannonballSpawnSpot()).length() -
+      velComp * airtime;
     const targSpeed = (dist / airtime) * timeDelta;
     cball.phys.vel = Vec2(targSpeed, 0).rotateBy(this.angle).add(this.vel);
   }
@@ -197,7 +328,7 @@ export class Ship {
 
   steerToward(deltaTime, otherPos) {
     const angleTarg = otherPos.clone().subtract(this.pos).angle();
-    this.steer(angleTarg);
+    this.steer(deltaTime, angleTarg);
   }
 
   thrustForward(deltaTime, amount) {
@@ -215,6 +346,7 @@ export class Ship {
   }
 
   heightGradient() {
+    if (this.game.terrain == null) return Vec2(0, 0);
     return this.game.terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
@@ -284,7 +416,11 @@ export class Ship {
   checkShipCollisions(deltaTime) {
     let foundSelf = false;
 
-    game.ships.forEach((ship) => {
+    for (let ship of this.game.tickables) {
+      if (!(ship instanceof Ship)) {
+        return;
+      }
+      
       if (foundSelf) {
         return;
       }
@@ -295,7 +431,7 @@ export class Ship {
       }
 
       this.checkShipCollision(deltaTime, ship);
-    });
+    }
   }
 
   checkTerrainDamage(deltaTime) {
@@ -305,13 +441,15 @@ export class Ship {
   }
 
   cooldownCannons(deltaTime) {
+    if (this.shootCooldown === 0) return;
     this.shootCooldown -= deltaTime;
     if (this.shootCooldown < 0) this.shootCooldown = 0;
   }
 
   pruneDeadInstigator() {
-    if (this.instigator != null && this.instigator.dying) {
-      this.instigator == null;
+    if (this.lastInstigator != null && this.lastInstigator.dying) {
+      this.lastInstigator == null;
+      this.lastInstigTime = null;
     }
   }
 

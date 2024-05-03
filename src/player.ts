@@ -1,6 +1,14 @@
 import Vec2 from "victor";
+import { Ship } from "./objects/ship";
+import { mouseState } from "./mouse";
+
+export type PlayerAction = (deltaTime: number) => void;
 
 export class Player {
+  possessed: Ship;
+  inputState: string | null;
+  actions: Array<PlayerAction>;
+  
   constructor(ship: Ship) {
     this.possessed = ship;
     this.inputState = null;
@@ -18,13 +26,13 @@ export class Player {
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
 
-  inputEvent(name: string /*, event: KeyboardEvent*/) {
+  inputEvent(name: string, event: KeyboardEvent) {
     if (name == "shoot") {
       this.inputState = "shoot";
     }
   }
 
-  registerAction(name: string, callback: (deltaTime: float) => null) {
+  registerAction(name: string, callback: (deltaTime: number) => void) {
     this.actions.push((deltaTime) => {
       if (this.inputState == name) {
         this.inputState = null;
@@ -35,7 +43,7 @@ export class Player {
 
   registerActions() {
     this.registerAction("shoot", (/*deltaTime*/) => {
-      const ms = window.mouseState;
+      const ms = mouseState;
       this.possessed.tryShoot(Vec2(ms.x, ms.y).length());
     });
   }
@@ -45,11 +53,11 @@ export class Player {
   }
 
   doSteer(deltaTime: number) {
-    if (!window.mouseState.steering) {
+    if (!mouseState.steering) {
       return;
     }
 
-    const offs = Vec2(window.mouseState.x, window.mouseState.y);
+    const offs = Vec2(mouseState.x, mouseState.y);
 
     if (
       offs.length() <

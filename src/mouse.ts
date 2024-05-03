@@ -1,13 +1,12 @@
+export var mouseState = {
+  x: 0,
+  y: 0,
+  steering: false,
+  attack: false,
+};
+
 export function registerMouseListener() {
   // Adapted from https://stackoverflow.com/a/22986867/5129091
-  const mouseState = {
-    x: null,
-    y: null,
-    steering: false,
-    attack: false,
-  };
-  window.mouseState = mouseState;
-
   document.addEventListener("mousemove", onMouseUpdate, false);
   document.addEventListener("mousedown", onMouseDown, false);
   document.addEventListener("mouseup", onMouseUp, false);

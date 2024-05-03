@@ -1,6 +1,7 @@
 import Vec2 from "victor";
+import type { Game } from "../game.ts";
 
-interface PhysicsParams {
+export interface PhysicsParams {
   size: number;
   angle: number;
   vel: Vec2;
@@ -10,11 +11,15 @@ interface PhysicsParams {
   baseDrag: number;
   baseFriction: number;
   angleDrag: number;
+  angVel: number;
   gravity: number;
   buoyancy: number;
 }
 
 export class PhysicsSimulation {
+  game: Game;
+  objects: Array<PhysicsObject>; 
+  
   constructor(game: Game) {
     this.game = game;
     this.objects = [];
@@ -36,6 +41,23 @@ export class PhysicsSimulation {
 }
 
 export class PhysicsObject {
+  game: Game;
+  size: number;
+  angle: number;
+  pos: Vec2;
+  lastPos: Vec2;
+  height: number;
+  vspeed: number;
+  weight: number;
+  baseDrag: number;
+  baseFriction: number;
+  angVel: number;
+  angleDrag: number;
+  gravity: number;
+  buoyancy: number;
+  age: number;
+  dying: boolean;
+  
   constructor(game: Game, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.game = game;
@@ -44,7 +66,7 @@ export class PhysicsObject {
     if (params.vel) this.vel = params.vel;
     this.size = params.size != null ? params.size : 1;
     this.angle = params.angle != null ? params.angle : 0;
-    this.angVel = 0;
+    this.angVel = params.angVel != null ? params.angVel : 0;
     this.age = 0;
     this.height =
       params.height != null
@@ -67,7 +89,7 @@ export class PhysicsObject {
 
   slideDownLand(deltaTime: number) {
     const floor = this.floor;
-    if (floor <= game.waterLevel || this.height > floor + 0.1) {
+    if (floor <= this.game.waterLevel || this.height > floor + 0.1) {
       return;
     }
     const dHeight = this.heightGradient();
@@ -96,12 +118,6 @@ export class PhysicsObject {
     );
   }
 
-  physAngle(deltaTime: number) {
-    this.angle += this.angVel * deltaTime;
-    this.angVel -= this.angVel * this.waterDrag * deltaTime;
-    this.angle = this.angle % (Math.PI * 2);
-  }
-
   physVel() {
     const lastPos = this.pos.clone();
     this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
@@ -125,9 +141,7 @@ export class PhysicsObject {
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
     const currVel = this.vel;
-    const dragForce = Vec2(-drag, -drag).multiply(
-      currVel,
-    );
+    const dragForce = Vec2(-drag, -drag).multiply(currVel);
 
     this.applyForce(deltaTime, dragForce);
   }
@@ -158,12 +172,8 @@ export class PhysicsObject {
 
   heightGradient() {
     const terrain = this.game.terrain;
-    return Vec2(
-      terrain.heightAt(this.pos.x + 0.5, this.pos.y) -
-        this.game.terrain.heightAt(this.pos.x - 0.5, this.pos.y),
-      this.game.terrain.heightAt(this.pos.x, this.pos.y + 0.5) -
-        this.game.terrain.heightAt(this.pos.x, this.pos.y - 0.5),
-    );
+    if (terrain == null) return Vec2(0, 0);
+    return terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
   circleIntersect(otherObj: PhysicsObject, scale: number) {
@@ -199,7 +209,7 @@ export class PhysicsObject {
     this.angVel -= this.angVel * this.angleDrag * deltaTime;
     this.angle = this.angle % (Math.PI * 2);
   }
-  
+
   get angNorm() {
     return Vec2(1, 0).rotateBy(this.angle);
   }
