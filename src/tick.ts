@@ -12,8 +12,12 @@ export function tick(game: Game, current: Date) {
 
   let deltaTime = (current - lastTime) / 1000;
   lastTime = current;
+  
+  if (deltaTime > frameDuration * 20) {
+    console.warn(`Skipping tick due to huge lagspike: {deltaTime}ms`);
+  }
 
-  if (deltaTime > frameDuration) {
+  else if (deltaTime > frameDuration) {
     console.warn(`Compensating for lag: {deltaTime - frameDuration}ms behind target framerate!`);
   }
   
