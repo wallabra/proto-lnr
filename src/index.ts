@@ -23,7 +23,7 @@ let toSpawn = 40;
 
 while (toSpawn > 0) {
   const aiship = game.makeShip(
-    /*pos   */ Vec2(Math.random() * 500 + 150, 0).rotateBy(
+    /*pos   */ Vec2(Math.random() * 1000 + 150, 0).rotateBy(
       Math.random() * Math.PI * 2,
     ),
     /*params*/ { angle: Math.random() * Math.PI * 2 },
