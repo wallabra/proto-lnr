@@ -139,13 +139,13 @@ export class Cannonball {
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
-    const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
+    const drawPos = info.base.clone().add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.height / 2;
     const proximityScale = camheight / Vec2(hdist + cdist).length();
-    const size = this.size * proximityScale;
+    const size = this.size * proximityScale * info.scale;
 
     if (hdist < 0.02) {
       return;

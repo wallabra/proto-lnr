@@ -12,6 +12,7 @@ import { Game } from "./game.ts";
 
 export type ObjectRenderInfo = {
   scale: number;
+  scaleVec: Vec2;
   ctx: CanvasRenderingContext2D;
   base: Vec2;
   cam: Vec2;
@@ -29,14 +30,12 @@ export class ObjectRenderer {
   game: Game;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  zoom: number;
 
   constructor(game: Game) {
     this.game = game;
     this.canvas = game.canvas;
     this.ctx = game.drawCtx;
     this.renderables = [];
-    this.zoom = 1000;
   }
 
   renderObjects() {
@@ -46,8 +45,8 @@ export class ObjectRenderer {
     const baseX = this.game.width / 2;
     const baseY = this.game.height / 2;
 
-    const smallEdge = Math.min(this.canvas.width, this.canvas.height);
-    const zoom = this.zoom / smallEdge;
+    const smallEdge = Math.min(this.game.width, this.game.height);
+    const zoom = smallEdge / this.game.renderer.zoom;
 
     let cam;
 
@@ -59,6 +58,7 @@ export class ObjectRenderer {
 
     const info: ObjectRenderInfo = {
       scale: zoom,
+      scaleVec: Vec2(zoom, zoom),
       ctx: ctx,
       base: Vec2(baseX, baseY),
       cam: cam,
@@ -152,9 +152,11 @@ export class TerrainRenderer {
     sdlef: number,
     sdtop: number,
     sector: TerraSector,
+    zoom: number
   ) {
     const ctx = this.game.drawCtx;
     const key = `${sx},${sy}`;
+    const sectorSize = SECTOR_REAL_SIZE * zoom;
     let image = this.renderedSectors.get(key);
 
     if (image == null) {
@@ -189,8 +191,8 @@ export class TerrainRenderer {
       image,
       sdlef,
       sdtop,
-      SECTOR_REAL_SIZE + 1,
-      SECTOR_REAL_SIZE + 1,
+      sectorSize + 1,
+      sectorSize + 1,
     );
     ctx.imageSmoothingEnabled = true;
   }
@@ -199,6 +201,9 @@ export class TerrainRenderer {
     if (this.terrain == null) {
       return;
     }
+    
+    const smallEdge = Math.min(this.game.width, this.game.height);
+    const zoom = smallEdge / this.game.renderer.zoom;
 
     const cam = this.game.cameraPos();
 
@@ -206,13 +211,15 @@ export class TerrainRenderer {
     const minY = -(this.game.height / 2) + cam.y;
     const maxX = this.game.width / 2 + cam.x;
     const maxY = this.game.height / 2 + cam.y;
+    
+    const sectorSize = SECTOR_REAL_SIZE * zoom;
 
-    const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
-    const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
-    const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
-    const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
-    const minDrawX = minSectorX * SECTOR_REAL_SIZE + this.game.width / 2;
-    const minDrawY = minSectorY * SECTOR_REAL_SIZE + this.game.height / 2;
+    const minSectorX = Math.floor(minX / sectorSize);
+    const minSectorY = Math.floor(minY / sectorSize);
+    const maxSectorX = Math.ceil(maxX / sectorSize);
+    const maxSectorY = Math.ceil(maxY / sectorSize);
+    const minDrawX = minSectorX * sectorSize + this.game.width / 2;
+    const minDrawY = minSectorY * sectorSize + this.game.height / 2;
 
     // draw sectors as diversely coloured squares
     const sectorW = maxSectorX - minSectorX;
@@ -222,8 +229,8 @@ export class TerrainRenderer {
     for (let si = 0; si < sectorArea; si++) {
       const sx = si % sectorW;
       const sy = (si - sx) / sectorW;
-      const sdlef = minDrawX - cam.x + sx * SECTOR_REAL_SIZE;
-      const sdtop = minDrawY - cam.y + sy * SECTOR_REAL_SIZE;
+      const sdlef = minDrawX - cam.x + sx * sectorSize;
+      const sdtop = minDrawY - cam.y + sy * sectorSize;
 
       const sector = this.terrain.getSector(minSectorX + sx, minSectorY + sy);
 
@@ -233,6 +240,7 @@ export class TerrainRenderer {
         sdlef,
         sdtop,
         sector,
+        zoom
       );
     }
   }
@@ -293,12 +301,14 @@ export class Renderer {
   r_objects: ObjectRenderer;
   r_terrain: TerrainRenderer;
   r_ui: UIRenderer;
+  zoom: number;
 
   constructor(game) {
     this.game = game;
     this.r_objects = new ObjectRenderer(game);
     this.r_terrain = new TerrainRenderer(game);
     this.r_ui = new UIRenderer(game);
+    this.zoom = 1000;
   }
 
   addRenderObj(obj: Renderable) {

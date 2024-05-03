@@ -16,6 +16,7 @@ export class Ship {
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
+  maxCannonPower: number;
 
   constructor(game, pos, params) {
     if (params == null) params = {};
@@ -32,8 +33,14 @@ export class Ship {
     this.lastInstigTime = null;
     this.currShootDist = null;
     this.killScore = 0;
+    this.maxCannonPower = this.defaultMaxCannonPower();
 
     this.dragMixin();
+  }
+  
+  defaultMaxCannonPower() {
+    const airtime = this.shotAirtime();
+    return this.maxShootRange / airtime;
   }
 
   dragMixin() {
@@ -118,7 +125,6 @@ export class Ship {
   tryShoot(shootDist: number) {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
-    if (shootDist > this.maxShootRange) shootDist = this.maxShootRange;
 
     if (this.shootCooldown > 0) {
       // can't shoot, waiting on cooldown
@@ -144,13 +150,13 @@ export class Ship {
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
-    const drawPos = info.base.clone().add(this.pos).subtract(info.cam);
+    const drawPos = info.base.clone().add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.height / 2;
     const proximityScale = camheight / Vec2(hdist + cdist).length();
-    const size = this.size * proximityScale;
+    const size = this.size * proximityScale * info.scale;
     const isPlayer = this.isPlayer;
 
     if (hdist < 0.1) {
@@ -267,7 +273,7 @@ export class Ship {
       dist -
       this.pos.clone().subtract(this.cannonballSpawnSpot()).length() -
       velComp * airtime;
-    const targSpeed = (dist / airtime) * timeDelta;
+    const targSpeed = Math.min(this.maxCannonPower, (dist / airtime) * timeDelta);
     cball.phys.vel = Vec2(targSpeed, 0).rotateBy(this.angle).add(this.vel);
   }
 
