@@ -15,15 +15,15 @@ window.game = game;
 
 m_keyinput.registerKeyListeners(game);
 
-const playerShip = game.makeShip(Vec2(0, -350));
+const playerShip = game.makeShip(Vec2(0, -500));
 const player = new Player(playerShip);
 game.setPlayer(player);
 
-let toSpawn = 40;
+let toSpawn = 100;
 
 while (toSpawn > 0) {
   const aiship = game.makeShip(
-    /*pos   */ Vec2(Math.random() * 1000 + 150, 0).rotateBy(
+    /*pos   */ Vec2(Math.random() * 1500 + 400, 0).rotateBy(
       Math.random() * Math.PI * 2,
     ),
     /*params*/ { angle: Math.random() * Math.PI * 2 },
