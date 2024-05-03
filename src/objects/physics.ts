@@ -125,11 +125,11 @@ export class PhysicsObject {
   }
 
   waterDrag() {
-    return this.baseDrag;
+    return this.baseDrag * this.size;
   }
 
   airDrag() {
-    return this.baseDrag * 0.05;
+    return this.baseDrag * this.size * 0.05;
   }
 
   physDrag(deltaTime: number) {

@@ -274,10 +274,10 @@ export class Ship {
     this.currShootDist = null;
 
     const cball = this.game.spawnCannonball(this, {});
+    cball.phys.vspeed = dist / 250;
     const airtime = this.shotAirtime(cball);
 
     const velComp = this.angNorm.dot(this.vel);
-    cball.phys.vspeed = dist / 150;
 
     //console.log(dist, airtime);
     dist =

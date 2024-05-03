@@ -57,7 +57,7 @@ export class Game {
     if (params.vel == null)
       params.vel = Vec2(params.speed, 0).rotateBy(params.angle).add(ship.vel);
     if (params.size == null) params.size = 3.5;
-    if (params.vspeed == null) params.vspeed = 1.3;
+    if (params.vspeed == null) params.vspeed = 2;
     if (params.height == null) params.height = ship.height + 0.2;
     if (params.buoyancy == null) params.buoyancy = 0;
 
