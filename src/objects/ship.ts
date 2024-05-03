@@ -229,6 +229,15 @@ export class Ship {
     const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
     ctx.lineTo(vto.x, vto.y);
     ctx.stroke();*/
+    
+    // Draw kill score
+    if (this.killScore > 0 && !this.isPlayer) {
+      ctx.fillStyle = '#ff8800b0';
+      ctx.font = 'Arial 10px';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.fillText("K "+this.killScore, drawPos.x - 15, drawPos.y - 15);
+    }
 
     // Draw damage bar
     const maxDmg = this.maxDmg;
