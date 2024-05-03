@@ -52,7 +52,7 @@ export class PhysicsObject {
         : Math.max(game.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
-    this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.6;
+    this.baseDrag = params.baseDrag != null ? params.baseDrag : 1.2;
     this.baseFriction = params.baseFriction != null ? params.baseFriction : 0.2;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
@@ -120,7 +120,7 @@ export class PhysicsObject {
     const floor = this.floor;
     const inWater =
       floor < this.game.waterLevel &&
-      this.height <= this.game.waterLevel + 0.01;
+      this.height <= this.game.waterLevel + 0.03;
 
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
