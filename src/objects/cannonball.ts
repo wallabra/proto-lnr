@@ -79,7 +79,10 @@ export class Cannonball {
     }
 
     ship.setInstigator(this.instigator);
-    ship.damageShip(this.damage);
+    
+    let toward = ship.pos.clone().subtract(this.pos).norm();
+    let damageScale = Math.pow(1.5, this.vel.subtract(ship.vel).dot(toward)));
+    ship.damageShip(this.damage * damageScale);
     if (ship.dying) {
       this.instigator.killScore++;
     }
