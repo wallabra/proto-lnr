@@ -251,7 +251,7 @@ function interpTerrainColor(game: Game, height: number) {
   if (height < game.waterLevel) {
     from = rgb1;
     to = rgb2;
-    alpha = height / game.waterLevel;
+    alpha = (height + (Math.random() - 0.5) * 0.008) / game.waterLevel;
   } else {
     from = rgb3;
     to = rgb4;

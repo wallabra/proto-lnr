@@ -199,6 +199,10 @@ export class PhysicsObject {
     this.angVel -= this.angVel * this.angleDrag * deltaTime;
     this.angle = this.angle % (Math.PI * 2);
   }
+  
+  get angNorm() {
+    return Vec2(1, 0).rotate_by(this.angle);
+  }
 
   tick(deltaTime: number) {
     this.age += deltaTime;
