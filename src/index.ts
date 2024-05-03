@@ -19,7 +19,7 @@ const playerShip = game.makeShip(Vec2(0, -500));
 const player = new Player(playerShip);
 game.setPlayer(player);
 
-let toSpawn = 100;
+let toSpawn = 40;
 
 while (toSpawn > 0) {
   const aiship = game.makeShip(
