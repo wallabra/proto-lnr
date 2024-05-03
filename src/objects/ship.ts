@@ -222,13 +222,13 @@ export class Ship {
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
 
-    // Draw velocity
+    /*// Draw velocity
     ctx.strokeStyle = "#00f";
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
     const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
     ctx.lineTo(vto.x, vto.y);
-    ctx.stroke();
+    ctx.stroke();*/
 
     // Draw damage bar
     const maxDmg = this.maxDmg;
