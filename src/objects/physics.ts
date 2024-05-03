@@ -113,19 +113,19 @@ export class PhysicsObject {
   }
 
   airDrag() {
-    return this.baseDrag * 0.2;
+    return this.baseDrag * 0.05;
   }
 
   physDrag(deltaTime: number) {
     const floor = this.floor;
     const inWater =
-      floor < this.game.waterLevel &&
-      this.height <= this.game.waterLevel + 0.03;
+      floor <= this.game.waterLevel &&
+      this.height <= this.game.waterLevel + 0.05;
 
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
     const currVel = this.vel;
-    const dragForce = Vec2(-deltaTime * drag, -deltaTime * drag).multiply(
+    const dragForce = Vec2(-drag, -drag).multiply(
       currVel,
     );
 
