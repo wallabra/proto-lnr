@@ -464,7 +464,7 @@ export class Ship {
 
   pruneDeadInstigator() {
     if (this.lastInstigator != null && this.lastInstigator.dying) {
-      this.lastInstigator == null;
+      this.lastInstigator = null;
       this.lastInstigTime = null;
     }
   }
