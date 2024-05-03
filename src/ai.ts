@@ -18,9 +18,10 @@ export class AIController {
   tick(deltaTime: number) {
     const game = this.game;
     const dHeight = this.possessed.heightGradient();
+    let soonPos = this.possessed.vel.add(this.possessed.pos);
     if (
       game.terrain != null &&
-      game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) >
+      game.terrain.heightAt(soonPos.x, soonPos.y) >
         game.waterLevel * 0.7
     ) {
       this.possessed.steer(deltaTime, dHeight.invert().angle());
@@ -33,7 +34,7 @@ export class AIController {
           .add(
             this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
           )
-          .subtract(this.possessed.pos.clone().add(this.possessed.vel))
+          .subtract(soonPos)
           .angle();
         const targetAngle = this.possessed.lastInstigator.pos
           .clone()
@@ -66,9 +67,7 @@ export class AIController {
       }
       if (
         this.possessed.lastInstigator == null ||
-        this.possessed.pos
-          .clone()
-          .add(this.possessed.vel)
+        soonPos.clone()
           .subtract(this.possessed.lastInstigator.pos)
           .length() > 400
       ) {
