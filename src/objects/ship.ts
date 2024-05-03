@@ -139,7 +139,7 @@ export class Ship {
     //console.log(dist, airtime);
     dist =
       dist - this.pos.clone().subtract(this.cannonballSpawnSpot()).length()
-      - velComp;
+      - velComp * airime;
     const targSpeed = (dist / airtime) * timeDelta;
     cball.phys.vel = Vec2(targSpeed, 0).rotate_by(this.angle).add(this.vel);
   }
