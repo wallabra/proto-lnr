@@ -19,7 +19,7 @@ export class AIController {
       if (this.possessed.lastInstigator != null) {
         const targetAngle = this.possessed.lastInstigator.pos
           .clone()
-          .subtract(this.possessed.pos)
+          .subtract(this.possessed.pos.clone().add(this.possessed.vel))
           .angle();
         if (
           Math.abs(angDiff(this.possessed.angle, targetAngle)) < Math.PI / 6 &&
