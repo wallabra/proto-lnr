@@ -1,10 +1,10 @@
 import Vec2 from "victor";
-import { Cannonball } from "./cannonball.ts";
-import { angDiff, umod } from "../util.ts";
+import { Cannonball } from "./cannonball";
+import { angDiff, umod } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
-import { ObjectRenderInfo } from "../render.ts";
-import CashPickup, { CashPickupParams } from "./cash.ts";
-import { PlayState } from "../superstates/play.ts";
+import { ObjectRenderInfo } from "../render";
+import CashPickup, { CashPickupParams } from "./cash";
+import { PlayState } from "../superstates/play";
 
 export interface ShipParams extends PhysicsParams {
   money: number;

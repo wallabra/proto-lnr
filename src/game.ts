@@ -1,5 +1,5 @@
-import Superstate from "./superstates/base.js";
-import { Player } from "./player.js";
+import Superstate from "./superstates/base";
+import { Player } from "./player";
 
 export class Game {
   canvas: HTMLCanvasElement;

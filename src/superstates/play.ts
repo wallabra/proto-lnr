@@ -1,14 +1,14 @@
-import { Cannonball, CannonballParams } from "../objects/cannonball.js";
-import { Ship } from "../objects/ship.js";
-import { PhysicsSimulation, PhysicsParams } from "../objects/physics.js";
-import { Terrain, TerraDef } from "../terrain.js";
-import Superstate from "./base.js";
+import { Cannonball, CannonballParams } from "../objects/cannonball";
+import { Ship } from "../objects/ship";
+import { PhysicsSimulation, PhysicsParams } from "../objects/physics";
+import { Terrain, TerraDef } from "../terrain";
+import Superstate from "./base";
 
 import Vec2 from "victor";
-import { AIController } from "../ai.js";
+import { AIController } from "../ai";
 
-import { GameRenderer, Renderable } from "../render.ts";
-import { Game } from "../game.ts";
+import { GameRenderer, Renderable } from "../render";
+import { Game } from "../game";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -140,10 +140,10 @@ export class PlayState extends Superstate {
     this.renderables.push(res);
     return res;
   }
-  
+
   init() {
     if (this.game.player != null && this.game.player.possessed != null) {
-      this.addShip(game.player.possessed);
+      this.addShip(this.game.player.possessed);
     }
   }
 }

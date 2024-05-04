@@ -1,8 +1,8 @@
 import Vec2 from "victor";
-import { ObjectRenderInfo } from "../render.ts";
-import type { PhysicsObject } from "./physics.ts";
-import { Ship } from "./ship.ts";
-import { PlayState } from "../superstates/play.ts";
+import { ObjectRenderInfo } from "../render";
+import type { PhysicsObject } from "./physics";
+import { Ship } from "./ship";
+import { PlayState } from "../superstates/play";
 
 export default abstract class Pickup {
   play: PlayState;
@@ -102,7 +102,7 @@ export default abstract class Pickup {
         .rotateBy(Math.random() * Math.PI * 2)
         .add(this.phys.vel),
     );
-    this.phys.angVel += Math.random() * Math.PI / 4 * deltaTime;
+    this.phys.angVel += ((Math.random() * Math.PI) / 4) * deltaTime;
   }
 
   tick(deltaTime: number) {

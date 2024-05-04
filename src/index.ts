@@ -1,11 +1,11 @@
-import { tickLoop } from "./tick.js";
-import { Game } from "./game.js";
-import { Player } from "./player.js";
-import { defPlaceholder } from "./terrain.js";
+import { tickLoop } from "./tick";
+import { Game } from "./game";
+import { Player } from "./player";
+import { defPlaceholder } from "./terrain";
 import Vec2 from "victor";
-import * as m_mouse from "./mouse.js";
-import * as m_keyinput from "./keyinput.js";
-import { PlayState } from "./superstates/play.js";
+import * as m_mouse from "./mouse";
+import * as m_keyinput from "./keyinput";
+import { PlayState } from "./superstates/play";
 
 function main() {
   m_mouse.registerMouseListener();

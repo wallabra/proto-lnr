@@ -6,9 +6,9 @@ import {
   SECTOR_REAL_SIZE,
   SECTOR_RES,
   Terrain,
-} from "./terrain.js";
-import { PlayState } from "./superstates/play.ts";
-import { rgbString, interpColor } from "./util.ts";
+} from "./terrain";
+import { PlayState } from "./superstates/play";
+import { rgbString, interpColor } from "./util";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -193,10 +193,10 @@ export class TerrainRenderer {
 
     const cam = this.game.cameraPos();
 
-    const minX = (-this.game.width / 2 / zoom + cam.x);
-    const minY = (-this.game.height / 2 / zoom + cam.y);
-    const maxX = (this.game.width / 2 / zoom + cam.x);
-    const maxY = (this.game.height / 2 / zoom + cam.y);
+    const minX = -this.game.width / 2 / zoom + cam.x;
+    const minY = -this.game.height / 2 / zoom + cam.y;
+    const maxX = this.game.width / 2 / zoom + cam.x;
+    const maxY = this.game.height / 2 / zoom + cam.y;
 
     const sectorSize = SECTOR_REAL_SIZE * zoom;
 

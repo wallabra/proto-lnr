@@ -1,8 +1,8 @@
 import Vec2 from "victor";
-import Pickup from "./pickup.ts";
-import { PhysicsParams } from "./physics.ts";
-import { Ship } from "./ship.ts";
-import { PlayState } from "../superstates/play.ts";
+import Pickup from "./pickup";
+import { PhysicsParams } from "./physics";
+import { Ship } from "./ship";
+import { PlayState } from "../superstates/play";
 
 export interface CashPickupParams extends PhysicsParams {
   cash: number;

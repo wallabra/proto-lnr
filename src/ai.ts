@@ -1,7 +1,7 @@
 import Vec2 from "victor";
-import { angDiff } from "./util.ts";
-import { Ship } from "./objects/ship.ts";
-import { PlayState } from "./superstates/play.ts";
+import { angDiff } from "./util";
+import { Ship } from "./objects/ship";
+import { PlayState } from "./superstates/play";
 
 /// Basic placeholder AI
 export class AIController {
@@ -77,13 +77,9 @@ export class AIController {
         soonPos.clone().subtract(this.possessed.lastInstigator.pos).length() >
           400
       ) {
-        if (
-          game.terrain != null &&
-          game.terrain.heightAt(this.possessed.pos.x, this.possessed.pos.y) <
-            game.waterLevel * 0.001
-        ) {
-          // steer toward shallow water
-          this.possessed.steer(deltaTime * 0.25, dHeight.angle());
+        if (this.possessed.pos.length() > 1500) {
+          // steer toward 0,0
+          this.possessed.steer(deltaTime * 0.25, -this.possessed.pos.angle());
         }
         this.possessed.thrustForward(deltaTime, 0.6);
       }

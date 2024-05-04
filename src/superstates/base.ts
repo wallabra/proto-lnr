@@ -1,5 +1,5 @@
-import { Game } from "../game.ts";
-import { Player } from "../player.ts";
+import { Game } from "../game";
+import { Player } from "../player";
 
 export default abstract class Superstate {
   game: Game;

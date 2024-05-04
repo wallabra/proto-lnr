@@ -1,5 +1,5 @@
 import Vec2 from "victor";
-import { PlayState } from "../superstates/play.ts";
+import { PlayState } from "../superstates/play";
 
 export interface PhysicsParams {
   size: number;
