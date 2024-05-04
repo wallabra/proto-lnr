@@ -252,15 +252,17 @@ export class Ship {
 
     dmgAlpha = 1 - dmgAlpha;
 
-    ctx.fillStyle = "#33AA0088";
-    ctx.fillRect(drawPos.x - 50 * drawScale, drawPos.y - this.size * drawScale - 30 * drawScale, 100 * dmgAlpha * drawScale, 3);
-    ctx.fillStyle = "#00000088";
-    ctx.fillRect(
-      drawPos.x - 50 * drawScale + 100 * dmgAlpha * drawScale,
-      drawPos.y - this.size * drawScale - 30 * drawScale,
-      100 * drawScale * (1 - dmgAlpha),
-      3,
-    );
+    if (dmgAlpha < 1) {
+      ctx.fillStyle = "#33AA0088";
+      ctx.fillRect(drawPos.x - 50 * drawScale, drawPos.y - this.size * drawScale - 30 * drawScale, 100 * dmgAlpha * drawScale, 3);
+      ctx.fillStyle = "#00000088";
+      ctx.fillRect(
+        drawPos.x - 50 * drawScale + 100 * dmgAlpha * drawScale,
+        drawPos.y - this.size * drawScale - 30 * drawScale,
+        100 * drawScale * (1 - dmgAlpha),
+        3,
+      );
+    }
   }
 
   dropCash() {
