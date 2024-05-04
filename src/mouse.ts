@@ -26,7 +26,7 @@ export default abstract class MouseHandler {
 
   abstract onMouseDown(e: MouseEvent);
   abstract onMouseUp(e: MouseEvent);
-  
+
   registerEvent(name, cb) {
     const bound = cb.bind(this);
     document.addEventListener(name, bound, false);
@@ -34,9 +34,9 @@ export default abstract class MouseHandler {
   }
 
   register() {
-    this.registerEvent('mousemove', this.onMouseUpdate);
-    this.registerEvent('mouseup', this.onMouseUp);
-    this.registerEvent('mousedown', this.onMouseDown);
+    this.registerEvent("mousemove", this.onMouseUpdate);
+    this.registerEvent("mouseup", this.onMouseUp);
+    this.registerEvent("mousedown", this.onMouseDown);
   }
 
   deregister() {
@@ -68,7 +68,7 @@ export class IntermissionMouseHandler extends MouseHandler {
     const state = <IntermissionState>this.game.state;
     state.mouseEvent(e);
   }
-  
+
   onMouseUp(e: MouseEvent) {
     // no-op
   }

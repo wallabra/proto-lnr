@@ -23,7 +23,8 @@ export class Game {
     this.drawCtx = ctx;
     this.zoom = 1000;
     const play = (this.state = this.setState(PlayState, defPlaceholder));
-    this.player = new Player(this, play.makeShip(Vec2(0, 600)));
+    this.player = new Player(this, play.makeShip(Vec2(0, 0)));
+    play.resetPlayerShip();
   }
 
   setMouseHandler<M extends MouseHandler>(
@@ -88,9 +89,7 @@ export class Game {
   nextLevel(terraDef: TerraDef = defPlaceholder, numNPCs: number = 40) {
     const play = this.setState(PlayState, terraDef);
     let toSpawn = numNPCs;
-    
-    play.addShip(this.player.possessed);
-    play.physics.addPhysObj(this.player.possessed.phys);
+    play.resetPlayerShip();
 
     while (toSpawn > 0) {
       const aiship = play.makeShip(

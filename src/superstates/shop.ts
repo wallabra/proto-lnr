@@ -15,6 +15,7 @@ import Superstate from "./base";
 export default class IntermissionState extends Superstate {
   ui: CanvasPanel;
   repairButton: CanvasButton;
+  cashCounter: CanvasLabel;
   repairCostScale: number;
 
   constructor(game: Game, repairCostScale: number = 10) {
@@ -30,28 +31,31 @@ export default class IntermissionState extends Superstate {
   }
 
   repairCost() {
-    if (this.game.player == null || this.game.player.possessed == null) {
+    if (this.game.player == null) {
       return 0;
     }
 
-    return this.game.player.possessed.damage * this.repairCostScale;
+    return this.game.player.damage * this.repairCostScale;
   }
 
   doRepair() {
-    if (this.game.player == null || this.game.player.possessed == null) {
+    if (this.game.player == null) {
       return;
     }
 
-    const ship = this.game.player.possessed;
+    const player = this.game.player;
     const cost = this.repairCost();
 
-    if (ship.money < cost) {
-      return;
+    if (player.money < cost) {
+      player.damage -= player.money / this.repairCostScale;
+      player.money = 0;
+    } else {
+      player.money -= cost;
+      player.damage = 0;
     }
 
-    ship.money -= cost;
-    ship.damage = 0;
     this.updateRepairLabel();
+    this.updateCashCounter();
   }
 
   doNextLevel() {
@@ -61,9 +65,16 @@ export default class IntermissionState extends Superstate {
   updateRepairLabel() {
     this.repairButton.label = `Repair Ship (${moneyString(this.repairCost())})`;
   }
+  
+  updateCashCounter() {
+    if (this.game.player == null) {
+        return;
+    }
+    this.cashCounter.label = `Money: ${moneyString(this.game.player.money)}`;
+  }
 
   buildShopPane() {
-    const shopPane = new CanvasSplitPanel(this.ui, "vertical", 2, 0, "#0000");
+    const shopPane = new CanvasSplitPanel(this.ui, "vertical", 2, 0, "#2222");
     const heading = new CanvasLabel(
       shopPane,
       0,
@@ -72,21 +83,40 @@ export default class IntermissionState extends Superstate {
       100,
       "Shop",
       "#e8e8ff",
+      "50px sans-serif",
+    );
+    heading.dockX = "center";
+    heading.textAlign = "center";
+    
+    this.cashCounter = new CanvasLabel(
+      shopPane,
+      0,
+      0,
+      -1,
+      100,
+      "-",
+      "#e8e8ff",
       "30px sans-serif",
     );
-    heading.textAlign = "center";
+    this.cashCounter.dockX = "end";
+    this.cashCounter.dockMarginX = 50;
+    this.cashCounter.dockY = "start";
+    this.cashCounter.dockMarginY = 25;
+    this.cashCounter.textAlign = "end";
+    this.updateCashCounter();
+    
     this.repairButton = new CanvasButton(
       shopPane,
       shopPane.width / 2,
       50,
-      100,
+      700,
       100,
       "",
-      this.doRepair,
+      this.doRepair.bind(this),
     );
-    this.repairButton.alignX = "center";
+    this.repairButton.dockX = "center";
     this.repairButton.dockY = "end";
-    this.repairButton.dockMarginY = 20;
+    this.repairButton.dockMarginY = 50;
     this.updateRepairLabel();
   }
 
@@ -96,7 +126,8 @@ export default class IntermissionState extends Superstate {
       "vertical",
       2,
       1,
-      "#0000",
+      "#4452",
+      4
     );
     const heading = new CanvasLabel(
       cartographyPane,
@@ -108,19 +139,20 @@ export default class IntermissionState extends Superstate {
       "#e8e8ff",
       "30px sans-serif",
     );
+    heading.dockX = "center";
     heading.textAlign = "center";
     const nextLevelButton = new CanvasButton(
       cartographyPane,
       cartographyPane.width / 2,
       50,
-      100,
+      700,
       100,
       "Invade Next Island",
-      this.doNextLevel,
+      this.doNextLevel.bind(this),
     );
-    nextLevelButton.alignX = "center";
+    nextLevelButton.dockX = "center";
     nextLevelButton.dockY = "end";
-    nextLevelButton.dockMarginY = 20;
+    nextLevelButton.dockMarginY = 50;
   }
 
   buildUI() {

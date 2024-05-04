@@ -24,7 +24,15 @@ export class PhysicsSimulation {
     this.play = play;
     this.objects = [];
   }
-  
+
+  removePhysObj(obj: PhysicsObject) {
+    const idx = this.objects.indexOf(obj);
+
+    if (idx !== -1) {
+      this.objects.splice(idx, -1);
+    }
+  }
+
   addPhysObj(obj: PhysicsObject) {
     this.objects.push(obj);
   }
@@ -84,6 +92,12 @@ export class PhysicsObject {
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
     this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.06;
+  }
+
+  setPos(newPos: Vec2) {
+    const vel = this.vel;
+    this.pos = newPos.clone();
+    this.vel = vel;
   }
 
   touchingShip(ship) {

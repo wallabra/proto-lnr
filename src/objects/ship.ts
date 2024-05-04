@@ -5,11 +5,13 @@ import type { PhysicsObject, PhysicsParams } from "./physics.ts";
 import { ObjectRenderInfo } from "../render";
 import CashPickup, { CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
+import { Game } from "../game";
 
 const DEBUG_DRAW = false;
 
 export interface ShipParams extends PhysicsParams {
   money: number;
+  damage: number;
 }
 
 export class Ship {
@@ -25,9 +27,9 @@ export class Ship {
   killScore: number;
   maxCannonPower: number;
   money: number;
-  
+
   get play(): PlayState {
-    return <PlayState> this.game.state;
+    return <PlayState>this.game.state;
   }
 
   constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
@@ -36,8 +38,8 @@ export class Ship {
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
-    this.phys = game.state.makePhysObj(pos || Vec2(0, 0), params);
-    this.damage = 0;
+    this.phys = (<PlayState> game.state).makePhysObj(pos || Vec2(0, 0), params);
+    this.damage = params.damage != null ? params.damage : 0;
     this.dying = false;
     this.shootCooldown = 0;
     this.wannaShoot = false;
@@ -126,6 +128,10 @@ export class Ship {
 
   damageShip(damage: number) {
     this.damage += Math.max(0, damage);
+
+    if (this.game.player != null && this.game.player.possessed === this) {
+      this.game.player.damage = this.damage;
+    }
 
     if (this.damage > this.maxDmg) {
       this.die();
@@ -275,11 +281,22 @@ export class Ship {
     }
   }
 
+  setMoney(money) {
+    this.money = money;
+    if (this.game.player != null && this.game.player.possessed === this) {
+      this.game.player.money = this.money;
+    }
+  }
+
+  giveMoney(money) {
+    this.setMoney(money + this.money);
+  }
+
   dropCash() {
     this.play.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, {
       cash: this.money,
     });
-    this.money = 0;
+    this.setMoney(0);
   }
 
   dropItems() {

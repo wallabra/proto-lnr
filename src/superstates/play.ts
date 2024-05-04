@@ -1,5 +1,5 @@
 import { Cannonball, CannonballParams } from "../objects/cannonball";
-import { Ship } from "../objects/ship";
+import { Ship, ShipParams } from "../objects/ship";
 import { PhysicsSimulation, PhysicsParams } from "../objects/physics";
 import { Terrain, TerraDef } from "../terrain";
 import Superstate from "./base";
@@ -38,6 +38,34 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
+  resetPlayerShip() {
+    if (this.game.player.possessed !== null) {
+      this.removeObj(this.game.player.possessed);
+    }
+
+    this.game.player.possessed = this.makeShip(Vec2(1500, 1500), {
+      money: this.game.player.money,
+      damage: this.game.player.damage,
+    });
+  }
+
+  removeObj(toRemove) {
+    const it = this.tickables.indexOf(toRemove);
+    const ir = this.renderables.indexOf(toRemove);
+
+    if (it !== -1) {
+      this.tickables.splice(it, 1);
+    }
+
+    if (ir !== -1) {
+      this.renderables.splice(it, 1);
+    }
+
+    if (toRemove.phys != null) {
+      this.physics.removePhysObj(toRemove.phys);
+    }
+  }
+
   get width() {
     return this.game.width;
   }
@@ -46,7 +74,7 @@ export class PlayState extends Superstate {
     return this.game.height;
   }
 
-  makeShip(pos: Vec2, params?: Partial<PhysicsParams>) {
+  makeShip(pos: Vec2, params?: Partial<ShipParams>) {
     const res = new Ship(this.game, pos, params);
     this.addShip(res);
     return res;

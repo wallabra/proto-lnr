@@ -75,6 +75,8 @@ export abstract class CanvasUIElement {
   dockMarginY: number;
   fillX: boolean;
   fillY: boolean;
+  paddingX: number;
+  paddingY: number;
 
   constructor(parent, x, y, width, height) {
     this.parent = parent;
@@ -93,6 +95,8 @@ export abstract class CanvasUIElement {
     this.dockMarginY = 0;
     this.fillX = false;
     this.fillY = false;
+    this.paddingX = 8;
+    this.paddingY = 8;
 
     if (this.parent != null) {
       this.parent.children.push(this);
@@ -113,6 +117,14 @@ export abstract class CanvasUIElement {
     } else {
       return this.height;
     }
+  }
+  
+  get innerWidth() {
+    return this.realWidth - this.paddingX * 2;
+  }
+
+  get innerHeight() {
+    return this.realHeight - this.paddingY * 2;
   }
 
   destroy() {
@@ -157,12 +169,12 @@ export abstract class CanvasUIElement {
     let y = this.y;
 
     if (this.parent != null) {
-      const pp = this.parent.pos();
+      const pp = this.parent.innerPos();
       x += pp.x;
       y += pp.y;
 
-      x = computeDock(this.dockX, x, this.parent.realWidth, this.dockMarginX);
-      x = computeDock(this.dockY, y, this.parent.realHeight, this.dockMarginY);
+      x = computeDock(this.dockX, x, this.parent.innerWidth, this.dockMarginX);
+      y = computeDock(this.dockY, y, this.parent.innerHeight, this.dockMarginY);
     }
 
     x = computeAlignCheckDock(this.alignX, this.dockX, x, this.realWidth);
@@ -173,13 +185,20 @@ export abstract class CanvasUIElement {
       y: y,
     };
   }
+  
+  innerPos() {
+      let pos = this.pos();
+      pos.x += this.paddingX;
+      pos.y += this.paddingY;
+      return pos;
+  }
 
   isInside(x, y) {
     const pos = this.pos();
     x -= pos.x;
     y -= pos.y;
 
-    return x < 0 || y < 0 || x > this.realWidth || y > this.realHeight;
+    return !(x < 0 || y < 0 || x > this.realWidth || y > this.realHeight);
   }
 
   public handleEvent<E extends UIEvent>(e: E) {
@@ -187,6 +206,7 @@ export abstract class CanvasUIElement {
       return false;
     }
 
+    console.log("Clicked on", this);
     this.event(e);
     this.dispatchEvent(e);
     return true;
@@ -320,7 +340,7 @@ export class CanvasPanel extends CanvasUIElement {
     const pos = this.pos();
 
     ctx.fillStyle = this.bgColor;
-    ctx.fillRect(pos.x, pos.y, this.width, this.height);
+    ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
 }
 
@@ -337,50 +357,50 @@ export class CanvasSplitPanel extends CanvasPanel {
     this.index = index;
     this.margin = margin;
   }
-  
+
   pos() {
     let pos = super.pos();
-    
+
     pos.x += this.margin;
     pos.y += this.margin;
-    
+
     if (this.axis == "horizontal") {
-      pos.x += (this.parent.realWidth / this.totalSplits) * this.index;
+      pos.x += (this.parent.innerWidth / this.totalSplits) * this.index;
     }
 
     if (this.axis == "vertical") {
-      pos.y += (this.parent.realHeight / this.totalSplits) * this.index;
+      pos.y += (this.parent.innerHeight / this.totalSplits) * this.index;
     }
-    
+
     return pos;
   }
-  
+
   get realWidth() {
     let width;
-      
+
     if (this.axis == "horizontal") {
-      width = this.parent.width / this.totalSplits;
+      width = this.parent.innerWidth / this.totalSplits;
     }
 
     if (this.axis == "vertical") {
-      width = this.parent.width;
+      width = this.parent.innerWidth;
     }
-    
-    return width;
+
+    return width - this.margin * 2;
   }
-  
+
   get realHeight() {
-    let width;
-      
+    let height;
+
     if (this.axis == "horizontal") {
-      width = this.parent.width / this.totalSplits;
+      height = this.parent.innerHeight;
     }
 
     if (this.axis == "vertical") {
-      width = this.parent.width;
+      height = this.parent.innerHeight / this.totalSplits;
     }
-    
-    return width;
+
+    return height - this.margin * 2;
   }
 }
 

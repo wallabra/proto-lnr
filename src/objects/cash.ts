@@ -18,6 +18,6 @@ export default class CashPickup extends Pickup {
   }
 
   collect(ship: Ship): void {
-    ship.money += this.cash;
+    ship.giveMoney(this.cash);
   }
 }

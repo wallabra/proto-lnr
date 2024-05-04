@@ -12,12 +12,16 @@ export class Player {
   inputState: string | null;
   actions: Array<PlayerAction>;
   game: Game;
+  money: number;
+  damage: number;
 
-  constructor(game: Game, ship: Ship) {
+  constructor(game: Game, ship: Ship, money: number = 0) {
     this.game = game;
     this.possessed = ship;
     this.inputState = null;
     this.actions = [];
+    this.money = money;
+    this.damage = ship.damage;
     this.registerActions();
   }
 
@@ -36,6 +40,7 @@ export class Player {
   }
 
   canShop() {
+    return true; //DEBUG
     return this.possessed.pos.length() >= 2000;
   }
 
@@ -56,7 +61,7 @@ export class Player {
 
       this.game.setState(IntermissionState);
     }
-    
+
     if (name == "repair") {
       const state = this.game.state;
       if (state instanceof IntermissionState) {
