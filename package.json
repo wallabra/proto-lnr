@@ -5,7 +5,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "test": "jest --passWithNoTests",
+    "prettify": "prettier src/ --write",
     "lint": "eslint src/",
+    "check": "npm run lint && npm run test",
     "server": "parcel src/index.html",
     "build": "parcel build src/index.html --public-url=."
   },
