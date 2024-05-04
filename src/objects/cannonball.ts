@@ -85,9 +85,6 @@ export class Cannonball {
     ship.damageShip(this.damage * damageScale);
     if (ship.dying) {
       this.instigator.killScore++;
-      //this.instigator.money += ship.money;
-      ship.spawnDrops();
-      ship.money = 0;
     }
     this.destroy();
 

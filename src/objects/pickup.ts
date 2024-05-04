@@ -97,7 +97,9 @@ export default abstract class Pickup {
     if (!this.phys.inWater()) return;
     this.phys.applyForce(
       deltaTime,
-      Vec2(Math.random() * 2, 0).rotateBy(Math.random() * Math.PI * 2).add(this.phys.vel),
+      Vec2(Math.random() * 2, 0)
+        .rotateBy(Math.random() * Math.PI * 2)
+        .add(this.phys.vel),
     );
   }
 

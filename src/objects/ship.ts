@@ -262,15 +262,18 @@ export class Ship {
       3,
     );
   }
-  
+
   dropCash() {
-    this.game.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, { cash: this.money });
+    this.game.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, {
+      cash: this.money,
+    });
+    this.money = 0;
   }
-  
+
   dropItems() {
-    // WIP: drop items once those are implemented
+    // TODO: drop items once those are implemented
   }
-  
+
   spawnDrops() {
     this.dropCash();
     this.dropItems();
@@ -328,6 +331,7 @@ export class Ship {
 
   die() {
     // TODO: trigger death FX
+    this.spawnDrops();
     this.dying = true;
     this.phys.dying = true;
   }
