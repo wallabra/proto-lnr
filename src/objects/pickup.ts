@@ -12,6 +12,7 @@ export default abstract class Pickup {
   constructor(play, pos, params) {
     if (params == null) params = {};
     if (params.size == null) params.size = 8;
+    if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
 
     this.play = play;
     this.phys = this.play.makePhysObj(pos || Vec2(0, 0), params);
