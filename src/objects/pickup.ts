@@ -24,8 +24,8 @@ export default abstract class Pickup {
 
   drawBox(ctx, drawPos, size, offs) {
     ctx.beginPath();
-    ctx.translate(drawPos.x - size, drawPos.y + offs - size);
-    ctx.rotate(-this.phys.angle);
+    ctx.translate(drawPos.x, drawPos.y + offs);
+    ctx.rotate(this.phys.angle);
 
     ctx.fillRect(-size, -size, size, size);
 
