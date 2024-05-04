@@ -259,7 +259,7 @@ class UIRenderer {
       ctx.fillStyle = "#22222240";
       ctx.fillRect(0, 0, game.width, game.height);
 
-      ctx.fillStyle = "#ffff00";
+      ctx.fillStyle = "#ffff0080";
       ctx.font = "60px Verdana serif";
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
