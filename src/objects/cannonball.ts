@@ -139,7 +139,7 @@ export class Cannonball {
       return;
     }
 
-    const hoffs = this.height * 20 + 5;
+    const hoffs = this.height * 20 + this.phys.size / 2;
     const shoffs = Math.max(
       0,
       hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,

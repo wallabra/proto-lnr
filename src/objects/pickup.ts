@@ -49,7 +49,7 @@ export default abstract class Pickup {
       return;
     }
 
-    const hoffs = this.phys.height * 20 + 10;
+    const hoffs = this.phys.height * 20 + this.phys.size / 2;
     const shoffs = Math.max(
       0,
       hoffs - Math.max(this.phys.floor, this.play.waterLevel) * 20,

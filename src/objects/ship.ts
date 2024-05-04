@@ -172,7 +172,7 @@ export class Ship {
       return;
     }
 
-    const hoffs = this.height * 20 + 10;
+    const hoffs = this.height * 20 + this.phys.size / 2.5;
     const shoffs = Math.max(
       0,
       hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
