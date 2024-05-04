@@ -150,11 +150,15 @@ export class PhysicsObject {
     return this.baseDrag * this.size * 0.05;
   }
 
+  inWater() {
+    return (
+      this.floor <= this.game.waterLevel &&
+      this.height <= this.game.waterLevel + 0.05
+    );
+  }
+
   physDrag(deltaTime: number) {
-    const floor = this.floor;
-    const inWater =
-      floor <= this.game.waterLevel &&
-      this.height <= this.game.waterLevel + 0.05;
+    const inWater = this.inWater();
 
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
@@ -205,7 +209,7 @@ export class PhysicsObject {
     this.height += this.vspeed * deltaTime;
 
     const floor = this.floor;
-    const inWater = floor < this.game.waterLevel;
+    const inWater = this.inWater();
 
     if (this.height < floor) {
       this.height = floor;

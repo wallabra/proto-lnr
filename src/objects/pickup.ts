@@ -92,10 +92,13 @@ export default abstract class Pickup {
       }
     }
   }
-  
-  
+
   bob(deltaTime: number) {
-    this.phys.applyForce(deltaTime, Vec2(Math.random() * 0.5, 0).rotateBy(Math.random() * Math.PI * 2))
+    if (!this.phys.inWater()) return;
+    this.phys.applyForce(
+      deltaTime,
+      Vec2(Math.random() * 2, 0).rotateBy(Math.random() * Math.PI * 2).add(this.phys.vel),
+    );
   }
 
   tick(deltaTime: number) {
