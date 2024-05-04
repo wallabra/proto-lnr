@@ -1,15 +1,54 @@
-export type InputCallback = (event: KeyboardEvent) => null;
+import { Game } from "./game";
 
-function registerKey(key: string, callback: InputCallback) {
-  function _listener(event) {
-    if (event.key == key) {
-      callback(event);
-    }
-  }
+export type InputCallback = (event: KeyboardEvent) => void;
 
-  document.addEventListener("keydown", _listener);
+interface KeyRegister {
+  key: string;
+  listener: InputCallback;
 }
 
-export function registerKeyListeners(game) {
-  registerKey(" ", game.inputHandler.bind(game, "shoot"));
+export abstract class KeyHandler {
+  registry: Array<KeyRegister>;
+  game: Game;
+
+  constructor(game: Game) {
+    this.game = game;
+    this.registry = [];
+  }
+
+  protected registerKey(key: string, callback: InputCallback) {
+    const listener = (event) => {
+      if (event.key == key) {
+        callback(event);
+      }
+    };
+
+    document.addEventListener("keydown", listener, false);
+    this.registry.push({
+      key: key,
+      listener: listener,
+    });
+  }
+
+  abstract register();
+
+  deregister() {
+    for (const reg of this.registry) {
+      document.removeEventListener("keydown", reg.listener, false);
+    }
+    this.registry = [];
+  }
+}
+
+export class PlayKeyHandler extends KeyHandler {
+  register() {
+    this.registerKey(" ", this.game.inputHandler.bind(this.game, "shoot"));
+    this.registerKey("s", this.game.inputHandler.bind(this.game, "shop"));
+  }
+}
+
+export class IntermissionKeyHandler extends KeyHandler {
+  register() {
+    this.registerKey("s", this.game.inputHandler.bind(this.game, "tryRepair"));
+  }
 }

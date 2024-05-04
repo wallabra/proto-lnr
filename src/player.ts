@@ -1,7 +1,9 @@
 import Vec2 from "victor";
 import { Ship } from "./objects/ship";
-import MouseHandler from "./mouse";
+import { PlayMouseHandler } from "./mouse";
 import { Game } from "./game";
+import IntermissionState from "./superstates/shop";
+import { PlayState } from "./superstates/play";
 
 export type PlayerAction = (deltaTime: number) => void;
 
@@ -9,15 +11,18 @@ export class Player {
   possessed: Ship;
   inputState: string | null;
   actions: Array<PlayerAction>;
-  mouse: MouseHandler;
+  game: Game;
 
   constructor(game: Game, ship: Ship) {
+    this.game = game;
     this.possessed = ship;
     this.inputState = null;
     this.actions = [];
     this.registerActions();
-    this.mouse = new MouseHandler(game);
-    this.mouse.registerMouseListener();
+  }
+
+  get mouse() {
+    return this.game.mouse;
   }
 
   steer(offs: Vec2, deltaTime: number) {
@@ -30,10 +35,33 @@ export class Player {
     this.possessed.thrustForward(deltaTime, dot + 1 / 2);
   }
 
+  canShop() {
+    return this.possessed.pos.length() >= 2000;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   inputEvent(name: string, event: KeyboardEvent) {
+    if (this.possessed.dying) {
+      return;
+    }
+
     if (name == "shoot") {
       this.inputState = "shoot";
+    }
+
+    if (name == "shop") {
+      if (!this.canShop()) {
+        return;
+      }
+
+      this.game.setState(IntermissionState);
+    }
+    
+    if (name == "repair") {
+      const state = this.game.state;
+      if (state instanceof IntermissionState) {
+        state.doRepair();
+      }
     }
   }
 
@@ -47,7 +75,7 @@ export class Player {
   }
 
   registerActions() {
-    this.registerAction("shoot", (/*deltaTime*/) => {
+    this.registerAction("shoot", () => {
       this.possessed.tryShoot(this.mouse.pos.length());
     });
   }
@@ -57,7 +85,7 @@ export class Player {
   }
 
   doSteer(deltaTime: number) {
-    if (!this.mouse.steering) {
+    if (!(<PlayMouseHandler>this.mouse).steering) {
       return;
     }
 
@@ -76,6 +104,10 @@ export class Player {
   }
 
   tick(deltaTime: number) {
+    if (!(this.game.state instanceof PlayState)) {
+      return;
+    }
+
     if (this.possessed.dying) {
       return;
     }

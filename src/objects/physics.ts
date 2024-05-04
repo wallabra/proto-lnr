@@ -24,10 +24,14 @@ export class PhysicsSimulation {
     this.play = play;
     this.objects = [];
   }
+  
+  addPhysObj(obj: PhysicsObject) {
+    this.objects.push(obj);
+  }
 
   makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
     const res = new PhysicsObject(this.play, pos, params);
-    this.objects.push(res);
+    this.addPhysObj(res);
     return res;
   }
 

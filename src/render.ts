@@ -9,6 +9,7 @@ import {
 } from "./terrain";
 import { PlayState } from "./superstates/play";
 import { rgbString, interpColor, lerp, moneyString } from "./util";
+import { Player } from "./player";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -280,20 +281,39 @@ class UIRenderer {
     // render death screen
     const ctx = game.drawCtx;
 
-    if (
-      game.player != null &&
-      game.player.possessed != null &&
-      game.player.possessed.dying
-    ) {
-      ctx.fillStyle = "#22222240";
-      ctx.fillRect(0, 0, game.width, game.height);
-
-      ctx.fillStyle = "#ffff0080";
-      ctx.font = "60px serif";
-      ctx.textBaseline = "middle";
-      ctx.textAlign = "center";
-      ctx.fillText("rip", game.width / 2, game.height / 2);
+    if (game.player == null || game.player.possessed == null) {
+      return;
     }
+
+    if (!game.player.possessed.dying) {
+      return;
+    }
+
+    ctx.fillStyle = "#22222240";
+    ctx.fillRect(0, 0, game.width, game.height);
+
+    ctx.fillStyle = "#ffff0080";
+    ctx.font = "60px serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("rip", game.width / 2, game.height / 2);
+  }
+
+  tellIfCanShop() {
+    const game = this.game;
+
+    // render death screen
+    const ctx = game.drawCtx;
+
+    if (game.player == null || !game.player.canShop) {
+      return;
+    }
+
+    ctx.fillStyle = "#ffff0060";
+    ctx.font = "30px serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("Press 's' to shop.", game.width / 2, game.height * 0.8);
   }
 
   renderKillScore() {
@@ -302,18 +322,16 @@ class UIRenderer {
     // render kill score
     const ctx = game.drawCtx;
 
-    if (game.player != null && game.player.possessed != null) {
-      ctx.fillStyle = "#0099ff";
-      ctx.font = "30px serif";
-      ctx.textBaseline = "top";
-      ctx.textAlign = "left";
-      ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
-      ctx.fillText(
-        `Money: ${moneyString(game.player.possessed.money)}`,
-        40,
-        90,
-      );
+    if (game.player == null || game.player.possessed == null) {
+      return;
     }
+
+    ctx.fillStyle = "#0099ff";
+    ctx.font = "30px serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "left";
+    ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
+    ctx.fillText(`Money: ${moneyString(game.player.possessed.money)}`, 40, 90);
   }
 
   tick(deltaTime) {
@@ -323,6 +341,7 @@ class UIRenderer {
   renderUI() {
     this.renderKillScore();
     this.renderDeathScreen();
+    this.tellIfCanShop();
     this.fpsCounter.render({
       ctx: this.game.drawCtx,
       width: this.game.width,

@@ -1,5 +1,10 @@
+import Vec2 from "victor";
 import Superstate from "./superstates/base";
 import { Player } from "./player";
+import { TerraDef, defPlaceholder } from "./terrain";
+import { PlayState } from "./superstates/play";
+import MouseHandler from "./mouse";
+import { KeyHandler } from "./keyinput";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -7,6 +12,8 @@ export class Game {
   player: Player | null;
   state: Superstate;
   zoom: number;
+  mouse: MouseHandler;
+  keyboard: KeyHandler;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -14,8 +21,33 @@ export class Game {
     if (ctx == null)
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
-    this.player = null;
     this.zoom = 1000;
+    const play = (this.state = this.setState(PlayState, defPlaceholder));
+    this.player = new Player(this, play.makeShip(Vec2(0, 600)));
+  }
+
+  setMouseHandler<M extends MouseHandler>(
+    handlerType: new (game: Game) => M,
+  ): M {
+    if (this.mouse != null) {
+      this.mouse.deregister();
+    }
+
+    const res = (this.mouse = new handlerType(this));
+    res.register();
+    return res;
+  }
+
+  setKeyboardHandler<K extends KeyHandler>(
+    handlerType: new (game: Game) => K,
+  ): K {
+    if (this.keyboard != null) {
+      this.keyboard.deregister();
+    }
+
+    const res = (this.keyboard = new handlerType(this));
+    res.register();
+    return res;
   }
 
   setState<T extends Superstate>(
@@ -38,7 +70,6 @@ export class Game {
 
   setPlayer(player: Player) {
     this.player = player;
-    this.state.player = player;
   }
 
   get width() {
@@ -52,6 +83,30 @@ export class Game {
   get drawScale() {
     const smallEdge = Math.min(this.width, this.height);
     return smallEdge / this.zoom;
+  }
+
+  nextLevel(terraDef: TerraDef = defPlaceholder, numNPCs: number = 40) {
+    const play = this.setState(PlayState, terraDef);
+    let toSpawn = numNPCs;
+    
+    play.addShip(this.player.possessed);
+    play.physics.addPhysObj(this.player.possessed.phys);
+
+    while (toSpawn > 0) {
+      const aiship = play.makeShip(
+        /*pos   */ Vec2(Math.random() * 1500 + 400, 0).rotateBy(
+          Math.random() * Math.PI * 2,
+        ),
+        /*params*/ { angle: Math.random() * Math.PI * 2 },
+      );
+      if (aiship.floor > play.waterLevel * 0.5) {
+        aiship.die();
+        continue;
+      }
+      play.makeAIFor(aiship);
+      //aiship.setInstigator(playerShip);
+      toSpawn--;
+    }
   }
 
   tickPlayer(deltaTime: number) {

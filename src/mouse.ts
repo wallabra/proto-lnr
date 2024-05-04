@@ -1,33 +1,75 @@
 import Vec2 from "victor";
 import { Game } from "./game";
+import IntermissionState from "./superstates/shop";
 
-export default class MouseHandler {
+interface MouseCallback {
+  name: string;
+  callback: (e: MouseEvent) => void;
+  original: (e: MouseEvent) => void;
+}
+
+export default abstract class MouseHandler {
   game: Game;
   pos: Vec2;
-  steering: boolean;
+  registry: Array<MouseCallback>;
 
   constructor(game: Game) {
     this.game = game;
-    this.steering = false;
     this.pos = Vec2(0, 0);
+    this.registry = [];
   }
 
-  registerMouseListener() {
-    const onMouseUpdate = (e: MouseEvent) => {
-      this.pos.x = (e.clientX - window.innerWidth / 2) / this.game.drawScale;
-      this.pos.y = (e.clientY - window.innerHeight / 2) / this.game.drawScale;
-    };
+  onMouseUpdate(e: MouseEvent) {
+    this.pos.x = (e.clientX - window.innerWidth / 2) / this.game.drawScale;
+    this.pos.y = (e.clientY - window.innerHeight / 2) / this.game.drawScale;
+  }
 
-    const onMouseDown = () => {
-      this.steering = true;
-    };
+  abstract onMouseDown(e: MouseEvent);
+  abstract onMouseUp(e: MouseEvent);
+  
+  registerEvent(name, cb) {
+    const bound = cb.bind(this);
+    document.addEventListener(name, bound, false);
+    this.registry.push({ name: name, callback: bound, original: cb });
+  }
 
-    const onMouseUp = () => {
-      this.steering = false;
-    };
+  register() {
+    this.registerEvent('mousemove', this.onMouseUpdate);
+    this.registerEvent('mouseup', this.onMouseUp);
+    this.registerEvent('mousedown', this.onMouseDown);
+  }
 
-    document.addEventListener("mousemove", onMouseUpdate, false);
-    document.addEventListener("mousedown", onMouseDown, false);
-    document.addEventListener("mouseup", onMouseUp, false);
+  deregister() {
+    for (let reg of this.registry) {
+      document.removeEventListener(reg.name, reg.callback, false);
+    }
+  }
+}
+
+export class PlayMouseHandler extends MouseHandler {
+  steering: boolean;
+
+  constructor(game: Game) {
+    super(game);
+    this.steering = false;
+  }
+
+  onMouseDown(e: MouseEvent) {
+    this.steering = true;
+  }
+
+  onMouseUp(e: MouseEvent) {
+    this.steering = false;
+  }
+}
+
+export class IntermissionMouseHandler extends MouseHandler {
+  onMouseDown(e: MouseEvent) {
+    const state = <IntermissionState>this.game.state;
+    state.mouseEvent(e);
+  }
+  
+  onMouseUp(e: MouseEvent) {
+    // no-op
   }
 }

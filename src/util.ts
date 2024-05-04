@@ -23,5 +23,5 @@ export function zeroPad(text: string, size: number) {
 }
 
 export function moneyString(cash: number) {
-  return cash.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+  return cash.toLocaleString(undefined, { style: "currency", currency: "USD" });
 }

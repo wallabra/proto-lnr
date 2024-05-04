@@ -9,6 +9,8 @@ import { AIController } from "../ai";
 
 import { GameRenderer, Renderable } from "../render";
 import { Game } from "../game";
+import { PlayMouseHandler } from "../mouse";
+import { PlayKeyHandler } from "../keyinput";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -143,6 +145,9 @@ export class PlayState extends Superstate {
   }
 
   init() {
+    this.game.setMouseHandler(PlayMouseHandler);
+    this.game.setKeyboardHandler(PlayKeyHandler);
+
     if (this.game.player != null && this.game.player.possessed != null) {
       this.addShip(this.game.player.possessed);
     }
