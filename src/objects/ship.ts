@@ -13,7 +13,7 @@ export interface ShipParams extends PhysicsParams {
 }
 
 export class Ship {
-  game: PlayState;
+  game: Game;
   phys: PhysicsObject;
   damage: number;
   dying: boolean;
@@ -25,14 +25,18 @@ export class Ship {
   killScore: number;
   maxCannonPower: number;
   money: number;
+  
+  get play(): PlayState {
+    return <PlayState> this.game.state;
+  }
 
-  constructor(game: PlayState, pos: Vec2, params?: Partial<ShipParams>) {
+  constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
-    this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
+    this.phys = game.state.makePhysObj(pos || Vec2(0, 0), params);
     this.damage = 0;
     this.dying = false;
     this.shootCooldown = 0;
@@ -159,7 +163,7 @@ export class Ship {
 
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
-    const drawScale = this.game.game.drawScale;
+    const drawScale = this.game.drawScale;
 
     const drawPos = info.base
       .clone()
@@ -179,7 +183,7 @@ export class Ship {
     const hoffs = this.height * 20 + this.phys.size / 2.5;
     const shoffs = Math.max(
       0,
-      hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
+      hoffs - Math.max(this.phys.floor, this.play.waterLevel) * 20,
     );
 
     // Draw shadow
@@ -272,7 +276,7 @@ export class Ship {
   }
 
   dropCash() {
-    this.game.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, {
+    this.play.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, {
       cash: this.money,
     });
     this.money = 0;
@@ -290,12 +294,12 @@ export class Ship {
   shotAirtime(cball?: Cannonball) {
     let tempCball = false;
     if (cball == null) {
-      cball = this.game.spawnCannonball(this);
+      cball = this.play.spawnCannonball(this);
       tempCball = true;
     }
     const a = cball.phys.gravity / 2;
     const b = cball.phys.vspeed;
-    const c = cball.phys.height - this.game.waterLevel * 2;
+    const c = cball.phys.height - this.play.waterLevel * 2;
     const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
     if (tempCball) {
       cball.destroy();
@@ -309,7 +313,7 @@ export class Ship {
 
     this.currShootDist = null;
 
-    const cball = this.game.spawnCannonball(this, {});
+    const cball = this.play.spawnCannonball(this, {});
     cball.phys.vspeed = dist / 250;
     const airtime = this.shotAirtime(cball);
 
@@ -399,8 +403,8 @@ export class Ship {
   }
 
   heightGradient() {
-    if (this.game.terrain == null) return Vec2(0, 0);
-    return this.game.terrain.gradientAt(this.pos.x, this.pos.y);
+    if (this.play.terrain == null) return Vec2(0, 0);
+    return this.play.terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
   nearShip(ship) {
@@ -468,7 +472,7 @@ export class Ship {
   }
 
   checkShipCollisions(deltaTime) {
-    for (const ship of this.game.tickables) {
+    for (const ship of this.play.tickables) {
       if (!(ship instanceof Ship)) {
         continue;
       }
@@ -482,7 +486,7 @@ export class Ship {
   }
 
   checkTerrainDamage(deltaTime) {
-    if (this.phys.floor > this.game.waterLevel) {
+    if (this.phys.floor > this.play.waterLevel) {
       this.damageShip(10 * deltaTime);
     }
   }

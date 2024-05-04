@@ -47,7 +47,7 @@ export class PlayState extends Superstate {
   }
 
   makeShip(pos: Vec2, params?: Partial<PhysicsParams>) {
-    const res = new Ship(this, pos, params);
+    const res = new Ship(this.game, pos, params);
     this.addShip(res);
     return res;
   }
