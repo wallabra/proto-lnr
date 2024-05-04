@@ -430,6 +430,7 @@ export class Ship {
     this.phys.applyForce(deltaTime * 5, offs.clone());
     ship.phys.applyForce(deltaTime * 5, offs.clone().invert());
     ship.setInstigator(this);
+    this.setInstigator(ship);
     this.damageShip(
       closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel),
     );
