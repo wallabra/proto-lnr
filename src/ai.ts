@@ -21,8 +21,7 @@ export class AIController {
     const soonPos = this.possessed.vel.add(this.possessed.pos);
     if (
       game.terrain != null &&
-      game.terrain.heightAt(soonPos.x, soonPos.y) >
-        game.waterLevel * 0.7
+      game.terrain.heightAt(soonPos.x, soonPos.y) > game.waterLevel * 0.8
     ) {
       this.possessed.steer(deltaTime, dHeight.invert().angle());
       this.possessed.thrustForward(deltaTime, 0.2);
@@ -64,12 +63,14 @@ export class AIController {
         } else {
           this.possessed.steer(deltaTime, steerAngle);
         }
+        if (this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length() > 200) {
+          this.possessed.thrustForward(deltaTime, 0.01);
+        }
       }
       if (
         this.possessed.lastInstigator == null ||
-        soonPos.clone()
-          .subtract(this.possessed.lastInstigator.pos)
-          .length() > 400
+        soonPos.clone().subtract(this.possessed.lastInstigator.pos).length() >
+          400
       ) {
         if (
           game.terrain != null &&
@@ -77,7 +78,7 @@ export class AIController {
             game.waterLevel * 0.001
         ) {
           // steer toward shallow water
-          this.possessed.steer(deltaTime, dHeight.angle());
+          this.possessed.steer(deltaTime * 0.25, dHeight.angle());
         }
         this.possessed.thrustForward(deltaTime, 0.6);
       }
