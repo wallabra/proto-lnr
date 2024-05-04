@@ -121,6 +121,9 @@ export class Game {
   }
 
   render() {
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    
     this.state.render();
   }
 }

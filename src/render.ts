@@ -376,11 +376,6 @@ export class GameRenderer {
   }
 
   public render() {
-    const game = this.game;
-
-    game.canvas.width = game.width;
-    game.canvas.height = game.height;
-
     this.renderBackground();
     this.r_terrain.renderTerrain();
     this.r_objects.renderObjects();
