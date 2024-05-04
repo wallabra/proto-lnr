@@ -1,15 +1,15 @@
 import Vec2 from "victor";
 import { angDiff } from "./util.ts";
-import { Game } from "./game.ts";
 import { Ship } from "./objects/ship.ts";
+import { PlayState } from "./superstates/play.ts";
 
 /// Basic placeholder AI
 export class AIController {
-  game: Game;
+  game: PlayState;
   possessed: Ship;
   dying: boolean;
 
-  constructor(game: Game, ship: Ship) {
+  constructor(game: PlayState, ship: Ship) {
     this.game = game;
     this.possessed = ship;
     this.dying = false;

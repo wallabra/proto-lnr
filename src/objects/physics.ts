@@ -1,5 +1,5 @@
 import Vec2 from "victor";
-import type { Game } from "../game.ts";
+import { PlayState } from "../superstates/play.ts";
 
 export interface PhysicsParams {
   size: number;
@@ -17,16 +17,16 @@ export interface PhysicsParams {
 }
 
 export class PhysicsSimulation {
-  game: Game;
+  play: PlayState;
   objects: Array<PhysicsObject>;
 
-  constructor(game: Game) {
-    this.game = game;
+  constructor(play: PlayState) {
+    this.play = play;
     this.objects = [];
   }
 
   makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
-    const res = new PhysicsObject(this.game, pos, params);
+    const res = new PhysicsObject(this.play, pos, params);
     this.objects.push(res);
     return res;
   }
@@ -41,7 +41,7 @@ export class PhysicsSimulation {
 }
 
 export class PhysicsObject {
-  game: Game;
+  play: PlayState;
   size: number;
   angle: number;
   pos: Vec2;
@@ -58,9 +58,9 @@ export class PhysicsObject {
   age: number;
   dying: boolean;
 
-  constructor(game: Game, pos: Vec2, params?: Partial<PhysicsParams>) {
+  constructor(play: PlayState, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
-    this.game = game;
+    this.play = play;
     this.pos = pos;
     this.lastPos = pos.clone();
     if (params.vel) this.vel = params.vel;
@@ -71,7 +71,7 @@ export class PhysicsObject {
     this.height =
       params.height != null
         ? params.height
-        : Math.max(game.waterLevel, this.floor);
+        : Math.max(play.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
     this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.3;
@@ -101,13 +101,12 @@ export class PhysicsObject {
   }
 
   get floor() {
-    if (this.game.terrain == null) return 0;
-    return this.game.terrain.heightAt(this.pos.x, this.pos.y);
+    if (this.play.terrain == null) return 0;
+    return this.play.terrain.heightAt(this.pos.x, this.pos.y);
   }
-
   slideDownLand(deltaTime: number) {
     const floor = this.floor;
-    if (floor <= this.game.waterLevel || this.height > floor + 0.1) {
+    if (floor <= this.play.waterLevel || this.height > floor + 0.1) {
       return;
     }
     const dHeight = this.heightGradient();
@@ -152,8 +151,8 @@ export class PhysicsObject {
 
   inWater() {
     return (
-      this.floor <= this.game.waterLevel &&
-      this.height <= this.game.waterLevel + 0.05
+      this.floor <= this.play.waterLevel &&
+      this.height <= this.play.waterLevel + 0.05
     );
   }
 
@@ -173,7 +172,7 @@ export class PhysicsObject {
       return;
     }
 
-    if (floor < this.game.waterLevel) {
+    if (floor < this.play.waterLevel) {
       return;
     }
 
@@ -191,7 +190,7 @@ export class PhysicsObject {
   }
 
   heightGradient() {
-    const terrain = this.game.terrain;
+    const terrain = this.play.terrain;
     if (terrain == null) return Vec2(0, 0);
     return terrain.gradientAt(this.pos.x, this.pos.y);
   }
@@ -217,7 +216,7 @@ export class PhysicsObject {
       return;
     }
 
-    if (inWater && this.height < this.game.waterLevel) {
+    if (inWater && this.height < this.play.waterLevel) {
       this.vspeed += this.buoyancy * deltaTime;
     } else {
       this.vspeed -= this.gravity * deltaTime;

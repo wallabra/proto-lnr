@@ -7,8 +7,8 @@ import {
   SECTOR_RES,
   Terrain,
 } from "./terrain.js";
+import { PlayState } from "./superstates/play.ts";
 import { rgbString, interpColor } from "./util.ts";
-import { Game } from "./game.ts";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -26,11 +26,11 @@ export interface Renderable {
 }
 
 export class ObjectRenderer {
-  game: Game;
+  game: PlayState;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
-  constructor(game: Game) {
+  constructor(game: PlayState) {
     this.game = game;
     this.canvas = game.canvas;
     this.ctx = game.drawCtx;
@@ -72,10 +72,10 @@ export class ObjectRenderer {
 
 export class TerrainRenderer {
   terrain: Terrain | null;
-  game: Game;
+  game: PlayState;
   renderedSectors: Map<string, HTMLImageElement>;
 
-  constructor(game: Game) {
+  constructor(game: PlayState) {
     this.game = game;
     this.terrain = game.terrain;
     this.renderedSectors = new Map();
@@ -239,7 +239,7 @@ export class TerrainRenderer {
 }
 
 class UIRenderer {
-  game: Game;
+  game: PlayState;
 
   constructor(game) {
     this.game = game;
@@ -289,14 +289,14 @@ class UIRenderer {
   }
 }
 
-export class Renderer {
-  game: Game;
+export class GameRenderer {
+  game: PlayState;
   r_objects: ObjectRenderer;
   r_terrain: TerrainRenderer;
   r_ui: UIRenderer;
   zoom: number;
 
-  constructor(game) {
+  constructor(game: PlayState) {
     this.game = game;
     this.r_objects = new ObjectRenderer(game);
     this.r_terrain = new TerrainRenderer(game);

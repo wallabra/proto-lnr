@@ -1,20 +1,24 @@
 import Vec2 from "victor";
-import { Game } from "../game";
 import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
+import { PlayState } from "../superstates/play";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
 }
 
 export class Cannonball {
-  game: Game;
+  game: PlayState;
   instigator: Ship;
   phys: PhysicsObject;
   dying: boolean;
 
-  constructor(game: Game, shipOwner: Ship, params: Partial<CannonballParams>) {
+  constructor(
+    game: PlayState,
+    shipOwner: Ship,
+    params: Partial<CannonballParams>,
+  ) {
     this.game = game;
     this.instigator = shipOwner;
     this.phys = this.game.makePhysObj(shipOwner.cannonballSpawnSpot(), params);

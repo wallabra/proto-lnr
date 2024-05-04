@@ -1,13 +1,17 @@
 import Vec2 from "victor";
 import { Cannonball } from "./cannonball.ts";
 import { angDiff, umod } from "../util.ts";
-import type { Game } from "../game.ts";
-import type { PhysicsObject } from "./physics.ts";
+import type { PhysicsObject, PhysicsParams } from "./physics.ts";
 import { ObjectRenderInfo } from "../render.ts";
 import CashPickup, { CashPickupParams } from "./cash.ts";
+import { PlayState } from "../superstates/play.ts";
+
+export interface ShipParams extends PhysicsParams {
+  money: number;
+}
 
 export class Ship {
-  game: Game;
+  game: PlayState;
   phys: PhysicsObject;
   damage: number;
   dying: boolean;
@@ -20,10 +24,10 @@ export class Ship {
   maxCannonPower: number;
   money: number;
 
-  constructor(game, pos, params) {
+  constructor(game: PlayState, pos: Vec2, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
-    if (params.baseFricition == null) params.baseFricition = 0.005;
+    if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
     this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
@@ -36,7 +40,7 @@ export class Ship {
     this.currShootDist = null;
     this.killScore = 0;
     this.maxCannonPower = this.defaultMaxCannonPower();
-    this.money = 20;
+    this.money = params.money != null ? params.money : 20;
 
     this.dragMixin();
   }

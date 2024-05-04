@@ -1,20 +1,20 @@
 import Vec2 from "victor";
-import type { Game } from "../game.ts";
 import { ObjectRenderInfo } from "../render.ts";
 import type { PhysicsObject } from "./physics.ts";
 import { Ship } from "./ship.ts";
+import { PlayState } from "../superstates/play.ts";
 
 export default abstract class Pickup {
-  game: Game;
+  play: PlayState;
   dying: boolean;
   phys: PhysicsObject;
 
-  constructor(game, pos, params) {
+  constructor(play, pos, params) {
     if (params == null) params = {};
     if (params.size == null) params.size = 8;
 
-    this.game = game;
-    this.phys = this.game.makePhysObj(pos || Vec2(0, 0), params);
+    this.play = play;
+    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), params);
     this.dying = false;
   }
 
@@ -51,7 +51,7 @@ export default abstract class Pickup {
     const hoffs = this.phys.height * 20 + 10;
     const shoffs = Math.max(
       0,
-      hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
+      hoffs - Math.max(this.phys.floor, this.play.waterLevel) * 20,
     );
 
     // Draw shadow
@@ -82,7 +82,7 @@ export default abstract class Pickup {
   }
 
   checkShipCollisions(deltaTime) {
-    for (const ship of this.game.tickables) {
+    for (const ship of this.play.tickables) {
       if (!(ship instanceof Ship)) {
         continue;
       }
