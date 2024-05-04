@@ -158,8 +158,8 @@ export class TerrainRenderer {
     let image = this.renderedSectors.get(key);
 
     if (image == null) {
-      const x = sx * SECTOR_REAL_SIZE;
-      const y = sx * SECTOR_REAL_SIZE;
+      const x = sx * sectorSize;
+      const y = sx * sectorSize;
 
       const renderCanvas = document.createElement("canvas");
       renderCanvas.width = SECTOR_REAL_SIZE;
