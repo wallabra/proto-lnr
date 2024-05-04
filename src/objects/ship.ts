@@ -42,7 +42,8 @@ export class Ship {
     this.currShootDist = null;
     this.killScore = 0;
     this.maxCannonPower = this.defaultMaxCannonPower();
-    this.money = params.money != null ? params.money : (100 + Math.random() * 400);
+    this.money =
+      params.money != null ? params.money : 100 + Math.random() * 400;
 
     this.dragMixin();
   }

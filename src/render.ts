@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp, zeroPad } from "./util";
+import { rgbString, interpColor, lerp, moneyString } from "./util";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -309,7 +309,7 @@ class UIRenderer {
       ctx.textAlign = "left";
       ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
       ctx.fillText(
-        `Money: ${Math.round(game.player.possessed.money)}.${zeroPad("" + Math.round((game.player.possessed.money * 100) % 100), 2)}$`,
+        `Money: ${moneyString(game.player.possessed.money)}`,
         40,
         90,
       );

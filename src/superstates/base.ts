@@ -16,5 +16,5 @@ export default abstract class Superstate {
 
   public abstract tick(deltaTime: number);
   public abstract render();
-  public abstract init();
+  public init() {}
 }
