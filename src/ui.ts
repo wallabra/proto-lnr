@@ -118,7 +118,7 @@ export abstract class CanvasUIElement {
       return this.height;
     }
   }
-  
+
   get innerWidth() {
     return this.realWidth - this.paddingX * 2;
   }
@@ -185,12 +185,12 @@ export abstract class CanvasUIElement {
       y: y,
     };
   }
-  
+
   innerPos() {
-      const pos = this.pos();
-      pos.x += this.paddingX;
-      pos.y += this.paddingY;
-      return pos;
+    const pos = this.pos();
+    pos.x += this.paddingX;
+    pos.y += this.paddingY;
+    return pos;
   }
 
   isInside(x, y) {
@@ -257,7 +257,7 @@ export class CanvasRoot extends CanvasUIElement {
     ctx.fillStyle = this.bgColor;
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
-  
+
   event() {}
 }
 
@@ -327,7 +327,7 @@ export class CanvasLabel extends CanvasUIElement {
     ctx.textBaseline = this.textBaseline;
     ctx.fillText(this.label, pos.x, pos.y);
   }
-  
+
   event() {}
 }
 
@@ -346,7 +346,7 @@ export class CanvasPanel extends CanvasUIElement {
     ctx.fillStyle = this.bgColor;
     ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
-  
+
   event() {}
 }
 
@@ -432,6 +432,6 @@ export class CanvasImage extends CanvasUIElement {
       !this.scaled ? undefined : this.height,
     );
   }
-  
+
   event() {}
 }

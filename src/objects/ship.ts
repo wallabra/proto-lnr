@@ -38,7 +38,7 @@ export class Ship {
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
-    this.phys = (<PlayState> game.state).makePhysObj(pos || Vec2(0, 0), params);
+    this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
     this.damage = params.damage != null ? params.damage : 0;
     this.dying = false;
     this.shootCooldown = 0;

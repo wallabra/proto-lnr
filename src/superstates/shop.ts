@@ -65,10 +65,10 @@ export default class IntermissionState extends Superstate {
   updateRepairLabel() {
     this.repairButton.label = `Repair Ship (${moneyString(this.repairCost())})`;
   }
-  
+
   updateCashCounter() {
     if (this.game.player == null) {
-        return;
+      return;
     }
     this.cashCounter.label = `Money: ${moneyString(this.game.player.money)}`;
   }
@@ -87,7 +87,7 @@ export default class IntermissionState extends Superstate {
     );
     heading.dockX = "center";
     heading.textAlign = "center";
-    
+
     this.cashCounter = new CanvasLabel(
       shopPane,
       0,
@@ -104,7 +104,7 @@ export default class IntermissionState extends Superstate {
     this.cashCounter.dockMarginY = 25;
     this.cashCounter.textAlign = "end";
     this.updateCashCounter();
-    
+
     this.repairButton = new CanvasButton(
       shopPane,
       shopPane.width / 2,
@@ -127,7 +127,7 @@ export default class IntermissionState extends Superstate {
       2,
       1,
       "#4452",
-      4
+      4,
     );
     const heading = new CanvasLabel(
       cartographyPane,
@@ -171,6 +171,7 @@ export default class IntermissionState extends Superstate {
       ctx: this.game.drawCtx,
       game: this.game,
     };
+
     this.ui.render(ctx);
   }
 
