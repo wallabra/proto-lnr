@@ -36,11 +36,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn
+          pnpm i
 
       - name: Lint
         run: |
-          yarn lint
+          pnpm lint
 
   test:
     strategy:
@@ -60,11 +60,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn
+          pnpm i
 
       - name: Test
         run: |
-          yarn test
+          pnpm test
 
   build:
     strategy:
@@ -84,11 +84,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn
+          pnpm i
 
       - name: Build
         run: |
-          yarn build
+          pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
