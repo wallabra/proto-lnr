@@ -24,8 +24,8 @@ export default abstract class Pickup {
 
   drawBox(ctx, drawPos, size, offs) {
     ctx.beginPath();
-    ctx.rotate(-this.phys.angle);
     ctx.translate(drawPos.x, drawPos.y + offs);
+    ctx.rotate(-this.phys.angle);
 
     ctx.fillRect(-size, -size, size, size);
 
@@ -102,6 +102,7 @@ export default abstract class Pickup {
         .rotateBy(Math.random() * Math.PI * 2)
         .add(this.phys.vel),
     );
+    this.phys.angVel += Math.random() * Math.PI / 4 * deltaTime;
   }
 
   tick(deltaTime: number) {
