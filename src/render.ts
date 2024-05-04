@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp } from "./util";
+import { rgbString, interpColor, lerp, zeroPad } from "./util";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -188,7 +188,6 @@ export class TerrainRenderer {
       return;
     }
 
-    const smallEdge = Math.min(this.game.width, this.game.height);
     const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
@@ -235,26 +234,26 @@ export class TerrainRenderer {
 class FPSCounter {
   fps: number | null;
   refreshRate: number;
-  
+
   constructor(refreshRate?: number) {
     this.fps = null;
     this.refreshRate = refreshRate || 1;
   }
-  
+
   tick(deltaTime) {
     const immediateFps = 1 / deltaTime;
     if (this.fps == null) {
       this.fps = immediateFps;
     } else {
       this.fps = lerp(this.fps, immediateFps, this.refreshRate * deltaTime);
-      
+
       // fix FPS counter on some weird circumstances
       if (isNaN(this.fps)) {
         this.fps = immediateFps;
       }
     }
   }
-  
+
   render(info) {
     if (this.fps == null) return;
     const ctx = info.ctx;
@@ -262,7 +261,7 @@ class FPSCounter {
     ctx.font = "15px sans-serif";
     ctx.textBaseline = "top";
     ctx.textAlign = "right";
-    ctx.fillText(''+Math.round(this.fps), info.width - 40, 40);
+    ctx.fillText("" + Math.round(this.fps), info.width - 40, 40);
   }
 }
 
@@ -309,10 +308,14 @@ class UIRenderer {
       ctx.textBaseline = "top";
       ctx.textAlign = "left";
       ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
-      ctx.fillText(`Money: ${game.player.possessed.money}$`, 40, 90);
+      ctx.fillText(
+        `Money: ${Math.round(game.player.possessed.money)}.${zeroPad("" + Math.round((Math.round(game.player.possessed.money) % 1) * 100), 2)}$`,
+        40,
+        90,
+      );
     }
   }
-  
+
   tick(deltaTime) {
     this.fpsCounter.tick(deltaTime);
   }
@@ -349,7 +352,7 @@ export class GameRenderer {
 
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
-  
+
   tick(deltaTime) {
     this.r_ui.tick(deltaTime);
   }

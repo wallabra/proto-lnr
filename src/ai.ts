@@ -79,7 +79,10 @@ export class AIController {
       ) {
         if (this.possessed.pos.length() > 1500) {
           // steer toward 0,0
-          this.possessed.steer(deltaTime * 0.25, this.possessed.pos.clone().invert().angle());
+          this.possessed.steer(
+            deltaTime * 0.25,
+            this.possessed.pos.clone().invert().angle(),
+          );
         }
         this.possessed.thrustForward(deltaTime, 0.6);
       }

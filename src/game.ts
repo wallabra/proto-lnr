@@ -48,7 +48,7 @@ export class Game {
   get height() {
     return this.canvas.getBoundingClientRect().height;
   }
-  
+
   get drawScale() {
     const smallEdge = Math.min(this.width, this.height);
     return smallEdge / this.zoom;

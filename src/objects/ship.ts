@@ -221,7 +221,7 @@ export class Ship {
       2 * Math.PI,
     );
     ctx.fill();
-    
+
     // Draw forward direction
     ctx.strokeStyle = "#08080830";
     ctx.beginPath();
@@ -241,7 +241,7 @@ export class Ship {
       ctx.lineTo(vto.x, vto.y);
       ctx.stroke();
     }
-    
+
     // Draw damage bar
     const maxDmg = this.maxDmg;
     let dmgAlpha = this.damage / maxDmg;
@@ -254,7 +254,12 @@ export class Ship {
 
     if (dmgAlpha < 1) {
       ctx.fillStyle = "#33AA0088";
-      ctx.fillRect(drawPos.x - 50 * drawScale, drawPos.y - this.size * drawScale - 30 * drawScale, 100 * dmgAlpha * drawScale, 3);
+      ctx.fillRect(
+        drawPos.x - 50 * drawScale,
+        drawPos.y - this.size * drawScale - 30 * drawScale,
+        100 * dmgAlpha * drawScale,
+        3,
+      );
       ctx.fillStyle = "#00000088";
       ctx.fillRect(
         drawPos.x - 50 * drawScale + 100 * dmgAlpha * drawScale,

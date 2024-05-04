@@ -27,7 +27,7 @@ export default abstract class Pickup {
     ctx.translate(drawPos.x, drawPos.y + offs);
     ctx.rotate(this.phys.angle);
 
-    ctx.fillRect(-size, -size, size*2, size*2);
+    ctx.fillRect(-size, -size, size * 2, size * 2);
 
     ctx.resetTransform();
   }
@@ -43,7 +43,8 @@ export default abstract class Pickup {
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.phys.height / 2;
     const proximityScale = camheight / Vec2(hdist + cdist).length();
-    const size = this.phys.size * proximityScale * info.scale / Math.pow(2, 1/4);
+    const size =
+      (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
 
     if (hdist < 0.1) {
       return;
