@@ -46,13 +46,7 @@ export class ObjectRenderer {
     const smallEdge = Math.min(this.game.width, this.game.height);
     const zoom = smallEdge / this.game.renderer.zoom;
 
-    let cam;
-
-    if (this.game.player != null && this.game.player.possessed != null) {
-      cam = this.game.player.possessed.pos.clone();
-    } else {
-      cam = Vec2(0, 0);
-    }
+    const cam = this.game.cameraPos();
 
     const info: ObjectRenderInfo = {
       scale: zoom,
@@ -199,10 +193,10 @@ export class TerrainRenderer {
 
     const cam = this.game.cameraPos();
 
-    const minX = -(this.game.width / 2) + cam.x;
-    const minY = -(this.game.height / 2) + cam.y;
-    const maxX = this.game.width / 2 + cam.x;
-    const maxY = this.game.height / 2 + cam.y;
+    const minX = (-this.game.width / 2 / zoom + cam.x);
+    const minY = (-this.game.height / 2 / zoom + cam.y);
+    const maxX = (this.game.width / 2 / zoom + cam.x);
+    const maxY = (this.game.height / 2 / zoom + cam.y);
 
     const sectorSize = SECTOR_REAL_SIZE * zoom;
 
@@ -221,8 +215,8 @@ export class TerrainRenderer {
     for (let si = 0; si < sectorArea; si++) {
       const sx = si % sectorW;
       const sy = (si - sx) / sectorW;
-      const sdlef = minDrawX - cam.x + sx * sectorSize;
-      const sdtop = minDrawY - cam.y + sy * sectorSize;
+      const sdlef = minDrawX - cam.x * zoom + sx * sectorSize;
+      const sdtop = minDrawY - cam.y * zoom + sy * sectorSize;
 
       const sector = this.terrain.getSector(minSectorX + sx, minSectorY + sy);
 
