@@ -40,7 +40,7 @@ export default abstract class MouseHandler {
   }
 
   deregister() {
-    for (let reg of this.registry) {
+    for (const reg of this.registry) {
       document.removeEventListener(reg.name, reg.callback, false);
     }
   }
@@ -54,11 +54,11 @@ export class PlayMouseHandler extends MouseHandler {
     this.steering = false;
   }
 
-  onMouseDown(e: MouseEvent) {
+  onMouseDown() {
     this.steering = true;
   }
 
-  onMouseUp(e: MouseEvent) {
+  onMouseUp() {
     this.steering = false;
   }
 }
@@ -69,7 +69,7 @@ export class IntermissionMouseHandler extends MouseHandler {
     state.mouseEvent(e);
   }
 
-  onMouseUp(e: MouseEvent) {
+  onMouseUp() {
     // no-op
   }
 }

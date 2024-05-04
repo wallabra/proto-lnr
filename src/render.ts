@@ -9,7 +9,6 @@ import {
 } from "./terrain";
 import { PlayState } from "./superstates/play";
 import { rgbString, interpColor, lerp, moneyString } from "./util";
-import { Player } from "./player";
 
 export type ObjectRenderInfo = {
   scale: number;

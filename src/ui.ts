@@ -187,7 +187,7 @@ export abstract class CanvasUIElement {
   }
   
   innerPos() {
-      let pos = this.pos();
+      const pos = this.pos();
       pos.x += this.paddingX;
       pos.y += this.paddingY;
       return pos;
@@ -218,7 +218,7 @@ export abstract class CanvasUIElement {
     }
   }
 
-  event<E extends UIEvent>(e: E) {}
+  abstract event<E extends UIEvent>(e: E);
   abstract _render(ctx: UIDrawContext);
 
   render(ctx: UIDrawContext) {
@@ -257,6 +257,8 @@ export class CanvasRoot extends CanvasUIElement {
     ctx.fillStyle = this.bgColor;
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
+  
+  event() {}
 }
 
 export class CanvasButton extends CanvasUIElement {
@@ -325,6 +327,8 @@ export class CanvasLabel extends CanvasUIElement {
     ctx.textBaseline = this.textBaseline;
     ctx.fillText(this.label, pos.x, pos.y);
   }
+  
+  event() {}
 }
 
 export class CanvasPanel extends CanvasUIElement {
@@ -342,6 +346,8 @@ export class CanvasPanel extends CanvasUIElement {
     ctx.fillStyle = this.bgColor;
     ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
+  
+  event() {}
 }
 
 export class CanvasSplitPanel extends CanvasPanel {
@@ -359,7 +365,7 @@ export class CanvasSplitPanel extends CanvasPanel {
   }
 
   pos() {
-    let pos = super.pos();
+    const pos = super.pos();
 
     pos.x += this.margin;
     pos.y += this.margin;
@@ -426,4 +432,6 @@ export class CanvasImage extends CanvasUIElement {
       !this.scaled ? undefined : this.height,
     );
   }
+  
+  event() {}
 }
