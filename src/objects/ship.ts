@@ -6,6 +6,8 @@ import { ObjectRenderInfo } from "../render";
 import CashPickup, { CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 
+const DEBUG_DRAW = false;
+
 export interface ShipParams extends PhysicsParams {
   money: number;
 }
@@ -156,6 +158,7 @@ export class Ship {
 
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
+    const drawScale = this.game.game.drawScale;
 
     const drawPos = info.base
       .clone()
@@ -218,9 +221,9 @@ export class Ship {
       2 * Math.PI,
     );
     ctx.fill();
-
+    
     // Draw forward direction
-    ctx.strokeStyle = "#0008";
+    ctx.strokeStyle = "#08080830";
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
     const to = Vec2(this.size * this.lateralCrossSection)
@@ -229,23 +232,16 @@ export class Ship {
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
 
-    /*// Draw velocity
-    ctx.strokeStyle = "#00f";
-    ctx.beginPath();
-    ctx.moveTo(drawPos.x, drawPos.y);
-    const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
-    ctx.lineTo(vto.x, vto.y);
-    ctx.stroke();*/
-
-    // Draw kill score
-    if (this.killScore > 0 && !this.isPlayer) {
-      ctx.fillStyle = "#ff8800b0";
-      ctx.font = "Arial 10px";
-      ctx.textBaseline = "middle";
-      ctx.textAlign = "center";
-      ctx.fillText("K " + this.killScore, drawPos.x - 15, drawPos.y - 15);
+    // Draw velocity
+    if (DEBUG_DRAW) {
+      ctx.strokeStyle = "#00f";
+      ctx.beginPath();
+      ctx.moveTo(drawPos.x, drawPos.y);
+      const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
+      ctx.lineTo(vto.x, vto.y);
+      ctx.stroke();
     }
-
+    
     // Draw damage bar
     const maxDmg = this.maxDmg;
     let dmgAlpha = this.damage / maxDmg;
@@ -257,12 +253,12 @@ export class Ship {
     dmgAlpha = 1 - dmgAlpha;
 
     ctx.fillStyle = "#33AA0088";
-    ctx.fillRect(drawPos.x - 50, drawPos.y - this.size - 30, 100 * dmgAlpha, 3);
+    ctx.fillRect(drawPos.x - 50 * drawScale, drawPos.y - this.size * drawScale - 30 * drawScale, 100 * dmgAlpha * drawScale, 3);
     ctx.fillStyle = "#00000088";
     ctx.fillRect(
-      drawPos.x - 50 + 100 * dmgAlpha,
-      drawPos.y - this.size - 30,
-      100 * (1 - dmgAlpha),
+      drawPos.x - 50 * drawScale + 100 * dmgAlpha * drawScale,
+      drawPos.y - this.size * drawScale - 30 * drawScale,
+      100 * drawScale * (1 - dmgAlpha),
       3,
     );
   }
