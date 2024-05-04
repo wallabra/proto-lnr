@@ -69,26 +69,8 @@ export class Cannonball {
     this.phys.dying = true;
   }
 
-  touchingShip(ship) {
-    if (Math.abs(this.height - ship.height) > 0.6) {
-      return 0;
-    }
-
-    const angle2 = this.pos.clone().subtract(ship.pos).angle();
-    const r1 = this.size;
-    const r2 = ship.intermediaryRadius(angle2);
-
-    const dist = this.pos.clone().subtract(ship.pos).length();
-
-    if (dist > r1 + r2) {
-      return 0;
-    }
-
-    return r1 + r2 - dist;
-  }
-
   checkShipCollision(deltaTime, ship) {
-    const closeness = this.touchingShip(ship);
+    const closeness = this.phys.touchingShip(ship);
     if (closeness <= 0) {
       return false;
     }
@@ -103,6 +85,9 @@ export class Cannonball {
     ship.damageShip(this.damage * damageScale);
     if (ship.dying) {
       this.instigator.killScore++;
+      //this.instigator.money += ship.money;
+      ship.spawnDrops();
+      ship.money = 0;
     }
     this.destroy();
 

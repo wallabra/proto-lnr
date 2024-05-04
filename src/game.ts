@@ -6,7 +6,7 @@ import { Terrain, TerraDef } from "./terrain.js";
 import Vec2 from "victor";
 import { AIController } from "./ai.js";
 import { Player } from "./player.js";
-import { Renderer } from "./render.js";
+import { Renderable, Renderer } from "./render.js";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -20,6 +20,7 @@ export class Game {
   player: Player | null;
   terrain: Terrain | null;
   tickables: Array<Tickable>;
+  renderables: Array<Renderable>;
   renderer: Renderer;
 
   constructor(canvas: HTMLCanvasElement, terraDef: TerraDef) {
@@ -28,14 +29,13 @@ export class Game {
     if (ctx == null)
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
-    this.physics = new PhysicsSimulation(this);
-    this.player = null;
-    this.terrain = null;
-
     this.setTerrain(new Terrain(terraDef));
-
+    this.physics = new PhysicsSimulation(this);
     this.renderer = new Renderer(this);
+    this.player = null;
+
     this.tickables = [];
+    this.renderables = [];
   }
 
   cameraPos(): Vec2 {
@@ -63,7 +63,7 @@ export class Game {
 
     const cball = new Cannonball(this, ship, params);
     this.tickables.push(cball);
-    this.renderer.addRenderObj(cball);
+    this.renderables.push(cball);
     return cball;
   }
 
@@ -100,6 +100,17 @@ export class Game {
     this.tickables.push(ai);
   }
 
+  spawn<A extends Tickable & Renderable, P extends PhysicsParams>(
+    objType: new (game: Game, pos: Vec2, params?: Partial<P>) => A,
+    pos: Vec2,
+    params: Partial<P>,
+  ) {
+    const res = new objType(this, pos, params);
+    this.tickables.push(res);
+    this.renderables.push(res);
+    return res;
+  }
+
   get width() {
     return this.canvas.getBoundingClientRect().width;
   }
@@ -110,7 +121,7 @@ export class Game {
 
   addShip(ship: Ship) {
     this.tickables.push(ship);
-    this.renderer.addRenderObj(ship);
+    this.renderables.push(ship);
   }
 
   makeShip(pos: Vec2, params?: Partial<PhysicsParams>) {

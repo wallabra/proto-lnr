@@ -18,7 +18,7 @@ export class AIController {
   tick(deltaTime: number) {
     const game = this.game;
     const dHeight = this.possessed.heightGradient();
-    let soonPos = this.possessed.vel.add(this.possessed.pos);
+    const soonPos = this.possessed.vel.add(this.possessed.pos);
     if (
       game.terrain != null &&
       game.terrain.heightAt(soonPos.x, soonPos.y) >

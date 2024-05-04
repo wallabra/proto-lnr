@@ -4,6 +4,7 @@ import { angDiff, umod } from "../util.ts";
 import type { Game } from "../game.ts";
 import type { PhysicsObject } from "./physics.ts";
 import { ObjectRenderInfo } from "../render.ts";
+import CashPickup, { CashPickupParams } from "./cash.ts";
 
 export class Ship {
   game: Game;
@@ -17,6 +18,7 @@ export class Ship {
   currShootDist: number | null;
   killScore: number;
   maxCannonPower: number;
+  money: number;
 
   constructor(game, pos, params) {
     if (params == null) params = {};
@@ -34,6 +36,7 @@ export class Ship {
     this.currShootDist = null;
     this.killScore = 0;
     this.maxCannonPower = this.defaultMaxCannonPower();
+    this.money = 20;
 
     this.dragMixin();
   }
@@ -229,14 +232,14 @@ export class Ship {
     const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
     ctx.lineTo(vto.x, vto.y);
     ctx.stroke();*/
-    
+
     // Draw kill score
     if (this.killScore > 0 && !this.isPlayer) {
-      ctx.fillStyle = '#ff8800b0';
-      ctx.font = 'Arial 10px';
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      ctx.fillText("K "+this.killScore, drawPos.x - 15, drawPos.y - 15);
+      ctx.fillStyle = "#ff8800b0";
+      ctx.font = "Arial 10px";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillText("K " + this.killScore, drawPos.x - 15, drawPos.y - 15);
     }
 
     // Draw damage bar
@@ -258,6 +261,19 @@ export class Ship {
       100 * (1 - dmgAlpha),
       3,
     );
+  }
+  
+  dropCash() {
+    this.game.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, { cash: this.money });
+  }
+  
+  dropItems() {
+    // WIP: drop items once those are implemented
+  }
+  
+  spawnDrops() {
+    this.dropCash();
+    this.dropItems();
   }
 
   shotAirtime(cball?: Cannonball) {

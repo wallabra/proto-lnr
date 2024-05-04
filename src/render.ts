@@ -26,7 +26,6 @@ export interface Renderable {
 }
 
 export class ObjectRenderer {
-  renderables: Array<Renderable>;
   game: Game;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -35,11 +34,10 @@ export class ObjectRenderer {
     this.game = game;
     this.canvas = game.canvas;
     this.ctx = game.drawCtx;
-    this.renderables = [];
   }
 
   renderObjects() {
-    this.renderables = this.renderables.filter((o) => !o.dying);
+    this.game.renderables = this.game.renderables.filter((o) => !o.dying);
 
     const ctx = this.game.drawCtx;
     const baseX = this.game.width / 2;
@@ -66,7 +64,7 @@ export class ObjectRenderer {
       renderer: this,
     };
 
-    for (const obj of this.renderables) {
+    for (const obj of this.game.renderables) {
       obj.render(info);
     }
   }
@@ -280,7 +278,8 @@ class UIRenderer {
       ctx.font = "30px Verdana serif";
       ctx.textBaseline = "top";
       ctx.textAlign = "left";
-      ctx.fillText(`K: ${game.player.possessed.killScore}`, 40, 40);
+      ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
+      ctx.fillText(`Money: ${game.player.possessed.money}$`, 40, 90);
     }
   }
 
@@ -303,10 +302,6 @@ export class Renderer {
     this.r_terrain = new TerrainRenderer(game);
     this.r_ui = new UIRenderer(game);
     this.zoom = 1000;
-  }
-
-  addRenderObj(obj: Renderable) {
-    this.r_objects.renderables.push(obj);
   }
 
   renderBackground() {

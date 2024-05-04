@@ -82,6 +82,24 @@ export class PhysicsObject {
     this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.06;
   }
 
+  touchingShip(ship) {
+    if (Math.abs(this.height - ship.height) > 0.6) {
+      return 0;
+    }
+
+    const angle2 = this.pos.clone().subtract(ship.pos).angle();
+    const r1 = this.size;
+    const r2 = ship.intermediaryRadius(angle2);
+
+    const dist = this.pos.clone().subtract(ship.pos).length();
+
+    if (dist > r1 + r2) {
+      return 0;
+    }
+
+    return r1 + r2 - dist;
+  }
+
   get floor() {
     if (this.game.terrain == null) return 0;
     return this.game.terrain.heightAt(this.pos.x, this.pos.y);
