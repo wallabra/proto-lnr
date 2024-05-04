@@ -63,7 +63,12 @@ export class AIController {
         } else {
           this.possessed.steer(deltaTime, steerAngle);
         }
-        if (this.possessed.pos.clone().subtract(this.possessed.lastInstigator.pos).length() > 200) {
+        if (
+          this.possessed.pos
+            .clone()
+            .subtract(this.possessed.lastInstigator.pos)
+            .length() > 200
+        ) {
           this.possessed.thrustForward(deltaTime, 0.01);
         }
       }
