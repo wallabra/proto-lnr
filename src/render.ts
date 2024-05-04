@@ -309,7 +309,7 @@ class UIRenderer {
       ctx.textAlign = "left";
       ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
       ctx.fillText(
-        `Money: ${Math.round(game.player.possessed.money)}.${zeroPad("" + Math.round((Math.round(game.player.possessed.money) % 1) * 100), 2)}$`,
+        `Money: ${Math.round(game.player.possessed.money)}.${zeroPad("" + Math.round((game.player.possessed.money * 100) % 100), 2)}$`,
         40,
         90,
       );
