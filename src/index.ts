@@ -3,13 +3,10 @@ import { Game } from "./game";
 import { Player } from "./player";
 import { defPlaceholder } from "./terrain";
 import Vec2 from "victor";
-import * as m_mouse from "./mouse";
 import * as m_keyinput from "./keyinput";
 import { PlayState } from "./superstates/play";
 
 function main() {
-  m_mouse.registerMouseListener();
-
   const canvas = <HTMLCanvasElement | undefined>(
     document.querySelector("#game-canvas")
   );
@@ -23,7 +20,7 @@ function main() {
   m_keyinput.registerKeyListeners(game);
 
   const playerShip = play.makeShip(Vec2(0, -600));
-  const player = new Player(playerShip);
+  const player = new Player(game, playerShip);
   game.setPlayer(player);
 
   let toSpawn = 40;

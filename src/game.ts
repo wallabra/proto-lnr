@@ -6,6 +6,7 @@ export class Game {
   drawCtx: CanvasRenderingContext2D;
   player: Player | null;
   state: Superstate;
+  zoom: number;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -14,6 +15,7 @@ export class Game {
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
     this.player = null;
+    this.zoom = 1000;
   }
 
   setState<T extends Superstate>(
@@ -45,6 +47,11 @@ export class Game {
 
   get height() {
     return this.canvas.getBoundingClientRect().height;
+  }
+  
+  get drawScale() {
+    const smallEdge = Math.min(this.width, this.height);
+    return smallEdge / this.zoom;
   }
 
   tickPlayer(deltaTime: number) {

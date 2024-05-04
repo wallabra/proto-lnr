@@ -94,6 +94,7 @@ export class PlayState extends Superstate {
     this.physics.tick(deltaTime);
     this.tickTickables(deltaTime);
     this.pruneDestroyedTickables();
+    this.renderer.tick(deltaTime);
   }
 
   spawnCannonball(ship: Ship, params?: Partial<CannonballParams>) {

@@ -1,26 +1,33 @@
-export const mouseState = {
-  x: 0,
-  y: 0,
-  steering: false,
-  attack: false,
-};
+import Vec2 from 'victor';
+import { Game } from "./game";
 
-export function registerMouseListener() {
-  // Adapted from https://stackoverflow.com/a/22986867/5129091
-  document.addEventListener("mousemove", onMouseUpdate, false);
-  document.addEventListener("mousedown", onMouseDown, false);
-  document.addEventListener("mouseup", onMouseUp, false);
-
-  function onMouseUpdate(e: MouseEvent) {
-    mouseState.x = e.clientX - window.innerWidth / 2;
-    mouseState.y = e.clientY - window.innerHeight / 2;
+export default class MouseHandler {
+  game: Game;
+  pos: Vec2;
+  steering: boolean;
+  
+  constructor(game: Game) {
+    this.game = game;
+    this.steering = false;
+    this.pos = Vec2(0,0);
   }
-
-  function onMouseDown() {
-    mouseState.steering = true;
-  }
-
-  function onMouseUp() {
-    mouseState.steering = false;
+  
+  registerMouseListener() {
+    const onMouseUpdate =(e: MouseEvent) => {
+      this.pos.x = (e.clientX - window.innerWidth / 2) / this.game.drawScale;
+      this.pos.y = (e.clientY - window.innerHeight / 2) / this.game.drawScale;
+    };
+  
+    const onMouseDown = () => {
+      this.steering = true;
+    }
+  
+    const onMouseUp = () => {
+      this.steering = false;
+    }
+    
+    document.addEventListener("mousemove", onMouseUpdate, false);
+    document.addEventListener("mousedown", onMouseDown, false);
+    document.addEventListener("mouseup", onMouseUp, false);
   }
 }

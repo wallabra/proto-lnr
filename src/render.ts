@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor } from "./util";
+import { rgbString, interpColor, lerp } from "./util";
 
 export type ObjectRenderInfo = {
   scale: number;
@@ -44,7 +44,7 @@ export class ObjectRenderer {
     const baseY = this.game.height / 2;
 
     const smallEdge = Math.min(this.game.width, this.game.height);
-    const zoom = smallEdge / this.game.renderer.zoom;
+    const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
 
@@ -189,7 +189,7 @@ export class TerrainRenderer {
     }
 
     const smallEdge = Math.min(this.game.width, this.game.height);
-    const zoom = smallEdge / this.game.renderer.zoom;
+    const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
 
@@ -200,10 +200,10 @@ export class TerrainRenderer {
 
     const sectorSize = SECTOR_REAL_SIZE * zoom;
 
-    const minSectorX = Math.floor(minX / sectorSize);
-    const minSectorY = Math.floor(minY / sectorSize);
-    const maxSectorX = Math.ceil(maxX / sectorSize);
-    const maxSectorY = Math.ceil(maxY / sectorSize);
+    const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
+    const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
+    const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
+    const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
     const minDrawX = minSectorX * sectorSize + this.game.width / 2;
     const minDrawY = minSectorY * sectorSize + this.game.height / 2;
 
@@ -232,11 +232,42 @@ export class TerrainRenderer {
   }
 }
 
+class FPSCounter {
+  fps: number | null;
+  refreshRate: number;
+  
+  constructor(refreshRate?: number) {
+    this.fps = null;
+    this.refreshRate = refreshRate || 1;
+  }
+  
+  tick(deltaTime) {
+    const immediateFps = 1 / deltaTime;
+    if (this.fps == null) {
+      this.fps = immediateFps;
+    } else {
+      this.fps = lerp(this.fps, immediateFps, this.refreshRate * deltaTime);
+    }
+  }
+  
+  render(info) {
+    if (this.fps == null) return;
+    const ctx = info.ctx;
+    ctx.fillStyle = "#0099ff";
+    ctx.font = "15px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "right";
+    ctx.fillText(''+Math.round(this.fps), info.width - 40, 40);
+  }
+}
+
 class UIRenderer {
   game: PlayState;
+  fpsCounter: FPSCounter;
 
   constructor(game) {
     this.game = game;
+    this.fpsCounter = new FPSCounter();
   }
 
   renderDeathScreen() {
@@ -254,7 +285,7 @@ class UIRenderer {
       ctx.fillRect(0, 0, game.width, game.height);
 
       ctx.fillStyle = "#ffff0080";
-      ctx.font = "60px Verdana serif";
+      ctx.font = "60px serif";
       ctx.textBaseline = "middle";
       ctx.textAlign = "center";
       ctx.fillText("rip", game.width / 2, game.height / 2);
@@ -269,17 +300,26 @@ class UIRenderer {
 
     if (game.player != null && game.player.possessed != null) {
       ctx.fillStyle = "#0099ff";
-      ctx.font = "30px Verdana serif";
+      ctx.font = "30px serif";
       ctx.textBaseline = "top";
       ctx.textAlign = "left";
       ctx.fillText(`Kills: ${game.player.possessed.killScore}`, 40, 40);
       ctx.fillText(`Money: ${game.player.possessed.money}$`, 40, 90);
     }
   }
+  
+  tick(deltaTime) {
+    this.fpsCounter.tick(deltaTime);
+  }
 
   renderUI() {
     this.renderKillScore();
     this.renderDeathScreen();
+    this.fpsCounter.render({
+      ctx: this.game.drawCtx,
+      width: this.game.width,
+      height: this.game.height,
+    });
   }
 }
 
@@ -288,14 +328,12 @@ export class GameRenderer {
   r_objects: ObjectRenderer;
   r_terrain: TerrainRenderer;
   r_ui: UIRenderer;
-  zoom: number;
 
   constructor(game: PlayState) {
     this.game = game;
     this.r_objects = new ObjectRenderer(game);
     this.r_terrain = new TerrainRenderer(game);
     this.r_ui = new UIRenderer(game);
-    this.zoom = 1000;
   }
 
   renderBackground() {
@@ -305,6 +343,10 @@ export class GameRenderer {
     ctx.fillStyle = bgColor;
 
     ctx.fillRect(0, 0, this.game.width, this.game.height);
+  }
+  
+  tick(deltaTime) {
+    this.r_ui.tick(deltaTime);
   }
 
   public render() {
