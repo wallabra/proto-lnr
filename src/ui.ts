@@ -328,39 +328,59 @@ export class CanvasSplitPanel extends CanvasPanel {
   axis: "horizontal" | "vertical";
   totalSplits: number;
   index: number;
+  margin: number;
 
-  constructor(parent, axis, totalSplits, index, bgColor) {
+  constructor(parent, axis, totalSplits, index, bgColor, margin = 5) {
     super(parent, 0, 0, 0, 0, bgColor);
     this.axis = axis;
     this.totalSplits = totalSplits;
     this.index = index;
-    this.updateDimensions();
+    this.margin = margin;
   }
-
-  checkPropagateUpdate() {
-    this.updateDimensions();
-  }
-
-  private updateDimensions() {
-    let width, height;
-
-    if (this.parent == null) {
-      return;
+  
+  pos() {
+    let pos = super.pos();
+    
+    pos.x += this.margin;
+    pos.y += this.margin;
+    
+    if (this.axis == "horizontal") {
+      pos.x += (this.parent.realWidth / this.totalSplits) * this.index;
     }
 
+    if (this.axis == "vertical") {
+      pos.y += (this.parent.realHeight / this.totalSplits) * this.index;
+    }
+    
+    return pos;
+  }
+  
+  get realWidth() {
+    let width;
+      
     if (this.axis == "horizontal") {
-      height = this.parent.height;
       width = this.parent.width / this.totalSplits;
-      this.x = (this.parent.width / this.totalSplits) * this.index;
     }
 
     if (this.axis == "vertical") {
       width = this.parent.width;
-      height = this.parent.height / this.totalSplits;
-      this.y = (this.parent.height / this.totalSplits) * this.index;
+    }
+    
+    return width;
+  }
+  
+  get realHeight() {
+    let width;
+      
+    if (this.axis == "horizontal") {
+      width = this.parent.width / this.totalSplits;
     }
 
-    this.checkChangeDimensions(width, height);
+    if (this.axis == "vertical") {
+      width = this.parent.width;
+    }
+    
+    return width;
   }
 }
 
