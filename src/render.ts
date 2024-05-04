@@ -247,6 +247,11 @@ class FPSCounter {
       this.fps = immediateFps;
     } else {
       this.fps = lerp(this.fps, immediateFps, this.refreshRate * deltaTime);
+      
+      // fix FPS counter on some weird circumstances
+      if (isNaN(this.fps)) {
+        this.fps = immediateFps;
+      }
     }
   }
   
