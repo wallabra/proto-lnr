@@ -305,7 +305,7 @@ class UIRenderer {
     // render death screen
     const ctx = game.drawCtx;
 
-    if (game.player == null || !game.player.canShop) {
+    if (game.player == null || !game.player.canShop()) {
       return;
     }
 
