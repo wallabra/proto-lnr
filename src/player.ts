@@ -40,7 +40,6 @@ export class Player {
   }
 
   canShop() {
-    return true; //DEBUG
     return this.possessed.pos.length() >= 2000;
   }
 
