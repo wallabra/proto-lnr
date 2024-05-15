@@ -503,10 +503,10 @@ export class Ship {
     ship.setInstigator(this);
     this.setInstigator(ship);
     this.damageShip(
-      closeness * 10 * deltaTime * offsNorm.clone().dot(ship.vel),
+      closeness * deltaTime * Math.max(0.3, offsNorm.clone().dot(ship.vel)),
     );
     ship.damageShip(
-      closeness * 10 * deltaTime * offsNorm.invert().dot(this.vel),
+      closeness * deltaTime * Math.max(0.3, offsNorm.invert().dot(this.vel)),
     );
   }
 
