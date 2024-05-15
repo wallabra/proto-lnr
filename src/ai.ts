@@ -29,18 +29,18 @@ export class AIController {
       if (this.possessed.lastInstigator != null) {
         const dist = this.possessed.lastInstigator.pos
           .clone()
-          .subtract(this.possessed.pos)
-          .length();
+          .subtract(this.possessed.pos);
         const airtime = this.possessed.shotAirtime(deltaTime, dist);
-        const targetOffs = this.possessed.lastInstigator.pos
+        const targetSoonPos = this.possessed.lastInstigator.pos
           .clone()
           .add(
             this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
-          )
-          .subtract(this.possessed.pos);
-        const steerAngle = targetOffs
+          );
+        const targetOffs = targetSoonPos
           .clone()
-          .add(this.possessed.pos)
+          .subtract(this.possessed.pos);
+        const steerAngle = targetSoonPos
+          .clone()
           .subtract(soonPos)
           .angle();
         const targetAngle = targetOffs.angle();
