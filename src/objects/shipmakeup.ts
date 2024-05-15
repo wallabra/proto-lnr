@@ -379,8 +379,8 @@ export class ShipMakeup {
   }
 
   getReadyEngines(): Array<Engine> {
-    return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
-      p.fuelType == null || this.hasFuel(p.fuelType)
+    return (<Array<Engine>>this.getPartsOf("engine")).filter(
+      (p: Engine) => p.fuelType == null || this.hasFuel(p.fuelType),
     );
   }
 
