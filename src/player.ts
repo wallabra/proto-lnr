@@ -40,7 +40,7 @@ export class Player {
   }
 
   canShop() {
-    return this.possessed.pos.length() >= 2000;
+    return this.possessed.pos.length() >= 2500;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

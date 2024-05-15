@@ -27,25 +27,20 @@ export class AIController {
       this.possessed.thrustForward(deltaTime, 0.2);
     } else {
       if (this.possessed.lastInstigator != null) {
-        const airtime = this.possessed.shotAirtime();
-        const steerAngle = this.possessed.lastInstigator.pos
-          .clone()
-          .add(
-            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
-          )
-          .subtract(soonPos)
-          .angle();
-        const targetAngle = this.possessed.lastInstigator.pos
-          .clone()
-          .add(
-            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
-          )
-          .subtract(this.possessed.pos)
-          .angle();
         const dist = this.possessed.lastInstigator.pos
           .clone()
           .subtract(this.possessed.pos)
           .length();
+        const airtime = this.possessed.shotAirtime(deltaTime, dist);
+        const targetOffs = this.possessed.lastInstigator.pos
+          .clone()
+          .add(
+            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
+          )
+          .subtract(this.possessed.pos);
+        const steerAngle = targetOffs.clone().add(this.possessed.pos).subtract(soonPos).angle();
+        const targetAngle = targetOffs.angle();
+        const targetDist = targetOffs.length();
         if (
           Math.abs(angDiff(this.possessed.angle, targetAngle)) <
             Math.atan(

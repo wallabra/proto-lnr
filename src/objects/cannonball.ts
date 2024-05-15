@@ -3,6 +3,7 @@ import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
+import { CannonballAmmo } from "./shipmakeup";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
@@ -61,11 +62,11 @@ export class Cannonball {
 
   get damageFactor() {
     // TODO: make depend on munition type
-    return 15;
+    return Math.PI * Math.pow(this.size / 25, 2) * 5;
   }
 
   get damage() {
-    return this.damageFactor * (1 + this.vel.length());
+    return this.damageFactor * this.weight;
   }
 
   destroy() {
@@ -84,9 +85,9 @@ export class Cannonball {
     const toward = ship.pos.clone().subtract(this.pos).norm();
     const damageScale = Math.min(
       0.75,
-      Math.pow(1.5, this.vel.subtract(ship.vel).dot(toward)),
+      Math.pow(1.5, this.vel.subtract(ship.vel).norm().dot(toward)),
     );
-    ship.damageShip(this.damage * damageScale);
+    ship.damageShip(this.damage * this.vel.length() * damageScale);
     if (ship.dying) {
       this.instigator.killScore++;
     }
@@ -120,6 +121,14 @@ export class Cannonball {
   tick(deltaTime) {
     this.checkTerrainCollision();
     this.checkShipCollisions(deltaTime);
+  }
+  
+  airtime() {
+    const a = this.phys.gravity / 2;
+    const b = this.phys.vspeed;
+    const c = this.phys.height - this.game.waterLevel * 2;
+    const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
+    return airtime;
   }
 
   render(info: ObjectRenderInfo) {

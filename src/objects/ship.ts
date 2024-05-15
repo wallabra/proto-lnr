@@ -6,13 +6,51 @@ import { ObjectRenderInfo } from "../render";
 import CashPickup, { CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
-import { Cannon, ShipMakeup } from "./shipmakeup";
+import { Cannon, DEFAULT_MAKE, ShipMake, ShipMakeup } from "./shipmakeup";
+import { ItemPickup, ItemPickupParamType, ItemPickupParams, ShipItem } from "../inventory";
 
 const DEBUG_DRAW = false;
 
 export interface ShipParams extends PhysicsParams {
   money: number;
   damage: number;
+  makeup: ShipMakeup;
+}
+
+export type TickActionFunction<T> = (deltaTime: number) => T;
+export type TickActionCallback<T> = (action: T) => void;
+
+export class TickAction<T> {
+  private action: TickActionFunction<T>;
+  private result: any;
+  private done: boolean;
+  private callbacks: Array<TickActionCallback<T>>;
+  
+  constructor(action: TickActionFunction<T>) {
+    this.action = action;
+    this.result = null;
+    this.done = false;
+    this.callbacks = [];
+  }
+  
+  isDone() {
+    return this.done;
+  }
+  
+  perform(deltaTime) {
+    this.finish(this.action(deltaTime));
+  }
+  
+  then(callback: TickActionCallback<T>) {
+    this.callbacks.push(callback);
+    return this;
+  }
+  
+  finish(result) {
+    this.result = result;
+    this.done = true;
+    this.callbacks.forEach((c) => c(this.result));
+  }
 }
 
 export class Ship {
@@ -25,6 +63,7 @@ export class Ship {
   killScore: number;
   money: number;
   makeup: ShipMakeup;
+  tickActions: Array<TickAction<unknown>>;
   
   get play(): PlayState {
     return <PlayState>this.game.state;
@@ -34,23 +73,42 @@ export class Ship {
     return this.makeup.hullDamage;
   }
 
-  constructor(game: Game, pos: Vec2, makeup: ShipMakeup, params?: Partial<ShipParams>) {
+  constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
-    //this.damage = params.damage != null ? params.damage : 0;
-    this.makeup = makeup;
+    this.setMakeup(params.makeup != null ? params.makeup : new ShipMakeup(DEFAULT_MAKE).defaultLoadout());
     this.dying = false;
     this.lastInstigator = null;
     this.lastInstigTime = null;
     this.killScore = 0;
+    this.tickActions = [];
     this.money =
       params.money != null ? params.money : 100 + Math.random() * 400;
 
     this.dragMixin();
+  }
+  
+  nextTick<T>(action: TickActionFunction<T>): TickAction<T> {
+    const actionObj = new TickAction(action);
+    this.tickActions.push(actionObj);
+    return actionObj;
+  }
+  
+  processTickActions(deltaTime: number) {
+    let action: TickAction<unknown>;
+    while (action = this.tickActions.splice(0, 1)[0]) {
+      action.perform(deltaTime);
+    }
+  }
+  
+  setMakeup(makeup: ShipMakeup) {
+    this.makeup = makeup;
+    this.phys.size = makeup.make.size;
+    this.phys.baseDrag = makeup.make.drag;
   }
 
   dragMixin() {
@@ -84,7 +142,7 @@ export class Ship {
   }
 
   get size() {
-    return this.phys.size;
+    return this.makeup.make.size;
   }
 
   get angle() {
@@ -121,13 +179,14 @@ export class Ship {
   }
 
   damageShip(damage: number) {
-    this.damage += Math.max(0, damage);
+    damage = Math.max(0, damage);
+    const die = this.makeup.damageShip(damage);
 
     if (this.game.player != null && this.game.player.possessed === this) {
       this.game.player.damage = this.damage;
     }
 
-    if (this.damage > this.maxDmg) {
+    if (die) {
       this.die();
     }
   }
@@ -139,14 +198,17 @@ export class Ship {
   tryShoot(shootDist: number) {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
-    
-    const cannon = this.makeup.nextReadyCannon;
 
-    if (cannon == null) {
-      return false;
-    }
+    return this.nextTick((deltaTime) => {
+      const cannon = this.makeup.nextReadyCannon;
 
-    return cannon.shoot(this, shootDist);
+      if (cannon == null) {
+        return false;
+      }
+      
+      cannon.shoot(deltaTime, this, shootDist);
+      return true;
+    });
   }
 
   get angNorm() {
@@ -277,37 +339,31 @@ export class Ship {
   giveMoney(money) {
     this.setMoney(money + this.money);
   }
+  
+  private pickupSpawnPos() {
+    return this.pos.clone().add(Vec2(Math.random() * this.size * 0.8, 0).rotateBy(Math.random() * Math.PI * 2));
+  }
 
   dropCash() {
-    this.play.spawn<CashPickup, CashPickupParams>(CashPickup, this.pos, {
+    this.play.spawn<CashPickup, CashPickupParams>(CashPickup, this.pickupSpawnPos(), {
       cash: this.money,
     });
     this.setMoney(0);
   }
 
   dropItems() {
-    // TODO: drop items once those are implemented
+    for (let item of this.makeup.inventory.items) {
+      this.spawnDroppedItem(item);
+    }
+  }
+  
+  spawnDroppedItem<I extends ShipItem>(item: I) {
+    this.play.spawn<ItemPickup<I>, ItemPickupParamType<I>>(ItemPickup, this.pickupSpawnPos(), { item: item });
   }
 
   spawnDrops() {
     this.dropCash();
     this.dropItems();
-  }
-
-  shotAirtime(cball?: Cannonball) {
-    let tempCball = false;
-    if (cball == null) {
-      cball = this.play.spawnCannonball(this);
-      tempCball = true;
-    }
-    const a = cball.phys.gravity / 2;
-    const b = cball.phys.vspeed;
-    const c = cball.phys.height - this.play.waterLevel * 2;
-    const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
-    if (tempCball) {
-      cball.destroy();
-    }
-    return airtime;
   }
 
   get shootRate() {
@@ -370,6 +426,13 @@ export class Ship {
     } else if (amount < -1) {
       amount = -1;
     }
+    
+    const engines = this.makeup.getReadyEngines();
+    const engineThrust = engines.map((e) => e.thrust).reduce((a, b) => a + b, 0);
+    
+    engines.forEach((e) => {
+      if (e.fuelType) this.makeup.spendFuel(e.fuelType, Math.abs(amount) * deltaTime * e.fuelCost);
+    })
 
     const thrust = this.thrust * amount;
     this.phys.applyForce(
@@ -483,10 +546,19 @@ export class Ship {
         ),
       );
   }
+  
+  shotAirtime(deltaTime, dist) {
+    const cannon = this.makeup.nextReadyCannon;
+    if (cannon == null) return null;
+    return cannon.airtime(deltaTime, this, dist);
+  }
 
   tick(deltaTime) {
+    this.processTickActions(deltaTime);
+    this.makeup.tick(deltaTime);
     this.checkShipCollisions(deltaTime);
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
+    this.makeup.inventory.pruneItems();
   }
 }
