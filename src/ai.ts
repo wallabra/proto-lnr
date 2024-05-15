@@ -31,6 +31,7 @@ export class AIController {
           .clone()
           .subtract(this.possessed.pos);
         const airtime = this.possessed.shotAirtime(deltaTime, dist);
+        console.log(airtime);
         const targetSoonPos = this.possessed.lastInstigator.pos
           .clone()
           .add(
@@ -48,16 +49,17 @@ export class AIController {
                 2 /
                 targetDist,
             ) &&
-          dist < this.possessed.maxShootRange
+          targetDist < this.possessed.maxShootRange
         ) {
-          this.possessed.tryShoot(dist);
+          this.possessed.tryShoot(targetDist);
         }
         this.possessed.steer(deltaTime, steerAngle);
         if (
           this.possessed.pos
             .clone()
             .subtract(this.possessed.lastInstigator.pos)
-            .length() > 200 && Math.abs(angDiff(this.possessed.angle, steerAngle)) < Math.PI
+            .length() > 200 &&
+          Math.abs(angDiff(this.possessed.angle, steerAngle)) < Math.PI
         ) {
           this.possessed.thrustForward(deltaTime, 1.0);
         } else {

@@ -137,9 +137,9 @@ export class Cannon extends ShipPart {
     return cball;
   }
 
-  airtime(deltaTime: number, ship: Ship, dist: number) {
+  public airtime(deltaTime: number, ship: Ship, dist: number) {
     const tempCannonball = this.shootCannonball(deltaTime, ship, dist);
-    const airtime = tempCannonball.airtime;
+    const airtime = tempCannonball.airtime();
     tempCannonball.destroy();
     return airtime;
   }
@@ -393,13 +393,25 @@ export class ShipMakeup {
   }
 
   get nextReadyCannon(): Cannon | null {
-    for (const cannon of <Array<Cannon>>this.getPartsOf("cannon")) {
-      if (this.hasAmmo(cannon.caliber) && cannon.cooldown === 0) {
-        return cannon;
-      }
-    }
+    if (this.getPartsOf("cannon").length === 0) return null;
 
-    return null;
+    // return the best cannon currently available
+    const readyCannon = this.readyCannon;
+    if (readyCannon) return readyCannon;
+
+    // just return the cannon that's closest to ready to fire again
+    const cannons = (<Array<Cannon>>this.getPartsOf("cannon")).sort(
+      (a, b) => a.cooldown - b.cooldown,
+    );
+    return cannons[0] || null;
+  }
+
+  get readyCannon(): Cannon | null {
+    // return the biggest caliber cannon currently available
+    const cannons = (<Array<Cannon>>this.getPartsOf("cannon"))
+      .filter((c) => c.cooldown === 0 && this.hasAmmo(c.caliber))
+      .sort((a, b) => b.caliber - a.caliber);
+    return cannons[0] || null;
   }
 
   get shootRate() {

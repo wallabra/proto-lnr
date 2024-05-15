@@ -203,7 +203,7 @@ export class Ship {
     if (shootDist < 20) shootDist = 20;
 
     return this.nextTick((deltaTime) => {
-      const cannon = this.makeup.nextReadyCannon;
+      const cannon = this.makeup.readyCannon;
 
       if (cannon == null) {
         return false;
