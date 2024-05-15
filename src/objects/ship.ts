@@ -285,7 +285,8 @@ export class Ship {
     ctx.fill();
 
     // Draw forward direction
-    ctx.strokeStyle = "#08080830";
+    ctx.strokeStyle = "#08080840";
+    ctx.lineWidth = 1.75;
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
     const to = Vec2(this.size * this.lateralCrossSection)
