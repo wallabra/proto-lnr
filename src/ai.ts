@@ -57,9 +57,11 @@ export class AIController {
           this.possessed.pos
             .clone()
             .subtract(this.possessed.lastInstigator.pos)
-            .length() > 200
+            .length() > 200 && Math.abs(angDiff(this.possessed.angle, steerAngle)) < Math.PI
         ) {
           this.possessed.thrustForward(deltaTime, 1.0);
+        } else {
+          this.possessed.thrustForward(deltaTime, -0.4);
         }
       }
       if (
