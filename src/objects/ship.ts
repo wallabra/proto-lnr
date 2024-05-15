@@ -6,6 +6,7 @@ import { ObjectRenderInfo } from "../render";
 import CashPickup, { CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
+import { Cannon, ShipMakeup } from "./shipmakeup";
 
 const DEBUG_DRAW = false;
 
@@ -17,46 +18,39 @@ export interface ShipParams extends PhysicsParams {
 export class Ship {
   game: Game;
   phys: PhysicsObject;
-  damage: number;
   dying: boolean;
-  shootCooldown: number;
-  wannaShoot: boolean;
   lastInstigator: Ship | null;
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
-  maxCannonPower: number;
   money: number;
-
+  makeup: ShipMakeup;
+  
   get play(): PlayState {
     return <PlayState>this.game.state;
   }
+  
+  get damage(): number {
+    return this.makeup.hullDamage;
+  }
 
-  constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
+  constructor(game: Game, pos: Vec2, makeup: ShipMakeup, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
-    this.damage = params.damage != null ? params.damage : 0;
+    //this.damage = params.damage != null ? params.damage : 0;
+    this.makeup = makeup;
     this.dying = false;
-    this.shootCooldown = 0;
-    this.wannaShoot = false;
     this.lastInstigator = null;
     this.lastInstigTime = null;
-    this.currShootDist = null;
     this.killScore = 0;
-    this.maxCannonPower = this.defaultMaxCannonPower();
     this.money =
       params.money != null ? params.money : 100 + Math.random() * 400;
 
     this.dragMixin();
-  }
-
-  defaultMaxCannonPower() {
-    const airtime = this.shotAirtime();
-    return this.maxShootRange / airtime;
   }
 
   dragMixin() {
@@ -145,22 +139,14 @@ export class Ship {
   tryShoot(shootDist: number) {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
+    
+    const cannon = this.makeup.nextReadyCannon;
 
-    if (this.shootCooldown > 0) {
-      // can't shoot, waiting on cooldown
-      return;
+    if (cannon == null) {
+      return false;
     }
 
-    this.wannaShoot = true;
-    this.currShootDist = shootDist;
-    this.shootCooldown = this.shootRate;
-  }
-
-  checkWannaShoot(timeDelta) {
-    if (this.wannaShoot) {
-      this.wannaShoot = false;
-      this.shoot(timeDelta);
-    }
+    return cannon.shoot(this, shootDist);
   }
 
   get angNorm() {
@@ -324,38 +310,12 @@ export class Ship {
     return airtime;
   }
 
-  shoot(timeDelta: number) {
-    let dist = this.currShootDist;
-    if (dist == null) return;
-
-    this.currShootDist = null;
-
-    const cball = this.play.spawnCannonball(this, {});
-    cball.phys.vspeed = dist / 250;
-    const airtime = this.shotAirtime(cball);
-
-    const velComp = this.angNorm.dot(this.vel);
-
-    //console.log(dist, airtime);
-    dist =
-      dist -
-      this.pos.clone().subtract(this.cannonballSpawnSpot()).length() -
-      velComp * airtime;
-    const targSpeed = Math.min(
-      this.maxCannonPower,
-      (dist / airtime) * timeDelta,
-    );
-    cball.phys.vel = Vec2(targSpeed, 0).rotateBy(this.angle).add(this.vel);
-  }
-
   get shootRate() {
-    // TODO: depend on ship makeup
-    return 2.0;
+    return this.makeup.shootRate;
   }
 
   get maxDmg() {
-    // TODO: make maxDmg depend on ship makeup
-    return 20 * this.size;
+    return this.makeup.make.maxDamage;
   }
 
   die() {
@@ -371,8 +331,7 @@ export class Ship {
   }
 
   get maxShootRange() {
-    // TODO: depend on ship makeup
-    return 500;
+    return this.makeup.maxShootRange;
   }
 
   get lateralCrossSection() {
@@ -508,12 +467,6 @@ export class Ship {
     }
   }
 
-  cooldownCannons(deltaTime) {
-    if (this.shootCooldown === 0) return;
-    this.shootCooldown -= deltaTime;
-    if (this.shootCooldown < 0) this.shootCooldown = 0;
-  }
-
   pruneDeadInstigator() {
     if (this.lastInstigator != null && this.lastInstigator.dying) {
       this.lastInstigator = null;
@@ -532,8 +485,6 @@ export class Ship {
   }
 
   tick(deltaTime) {
-    this.cooldownCannons(deltaTime);
-    this.checkWannaShoot(deltaTime);
     this.checkShipCollisions(deltaTime);
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
