@@ -3,7 +3,6 @@ import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
-import { CannonballAmmo } from "./shipmakeup";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
@@ -122,7 +121,7 @@ export class Cannonball {
     this.checkTerrainCollision();
     this.checkShipCollisions(deltaTime);
   }
-  
+
   airtime() {
     const a = this.phys.gravity / 2;
     const b = this.phys.vspeed;

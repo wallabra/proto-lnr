@@ -1,10 +1,9 @@
 import { PhysicsParams } from "./objects/physics";
 import Pickup from "./objects/pickup";
 import { Ship } from "./objects/ship";
-import { ShipMakeup } from "./objects/shipmakeup";
 import { Player } from "./player";
 import { PlayState } from "./superstates/play";
-import Vec2 from 'victor';
+import Vec2 from "victor";
 
 export interface InventoryItem {
   name: string;
@@ -19,30 +18,34 @@ export interface ShipItem extends InventoryItem {
   getItemLabel: () => string;
 }
 
-export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & { item: I };
-export type ItemPickupParamType<I extends ShipItem> = PhysicsParams & { item: I };
+export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & {
+  item: I;
+};
+export type ItemPickupParamType<I extends ShipItem> = PhysicsParams & {
+  item: I;
+};
 
 export class ShipInventory {
   private inventory: Array<ShipItem>;
-  
+
   get items() {
     return this.inventory;
   }
-  
+
   constructor() {
     this.inventory = [];
   }
-  
+
   addItem(item: ShipItem | null): ShipItem | null {
     if (item == null) return null;
     this.inventory.push(item);
     return item;
   }
-  
+
   getItemsOf<I extends ShipItem>(type: string): Array<I> {
-    return <I[]> this.inventory.filter((i) => i.type === type);
+    return <I[]>this.inventory.filter((i) => i.type === type);
   }
-  
+
   pruneItems() {
     this.inventory = this.inventory.filter((i) => !i.dying);
   }
@@ -72,12 +75,12 @@ export class FuelItem implements ShipItem {
     this.name = name;
     this.cost = cost;
     this.amount = amount;
-    this.type = 'fuel';
+    this.type = "fuel";
     this.dying = false;
   }
-  
+
   getItemLabel() {
-    return `fuel {this.name}`
+    return `fuel {this.name}`;
   }
 }
 
@@ -94,7 +97,7 @@ export class FoodItem implements ShipItem {
     this.cost = cost;
     this.amount = amount;
     this.spoilDays = spoilDays;
-    this.type = 'food';
+    this.type = "food";
     this.dying = false;
   }
 
@@ -113,8 +116,8 @@ export class FoodItem implements ShipItem {
       return;
     }
   }
-  
+
   getItemLabel() {
-    return `{this.name}`
+    return `{this.name}`;
   }
 }
