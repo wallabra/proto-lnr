@@ -193,7 +193,7 @@ export class Engine extends ShipPart {
   }
 
   static default(): Engine {
-    return new Engine("Oary", 80, 0.3, null, 0);
+    return new Engine("Oary", 80, 0.7, null, 0);
   }
 }
 
@@ -374,15 +374,13 @@ export class ShipMakeup {
     return this.hullDamage > this.make.maxDamage;
   }
 
-  hasFuel(fuelType: string | null) {
-    if (fuelType == null) return false;
-
+  hasFuel(fuelType: string) {
     return this.fuel.some((f: FuelItem) => f.name === fuelType && f.amount > 0);
   }
 
   getReadyEngines(): Array<Engine> {
     return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
-      this.hasFuel(p.fuelType),
+      p.fuelType == null || this.hasFuel(p.fuelType)
     );
   }
 

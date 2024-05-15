@@ -398,11 +398,6 @@ export class Ship {
     this.phys.dying = true;
   }
 
-  get thrust() {
-    // TODO: depend on ship makeup
-    return 0.7;
-  }
-
   get maxShootRange() {
     return this.makeup.maxShootRange;
   }
