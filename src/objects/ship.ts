@@ -403,8 +403,7 @@ export class Ship {
   }
 
   get lateralCrossSection() {
-    // TODO: depend on ship makeup
-    return 2;
+    return this.makeup.make.lateralCrossSection;
   }
 
   get steerForce() {

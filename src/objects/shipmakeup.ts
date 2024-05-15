@@ -120,7 +120,7 @@ export class Cannon extends ShipPart {
 
   private shootCannonball(deltaTime: number, ship: Ship, dist: number) {
     dist = Math.min(dist, this.range);
-    
+
     const cball = ship.play.spawnCannonball(ship, { size: this.caliber });
     cball.phys.vspeed = dist / 250;
     const airtime = cball.airtime();
@@ -215,14 +215,16 @@ export interface ShipMake {
   maxDamage: number;
   drag: number;
   size: number;
+  lateralCrossSection: number;
 }
 
 export const DEFAULT_MAKE: ShipMake = {
   name: "Defaulty",
   slots: [{ type: "Cannon" }, { type: "Cannon" }, { type: "Engine" }],
   maxDamage: 50,
-  drag: 0.04,
+  drag: 0.3,
   size: 20,
+  lateralCrossSection: 1.7,
 };
 
 export class ShipMakeup {

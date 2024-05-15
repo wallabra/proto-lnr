@@ -36,13 +36,8 @@ export class AIController {
           .add(
             this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
           );
-        const targetOffs = targetSoonPos
-          .clone()
-          .subtract(this.possessed.pos);
-        const steerAngle = targetSoonPos
-          .clone()
-          .subtract(soonPos)
-          .angle();
+        const targetOffs = targetSoonPos.clone().subtract(this.possessed.pos);
+        const steerAngle = targetSoonPos.clone().subtract(soonPos).angle();
         const targetAngle = targetOffs.angle();
         const targetDist = targetOffs.length();
         if (
@@ -56,16 +51,15 @@ export class AIController {
           dist < this.possessed.maxShootRange
         ) {
           this.possessed.tryShoot(dist);
-        } else {
-          this.possessed.steer(deltaTime, steerAngle);
         }
+        this.possessed.steer(deltaTime, steerAngle);
         if (
           this.possessed.pos
             .clone()
             .subtract(this.possessed.lastInstigator.pos)
             .length() > 200
         ) {
-          this.possessed.thrustForward(deltaTime, 0.01);
+          this.possessed.thrustForward(deltaTime, 1.0);
         }
       }
       if (
