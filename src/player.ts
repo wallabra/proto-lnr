@@ -4,6 +4,7 @@ import { PlayMouseHandler } from "./mouse";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
 import { PlayState } from "./superstates/play";
+import { ShipMakeup } from "./objects/shipmakeup";
 
 export type PlayerAction = (deltaTime: number) => void;
 
@@ -13,7 +14,7 @@ export class Player {
   actions: Array<PlayerAction>;
   game: Game;
   money: number;
-  damage: number;
+  makeup: ShipMakeup;
 
   constructor(game: Game, ship: Ship, money: number = 0) {
     this.game = game;
@@ -21,8 +22,16 @@ export class Player {
     this.inputState = null;
     this.actions = [];
     this.money = money;
-    this.damage = ship.damage;
+    this.makeup = ship.makeup;
     this.registerActions();
+  }
+  
+  get damage() {
+    return this.makeup.hullDamage;
+  }
+  
+  set damage(damage) {
+    this.makeup.hullDamage = damage;
   }
 
   get mouse() {
