@@ -242,7 +242,7 @@ export class Engine extends ShipPart {
   }
 
   static oars(): Engine {
-    return new Engine({ name: "Oars", cost: 30, thrust: 0.5 });
+    return new Engine({ name: "Oars", cost: 30, thrust: 0.5, vulnerability: 0.003, maxDamage: 1, });
   }
 }
 

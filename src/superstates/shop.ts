@@ -697,6 +697,7 @@ export default class IntermissionState extends Superstate {
       fillY: 0.85,
       shopItems: [
         Engine.default(),
+        Engine.oars(),
         Cannon.default(),
         Cannon.default(),
         new Engine({
