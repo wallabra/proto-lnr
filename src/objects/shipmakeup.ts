@@ -305,6 +305,10 @@ export class ShipMakeup {
       spent.dying = true;
     }
   }
+  
+  pruneDestroyedParts() {
+    this.parts = this.parts.filter((p) => !p.dying);
+  }
 
   spendFood(amount: number) {
     for (const food of this.food) {
@@ -374,6 +378,7 @@ export class ShipMakeup {
       const partDamage = Math.random() * amount * part.vulnerability;
       part.damagePart(partDamage);
     }
+    this.pruneDestroyedParts();
     return this.hullDamage > this.make.maxDamage;
   }
 
