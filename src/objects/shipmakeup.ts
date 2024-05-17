@@ -363,7 +363,6 @@ export class ShipMakeup {
       if (ammo.caliber === caliber) {
         return true;
       }
-      console.log(ammo.caliber, ammo.amount);
     }
 
     return false;

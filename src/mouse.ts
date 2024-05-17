@@ -1,7 +1,8 @@
 import Vec2 from "victor";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
-import match from 'rustmatchjs';
+import match from "rustmatchjs";
+import { CanvasUIElement } from "./ui";
 
 interface MouseCallback {
   name: string;
@@ -13,6 +14,11 @@ export interface GameMouseInfo {
   pos: Vec2;
   delta: Vec2;
   name: string;
+  inside: CanvasUIElement | null;
+}
+
+export interface GameMouseDragInfo extends GameMouseInfo {
+  dragStart: Vec2;
 }
 
 export default abstract class MouseHandler {
@@ -54,6 +60,7 @@ export default abstract class MouseHandler {
 
   register() {
     this.registerEvent("mousemove", this.onMouseUpdate);
+    this.registerEvent("mousemove", this.onMouseEvent);
     this.registerEvent("mouseup", this.onMouseEvent);
     this.registerEvent("mousedown", this.onMouseEvent);
     this.registerEvent("drag", this.onMouseEvent);
@@ -79,12 +86,14 @@ export class PlayMouseHandler extends MouseHandler {
     super(game);
     this.steering = false;
   }
-  
+
   onMouseEvent(e: MouseEvent & GameMouseInfo) {
-    match(e.name,
-      match.val('mousedown', () => this.onMouseDown()),
-      match.val('mouseup', () => this.onMouseUp()),
-      match._(()=>{}));
+    match(
+      e.name,
+      match.val("mousedown", () => this.onMouseDown()),
+      match.val("mouseup", () => this.onMouseUp()),
+      match._(() => {}),
+    );
   }
 
   private onMouseDown() {
@@ -97,13 +106,51 @@ export class PlayMouseHandler extends MouseHandler {
 }
 
 export class IntermissionMouseHandler extends MouseHandler {
-  onMouseEvent(e: MouseEvent & GameMouseInfo) {
-    match(e.name,
-      match.val('click', () => this.onClick(e)),
-      match.val('drag', () => this.onMouseDrag(e)),
-      match._(()=>{}));
+  dragging: boolean;
+  dragStart?: Vec2;
+  dragStartElement?: CanvasUIElement;
+
+  constructor(game: Game) {
+    super(game);
+    this.dragging = false;
   }
-  
+
+  private onMouseDown(e) {
+    this.dragging = true;
+    this.dragStart = Vec2(e.x, e.y);
+    const state = <IntermissionState>this.game.state;
+    e.name = "canvasdragstart";
+    state.mouseEvent(e);
+    this.dragStartElement = e.inside;
+  }
+
+  private onMouseUp(e) {
+    if (this.dragging) {
+      const state = <IntermissionState>this.game.state;
+      e.dragStart = this.dragStart;
+      e.name = "canvasdragend";
+      state.mouseEvent(e);
+    }
+    this.dragging = false;
+  }
+
+  private tryHandleDrag(e: MouseEvent & GameMouseInfo) {
+    if (this.dragging) {
+      this.onMouseDrag(e);
+    }
+  }
+
+  onMouseEvent(e: MouseEvent & GameMouseInfo) {
+    match(
+      e.name,
+      match.val("mousedown", () => this.onMouseDown(e)),
+      match.val("mouseup", () => this.onMouseUp(e)),
+      match.val("mousemove", () => this.tryHandleDrag(e)),
+      match.val("click", () => this.onClick(e)),
+      match._(() => {}),
+    );
+  }
+
   private onClick(e: MouseEvent & GameMouseInfo) {
     const state = <IntermissionState>this.game.state;
     state.mouseEvent(e);
@@ -111,6 +158,9 @@ export class IntermissionMouseHandler extends MouseHandler {
 
   private onMouseDrag(e: MouseEvent & GameMouseInfo) {
     const state = <IntermissionState>this.game.state;
+    e.name = "canvasdrag";
+    (<MouseEvent & GameMouseDragInfo>e).dragStart = this.dragStart;
+    (<MouseEvent & GameMouseDragInfo>e).inside = this.dragStartElement;
     state.mouseEvent(e);
   }
 }

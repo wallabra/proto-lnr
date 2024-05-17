@@ -2,6 +2,7 @@ import { Game } from "../game";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
 import { ShipMakeup } from "../objects/shipmakeup";
+import { Player } from "../player";
 import {
   CanvasButton,
   CanvasLabel,
@@ -10,99 +11,53 @@ import {
   CanvasRoot,
   UIDrawContext,
   CanvasSplitPanelArgs,
+  CanvasScroller,
+  UIEvent,
+  CanvasUIElement,
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
 
-export interface PaneDrydockArgs extends CanvasSplitPanelArgs {
-  makeup: ShipMakeup;
+interface PaneArgs extends CanvasSplitPanelArgs {
+  state: IntermissionState;
 }
 
-class PaneDrydock {
-  private pane: CanvasSplitPanel;
-  private makeup: ShipMakeup;
+abstract class Pane<A extends PaneArgs = PaneArgs> {
+  protected pane: CanvasSplitPanel;
+  protected state: IntermissionState;
+  protected game: Game;
+  protected player: Player;
+  protected makeup: ShipMakeup;
+  
+  constructor(args: A) {
+    this.state = args.state;
+    this.game = this.state.game;
+    this.player = this.game.player;
+    this.makeup = this.player.makeup;
+    this.buildPane(args);
+    this.state.panes.push(this);
+    if (this.update) this.update();
+  }
+  
+  protected abstract buildPane(args: A);
+  public abstract update?();
+}
 
-  constructor(args: PaneDrydockArgs) {
+interface PaneShopArgs extends PaneArgs {
+  repairCostScale?: number;
+}
+
+class PaneShop extends Pane<PaneShopArgs> {
+  private cashCounter: CanvasLabel;
+  private repairButtonLabel: CanvasLabel;
+  private repairCostScale: number;
+
+  buildPane(args) {
+    this.repairCostScale = args.repairCostScale != null ? args.repairCostScale : 5;
+    
     this.pane = new CanvasSplitPanel(args);
-    this.makeup = args.makeup;
-    this.construct();
-  }
-
-  private construct() {}
-}
-
-export default class IntermissionState extends Superstate {
-  ui: CanvasPanel;
-  repairButton: CanvasButton;
-  repairButtonLabel: CanvasLabel;
-  cashCounter: CanvasLabel;
-  repairCostScale: number;
-
-  constructor(game: Game, repairCostScale: number = 10) {
-    super(game);
-    this.ui = new CanvasRoot(game);
-    this.repairCostScale = repairCostScale;
-  }
-
-  public init() {
-    this.game.setMouseHandler(IntermissionMouseHandler);
-    this.game.setKeyboardHandler(IntermissionKeyHandler);
-    this.buildUI();
-  }
-
-  repairCost() {
-    if (this.game.player == null) {
-      return 0;
-    }
-
-    return this.game.player.damage * this.repairCostScale;
-  }
-
-  doRepair() {
-    if (this.game.player == null) {
-      return;
-    }
-
-    const player = this.game.player;
-    const cost = this.repairCost();
-
-    if (player.money < cost) {
-      player.damage -= player.money / this.repairCostScale;
-      player.money = 0;
-    } else {
-      player.money -= cost;
-      player.damage = 0;
-    }
-
-    this.updateRepairLabel();
-    this.updateCashCounter();
-  }
-
-  doNextLevel() {
-    this.game.nextLevel();
-  }
-
-  updateRepairLabel() {
-    this.repairButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
-  }
-
-  updateCashCounter() {
-    if (this.game.player == null) {
-      return;
-    }
-    this.cashCounter.label = `Money: ${moneyString(this.game.player.money)}`;
-  }
-
-  buildShopPane() {
-    const shopPane = new CanvasSplitPanel({
-      parent: this.ui,
-      axis: "vertical",
-      splits: 2,
-      index: 0,
-      bgColor: "#2222",
-    });
     new CanvasLabel({
-      parent: shopPane,
+      parent: this.pane,
       label: "Shop",
       color: "#e8e8ff",
       dockX: "center",
@@ -111,7 +66,7 @@ export default class IntermissionState extends Superstate {
     });
 
     this.cashCounter = new CanvasLabel({
-      parent: shopPane,
+      parent: this.pane,
       label: "-",
       color: "#e8e8ff",
       font: "30px sans-serif",
@@ -121,10 +76,9 @@ export default class IntermissionState extends Superstate {
       dockMarginY: 25,
       textAlign: "end",
     });
-    this.updateCashCounter();
 
-    this.repairButton = new CanvasButton({
-      parent: shopPane,
+    const repairButton = new CanvasButton({
+      parent: this.pane,
       fillX: 0.5,
       height: 75,
       callback: this.doRepair.bind(this),
@@ -132,29 +86,64 @@ export default class IntermissionState extends Superstate {
       dockY: "end",
       dockMarginY: 50,
     });
-    this.repairButtonLabel = this.repairButton.label("-");
+    this.repairButtonLabel = repairButton.label("-", { color: "#ccd" });
+  }
+  
+  public update() {
+    this.updateCashCounter();
     this.updateRepairLabel();
   }
 
-  buildCartographyPane() {
-    const cartographyPane = new CanvasSplitPanel({
-      parent: this.ui,
-      axis: "vertical",
-      splits: 2,
-      index: 1,
-      bgColor: "#4452",
-      margin: 4,
-    });
+  updateRepairLabel() {
+    this.repairButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+  }
+
+  updateCashCounter() {
+    this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
+  }
+
+  doRepair() {
+    const player = this.player;
+    const cost = this.repairCost();
+
+    if (player.money < cost) {
+      this.makeup.hullDamage -= player.money / this.repairCostScale;
+      player.money = 0;
+    } else {
+      player.money -= cost;
+      this.makeup.hullDamage = 0;
+    }
+
+    this.updateRepairLabel();
+    this.updateCashCounter();
+  }
+
+  repairCost() {
+    return this.makeup.hullDamage * this.repairCostScale;
+  }
+}
+
+class PaneCartography extends Pane {
+  doNextLevel() {
+    this.game.nextLevel();
+  }
+
+  buildPane(args: PaneArgs) {
+    const state = args.state;
+    this.game = state.game;
+
+    this.pane = new CanvasSplitPanel(args);
     new CanvasLabel({
-      parent: cartographyPane,
+      parent: this.pane,
       label: "Cartography",
       color: "#e8e8ff",
       font: "30px sans-serif",
       dockX: "center",
       textAlign: "center",
     });
+
     const nextLevelButton = new CanvasButton({
-      parent: cartographyPane,
+      parent: this.pane,
       dockX: "center",
       dockY: "end",
       dockMarginY: 50,
@@ -164,10 +153,40 @@ export default class IntermissionState extends Superstate {
     });
     nextLevelButton.label("Invade Next Island", { color: "#ccd" });
   }
+  
+  public update = undefined;
+}
+
+export default class IntermissionState extends Superstate {
+  ui: CanvasPanel;
+  panes: Pane[];
+
+  public init() {
+    this.game.setMouseHandler(IntermissionMouseHandler);
+    this.game.setKeyboardHandler(IntermissionKeyHandler);
+    this.panes = [];
+    this.ui = new CanvasRoot(this.game, "#040404");
+    this.buildUI();
+  }
+  
+  addPane(paneType, args) {
+    args = { state: this, parent: this.ui, ...args };
+    return new paneType(args);
+  }
 
   buildUI() {
-    this.buildShopPane();
-    this.buildCartographyPane();
+    this.addPane(PaneShop, {
+      axis: "vertical",
+      splits: 2,
+      index: 0,
+      bgColor: "#2222",
+    });
+    this.addPane(PaneCartography, {
+      axis: "vertical",
+      splits: 2,
+      index: 1,
+      bgColor: "#2222",
+    });
   }
 
   maximizeUI() {
@@ -176,6 +195,10 @@ export default class IntermissionState extends Superstate {
 
   public render() {
     this.maximizeUI();
+    
+    for (const pane of this.panes) {
+      if (pane.update) pane.update();
+    }
 
     const ctx: UIDrawContext = {
       ctx: this.game.drawCtx,
@@ -190,6 +213,9 @@ export default class IntermissionState extends Superstate {
   }
 
   mouseEvent(event: MouseEvent & GameMouseInfo) {
-    this.ui.handleEvent(event);
+    const uiEvent: UIEvent = Object.assign(event, { consumed: false });
+
+    if (event.inside) event.inside.handleEvent(uiEvent);
+    else this.ui.handleEvent(uiEvent);
   }
 }

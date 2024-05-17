@@ -14,10 +14,10 @@ export function tickLoop(game: Game, current: Date) {
   lastTime = current;
 
   if (deltaTime > frameDuration * 20) {
-    console.warn(`Skipping tick due to huge lagspike: {deltaTime}ms`);
+    console.warn(`Skipping tick due to huge lagspike: ${deltaTime}ms`);
   } else if (deltaTime > frameDuration) {
     console.warn(
-      `Compensating for lag: {deltaTime - frameDuration}ms behind target framerate!`,
+      `Compensating for lag: ${deltaTime - frameDuration}ms behind target framerate!`,
     );
   }
 

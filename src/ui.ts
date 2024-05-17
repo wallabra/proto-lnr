@@ -9,6 +9,8 @@ export interface UIEvent {
   name: string;
   x: number;
   y: number;
+  consumed: boolean;
+  inside?: CanvasUIElement;
 }
 
 export type UIMouseEvent = UIEvent & GameMouseInfo & MouseEvent;
@@ -61,7 +63,7 @@ export function computeAlignCheckDock(
   } else if (align == "center") {
     base -= offset / 2;
   } else if (align == "end") {
-    base += offset;
+    base -= offset;
   }
 
   return base;
@@ -85,6 +87,9 @@ export interface CanvasUIArgs {
   fillY?: boolean | number;
   paddingX?: number;
   paddingY?: number;
+  childOrdering?: UIAxis | null;
+  childMargin?: number;
+  layer?: number;
 }
 
 export abstract class CanvasUIElement {
@@ -105,6 +110,10 @@ export abstract class CanvasUIElement {
   fillY: boolean | number;
   paddingX: number;
   paddingY: number;
+  childMargin;
+  number;
+  childOrdering: UIAxis | null;
+  layer: number;
 
   constructor(args: CanvasUIArgs) {
     this.parent = args.parent;
@@ -125,34 +134,54 @@ export abstract class CanvasUIElement {
     this.fillY = args.fillY || false;
     this.paddingX = args.paddingX || 8;
     this.paddingY = args.paddingY || 8;
+    this.childOrdering = args.childOrdering || null;
+    this.childMargin = args.childMargin || 5;
+    this.layer = args.layer || 0;
 
     if (this.parent != null) {
-      this.parent.addChild(this);
+      this.parent._addChild(this);
     }
   }
 
-  addChild(item) {
+  childIndex() {
+    if (this.parent == null) return 0;
+    return this.parent.children.indexOf(this);
+  }
+
+  childrenOffset() {
+    return { x: 0, y: 0 };
+  }
+
+  public addChild(item) {
+    this._addChild(item);
+  }
+
+  _addChild(item) {
     this.children.push(item);
+  }
+
+  removeChild(item) {
+    const idx = this.children.indexOf(item);
+    if (idx != -1) this.children.splice(idx, 1);
   }
 
   get realWidth() {
     if (this.parent == null || !this.fillX) {
       return this.width;
-    } else if (typeof this.fillX === 'number') {
-      return this.parent.realWidth * this.fillX;
+    } else if (typeof this.fillX === "number") {
+      return this.parent.innerWidth * this.fillX;
     } else {
-      return this.parent.realWidth;
+      return this.parent.innerWidth;
     }
   }
 
   get realHeight() {
     if (this.parent == null || !this.fillY) {
       return this.height;
-    }
-    else if (typeof this.fillY === 'number') {
-      return this.parent.realHeight * this.fillY;
+    } else if (typeof this.fillY === "number") {
+      return this.parent.innerHeight * this.fillY;
     } else {
-      return this.parent.realHeight;
+      return this.parent.innerHeight;
     }
   }
 
@@ -201,14 +230,36 @@ export abstract class CanvasUIElement {
     }
   }
 
+  inheritedOffset() {
+    return this.parent.childrenOffset();
+  }
+
   pos() {
     let x = this.x;
     let y = this.y;
 
+    if (this.childOrdering === "horizontal")
+      x +=
+        this.childMargin +
+        this.parent.children
+          .slice(0, this.childIndex())
+          .filter((e) => e.childOrdering === "horizontal")
+          .map((e) => e.realWidth + e.childMargin * 2)
+          .reduce((a, b) => a + b, 0);
+    else if (this.childOrdering === "vertical")
+      y +=
+        this.childMargin +
+        this.parent.children
+          .slice(0, this.childIndex())
+          .filter((e) => e.childOrdering === "vertical")
+          .map((e) => e.realHeight + e.childMargin * 2)
+          .reduce((a, b) => a + b, 0);
+
     if (this.parent != null) {
       const pp = this.parent.innerPos();
-      x += pp.x;
-      y += pp.y;
+      const offs = this.inheritedOffset();
+      x += pp.x + offs.x;
+      y += pp.y + offs.y;
 
       x = computeDock(this.dockX, x, this.parent.innerWidth, this.dockMarginX);
       y = computeDock(this.dockY, y, this.parent.innerHeight, this.dockMarginY);
@@ -239,19 +290,23 @@ export abstract class CanvasUIElement {
   }
 
   public handleEvent<E extends UIEvent>(e: E) {
-    if (!this.isInside(e.x, e.y)) {
+    if (this !== e.inside && !this.isInside(e.x, e.y)) {
       return false;
     }
 
-    console.log(e.name, "on", this);
-    this.event(e);
-    this.dispatchEvent(e);
+    console.log(e.name, "on", this, "<-", e);
+    if (e.inside == null || e.inside === this.parent) e.inside = this;
+    if (!e.consumed) {
+      this.dispatchEvent(e);
+      this.event(e);
+    }
     return true;
   }
 
   private dispatchEvent<E extends UIEvent>(e: E) {
     for (const child of this.children) {
       child.handleEvent(e);
+      if (e.consumed) break;
     }
   }
 
@@ -269,7 +324,7 @@ export abstract class CanvasUIElement {
     this._render(ctx);
 
     this.preChildrenRender(ctx);
-    for (const child of this.children) {
+    for (const child of this.children.sort((a, b) => b.layer - a.layer)) {
       child.render(ctx);
     }
     this.postChildrenRender(ctx);
@@ -327,12 +382,14 @@ export class CanvasButton extends CanvasUIElement {
   event<E extends UIEvent>(e: E) {
     if (e.name === "click") {
       this.callback(e);
+      e.consumed = true;
     }
   }
 
   public label(
     label: string,
-    labelOpts?: Optional<CanvasLabelSpecificArgs, 'label'> & Partial<CanvasUIArgs>,
+    labelOpts?: Optional<CanvasLabelSpecificArgs, "label"> &
+      Partial<CanvasUIArgs>,
   ) {
     return new CanvasLabel({
       alignX: "center",
@@ -379,8 +436,8 @@ export class CanvasLabel extends CanvasUIElement {
     this.label = args.label;
     this.color = args.color || "black";
     this.font = args.font || "1em Arial";
-    this.textAlign = args.textAlign;
-    this.textBaseline = args.textBaseline;
+    this.textAlign = args.textAlign || "start";
+    this.textBaseline = args.textBaseline || "top";
   }
 
   preChildrenRender() {}
@@ -504,12 +561,16 @@ export interface ScrollbarOptions {
   barPadding?: number;
 }
 
-const DEFAULT_SCROLLBAR_OPTIONS: ScrollbarOptions = {
+const DEFAULT_SCROLLBAR_OPTIONS: Partial<CanvasUIArgs> & ScrollbarOptions = {
   barSize: 0.9,
   thickness: 8,
-  bgColor: "#111",
+  bgColor: "#1116",
   barColor: "#909096",
   barPadding: 2,
+  dockMarginX: 0,
+  dockMarginY: 0,
+  dockX: "end",
+  dockY: "end",
 };
 
 export interface CanvasScrollerArgs extends CanvasUIArgs {
@@ -530,6 +591,10 @@ class Scrollbar extends CanvasUIElement {
   bgColor: string;
   barColor: string;
   barPadding: number;
+
+  inheritedOffset() {
+    return { x: 0, y: 0 };
+  }
 
   constructor(args: ScrollbarArgs) {
     super(args);
@@ -556,12 +621,23 @@ class Scrollbar extends CanvasUIElement {
     );
   }
 
+  scrollSpan() {
+    if (this.scroller.axis === "horizontal")
+      return this.realWidth * (1 + this.barSize) + this.barPadding * 2;
+    if (this.scroller.axis === "vertical")
+      return this.realHeight * (1 + this.barSize) + this.barPadding * 2;
+  }
+
   scrollTowardPx(delta) {
-    this.scrollToward(delta / this.scroller.sizeOnAxis());
+    this.scrollToward(delta / this.scrollSpan());
   }
 
   event<E extends UIEvent>(e: E) {
-    if (e.name == "drag") {
+    const ev = <E & { dragStart: Vec2 }>e;
+    if (
+      e.name == "canvasdrag" &&
+      this.isInside(ev.dragStart.x, ev.dragStart.y)
+    ) {
       const ev = <E & UIMouseEvent>e;
       const delta = ev.delta;
       this.scrollTowardPx(
@@ -577,24 +653,12 @@ class Scrollbar extends CanvasUIElement {
 
   get realWidth() {
     if (this.scroller.axis === "vertical") return this.thickness;
-    return this.parent.realWidth;
+    return this.parent.innerWidth;
   }
 
   get realHeight() {
     if (this.scroller.axis === "horizontal") return this.thickness;
-    return this.parent.realHeight;
-  }
-
-  private left(pos) {
-    if (this.scroller.axis === "vertical")
-      return pos.x + this.parent.realWidth - this.thickness;
-    return pos.x;
-  }
-
-  private top(pos) {
-    if (this.scroller.axis === "horizontal")
-      return pos.y + this.parent.realHeight - this.thickness;
-    return pos.y;
+    return this.parent.innerHeight;
   }
 
   get outerLength() {
@@ -616,21 +680,17 @@ class Scrollbar extends CanvasUIElement {
       return this.realHeight * (1 - this.barSize) - this.barPadding;
   }
 
-  private barLeft(pos) {
-    if (this.scroller.axis === "vertical")
-      return this.left(pos) + this.barPadding;
+  barLeft(pos) {
+    if (this.scroller.axis === "vertical") return pos.x + this.barPadding;
     return (
-      this.left(pos) +
-      lerp(this.barPadding, this.maxBarPos, this.scroller.scrollPos)
+      pos.x + lerp(this.barPadding, this.maxBarPos, this.scroller.scrollPos)
     );
   }
 
-  private barTop(pos) {
-    if (this.scroller.axis === "horizontal")
-      return this.top(pos) + this.barPadding;
+  barTop(pos) {
+    if (this.scroller.axis === "horizontal") return pos.y + this.barPadding;
     return (
-      this.top(pos) +
-      lerp(this.barPadding, this.maxBarPos, this.scroller.scrollPos)
+      pos.y + lerp(this.barPadding, this.maxBarPos, this.scroller.scrollPos)
     );
   }
 
@@ -651,12 +711,7 @@ class Scrollbar extends CanvasUIElement {
     const pos = this.pos();
 
     dctx.fillStyle = this.bgColor;
-    dctx.fillRect(
-      this.left(pos),
-      this.top(pos),
-      this.realWidth,
-      this.realHeight,
-    );
+    dctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
     dctx.fillStyle = this.barColor;
     dctx.fillRect(
       this.barLeft(pos),
@@ -667,16 +722,58 @@ class Scrollbar extends CanvasUIElement {
   }
 }
 
+class CanvasScrollerContentPane extends CanvasUIElement {
+  parent: CanvasScroller;
+  measuring: boolean = false;
+
+  inheritedOffset(): { x: number; y: number } {
+    return { x: 0, y: 0 };
+  }
+
+  pos() {
+    return this.parent.innerPos();
+  }
+
+  childrenOffset(): { x: number; y: number } {
+    if (!this.measuring) return this.parent.childrenOffset();
+    return { x: 0, y: 0 };
+  }
+
+  get realWidth() {
+    return this.parent.contentWidth();
+  }
+
+  get realHeight() {
+    return this.parent.contentHeight();
+  }
+
+  _render() {}
+  event() {}
+  preChildrenRender() {}
+  postChildrenRender() {}
+}
+
 export class CanvasScroller extends CanvasUIElement {
   axis: UIAxis;
   bgColor: string;
+  contentPane: CanvasScrollerContentPane;
   scrollbar: Scrollbar | null;
   scrollPos: number;
   scrollbarOpts: ScrollbarOptions;
 
   constructor(args: CanvasScrollerArgs) {
-    super(args);
+    super({ paddingX: 0, paddingY: 0, ...args });
+    this.bgColor = args.bgColor;
     this.axis = args.axis;
+    this.contentPane = new CanvasScrollerContentPane({
+      paddingX: 0,
+      paddingY: 0,
+      childMargin: 0,
+      childOrdering: null,
+      dockMarginX: 0,
+      dockMarginY: 0,
+      parent: this,
+    });
     this.scrollPos = args.scrollPos || 0;
     this.scrollbarOpts = {
       ...DEFAULT_SCROLLBAR_OPTIONS,
@@ -684,20 +781,50 @@ export class CanvasScroller extends CanvasUIElement {
     };
   }
 
+  public addChild(item) {
+    this.contentPane._addChild(item);
+  }
+
+  childrenOffset() {
+    return {
+      x:
+        this.axis !== "horizontal"
+          ? 0
+          : -(this.scrollLength + this.paddingX - this.contentPane.innerWidth) *
+            this.scrollPos,
+      y:
+        this.axis !== "vertical"
+          ? 0
+          : -(
+              this.scrollLength +
+              this.paddingY -
+              this.contentPane.innerHeight
+            ) * this.scrollPos,
+    };
+  }
+
   private updateScrollbar() {
     const shouldHave = this.scrollLength > this.axialSize;
 
     if (!shouldHave) {
+      this.removeChild(this.scrollbar);
       this.scrollbar = null;
       return;
     }
 
-    const barSize = this.axialSize / this.scrollLength;
+    const barSize = Math.min(0.05, this.axialSize / this.scrollLength);
 
     if (this.scrollbar == null) {
       this.scrollbar = new Scrollbar({
         parent: this,
         scroller: this,
+        layer:
+          Math.max(
+            this.layer,
+            ...this.contentPane.children.map((c) => c.layer),
+          ) + 1,
+        dockMarginX: 0,
+        dockMarginY: 0,
         ...this.scrollbarOpts,
       });
     }
@@ -711,15 +838,24 @@ export class CanvasScroller extends CanvasUIElement {
   }
 
   get scrollDims() {
-    let start, end;
+    let start = null,
+      end = null;
 
-    for (const item of this.children) {
-      const pos = this.axis === "horizontal" ? item.x : item.y;
-      const size =
-        this.axis === "horizontal" ? item.realWidth : item.realHeight;
-      if (pos < start) start = pos;
-      if (pos + size > end) end = pos + size;
+    this.contentPane.measuring = true; // prevent infinite recursion
+
+    for (const item of this.contentPane.children) {
+      const pos = item.pos();
+      let off = this.axis === "horizontal" ? pos.x : pos.y;
+      let size = this.axis === "horizontal" ? item.realWidth : item.realHeight;
+      if (item.childOrdering === this.axis) {
+        off -= item.childMargin;
+        size += item.childMargin * 2;
+      }
+      if (start == null || off < start) start = off;
+      if (end == null || off + size > end) end = off + size;
     }
+
+    this.contentPane.measuring = false;
 
     return [start, end];
   }
@@ -741,23 +877,23 @@ export class CanvasScroller extends CanvasUIElement {
     return start + len * this.scrollPos - this.axialSize;
   }
 
-  get innerWidth() {
-    if (this.scrollbar == null) return this.realWidth;
-    if (this.axis === "horizontal")
-      return this.realWidth - this.scrollbar.thickness;
+  contentWidth() {
+    if (this.axis === "vertical" && this.scrollbar != null)
+      return this.innerWidth - this.scrollbar.thickness;
+    return this.innerWidth;
   }
 
-  get innerHeight() {
-    if (this.scrollbar == null) return this.realWidth;
-    if (this.axis === "horizontal")
-      return this.realWidth - this.scrollbar.thickness;
+  contentHeight() {
+    if (this.axis === "horizontal" && this.scrollbar != null)
+      return this.innerHeight - this.scrollbar.thickness;
+    return this.innerHeight;
   }
 
   preChildrenRender(ctx: UIDrawContext) {
     this.updateScrollbar();
 
     const pctx = ctx.ctx;
-    const pos = this.pos();
+    const pos = this.innerPos();
     pctx.save();
     pctx.beginPath();
     pctx.rect(pos.x, pos.y, this.innerWidth, this.innerHeight);
@@ -769,9 +905,24 @@ export class CanvasScroller extends CanvasUIElement {
     pctx.restore();
   }
 
+  scrollableWidth() {
+    if (this.axis === "horizontal") return this.scrollLength;
+    return this.innerWidth;
+  }
+
+  scrollableHeight() {
+    if (this.axis === "vertical") return this.scrollLength;
+    return this.innerHeight;
+  }
+
   event() {}
 
-  _render() {}
+  _render(ctx: UIDrawContext) {
+    const pctx = ctx.ctx;
+    const pos = this.pos();
+    pctx.fillStyle = this.bgColor;
+    pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+  }
 }
 
 export interface CanvasImageArgs extends CanvasUIArgs {
