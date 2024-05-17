@@ -115,7 +115,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   sphericalVolume() {
-    return (3 / 4) * Math.PI * Math.pow(this.caliber, 3);
+    return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
 
   estimateCost() {
