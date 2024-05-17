@@ -271,6 +271,7 @@ export const DEFAULT_MAKE: ShipMake = {
   slots: [
     { type: "cannon" },
     { type: "cannon" },
+    { type: "cannon" },
     { type: "engine" },
     { type: "engine" },
   ],

@@ -24,6 +24,7 @@
     "typescript-eslint": "^7.9.0"
   },
   "dependencies": {
+    "array-counter": "^1.0.0",
     "rustmatchjs": "^0.0.4",
     "utility-types": "^3.11.0",
     "victor": "^1.1.0"

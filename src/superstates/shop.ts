@@ -2,6 +2,7 @@ import { Game } from "../game";
 import { FoodItem, FuelItem, ShipItem } from "../inventory";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
+import arrayCounter from 'array-counter';
 import {
   Cannon,
   CannonballAmmo,
@@ -461,6 +462,7 @@ class PaneDrydock extends Pane {
   private partsScroller: CanvasScroller;
   private partsWidgets: DrydockPartWidget[];
   private inventoryWidget: DrydockInventoryWidget;
+  private slotsLabel: CanvasLabel;
 
   buildPane(args: PaneDrydockArgs & CanvasSplitPanelArgs) {
     this.pane = new CanvasSplitPanel(args);
@@ -518,16 +520,12 @@ class PaneDrydock extends Pane {
     new CanvasLabel({
       parent: partsPane,
       label: "Parts",
-      dockX: "start",
-      dockY: "start",
-      dockMarginX: 10,
-      dockMarginY: 10,
       color: "#fddc",
       font: "$Hpx sans-serif",
       height: 20,
       autoFont: true,
       childOrdering: "vertical",
-      childMargin: 15,
+      childMargin: 8,
     });
 
     this.partsScroller = new CanvasScroller({
@@ -536,10 +534,22 @@ class PaneDrydock extends Pane {
       childOrdering: "vertical",
       childMargin: 20,
       fillX: 1.0,
-      fillY: 0.8,
+      fillY: 0.7,
       bgColor: "#0000",
     });
+    
+    this.slotsLabel = new CanvasLabel({
+      parent: partsPane,
+      label: "-",
+      color: "#fddc",
+      font: "bold $Hpx sans-serif",
+      height: 15,
+      autoFont: true,
+      childOrdering: "vertical",
+      childMargin: 5,
+    });
 
+    this.updateSlotsLabel();
     this.updatePartsList();
   }
 
@@ -587,11 +597,25 @@ class PaneDrydock extends Pane {
       this.addPartItem(part);
     }
   }
+  
+  private updateSlotsLabel() {
+    const slots = arrayCounter(this.makeup.make.slots.map((s) => s.type));
+    const partTypes = arrayCounter(this.makeup.parts.map((p) => p.type));
+    
+    const labelParts = [];
+    
+    for (let name in slots) {
+      labelParts.push(`${name} (${partTypes[name]}/${slots[name]})`);
+    }
+    
+    this.slotsLabel.label = 'Slots: ' + labelParts.join(', ');
+  }
 
   public update() {
     this.updateCashCounter();
     this.updateRepairLabel();
     this.updatePartsList();
+    this.updateSlotsLabel();
 
     this.inventoryWidget.update();
     for (const widget of this.partsWidgets) {

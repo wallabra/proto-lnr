@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      array-counter:
+        specifier: ^1.0.0
+        version: 1.0.0
       rustmatchjs:
         specifier: ^0.0.4
         version: 0.0.4
@@ -951,6 +954,9 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
+  array-counter@1.0.0:
+    resolution: {integrity: sha512-mtHdaqNxtpCfZot3ArBvcVKKxjvksTqdCiB8ybbt8djlIbFJmXuPSaZY7B7som5PKSTmMhGJzYe18dMGkixL+A==}
 
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
@@ -3614,6 +3620,8 @@ snapshots:
       sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
+
+  array-counter@1.0.0: {}
 
   array-union@2.1.0: {}
 
