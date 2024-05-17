@@ -41,6 +41,7 @@ export default abstract class MouseHandler {
   abstract onMouseDrag(e: MouseEvent & GameMouseInfo);
 
   registerEvent(name, cb) {
+    cb = cb.bind(this);
     const bound = (ev: MouseEvent) => {
       const mev = <MouseEvent & GameMouseInfo>ev;
       mev.pos = this.pos;
