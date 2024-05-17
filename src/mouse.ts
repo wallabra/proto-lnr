@@ -1,6 +1,7 @@
 import Vec2 from "victor";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
+import match from 'rustmatchjs';
 
 interface MouseCallback {
   name: string;
@@ -36,9 +37,7 @@ export default abstract class MouseHandler {
     this.pos.y = (e.clientY - window.innerHeight / 2) / this.game.drawScale;
   }
 
-  abstract onMouseDown(e: MouseEvent & GameMouseInfo);
-  abstract onMouseUp(e: MouseEvent & GameMouseInfo);
-  abstract onMouseDrag(e: MouseEvent & GameMouseInfo);
+  abstract onMouseEvent(e: MouseEvent & GameMouseInfo);
 
   registerEvent(name, cb) {
     cb = cb.bind(this);
@@ -55,9 +54,15 @@ export default abstract class MouseHandler {
 
   register() {
     this.registerEvent("mousemove", this.onMouseUpdate);
-    this.registerEvent("mouseup", this.onMouseUp);
-    this.registerEvent("mousedown", this.onMouseDown);
-    this.registerEvent("mousedrag", this.onMouseDrag);
+    this.registerEvent("mouseup", this.onMouseEvent);
+    this.registerEvent("mousedown", this.onMouseEvent);
+    this.registerEvent("drag", this.onMouseEvent);
+    this.registerEvent("dragenter", this.onMouseEvent);
+    this.registerEvent("dragleave", this.onMouseEvent);
+    this.registerEvent("dragstart", this.onMouseEvent);
+    this.registerEvent("dragend", this.onMouseEvent);
+    this.registerEvent("dragover", this.onMouseEvent);
+    this.registerEvent("click", this.onMouseEvent);
   }
 
   deregister() {
@@ -74,29 +79,37 @@ export class PlayMouseHandler extends MouseHandler {
     super(game);
     this.steering = false;
   }
+  
+  onMouseEvent(e: MouseEvent & GameMouseInfo) {
+    match(e.name,
+      match.val('mousedown', () => this.onMouseDown()),
+      match.val('mouseup', () => this.onMouseUp()),
+      match._(()=>{}));
+  }
 
-  onMouseDown() {
+  private onMouseDown() {
     this.steering = true;
   }
 
-  onMouseUp() {
+  private onMouseUp() {
     this.steering = false;
   }
-
-  onMouseDrag() {}
 }
 
 export class IntermissionMouseHandler extends MouseHandler {
-  onMouseDown(e: MouseEvent & GameMouseInfo) {
+  onMouseEvent(e: MouseEvent & GameMouseInfo) {
+    match(e.name,
+      match.val('click', () => this.onClick(e)),
+      match.val('drag', () => this.onMouseDrag(e)),
+      match._(()=>{}));
+  }
+  
+  private onClick(e: MouseEvent & GameMouseInfo) {
     const state = <IntermissionState>this.game.state;
     state.mouseEvent(e);
   }
 
-  onMouseUp() {
-    // no-op
-  }
-
-  onMouseDrag(e: MouseEvent & GameMouseInfo) {
+  private onMouseDrag(e: MouseEvent & GameMouseInfo) {
     const state = <IntermissionState>this.game.state;
     state.mouseEvent(e);
   }

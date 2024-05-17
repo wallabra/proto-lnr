@@ -1,4 +1,5 @@
 // UI utilities for the canvas.
+import { Optional } from "utility-types";
 import { Game } from "./game";
 import { GameMouseInfo } from "./mouse";
 import { lerp } from "./util";
@@ -80,8 +81,8 @@ export interface CanvasUIArgs {
   dockY?: UIAlign;
   dockMarginX?: number;
   dockMarginY?: number;
-  fillX?: boolean;
-  fillY?: boolean;
+  fillX?: boolean | number;
+  fillY?: boolean | number;
   paddingX?: number;
   paddingY?: number;
 }
@@ -100,8 +101,8 @@ export abstract class CanvasUIElement {
   dockY: UIAlign;
   dockMarginX: number;
   dockMarginY: number;
-  fillX: boolean;
-  fillY: boolean;
+  fillX: boolean | number;
+  fillY: boolean | number;
   paddingX: number;
   paddingY: number;
 
@@ -109,10 +110,10 @@ export abstract class CanvasUIElement {
     this.parent = args.parent;
     this.children = [];
 
-    this.x = args.x;
-    this.y = args.y;
-    this.width = args.width;
-    this.height = args.height;
+    this.x = args.x || 0;
+    this.y = args.y || 0;
+    this.width = args.width || 1;
+    this.height = args.height || 1;
     this.hidden = args.hidden || false;
     this.alignX = args.alignX || "start";
     this.alignY = args.alignY || "start";
@@ -135,18 +136,23 @@ export abstract class CanvasUIElement {
   }
 
   get realWidth() {
-    if (this.fillX && this.parent != null) {
-      return this.parent.realWidth;
-    } else {
+    if (this.parent == null || !this.fillX) {
       return this.width;
+    } else if (typeof this.fillX === 'number') {
+      return this.parent.realWidth * this.fillX;
+    } else {
+      return this.parent.realWidth;
     }
   }
 
   get realHeight() {
-    if (this.fillY && this.parent != null) {
-      return this.parent.realHeight;
-    } else {
+    if (this.parent == null || !this.fillY) {
       return this.height;
+    }
+    else if (typeof this.fillY === 'number') {
+      return this.parent.realHeight * this.fillY;
+    } else {
+      return this.parent.realHeight;
     }
   }
 
@@ -237,7 +243,7 @@ export abstract class CanvasUIElement {
       return false;
     }
 
-    console.log("Clicked on", this);
+    console.log(e.name, "on", this);
     this.event(e);
     this.dispatchEvent(e);
     return true;
@@ -319,14 +325,14 @@ export class CanvasButton extends CanvasUIElement {
   postChildrenRender() {}
 
   event<E extends UIEvent>(e: E) {
-    if (e.name === "mouseclick") {
+    if (e.name === "click") {
       this.callback(e);
     }
   }
 
   public label(
     label: string,
-    labelOpts?: CanvasLabelSpecificArgs & Partial<CanvasUIArgs>,
+    labelOpts?: Optional<CanvasLabelSpecificArgs, 'label'> & Partial<CanvasUIArgs>,
   ) {
     return new CanvasLabel({
       alignX: "center",
@@ -347,7 +353,7 @@ export class CanvasButton extends CanvasUIElement {
     const pos = this.pos();
 
     ctx.fillStyle = "#222";
-    ctx.fillRect(pos.x, pos.y, this.width, this.height);
+    ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
 }
 
@@ -555,7 +561,7 @@ class Scrollbar extends CanvasUIElement {
   }
 
   event<E extends UIEvent>(e: E) {
-    if (e.name == "mousedrag") {
+    if (e.name == "drag") {
       const ev = <E & UIMouseEvent>e;
       const delta = ev.delta;
       this.scrollTowardPx(

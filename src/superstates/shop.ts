@@ -125,8 +125,8 @@ export default class IntermissionState extends Superstate {
 
     this.repairButton = new CanvasButton({
       parent: shopPane,
-      width: shopPane.width / 2,
-      height: 50,
+      fillX: 0.5,
+      height: 75,
       callback: this.doRepair.bind(this),
       dockX: "center",
       dockY: "end",
@@ -158,11 +158,11 @@ export default class IntermissionState extends Superstate {
       dockX: "center",
       dockY: "end",
       dockMarginY: 50,
-      width: 700,
+      fillX: 0.5,
       height: 100,
       callback: this.doNextLevel.bind(this),
     });
-    nextLevelButton.label("Invade Next Island");
+    nextLevelButton.label("Invade Next Island", { color: "#ccd" });
   }
 
   buildUI() {
