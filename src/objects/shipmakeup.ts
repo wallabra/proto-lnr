@@ -119,7 +119,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   estimateCost() {
-    return 0.02 * this.sphericalVolume() * this.amount;
+    return 0.004 * this.sphericalVolume() * this.amount;
   }
 
   getItemLabel() {
@@ -318,7 +318,7 @@ export class ShipMakeup {
     this.inventory.addItem(this.addPart(Cannon.default()));
     this.inventory.addItem(this.addPart(Engine.default()));
     this.inventory.addItem(this.addPart(Engine.oars()));
-    this.inventory.addItem(new CannonballAmmo(4, 60));
+    this.inventory.addItem(new CannonballAmmo(4, 25));
     this.inventory.addItem(new FuelItem("coal", 0.8, 40));
     return this;
   }
