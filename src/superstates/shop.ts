@@ -605,7 +605,7 @@ class PaneDrydock extends Pane {
     const labelParts = [];
 
     for (const name in slots) {
-      labelParts.push(`${name} (${partTypes[name]}/${slots[name]})`);
+      labelParts.push(`${name} (${partTypes[name] || 0}/${slots[name]})`);
     }
 
     this.slotsLabel.label = "Slots: " + labelParts.join(", ");
