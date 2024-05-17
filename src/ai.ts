@@ -29,9 +29,9 @@ export class AIController {
       if (this.possessed.lastInstigator != null) {
         const dist = this.possessed.lastInstigator.pos
           .clone()
-          .subtract(this.possessed.pos);
+          .subtract(this.possessed.pos)
+          .length();
         const airtime = this.possessed.shotAirtime(deltaTime, dist);
-        console.log(airtime);
         const targetSoonPos = this.possessed.lastInstigator.pos
           .clone()
           .add(
