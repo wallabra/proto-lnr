@@ -195,9 +195,9 @@ export class Engine extends ShipPart {
   }
 
   static default(): Engine {
-    return new Engine("Steamy", 160, 1.2, 'coal', 0.008);
+    return new Engine("Steamy", 160, 1.2, "coal", 0.008);
   }
-  
+
   static oars(): Engine {
     return new Engine("Oars", 30, 0.5, null, 0);
   }
@@ -224,7 +224,12 @@ export interface ShipMake {
 
 export const DEFAULT_MAKE: ShipMake = {
   name: "Defaulty",
-  slots: [{ type: "Cannon" }, { type: "Cannon" }, { type: "Engine" }, { type: "Engine" }],
+  slots: [
+    { type: "Cannon" },
+    { type: "Cannon" },
+    { type: "Engine" },
+    { type: "Engine" },
+  ],
   maxDamage: 50,
   drag: 0.3,
   size: 20,
@@ -261,7 +266,7 @@ export class ShipMakeup {
     this.inventory.addItem(this.addPart(Engine.default()));
     this.inventory.addItem(this.addPart(Engine.oars()));
     this.inventory.addItem(new CannonballAmmo(4, 60));
-    this.inventory.addItem(new FuelItem('coal', 0.8, 40));
+    this.inventory.addItem(new FuelItem("coal", 0.8, 40));
     return this;
   }
 
@@ -311,7 +316,7 @@ export class ShipMakeup {
       spent.dying = true;
     }
   }
-  
+
   pruneDestroyedParts() {
     this.parts = this.parts.filter((p) => !p.dying);
   }

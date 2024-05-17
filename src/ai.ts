@@ -83,7 +83,11 @@ export class AIController {
         if (!this.seeking) {
           for (const pickup of this.possessed.play.tickables) {
             if (!(pickup instanceof Pickup)) continue;
-            if (pickup.phys.pos.clone().subtract(this.possessed.pos).length() > 300) continue;
+            if (
+              pickup.phys.pos.clone().subtract(this.possessed.pos).length() >
+              300
+            )
+              continue;
             this.seeking = pickup;
             break;
           }
@@ -91,7 +95,7 @@ export class AIController {
         if (this.seeking) {
           this.possessed.steer(
             deltaTime * 0.5,
-            this.seeking.phys.pos.clone().subtract(this.possessed.pos).angle()
+            this.seeking.phys.pos.clone().subtract(this.possessed.pos).angle(),
           );
           this.possessed.thrustForward(deltaTime, 0.8);
         } else {
