@@ -11,9 +11,7 @@ import {
   CanvasRoot,
   UIDrawContext,
   CanvasSplitPanelArgs,
-  CanvasScroller,
   UIEvent,
-  CanvasUIElement,
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
@@ -28,7 +26,7 @@ abstract class Pane<A extends PaneArgs = PaneArgs> {
   protected game: Game;
   protected player: Player;
   protected makeup: ShipMakeup;
-  
+
   constructor(args: A) {
     this.state = args.state;
     this.game = this.state.game;
@@ -38,7 +36,7 @@ abstract class Pane<A extends PaneArgs = PaneArgs> {
     this.state.panes.push(this);
     if (this.update) this.update();
   }
-  
+
   protected abstract buildPane(args: A);
   public abstract update?();
 }
@@ -53,8 +51,9 @@ class PaneShop extends Pane<PaneShopArgs> {
   private repairCostScale: number;
 
   buildPane(args) {
-    this.repairCostScale = args.repairCostScale != null ? args.repairCostScale : 5;
-    
+    this.repairCostScale =
+      args.repairCostScale != null ? args.repairCostScale : 5;
+
     this.pane = new CanvasSplitPanel(args);
     new CanvasLabel({
       parent: this.pane,
@@ -88,7 +87,7 @@ class PaneShop extends Pane<PaneShopArgs> {
     });
     this.repairButtonLabel = repairButton.label("-", { color: "#ccd" });
   }
-  
+
   public update() {
     this.updateCashCounter();
     this.updateRepairLabel();
@@ -153,7 +152,7 @@ class PaneCartography extends Pane {
     });
     nextLevelButton.label("Invade Next Island", { color: "#ccd" });
   }
-  
+
   public update = undefined;
 }
 
@@ -168,7 +167,7 @@ export default class IntermissionState extends Superstate {
     this.ui = new CanvasRoot(this.game, "#040404");
     this.buildUI();
   }
-  
+
   addPane(paneType, args) {
     args = { state: this, parent: this.ui, ...args };
     return new paneType(args);
@@ -195,7 +194,7 @@ export default class IntermissionState extends Superstate {
 
   public render() {
     this.maximizeUI();
-    
+
     for (const pane of this.panes) {
       if (pane.update) pane.update();
     }
