@@ -164,7 +164,7 @@ export abstract class CanvasUIElement {
     const idx = this.children.indexOf(item);
     if (idx != -1) this.children.splice(idx, 1);
   }
-  
+
   clearChildren() {
     this.children = [];
   }
@@ -424,6 +424,7 @@ export interface CanvasLabelSpecificArgs {
   font?: string;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
+  autoFont?: boolean;
 }
 
 export type CanvasLabelArgs = CanvasUIArgs & CanvasLabelSpecificArgs;
@@ -434,6 +435,7 @@ export class CanvasLabel extends CanvasUIElement {
   font: string;
   textAlign: CanvasTextAlign;
   textBaseline: CanvasTextBaseline;
+  autoFont: boolean;
 
   constructor(args: CanvasLabelArgs) {
     super(args);
@@ -442,6 +444,7 @@ export class CanvasLabel extends CanvasUIElement {
     this.font = args.font || `${this.height}px sans-serif`;
     this.textAlign = args.textAlign || "start";
     this.textBaseline = args.textBaseline || "top";
+    this.autoFont = args.autoFont || false;
   }
 
   preChildrenRender() {}
@@ -451,8 +454,12 @@ export class CanvasLabel extends CanvasUIElement {
     const ctx = uictx.ctx;
     const pos = this.pos();
 
+    const font = this.autoFont
+      ? this.font.replace("$H", "" + this.height)
+      : this.font;
+
     ctx.fillStyle = this.color;
-    ctx.font = this.font;
+    ctx.font = font;
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.textBaseline;
     ctx.fillText(this.label, pos.x, pos.y);
@@ -627,9 +634,9 @@ class Scrollbar extends CanvasUIElement {
 
   scrollSpan() {
     if (this.scroller.axis === "horizontal")
-      return this.realWidth * (1 + this.barSize) + this.barPadding * 2;
+      return this.realWidth * (1 - this.barSize) - this.barPadding * 2;
     if (this.scroller.axis === "vertical")
-      return this.realHeight * (1 + this.barSize) + this.barPadding * 2;
+      return this.realHeight * (1 - this.barSize) - this.barPadding * 2;
   }
 
   scrollTowardPx(delta) {
@@ -816,7 +823,7 @@ export class CanvasScroller extends CanvasUIElement {
       return;
     }
 
-    const barSize = Math.min(0.05, this.axialSize / this.scrollLength);
+    const barSize = Math.max(0.05, this.axialSize / this.scrollLength);
 
     if (this.scrollbar == null) {
       this.scrollbar = new Scrollbar({
@@ -965,38 +972,38 @@ export class CanvasImage extends CanvasUIElement {
 
 export class CanvasUIGroup extends CanvasUIElement {
   private measuring: boolean;
-  
-  isInside(x: any, y: any): boolean {
+
+  isInside(x: number, y: number): boolean {
     return this.children.some((c) => c.isInside(x, y));
   }
-  
+
   get contentDims() {
     let start = { x: null, y: null },
       end = { x: null, y: null };
 
     for (const item of this.children) {
       const ipos = item.pos();
-      let size = { x: item.realWidth, y: item.realHeight };
+      const size = { x: item.realWidth, y: item.realHeight };
       start = {
         x: start.x == null || ipos.x < start.x ? ipos.x : start.x,
         y: start.y == null || ipos.y < start.y ? ipos.y : start.y,
-      }
+      };
       end = {
         x: end.x == null || ipos.x + size.x > end.x ? ipos.x + size.x : end.x,
         y: end.y == null || ipos.y + size.y > end.y ? ipos.y + size.y : end.y,
-      }
+      };
     }
 
     return [start, end];
   }
-  
+
   get contentSize() {
     if (this.measuring) {
       return { x: 0, y: 0 };
     }
-    
+
     this.measuring = true; // prevent infinite recursion
-    const [ start, end ] = this.contentDims;
+    const [start, end] = this.contentDims;
     if (start.x == null || end.x == null) return null;
     return {
       x: end.x - start.x,
@@ -1004,27 +1011,27 @@ export class CanvasUIGroup extends CanvasUIElement {
     };
     this.measuring = false;
   }
-  
+
   get realWidth() {
     return this.contentSize.x;
   }
-  
+
   get realHeight() {
     return this.contentSize.y;
   }
-  
+
   get innerWidth() {
     return this.parent.innerWidth;
   }
-  
+
   get innerHeight() {
     return this.parent.innerHeight;
   }
-  
+
   innerPos() {
     return this.pos();
   }
-  
+
   event() {}
   _render() {}
   preChildrenRender() {}
@@ -1032,23 +1039,23 @@ export class CanvasUIGroup extends CanvasUIElement {
 }
 
 export interface CanvasProgressBarArgs extends CanvasUIArgs {
-  bgColor?: string,
-  progressColor?: string,
-  progress?: number
+  bgColor?: string;
+  progressColor?: string;
+  progress?: number;
 }
 
 export class CanvasProgressBar extends CanvasUIElement {
   bgColor: string;
   progressColor: string;
   progress: number;
-  
+
   constructor(args: CanvasProgressBarArgs) {
     super(args);
-    this.bgColor = args.bgColor || '#222222D8';
-    this.progressColor = args.progressColor || '#A22A';
+    this.bgColor = args.bgColor || "#222222D8";
+    this.progressColor = args.progressColor || "#A22A";
     this.progress = args.progress || 0;
   }
-  
+
   _render(ctx: UIDrawContext): void {
     const pctx = ctx.ctx;
     const pos = this.pos();
@@ -1056,9 +1063,14 @@ export class CanvasProgressBar extends CanvasUIElement {
     pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
     if (!this.progress) return;
     pctx.fillStyle = this.progressColor;
-    pctx.fillRect(pos.x, pos.y, this.realWidth * this.progress, this.realHeight);
+    pctx.fillRect(
+      pos.x,
+      pos.y,
+      this.realWidth * this.progress,
+      this.realHeight,
+    );
   }
-  
+
   preChildrenRender() {}
   postChildrenRender() {}
   event() {}

@@ -1,10 +1,11 @@
 import Vec2 from "victor";
 import { ObjectRenderInfo } from "../render";
-import type { PhysicsObject } from "./physics";
+import type { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
+import { ShipItem } from "../inventory";
 
-export default abstract class Pickup {
+export abstract class Pickup {
   play: PlayState;
   dying: boolean;
   phys: PhysicsObject;
@@ -109,5 +110,25 @@ export default abstract class Pickup {
   tick(deltaTime: number) {
     this.bob(deltaTime);
     this.checkShipCollisions(deltaTime);
+  }
+}
+
+export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & {
+  item: I;
+};
+export type ItemPickupParamType<I extends ShipItem> = PhysicsParams & {
+  item: I;
+};
+
+export class ItemPickup<I extends ShipItem> extends Pickup {
+  item: I;
+
+  constructor(game: PlayState, pos: Vec2, params: ItemPickupParams<I>) {
+    super(game, pos, params);
+    this.item = params.item;
+  }
+
+  collect(ship: Ship): void {
+    ship.makeup.inventory.addItem(this.item);
   }
 }

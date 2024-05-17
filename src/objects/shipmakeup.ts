@@ -27,9 +27,7 @@ export class ShipPart implements ShipItem {
   dying: boolean;
   repairCostScale: number;
 
-  constructor(
-    args: ShipPartArgs
-  ) {
+  constructor(args: ShipPartArgs) {
     this.type = args.type;
     this.cost = args.cost || 0;
     this.name = args.name || null;
@@ -40,7 +38,7 @@ export class ShipPart implements ShipItem {
     this.repairCostScale = args.repairCostScale || 2;
     this.dying = false;
   }
-  
+
   repairCost() {
     return this.damage * this.repairCostScale;
   }
@@ -51,11 +49,11 @@ export class ShipPart implements ShipItem {
       this.dying = true;
     }
   }
-  
+
   tryRepair(owner: Player) {
     const cost = this.repairCost();
     const maxFix = owner.money / this.repairCostScale;
-    
+
     if (owner.money < cost) {
       this.damage -= maxFix;
       owner.money = 0;
@@ -77,7 +75,7 @@ export class ShipPart implements ShipItem {
   }
 }
 
-export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">
+export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">;
 
 export interface CrewArgs extends ShipPartArgsSuper {
   salary: number;
@@ -116,19 +114,24 @@ export class CannonballAmmo implements ShipItem {
     this.dying = false;
   }
 
+  sphericalVolume() {
+    return (3 / 4) * Math.PI * Math.pow(this.caliber, 3);
+  }
+
   estimateCost() {
-    return 20 * this.caliber * this.amount;
+    return 0.02 * this.sphericalVolume() * this.amount;
   }
 
   getItemLabel() {
-    return `${this.caliber}mm cannonball ammo (x${this.amount})`;
+    return `${Math.round(this.caliber * 10)}mm cannonball ammo (x${this.amount})`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   specialImpact(cannonball: Cannonball, victimShip: Ship) {}
 }
 
-export interface CannonArgs extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+export interface CannonArgs
+  extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
   caliber: number;
   range?: number;
   shootRate: number;
@@ -140,9 +143,7 @@ export class Cannon extends ShipPart {
   range: number;
   shootRate: number;
 
-  constructor(
-    args: CannonArgs
-  ) {
+  constructor(args: CannonArgs) {
     super({ type: "cannon", maxDamage: 8, vulnerability: 0.02, ...args });
     this.caliber = args.caliber;
     this.range = args.range || 600;
@@ -196,7 +197,13 @@ export class Cannon extends ShipPart {
   }
 
   static default(): Cannon {
-    return new Cannon({ name: "Shooty", cost: 160, caliber: 4, range: 900, shootRate: 2 });
+    return new Cannon({
+      name: "Shooty",
+      cost: 160,
+      caliber: 4,
+      range: 900,
+      shootRate: 2,
+    });
   }
 
   tick(deltaTime: number) {
@@ -204,11 +211,12 @@ export class Cannon extends ShipPart {
   }
 }
 
-export interface EngineArgs extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+export interface EngineArgs
+  extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
   fuel?: {
     type: string;
     cost: number;
-  }
+  };
   thrust: number;
 }
 
@@ -217,17 +225,20 @@ export class Engine extends ShipPart {
   fuelCost: number;
   thrust: number;
 
-  constructor(
-    args: EngineArgs
-  ) {
+  constructor(args: EngineArgs) {
     super({ type: "engine", maxDamage: 6, vulnerability: 0.3, ...args });
     this.thrust = args.thrust;
-    this.fuelType = args.fuel && args.fuel.type || null;
-    this.fuelCost = args.fuel && args.fuel.cost || 0.02;
+    this.fuelType = (args.fuel && args.fuel.type) || null;
+    this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
   }
 
   static default(): Engine {
-    return new Engine({ name: "Steamy", cost: 160, thrust: 1.2, fuel: { type: "coal", cost: 0.008 }});
+    return new Engine({
+      name: "Steamy",
+      cost: 160,
+      thrust: 1.2,
+      fuel: { type: "coal", cost: 0.008 },
+    });
   }
 
   static oars(): Engine {
@@ -332,6 +343,12 @@ export class ShipMakeup {
     }
     this.parts.push(part);
     return part;
+  }
+
+  removePart(part: ShipPart) {
+    const idx = this.parts.indexOf(part);
+    if (idx === -1) return;
+    this.parts.splice(idx, 1);
   }
 
   private pruneSpentFuel() {

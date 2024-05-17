@@ -2,7 +2,7 @@ import Vec2 from "victor";
 import { angDiff } from "./util";
 import { Ship } from "./objects/ship";
 import { PlayState } from "./superstates/play";
-import Pickup from "./objects/pickup";
+import { Pickup } from "./objects/pickup";
 
 /// Basic placeholder AI
 export class AIController {

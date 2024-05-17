@@ -2,11 +2,12 @@ import Vec2 from "victor";
 import { angDiff, umod } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
 import { ObjectRenderInfo } from "../render";
-import CashPickup, { CashPickupParams } from "./cash";
+import { CashPickup, CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
 import { DEFAULT_MAKE, ShipMakeup } from "./shipmakeup";
-import { ItemPickup, ItemPickupParamType, ShipItem } from "../inventory";
+import { ShipItem } from "../inventory";
+import { ItemPickup, ItemPickupParamType } from "./pickup";
 
 const DEBUG_DRAW = false;
 
@@ -89,8 +90,7 @@ export class Ship {
     this.lastInstigTime = null;
     this.killScore = 0;
     this.tickActions = [];
-    this.money =
-      params.money != null ? params.money : 100 + Math.random() * 400;
+    this.money = params.money != null ? params.money : 30 + Math.random() * 180;
 
     this.dragMixin();
   }

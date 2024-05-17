@@ -1,9 +1,4 @@
-import { PhysicsParams } from "./objects/physics";
-import Pickup from "./objects/pickup";
-import { Ship } from "./objects/ship";
 import { Player } from "./player";
-import { PlayState } from "./superstates/play";
-import Vec2 from "victor";
 
 export interface InventoryItem {
   name: string;
@@ -15,15 +10,9 @@ export interface InventoryItem {
 
 export interface ShipItem extends InventoryItem {
   type: string;
+  amount?: number;
   getItemLabel: () => string;
 }
-
-export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & {
-  item: I;
-};
-export type ItemPickupParamType<I extends ShipItem> = PhysicsParams & {
-  item: I;
-};
 
 export class ShipInventory {
   private inventory: Array<ShipItem>;
@@ -42,25 +31,18 @@ export class ShipInventory {
     return item;
   }
 
+  removeItem(item: ShipItem) {
+    const idx = this.inventory.indexOf(item);
+    if (idx === -1) return;
+    this.inventory.splice(idx, 1);
+  }
+
   getItemsOf<I extends ShipItem>(type: string): Array<I> {
     return <I[]>this.inventory.filter((i) => i.type === type);
   }
 
   pruneItems() {
     this.inventory = this.inventory.filter((i) => !i.dying);
-  }
-}
-
-export class ItemPickup<I extends ShipItem> extends Pickup {
-  item: I;
-
-  constructor(game: PlayState, pos: Vec2, params: ItemPickupParams<I>) {
-    super(game, pos, params);
-    this.item = params.item;
-  }
-
-  collect(ship: Ship): void {
-    ship.makeup.inventory.addItem(this.item);
   }
 }
 
@@ -80,7 +62,7 @@ export class FuelItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `fuel {this.name}`;
+    return `fuel ${this.name}`;
   }
 }
 
@@ -118,6 +100,6 @@ export class FoodItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `{this.name}`;
+    return `food ${this.name}`;
   }
 }

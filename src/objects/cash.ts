@@ -1,5 +1,5 @@
 import Vec2 from "victor";
-import Pickup from "./pickup";
+import { Pickup } from "./pickup";
 import { PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
@@ -8,7 +8,7 @@ export interface CashPickupParams extends PhysicsParams {
   cash: number;
 }
 
-export default class CashPickup extends Pickup {
+export class CashPickup extends Pickup {
   cash: number;
 
   constructor(game: PlayState, pos: Vec2, params?: Partial<CashPickupParams>) {
