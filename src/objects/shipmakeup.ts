@@ -1,41 +1,67 @@
+import { Optional } from "utility-types";
 import { FoodItem, FuelItem, ShipInventory, ShipItem } from "../inventory";
 import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
 import Vec2 from "victor";
+import { Player } from "../player";
+
+export interface ShipPartArgs {
+  type: string;
+  name?: string;
+  cost?: number;
+  damage?: number;
+  manned?: boolean;
+  maxDamage: number;
+  vulnerability: number;
+  repairCostScale?: number;
+}
 
 export class ShipPart implements ShipItem {
   type: string;
-  name: string;
+  name: string | null;
   cost: number;
   damage: number;
   manned: boolean;
   maxDamage: number;
   vulnerability: number;
   dying: boolean;
+  repairCostScale: number;
 
   constructor(
-    type,
-    name,
-    cost,
-    maxDamage,
-    vulnerability = 0,
-    damage = 0,
-    manned = false,
+    args: ShipPartArgs
   ) {
-    this.type = type;
-    this.cost = cost;
-    this.name = name;
-    this.damage = damage;
-    this.maxDamage = maxDamage;
-    this.manned = manned;
-    this.vulnerability = vulnerability;
+    this.type = args.type;
+    this.cost = args.cost || 0;
+    this.name = args.name || null;
+    this.damage = args.damage || 0;
+    this.maxDamage = args.maxDamage;
+    this.manned = args.manned || false;
+    this.vulnerability = args.vulnerability;
+    this.repairCostScale = args.repairCostScale || 2;
     this.dying = false;
+  }
+  
+  repairCost() {
+    return this.damage * this.repairCostScale;
   }
 
   damagePart(damage: number) {
     this.damage += damage;
     if (this.damage > this.maxDamage) {
       this.dying = true;
+    }
+  }
+  
+  tryRepair(owner: Player) {
+    const cost = this.repairCost();
+    const maxFix = owner.money / this.repairCostScale;
+    
+    if (owner.money < cost) {
+      this.damage -= maxFix;
+      owner.money = 0;
+    } else {
+      owner.money -= cost;
+      this.damage = 0;
     }
   }
 
@@ -47,22 +73,29 @@ export class ShipPart implements ShipItem {
   tick(deltaTime: number) {}
 
   getItemLabel(): string {
-    return `{this.type} {this.name}`;
+    return `${this.type} ${this.name}`;
   }
 }
 
-export default class Crew extends ShipPart {
+export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">
+
+export interface CrewArgs extends ShipPartArgsSuper {
+  salary: number;
+  hunger: number;
+}
+
+export class Crew extends ShipPart {
   salary: number;
   hunger: number;
 
-  constructor(name, salary, hunger = 0) {
-    super("crew", name, 0, 0.1, 0.02);
-    this.salary = salary;
-    this.hunger = hunger;
+  constructor(args: CrewArgs) {
+    super({ type: "crew", ...args });
+    this.salary = args.salary;
+    this.hunger = args.hunger;
   }
 
   getItemLabel(): string {
-    return `crewmate {this.name}`;
+    return `crewmate ${this.name}`;
   }
 }
 
@@ -79,7 +112,7 @@ export class CannonballAmmo implements ShipItem {
     this.amount = amount;
     this.type = "ammo";
     this.cost = this.estimateCost();
-    this.name = `{this.caliber}cm cannonball ammo`;
+    this.name = `${this.caliber}cm cannonball ammo`;
     this.dying = false;
   }
 
@@ -88,11 +121,17 @@ export class CannonballAmmo implements ShipItem {
   }
 
   getItemLabel() {
-    return `{this.caliber}mm cannonball ammo (x{this.amount})`;
+    return `${this.caliber}mm cannonball ammo (x${this.amount})`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   specialImpact(cannonball: Cannonball, victimShip: Ship) {}
+}
+
+export interface CannonArgs extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+  caliber: number;
+  range?: number;
+  shootRate: number;
 }
 
 export class Cannon extends ShipPart {
@@ -102,19 +141,12 @@ export class Cannon extends ShipPart {
   shootRate: number;
 
   constructor(
-    name,
-    cost,
-    caliber,
-    range,
-    shootRate,
-    maxDamage = 8,
-    vulnerability = 0.02,
-    damage = 0,
+    args: CannonArgs
   ) {
-    super("cannon", name, cost, maxDamage, vulnerability, damage);
-    this.caliber = caliber;
-    this.range = range;
-    this.shootRate = shootRate;
+    super({ type: "cannon", maxDamage: 8, vulnerability: 0.02, ...args });
+    this.caliber = args.caliber;
+    this.range = args.range || 600;
+    this.shootRate = args.shootRate;
     this.cooldown = 0;
   }
 
@@ -164,12 +196,20 @@ export class Cannon extends ShipPart {
   }
 
   static default(): Cannon {
-    return new Cannon("Shooty", 160, 4, 900, 2);
+    return new Cannon({ name: "Shooty", cost: 160, caliber: 4, range: 900, shootRate: 2 });
   }
 
   tick(deltaTime: number) {
     this.coolDown(deltaTime);
   }
+}
+
+export interface EngineArgs extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+  fuel?: {
+    type: string;
+    cost: number;
+  }
+  thrust: number;
 }
 
 export class Engine extends ShipPart {
@@ -178,28 +218,20 @@ export class Engine extends ShipPart {
   thrust: number;
 
   constructor(
-    name,
-    cost,
-    thrust,
-    fuelType,
-    fuelCost = 0.02,
-    maxDamage = 6,
-    vulnerability = 0.3,
-    damage = 0,
-    manned = false,
+    args: EngineArgs
   ) {
-    super("engine", name, cost, maxDamage, vulnerability, damage, manned);
-    this.thrust = thrust;
-    this.fuelType = fuelType;
-    this.fuelCost = fuelCost;
+    super({ type: "engine", maxDamage: 6, vulnerability: 0.3, ...args });
+    this.thrust = args.thrust;
+    this.fuelType = args.fuel && args.fuel.type || null;
+    this.fuelCost = args.fuel && args.fuel.cost || 0.02;
   }
 
   static default(): Engine {
-    return new Engine("Steamy", 160, 1.2, "coal", 0.008);
+    return new Engine({ name: "Steamy", cost: 160, thrust: 1.2, fuel: { type: "coal", cost: 0.008 }});
   }
 
   static oars(): Engine {
-    return new Engine("Oars", 30, 0.5, null, 0);
+    return new Engine({ name: "Oars", cost: 30, thrust: 0.5 });
   }
 }
 
@@ -220,20 +252,22 @@ export interface ShipMake {
   drag: number;
   size: number;
   lateralCrossSection: number;
+  repairCostScale: number;
 }
 
 export const DEFAULT_MAKE: ShipMake = {
   name: "Defaulty",
   slots: [
-    { type: "Cannon" },
-    { type: "Cannon" },
-    { type: "Engine" },
-    { type: "Engine" },
+    { type: "cannon" },
+    { type: "cannon" },
+    { type: "engine" },
+    { type: "engine" },
   ],
   maxDamage: 50,
   drag: 0.3,
   size: 20,
   lateralCrossSection: 1.7,
+  repairCostScale: 7,
 };
 
 export class ShipMakeup {
@@ -263,6 +297,7 @@ export class ShipMakeup {
 
   defaultLoadout() {
     this.inventory.addItem(this.addPart(Cannon.default()));
+    this.inventory.addItem(this.addPart(Cannon.default()));
     this.inventory.addItem(this.addPart(Engine.default()));
     this.inventory.addItem(this.addPart(Engine.oars()));
     this.inventory.addItem(new CannonballAmmo(4, 60));
@@ -272,8 +307,8 @@ export class ShipMakeup {
 
   numSlotsOf(type) {
     return this.make.slots
-      .map((s) => s.type === type)
-      .reduce((a, b) => +b + a, 0);
+      .map((s) => +(s.type === type))
+      .reduce((a, b) => a + b, 0);
   }
 
   numPartsOf(type) {
@@ -292,7 +327,7 @@ export class ShipMakeup {
     if (this.parts.indexOf(part) !== -1) {
       return null;
     }
-    if (this.slotsRemaining(part.type)) {
+    if (this.slotsRemaining(part.type) <= 0) {
       return null;
     }
     this.parts.push(part);

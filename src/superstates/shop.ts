@@ -1,7 +1,7 @@
 import { Game } from "../game";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
-import { ShipMakeup } from "../objects/shipmakeup";
+import { ShipMakeup, ShipPart } from "../objects/shipmakeup";
 import { Player } from "../player";
 import {
   CanvasButton,
@@ -12,22 +12,33 @@ import {
   UIDrawContext,
   CanvasSplitPanelArgs,
   UIEvent,
+  CanvasScroller,
+  CanvasUIGroup,
+  CanvasButtonArgs,
+  CanvasProgressBar,
+  CanvasLabelArgs,
+  CanvasUIElement,
+  CanvasUIArgs,
+  CanvasPanelArgs,
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
 
-interface PaneArgs extends CanvasSplitPanelArgs {
+interface PaneArgs {
   state: IntermissionState;
 }
 
-abstract class Pane<A extends PaneArgs = PaneArgs> {
-  protected pane: CanvasSplitPanel;
+type DefaultPaneArgs = PaneArgs & CanvasSplitPanelArgs;
+
+abstract class Pane<A extends PaneArgs = PaneArgs, P extends CanvasUIElement = CanvasSplitPanel, PA extends CanvasUIArgs = CanvasSplitPanelArgs> {
+  protected pane: P;
   protected state: IntermissionState;
   protected game: Game;
   protected player: Player;
   protected makeup: ShipMakeup;
 
-  constructor(args: A) {
+  constructor(args: A & PA) {
+    Object.assign(this, args);
     this.state = args.state;
     this.game = this.state.game;
     this.player = this.game.player;
@@ -37,31 +48,122 @@ abstract class Pane<A extends PaneArgs = PaneArgs> {
     if (this.update) this.update();
   }
 
-  protected abstract buildPane(args: A);
+  protected abstract buildPane(args: PaneArgs & PA);
   public abstract update?();
 }
 
-interface PaneShopArgs extends PaneArgs {
-  repairCostScale?: number;
+interface DrydockPartWidgetArgs extends PaneArgs, CanvasPanelArgs {
+  part: ShipPart;
 }
 
-class PaneShop extends Pane<PaneShopArgs> {
+class DrydockPartWidget extends Pane<DrydockPartWidgetArgs, CanvasPanel, CanvasPanelArgs> {
+  private part: ShipPart;
+  private label: CanvasLabel;
+  private damageMeter: CanvasProgressBar;
+  private damageLabel: CanvasLabel;
+
+  protected buildPane(args: DrydockPartWidgetArgs) {
+    this.pane = new CanvasPanel(args);
+    
+    this.label = new CanvasLabel({
+      parent: this.pane,
+      label: '-',
+      dockX: 'start',
+      color: '#fff',
+      childOrdering: 'vertical',
+      childMargin: 5,
+      height: 13,
+      font: 'bold 13px sans-serif'
+    })
+    
+    // TODO: image to represent part
+    
+    this.damageMeter = new CanvasProgressBar({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 0,
+      fillX: 1.0,
+      height: 30
+    });
+    
+    this.damageLabel = new CanvasLabel({
+      parent: this.damageMeter,
+      font: '11px sans-serif',
+      label: '-',
+      color: '#e2d8d8'
+    });
+    
+    const actions = new CanvasUIGroup({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 5,
+    });
+    
+    const buttonArgs: Partial<CanvasButtonArgs> = {
+      fillX: 1.0,
+      height: 20,
+      childOrdering: 'vertical',
+      childMargin: 1
+    }
+    
+    const labelArgs: Partial<CanvasLabelArgs> = {
+      color: '#fffe',
+      font: '11px monospaced',  
+    }
+    
+    new CanvasButton({
+      ...buttonArgs,
+      parent: actions,
+      callback: this.tryRepair.bind(this),
+      bgColor: '#2020f0c0'
+    }).label("Repair", labelArgs);
+    
+    new CanvasButton({
+      ...buttonArgs,
+      parent: actions,
+      callback: this.tryUninstall.bind(this),
+      bgColor: '#f02020c0'
+    }).label("Uninstall", labelArgs);
+  }
+  
+  private tryRepair() {
+    this.part.tryRepair(this.player);
+  }
+  
+  private tryUninstall() {
+    this.makeup.parts.splice(this.makeup.parts.indexOf(this.part), 1);
+  }
+  
+  public update() {
+    this.label.label = this.part.getItemLabel();
+    this.damageMeter.progress = this.part.damage / this.part.maxDamage;
+    this.damageLabel.label = `${Math.round(100 * this.part.damage / this.part.maxDamage)}% damaged ${moneyString(this.part.repairCost())})`;
+  }
+}
+
+interface PaneDrydockArgs extends PaneArgs {
+  hullRepairCostScale?: number;
+}
+
+class PaneDrydock extends Pane {
   private cashCounter: CanvasLabel;
-  private repairButtonLabel: CanvasLabel;
-  private repairCostScale: number;
-
-  buildPane(args) {
-    this.repairCostScale =
-      args.repairCostScale != null ? args.repairCostScale : 5;
-
+  private repairHullButtonLabel: CanvasLabel;
+  private partsScroller: CanvasScroller;
+  private partsWidgets: DrydockPartWidget[];
+  
+  buildPane(args: PaneDrydockArgs & CanvasSplitPanelArgs) {
     this.pane = new CanvasSplitPanel(args);
+    this.partsWidgets = [];
+    
     new CanvasLabel({
       parent: this.pane,
-      label: "Shop",
+      label: "Drydock",
       color: "#e8e8ff",
       dockX: "center",
       textAlign: "center",
-      font: "50px sans-serif",
+      height: 30,
+      childOrdering: 'vertical',
+      childMargin: 20,
     });
 
     this.cashCounter = new CanvasLabel({
@@ -75,50 +177,110 @@ class PaneShop extends Pane<PaneShopArgs> {
       dockMarginY: 25,
       textAlign: "end",
     });
+    
+    this.buildPartsPane();;
 
-    const repairButton = new CanvasButton({
+    this.repairHullButtonLabel = new CanvasButton({
       parent: this.pane,
       fillX: 0.5,
-      height: 75,
-      callback: this.doRepair.bind(this),
+      height: 40,
+      callback: this.doRepairHull.bind(this),
       dockX: "center",
       dockY: "end",
       dockMarginY: 50,
+    }).label("-", { color: "#ccd" });
+  }
+  
+  buildPartsPane() {
+    const partsPane = new CanvasPanel({
+      parent: this.pane,
+      fillX: 1.0,
+      fillY: 0.5,
+      dockX: 'center',
+      childOrdering: 'vertical',
+      childMargin: 5,
+      bgColor: '#0006'
     });
-    this.repairButtonLabel = repairButton.label("-", { color: "#ccd" });
+    
+    new CanvasLabel({
+      parent: partsPane,
+      label: "Parts",
+      dockX: 'start',
+      dockY: 'start',
+      dockMarginX: 10,
+      dockMarginY: 10,
+      color: '#fddc',
+      font: '20px sans-serif',
+      childOrdering: 'vertical',
+      childMargin: 10,
+    });
+    
+    this.partsScroller = new CanvasScroller({
+      parent: partsPane,
+      axis: "horizontal",
+      childOrdering: 'vertical',
+      childMargin: 20,
+      fillX: 1.0,
+      fillY: 1.0,
+      bgColor: '#0000'
+    });
+  }
+  
+  private addPartItem(part: ShipPart) {
+    this.partsWidgets.push(new DrydockPartWidget({
+      state: this.state,
+      parent: this.partsScroller,
+      bgColor: '#101014d8',
+      fillY: 0.8,
+      fillX: 0.15,
+      part: part,
+      childOrdering: 'horizontal',
+      childMargin: 8
+    }));
+  }
+  
+  private updatePartsList() {
+    this.partsScroller.clearChildren();
+    this.partsWidgets = [];
+    
+    for (const part of this.makeup.parts) {
+      this.addPartItem(part);
+    }
   }
 
   public update() {
     this.updateCashCounter();
     this.updateRepairLabel();
+    this.updatePartsList();
+    
+    for (const widget of this.partsWidgets) {
+      widget.update();
+    }
   }
 
   updateRepairLabel() {
-    this.repairButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+    this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
   }
 
   updateCashCounter() {
     this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
   }
 
-  doRepair() {
+  doRepairHull() {
     const player = this.player;
     const cost = this.repairCost();
 
     if (player.money < cost) {
-      this.makeup.hullDamage -= player.money / this.repairCostScale;
+      this.makeup.hullDamage -= player.money / this.makeup.make.repairCostScale;
       player.money = 0;
     } else {
       player.money -= cost;
       this.makeup.hullDamage = 0;
     }
-
-    this.updateRepairLabel();
-    this.updateCashCounter();
   }
 
   repairCost() {
-    return this.makeup.hullDamage * this.repairCostScale;
+    return this.makeup.hullDamage * this.makeup.make.repairCostScale;
   }
 }
 
@@ -127,7 +289,7 @@ class PaneCartography extends Pane {
     this.game.nextLevel();
   }
 
-  buildPane(args: PaneArgs) {
+  buildPane(args: PaneArgs & CanvasSplitPanelArgs) {
     const state = args.state;
     this.game = state.game;
 
@@ -136,7 +298,7 @@ class PaneCartography extends Pane {
       parent: this.pane,
       label: "Cartography",
       color: "#e8e8ff",
-      font: "30px sans-serif",
+      font: "25px sans-serif",
       dockX: "center",
       textAlign: "center",
     });
@@ -158,7 +320,7 @@ class PaneCartography extends Pane {
 
 export default class IntermissionState extends Superstate {
   ui: CanvasPanel;
-  panes: Pane[];
+  panes: Pane<any, any, any>[];
 
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
@@ -174,13 +336,15 @@ export default class IntermissionState extends Superstate {
   }
 
   buildUI() {
-    this.addPane(PaneShop, {
+    this.addPane(PaneDrydock, {
+      paddingX: 20,
       axis: "vertical",
       splits: 2,
       index: 0,
       bgColor: "#2222",
     });
     this.addPane(PaneCartography, {
+      paddingX: 20,
       axis: "vertical",
       splits: 2,
       index: 1,

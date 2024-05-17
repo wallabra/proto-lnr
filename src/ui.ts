@@ -164,6 +164,10 @@ export abstract class CanvasUIElement {
     const idx = this.children.indexOf(item);
     if (idx != -1) this.children.splice(idx, 1);
   }
+  
+  clearChildren() {
+    this.children = [];
+  }
 
   get realWidth() {
     if (this.parent == null || !this.fillX) {
@@ -435,7 +439,7 @@ export class CanvasLabel extends CanvasUIElement {
     super(args);
     this.label = args.label;
     this.color = args.color || "black";
-    this.font = args.font || "1em Arial";
+    this.font = args.font || `${this.height}px sans-serif`;
     this.textAlign = args.textAlign || "start";
     this.textBaseline = args.textBaseline || "top";
   }
@@ -956,5 +960,106 @@ export class CanvasImage extends CanvasUIElement {
     );
   }
 
+  event() {}
+}
+
+export class CanvasUIGroup extends CanvasUIElement {
+  private measuring: boolean;
+  
+  isInside(x: any, y: any): boolean {
+    return this.children.some((c) => c.isInside(x, y));
+  }
+  
+  get contentDims() {
+    let start = { x: null, y: null },
+      end = { x: null, y: null };
+
+    for (const item of this.children) {
+      const ipos = item.pos();
+      let size = { x: item.realWidth, y: item.realHeight };
+      start = {
+        x: start.x == null || ipos.x < start.x ? ipos.x : start.x,
+        y: start.y == null || ipos.y < start.y ? ipos.y : start.y,
+      }
+      end = {
+        x: end.x == null || ipos.x + size.x > end.x ? ipos.x + size.x : end.x,
+        y: end.y == null || ipos.y + size.y > end.y ? ipos.y + size.y : end.y,
+      }
+    }
+
+    return [start, end];
+  }
+  
+  get contentSize() {
+    if (this.measuring) {
+      return { x: 0, y: 0 };
+    }
+    
+    this.measuring = true; // prevent infinite recursion
+    const [ start, end ] = this.contentDims;
+    if (start.x == null || end.x == null) return null;
+    return {
+      x: end.x - start.x,
+      y: end.y - start.y,
+    };
+    this.measuring = false;
+  }
+  
+  get realWidth() {
+    return this.contentSize.x;
+  }
+  
+  get realHeight() {
+    return this.contentSize.y;
+  }
+  
+  get innerWidth() {
+    return this.parent.innerWidth;
+  }
+  
+  get innerHeight() {
+    return this.parent.innerHeight;
+  }
+  
+  innerPos() {
+    return this.pos();
+  }
+  
+  event() {}
+  _render() {}
+  preChildrenRender() {}
+  postChildrenRender() {}
+}
+
+export interface CanvasProgressBarArgs extends CanvasUIArgs {
+  bgColor?: string,
+  progressColor?: string,
+  progress?: number
+}
+
+export class CanvasProgressBar extends CanvasUIElement {
+  bgColor: string;
+  progressColor: string;
+  progress: number;
+  
+  constructor(args: CanvasProgressBarArgs) {
+    super(args);
+    this.bgColor = args.bgColor || '#222222D8';
+    this.progressColor = args.progressColor || '#A22A';
+    this.progress = args.progress || 0;
+  }
+  
+  _render(ctx: UIDrawContext): void {
+    const pctx = ctx.ctx;
+    const pos = this.pos();
+    pctx.fillStyle = this.bgColor;
+    pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+    if (!this.progress) return;
+    pctx.fillStyle = this.progressColor;
+    pctx.fillRect(pos.x, pos.y, this.realWidth * this.progress, this.realHeight);
+  }
+  
+  preChildrenRender() {}
+  postChildrenRender() {}
   event() {}
 }
