@@ -45,7 +45,7 @@ export class PlayState extends Superstate {
 
     this.game.player.possessed = this.makeShip(Vec2(1500, 1500), {
       money: this.game.player.money,
-      damage: this.game.player.damage,
+      makeup: this.game.player.makeup
     });
   }
 
