@@ -107,8 +107,8 @@ export class Cannon extends ShipPart {
     caliber,
     range,
     shootRate,
-    maxDamage = 0.6,
-    vulnerability = 0.1,
+    maxDamage = 8,
+    vulnerability = 0.02,
     damage = 0,
   ) {
     super("cannon", name, cost, maxDamage, vulnerability, damage);
@@ -183,7 +183,7 @@ export class Engine extends ShipPart {
     thrust,
     fuelType,
     fuelCost = 0.02,
-    maxDamage = 0.9,
+    maxDamage = 6,
     vulnerability = 0.3,
     damage = 0,
     manned = false,
