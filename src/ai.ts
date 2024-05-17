@@ -80,7 +80,10 @@ export class AIController {
             this.possessed.pos.clone().invert().angle(),
           );
         }
-        if (!this.seeking) {
+        if (this.seeking != null && this.seeking.dying) {
+          this.seeking = null;
+        }
+        if (this.seeking == null) {
           for (const pickup of this.possessed.play.tickables) {
             if (!(pickup instanceof Pickup)) continue;
             if (
@@ -92,7 +95,7 @@ export class AIController {
             break;
           }
         }
-        if (this.seeking) {
+        if (this.seeking != null) {
           this.possessed.steer(
             deltaTime * 0.5,
             this.seeking.phys.pos.clone().subtract(this.possessed.pos).angle(),
