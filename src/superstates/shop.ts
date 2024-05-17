@@ -1,8 +1,8 @@
 import { Game } from "../game";
-import { FoodItem, FuelItem, ShipItem } from "../inventory";
+import { FuelItem, ShipItem } from "../inventory";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
-import arrayCounter from 'array-counter';
+import arrayCounter from "array-counter";
 import {
   Cannon,
   CannonballAmmo,
@@ -537,7 +537,7 @@ class PaneDrydock extends Pane {
       fillY: 0.7,
       bgColor: "#0000",
     });
-    
+
     this.slotsLabel = new CanvasLabel({
       parent: partsPane,
       label: "-",
@@ -597,18 +597,18 @@ class PaneDrydock extends Pane {
       this.addPartItem(part);
     }
   }
-  
+
   private updateSlotsLabel() {
     const slots = arrayCounter(this.makeup.make.slots.map((s) => s.type));
     const partTypes = arrayCounter(this.makeup.parts.map((p) => p.type));
-    
+
     const labelParts = [];
-    
-    for (let name in slots) {
+
+    for (const name in slots) {
       labelParts.push(`${name} (${partTypes[name]}/${slots[name]})`);
     }
-    
-    this.slotsLabel.label = 'Slots: ' + labelParts.join(', ');
+
+    this.slotsLabel.label = "Slots: " + labelParts.join(", ");
   }
 
   public update() {
@@ -809,7 +809,7 @@ export default class IntermissionState extends Superstate {
         new CannonballAmmo(5.5, 15),
         new CannonballAmmo(5.5, 15),
         new CannonballAmmo(9, 15),
-        new CannonballAmmo(9, 15)
+        new CannonballAmmo(9, 15),
       ],
     });
     this.addPane(PaneCartography, {
