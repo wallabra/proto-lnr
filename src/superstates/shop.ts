@@ -206,7 +206,7 @@ class DrydockInventoryItemWidget extends Pane<
       fillX: true,
       height: 20,
       callback: this.resell.bind(this),
-    }).label(`Resell (${moneyString(this.resellCost())})`);
+    }).label(`Resell (${moneyString(this.resellCost())})`, { color: '#fff' });
 
     if (this.item instanceof ShipPart) {
       new CanvasButton({
@@ -217,7 +217,7 @@ class DrydockInventoryItemWidget extends Pane<
         fillX: true,
         height: 20,
         callback: this.installPart.bind(this),
-      }).label("Install Part");
+      }).label("Install Part", { color: '#fff' });
     }
   }
 
