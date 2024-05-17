@@ -1,6 +1,7 @@
 import { Game } from "../game";
 import { IntermissionKeyHandler } from "../keyinput";
-import { IntermissionMouseHandler } from "../mouse";
+import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
+import { ShipMakeup } from "../objects/shipmakeup";
 import {
   CanvasButton,
   CanvasLabel,
@@ -8,13 +9,32 @@ import {
   CanvasSplitPanel,
   CanvasRoot,
   UIDrawContext,
+  CanvasSplitPanelArgs,
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
 
+export interface PaneDrydockArgs extends CanvasSplitPanelArgs {
+  makeup: ShipMakeup;
+}
+
+class PaneDrydock {
+  private pane: CanvasSplitPanel;
+  private makeup: ShipMakeup;
+
+  constructor(args: PaneDrydockArgs) {
+    this.pane = new CanvasSplitPanel(args);
+    this.makeup = args.makeup;
+    this.construct();
+  }
+
+  private construct() {}
+}
+
 export default class IntermissionState extends Superstate {
   ui: CanvasPanel;
   repairButton: CanvasButton;
+  repairButtonLabel: CanvasLabel;
   cashCounter: CanvasLabel;
   repairCostScale: number;
 
@@ -63,7 +83,7 @@ export default class IntermissionState extends Superstate {
   }
 
   updateRepairLabel() {
-    this.repairButton.label = `Repair Ship (${moneyString(this.repairCost())})`;
+    this.repairButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
   }
 
   updateCashCounter() {
@@ -74,85 +94,75 @@ export default class IntermissionState extends Superstate {
   }
 
   buildShopPane() {
-    const shopPane = new CanvasSplitPanel(this.ui, "vertical", 2, 0, "#2222");
-    const heading = new CanvasLabel(
-      shopPane,
-      0,
-      0,
-      -1,
-      100,
-      "Shop",
-      "#e8e8ff",
-      "50px sans-serif",
-    );
-    heading.dockX = "center";
-    heading.textAlign = "center";
+    const shopPane = new CanvasSplitPanel({
+      parent: this.ui,
+      axis: "vertical",
+      splits: 2,
+      index: 0,
+      bgColor: "#2222",
+    });
+    new CanvasLabel({
+      parent: shopPane,
+      label: "Shop",
+      color: "#e8e8ff",
+      dockX: "center",
+      textAlign: "center",
+      font: "50px sans-serif",
+    });
 
-    this.cashCounter = new CanvasLabel(
-      shopPane,
-      0,
-      0,
-      -1,
-      100,
-      "-",
-      "#e8e8ff",
-      "30px sans-serif",
-    );
-    this.cashCounter.dockX = "end";
-    this.cashCounter.dockMarginX = 50;
-    this.cashCounter.dockY = "start";
-    this.cashCounter.dockMarginY = 25;
-    this.cashCounter.textAlign = "end";
+    this.cashCounter = new CanvasLabel({
+      parent: shopPane,
+      label: "-",
+      color: "#e8e8ff",
+      font: "30px sans-serif",
+      dockX: "end",
+      dockMarginX: 50,
+      dockY: "start",
+      dockMarginY: 25,
+      textAlign: "end",
+    });
     this.updateCashCounter();
 
-    this.repairButton = new CanvasButton(
-      shopPane,
-      shopPane.width / 2,
-      50,
-      700,
-      100,
-      "",
-      this.doRepair.bind(this),
-    );
-    this.repairButton.dockX = "center";
-    this.repairButton.dockY = "end";
-    this.repairButton.dockMarginY = 50;
+    this.repairButton = new CanvasButton({
+      parent: shopPane,
+      width: shopPane.width / 2,
+      height: 50,
+      callback: this.doRepair.bind(this),
+      dockX: "center",
+      dockY: "end",
+      dockMarginY: 50,
+    });
+    this.repairButtonLabel = this.repairButton.label("-");
     this.updateRepairLabel();
   }
 
   buildCartographyPane() {
-    const cartographyPane = new CanvasSplitPanel(
-      this.ui,
-      "vertical",
-      2,
-      1,
-      "#4452",
-      4,
-    );
-    const heading = new CanvasLabel(
-      cartographyPane,
-      0,
-      0,
-      -1,
-      100,
-      "Cartography",
-      "#e8e8ff",
-      "30px sans-serif",
-    );
-    heading.dockX = "center";
-    heading.textAlign = "center";
-    const nextLevelButton = new CanvasButton(
-      cartographyPane,
-      cartographyPane.width / 2,
-      50,
-      700,
-      100,
-      "Invade Next Island",
-      this.doNextLevel.bind(this),
-    );
-    nextLevelButton.dockX = "center";
-    nextLevelButton.dockY = "end";
-    nextLevelButton.dockMarginY = 50;
+    const cartographyPane = new CanvasSplitPanel({
+      parent: this.ui,
+      axis: "vertical",
+      splits: 2,
+      index: 1,
+      bgColor: "#4452",
+      margin: 4,
+    });
+    new CanvasLabel({
+      parent: cartographyPane,
+      label: "Cartography",
+      color: "#e8e8ff",
+      font: "30px sans-serif",
+      dockX: "center",
+      textAlign: "center",
+    });
+    const nextLevelButton = new CanvasButton({
+      parent: cartographyPane,
+      dockX: "center",
+      dockY: "end",
+      dockMarginY: 50,
+      width: 700,
+      height: 100,
+      callback: this.doNextLevel.bind(this),
+    });
+    nextLevelButton.label("Invade Next Island");
   }
 
   buildUI() {
@@ -179,7 +189,7 @@ export default class IntermissionState extends Superstate {
     // no-op
   }
 
-  mouseEvent(event: MouseEvent) {
+  mouseEvent(event: MouseEvent & GameMouseInfo) {
     this.ui.handleEvent(event);
   }
 }

@@ -25,11 +25,11 @@ export class Player {
     this.makeup = ship.makeup;
     this.registerActions();
   }
-  
+
   get damage() {
     return this.makeup.hullDamage;
   }
-  
+
   set damage(damage) {
     this.makeup.hullDamage = damage;
   }
