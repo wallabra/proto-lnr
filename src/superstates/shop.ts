@@ -377,6 +377,22 @@ class ShopItemWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 5,
     });
+    
+    if (this.item.shopInfo) for (let line of this.item.shopInfo()) {
+      const infoLabel = new CanvasLabel({
+        parent: this.pane,
+        height: 11,
+        label: "* " + line,
+        font: "$Hpx sans-serif",
+        autoFont: true,
+        color: '#d0d0d8',
+        childOrdering: 'vertical',
+        childMargin: 2
+      });
+      const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
+      this.pane.height += addedHeight;
+      if (typeof this.pane.fillY === 'number') this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
+    }
 
     new CanvasButton({
       parent: this.pane,

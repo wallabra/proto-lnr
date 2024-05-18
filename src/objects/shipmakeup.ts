@@ -40,6 +40,10 @@ export class ShipPart implements ShipItem {
     this.dying = false;
     this.integerAmounts = true;
   }
+  
+  shopInfo(): string[] {
+    return [];
+  }
 
   repairCost() {
     return this.damage * this.repairCostScale;
@@ -150,6 +154,13 @@ export class Cannon extends ShipPart {
   cooldown: number;
   range: number;
   shootRate: number;
+  
+  shopInfo(): string[] {
+    return [
+      "caliber: " + Math.round(this.caliber * 10) + "mm",
+      "max SPM:" + (60 / this.shootRate),
+      "max range: " + this.range];
+  }
 
   constructor(args: CannonArgs) {
     super({ type: "cannon", maxDamage: 8, vulnerability: 0.02, ...args });
@@ -238,6 +249,13 @@ export class Engine extends ShipPart {
     this.thrust = args.thrust;
     this.fuelType = (args.fuel && args.fuel.type) || null;
     this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
+  }
+  
+  shopInfo(): string[] {
+    return [
+      "fuel type: " + this.fuelType,
+      "fuel cost /min:" + Math.round(this.fuelCost * 600) / 10,
+      "thrust: " + Math.round(this.thrust * 100)];
   }
 
   static default(): Engine {

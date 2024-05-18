@@ -6,6 +6,7 @@ export interface InventoryItem {
   dying: boolean;
   integerAmounts?: boolean;
   amount?: number;
+  shopInfo?(): string[];
   postBuy?(player: Player): void;
   endOfDay?(): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
