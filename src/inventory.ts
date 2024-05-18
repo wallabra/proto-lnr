@@ -4,6 +4,8 @@ export interface InventoryItem {
   name: string;
   cost: number;
   dying: boolean;
+  integerAmounts?: boolean;
+  amount?: number;
   postBuy?(player: Player): void;
   endOfDay?(): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
@@ -11,7 +13,6 @@ export interface InventoryItem {
 
 export interface ShipItem extends InventoryItem {
   type: string;
-  amount?: number;
   getItemLabel: () => string;
 }
 
@@ -72,6 +73,7 @@ export class FuelItem implements ShipItem {
   amount: number;
   type: string;
   dying: boolean;
+  integerAmounts: boolean;
   
   canConsolidate(other: FuelItem): boolean {
     return other.cost === this.cost && other.name === this.name;
@@ -83,6 +85,7 @@ export class FuelItem implements ShipItem {
     this.amount = amount;
     this.type = "fuel";
     this.dying = false;
+    this.integerAmounts = false;
   }
 
   getItemLabel() {
@@ -97,6 +100,7 @@ export class FoodItem implements ShipItem {
   spoilDays: number;
   type: string;
   dying: boolean;
+  integerAmounts: boolean;
   
   canConsolidate(other: FoodItem): boolean {
     return other.spoilDays === this.spoilDays && other.name === this.name;
@@ -109,6 +113,7 @@ export class FoodItem implements ShipItem {
     this.spoilDays = spoilDays;
     this.type = "food";
     this.dying = false;
+    this.integerAmounts = false;
   }
 
   private spoil() {

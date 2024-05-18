@@ -234,8 +234,17 @@ class DrydockInventoryItemWidget extends Pane<
   }
   
   private resellHalf() {
-    this.player.money += this.resellCost(0.5);
-    this.item.amount /= 2;
+    if (this.item.integerAmounts) {
+      const half = Math.floor(this.item.amount / 2);
+      this.item.amount -= half;
+      this.player.money += this.item.cost * half * this.resellFactor;
+    }
+    
+    else {
+      this.player.money += this.resellCost(0.5);
+      this.item.amount /= 2;
+    }
+    
     this.update();
   }
 

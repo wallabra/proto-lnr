@@ -26,6 +26,7 @@ export class ShipPart implements ShipItem {
   vulnerability: number;
   dying: boolean;
   repairCostScale: number;
+  integerAmounts: boolean;
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -37,6 +38,7 @@ export class ShipPart implements ShipItem {
     this.vulnerability = args.vulnerability;
     this.repairCostScale = args.repairCostScale || 2;
     this.dying = false;
+    this.integerAmounts = true;
   }
 
   repairCost() {
@@ -104,6 +106,7 @@ export class CannonballAmmo implements ShipItem {
   caliber: number;
   amount: number;
   dying: boolean;
+  integerAmounts: boolean;
 
   constructor(caliber, amount = 15) {
     this.caliber = caliber;
@@ -112,6 +115,7 @@ export class CannonballAmmo implements ShipItem {
     this.cost = this.estimateCost();
     this.name = `${this.caliber}cm cannonball ammo`;
     this.dying = false;
+    this.integerAmounts = true;
   }
   
   canConsolidate(other: CannonballAmmo): boolean {
