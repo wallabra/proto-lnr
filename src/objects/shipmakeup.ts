@@ -1,5 +1,5 @@
 import { Optional } from "utility-types";
-import { FoodItem, FuelItem, ShipInventory, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, InventoryItem, ShipInventory, ShipItem } from "../inventory";
 import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
 import Vec2 from "victor";
@@ -112,6 +112,10 @@ export class CannonballAmmo implements ShipItem {
     this.cost = this.estimateCost();
     this.name = `${this.caliber}cm cannonball ammo`;
     this.dying = false;
+  }
+  
+  canConsolidate(other: CannonballAmmo): boolean {
+    return other.caliber === this.caliber;
   }
 
   sphericalVolume() {

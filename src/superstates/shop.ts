@@ -463,6 +463,7 @@ class PaneDrydock extends Pane {
   private partsWidgets: DrydockPartWidget[];
   private inventoryWidget: DrydockInventoryWidget;
   private slotsLabel: CanvasLabel;
+  private hullDamageMeter: CanvasProgressBar;
 
   buildPane(args: PaneDrydockArgs & CanvasSplitPanelArgs) {
     this.pane = new CanvasSplitPanel(args);
@@ -494,6 +495,16 @@ class PaneDrydock extends Pane {
 
     this.buildPartsPane();
     this.buildInventoryPane();
+    
+    this.hullDamageMeter = new CanvasProgressBar({
+      parent: this.pane,
+      fillX: 0.5,
+      height: 5,
+      progress: this.makeup.hullDamage / this.makeup.make.maxDamage,
+      dockX: "center",
+      childMargin: 0,
+      childOrdering: 'vertical'
+    })
 
     this.repairHullButtonLabel = new CanvasButton({
       parent: this.pane,
@@ -501,8 +512,8 @@ class PaneDrydock extends Pane {
       height: 40,
       callback: this.doRepairHull.bind(this),
       dockX: "center",
-      childMargin: 20,
-      childOrdering: "vertical",
+      childMargin: 0,
+      childOrdering: 'vertical',
     }).label("-", { color: "#ccd" });
   }
 
@@ -625,6 +636,7 @@ class PaneDrydock extends Pane {
 
   updateRepairLabel() {
     this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+    this.hullDamageMeter.progress = this.makeup.hullDamage / this.makeup.make.maxDamage;
   }
 
   updateCashCounter() {
@@ -696,6 +708,7 @@ export default class IntermissionState extends Superstate {
     this.game.setKeyboardHandler(IntermissionKeyHandler);
     this.panes = [];
     this.ui = new CanvasRoot(this.game, "#040404");
+    this.game.player.makeup.inventory.consolidateInventory();
     this.buildUI();
   }
 

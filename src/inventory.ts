@@ -4,8 +4,9 @@ export interface InventoryItem {
   name: string;
   cost: number;
   dying: boolean;
-  postBuy?: (player: Player) => void;
-  endOfDay?: () => void;
+  postBuy?(player: Player): void;
+  endOfDay?(): void;
+  canConsolidate?(other: unknown & InventoryItem): boolean;
 }
 
 export interface ShipItem extends InventoryItem {
@@ -24,10 +25,28 @@ export class ShipInventory {
   constructor() {
     this.inventory = [];
   }
+  
+  consolidateInventory() {
+    let idx = 0;
+    for (let item of this.inventory) {
+      if (item.dying) continue;
+      for (let otherItem of this.inventory.slice(idx + 1)) {
+        if (otherItem.dying) continue;
+        if (item.type !== otherItem.type) continue;
+        if (item.canConsolidate == null) continue;
+        if (!item.canConsolidate(otherItem)) continue;
+        item.amount += otherItem.amount;
+        otherItem.dying = true;
+      }
+      idx++;
+    }
+    this.pruneItems();
+  }
 
   addItem(item: ShipItem | null): ShipItem | null {
     if (item == null) return null;
     this.inventory.push(item);
+    this.consolidateInventory();
     return item;
   }
 
@@ -52,6 +71,10 @@ export class FuelItem implements ShipItem {
   amount: number;
   type: string;
   dying: boolean;
+  
+  canConsolidate(other: FuelItem): boolean {
+    return other.cost === this.cost && other.name === this.name;
+  }
 
   constructor(name: string, cost: number, amount: number) {
     this.name = name;
@@ -73,6 +96,10 @@ export class FoodItem implements ShipItem {
   spoilDays: number;
   type: string;
   dying: boolean;
+  
+  canConsolidate(other: FoodItem): boolean {
+    return other.spoilDays === this.spoilDays && other.name === this.name;
+  }
 
   constructor(name, cost = 25, amount = 10, spoilDays = 3) {
     this.name = name;
