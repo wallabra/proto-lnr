@@ -320,6 +320,10 @@ export abstract class CanvasUIElement {
   abstract preChildrenRender(ctx: UIDrawContext);
   abstract postChildrenRender(ctx: UIDrawContext);
 
+  isVisible(element: CanvasUIElement) {
+    return true;
+  }
+  
   render(ctx: UIDrawContext) {
     if (this.hidden) {
       return;
@@ -329,7 +333,8 @@ export abstract class CanvasUIElement {
 
     this.preChildrenRender(ctx);
     for (const child of this.children.sort((a, b) => b.layer - a.layer)) {
-      child.render(ctx);
+      if (this.isVisible(child))
+        child.render(ctx);
     }
     this.postChildrenRender(ctx);
   }
@@ -748,6 +753,20 @@ class CanvasScrollerContentPane extends CanvasUIElement {
   childrenOffset(): { x: number; y: number } {
     if (!this.measuring) return this.parent.childrenOffset();
     return { x: 0, y: 0 };
+  }
+  
+  isVisible(element: CanvasUIElement) {
+    const eTopLeft = element.pos();
+    const eBottomRight = { x: eTopLeft.x + element.realWidth, y: eTopLeft.y + element.realHeight };
+    const cTopLeft = this.innerPos();
+    const cBottomRight = { x: cTopLeft.x + this.innerWidth, y: cTopLeft.y + this.innerHeight };
+    
+    return (
+      eTopLeft.x < cBottomRight.x &&
+      eBottomRight.x > cTopLeft.x &&
+      eTopLeft.y < cBottomRight.y &&
+      eBottomRight.y > cTopLeft.y  
+    );
   }
 
   get realWidth() {
