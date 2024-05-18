@@ -5,7 +5,7 @@ import { ObjectRenderInfo } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
-import { DEFAULT_MAKE, ShipMakeup } from "./shipmakeup";
+import { DEFAULT_MAKE, Engine, ShipMakeup } from "./shipmakeup";
 import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType } from "./pickup";
 
@@ -431,6 +431,15 @@ export class Ship {
     const angleTarg = otherPos.clone().subtract(this.pos).angle();
     this.steer(deltaTime, angleTarg);
   }
+  
+  maxEngineThrust(enginesList?: Engine[]) {
+    const engines = enginesList || this.makeup.getReadyEngines();
+    const engineThrust = engines
+      .map((e) => e.thrust)
+      .reduce((a, b) => a + b, 0);
+      
+    return engineThrust;
+  }
 
   thrustForward(deltaTime, amount) {
     if (amount > 1) {
@@ -440,9 +449,7 @@ export class Ship {
     }
 
     const engines = this.makeup.getReadyEngines();
-    const engineThrust = engines
-      .map((e) => e.thrust)
-      .reduce((a, b) => a + b, 0);
+    const engineThrust = this.maxEngineThrust();
 
     engines.forEach((e) => {
       if (e.fuelType)
