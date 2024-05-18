@@ -159,6 +159,10 @@ export abstract class CanvasUIElement {
   _addChild(item) {
     this.children.push(item);
   }
+  
+  remove() {
+    this.parent.removeChild(this);
+  }
 
   removeChild(item) {
     const idx = this.children.indexOf(item);
@@ -298,7 +302,7 @@ export abstract class CanvasUIElement {
       return false;
     }
 
-    console.log(e.name, "on", this, "<-", e);
+    if (e.name === 'click') console.log(e.name, "on", this);
     if (e.inside == null || e.inside === this.parent) e.inside = this;
     if (!e.consumed) {
       this.dispatchEvent(e);

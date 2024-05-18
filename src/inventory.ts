@@ -52,8 +52,9 @@ export class ShipInventory {
 
   removeItem(item: ShipItem) {
     const idx = this.inventory.indexOf(item);
-    if (idx === -1) return;
+    if (idx === -1) return false;
     this.inventory.splice(idx, 1);
+    return true;
   }
 
   getItemsOf<I extends ShipItem>(type: string): Array<I> {

@@ -358,8 +358,9 @@ export class ShipMakeup {
 
   removePart(part: ShipPart) {
     const idx = this.parts.indexOf(part);
-    if (idx === -1) return;
+    if (idx === -1) return false;
     this.parts.splice(idx, 1);
+    return true;
   }
 
   private pruneSpentFuel() {

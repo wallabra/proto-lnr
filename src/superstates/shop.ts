@@ -156,7 +156,8 @@ class DrydockPartWidget extends Pane<
   }
 
   private tryUninstall() {
-    this.makeup.removePart(this.part);
+    if (this.makeup.removePart(this.part))
+      this.pane.remove();
   }
 
   public update() {
@@ -181,15 +182,17 @@ class DrydockInventoryItemWidget extends Pane<
 > {
   private item: ShipItem;
   private resellFactor: number;
+  private resellLabel: CanvasLabel;
+  private itemLabel: CanvasLabel;
 
   protected buildPane(args: DrydockInventoryItemWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
     this.item = args.item;
     this.resellFactor = args.resellFactor;
 
-    new CanvasLabel({
+    this.itemLabel = new CanvasLabel({
       parent: this.pane,
-      label: itemLabel(this.item, null),
+      label: '-',
       color: "#fff",
       font: "bold $Hpx sans-serif",
       height: 12.5,
@@ -198,15 +201,16 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 10,
     });
 
-    new CanvasButton({
+    this.resellLabel = new CanvasButton({
       parent: this.pane,
       bgColor: "#22882290",
       childOrdering: "vertical",
       childMargin: 1,
       fillX: true,
       height: 20,
-      callback: this.resell.bind(this),
-    }).label(`Resell (${moneyString(this.resellCost())})`, { color: '#fff' });
+      callback: (this.onlyResellHalf() ? this.resellHalf : this.resell).bind(this),
+    }).label('-', { color: '#fff' });
+    
 
     if (this.item instanceof ShipPart) {
       new CanvasButton({
@@ -221,13 +225,24 @@ class DrydockInventoryItemWidget extends Pane<
     }
   }
 
-  private resellCost() {
-    return this.item.cost * (this.item.amount || 1) * this.resellFactor;
+  private resellCost(factor = 1) {
+    return factor * this.item.cost * (this.item.amount || 1) * this.resellFactor;
+  }
+  
+  private onlyResellHalf() {
+    return this.item.amount != null && this.item.amount > 1;
+  }
+  
+  private resellHalf() {
+    this.player.money += this.resellCost(0.5);
+    this.item.amount /= 2;
+    this.update();
   }
 
   private resell() {
     this.makeup.inventory.removeItem(this.item);
     this.player.money += this.resellCost();
+    
   }
 
   private installPart() {
@@ -240,7 +255,10 @@ class DrydockInventoryItemWidget extends Pane<
     if (this.makeup.addPart(item) == null) return;
   }
 
-  public update() {}
+  public update() {
+    this.itemLabel.label = itemLabel(this.item, null);
+    this.resellLabel.label = `Resell${this.onlyResellHalf() ? ' Half' : ''} (${moneyString(this.resellCost(0.5))})`;
+  }
 }
 
 interface DrydockInventoryWidgetArgs extends PaneArgs {
@@ -375,6 +393,7 @@ class ShopItemWidget extends Pane<
     if (this.player.money < cost) return;
     this.player.makeup.inventory.addItem(this.item);
     this.player.money -= cost;
+    this.pane.remove();
   }
 }
 
