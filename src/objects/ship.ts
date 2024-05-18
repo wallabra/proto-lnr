@@ -14,7 +14,7 @@ const DEBUG_DRAW = false;
 export interface ShipParams extends PhysicsParams {
   money: number;
   damage: number;
-  makeup: ShipMakeup;
+  makeup: ShipMakeup | "default";
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -81,9 +81,11 @@ export class Ship {
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
     this.setMakeup(
-      params.makeup != null
-        ? params.makeup
-        : new ShipMakeup(DEFAULT_MAKE).defaultLoadout(),
+      params.makeup === "default"
+        ? new ShipMakeup(DEFAULT_MAKE).defaultLoadout()
+        : params.makeup != null
+          ? params.makeup
+          : new ShipMakeup(DEFAULT_MAKE),
     );
     this.dying = false;
     this.lastInstigator = null;
@@ -431,13 +433,13 @@ export class Ship {
     const angleTarg = otherPos.clone().subtract(this.pos).angle();
     this.steer(deltaTime, angleTarg);
   }
-  
+
   maxEngineThrust(enginesList?: Engine[]) {
     const engines = enginesList || this.makeup.getReadyEngines();
     const engineThrust = engines
       .map((e) => e.thrust)
       .reduce((a, b) => a + b, 0);
-      
+
     return engineThrust;
   }
 

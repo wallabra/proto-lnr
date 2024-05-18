@@ -27,12 +27,12 @@ export class ShipInventory {
   constructor() {
     this.inventory = [];
   }
-  
+
   consolidateInventory() {
     let idx = 0;
-    for (let item of this.inventory) {
+    for (const item of this.inventory) {
       if (item.dying) continue;
-      for (let otherItem of this.inventory.slice(idx + 1)) {
+      for (const otherItem of this.inventory.slice(idx + 1)) {
         if (otherItem.dying) continue;
         if (item.type !== otherItem.type) continue;
         if (item.canConsolidate == null) continue;
@@ -75,7 +75,7 @@ export class FuelItem implements ShipItem {
   type: string;
   dying: boolean;
   integerAmounts: boolean;
-  
+
   canConsolidate(other: FuelItem): boolean {
     return other.cost === this.cost && other.name === this.name;
   }
@@ -102,7 +102,7 @@ export class FoodItem implements ShipItem {
   type: string;
   dying: boolean;
   integerAmounts: boolean;
-  
+
   canConsolidate(other: FoodItem): boolean {
     return other.spoilDays === this.spoilDays && other.name === this.name;
   }

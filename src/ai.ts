@@ -44,6 +44,7 @@ export class AIController {
         const targetAngle = targetOffs.angle();
         const targetDist = targetOffs.length();
         if (
+          this.possessed.maxShootRange != null &&
           Math.abs(angDiff(this.possessed.angle, targetAngle)) <
             Math.atan(
               (this.possessed.lastInstigator.size +

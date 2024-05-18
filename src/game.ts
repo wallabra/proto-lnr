@@ -5,6 +5,8 @@ import { TerraDef, defPlaceholder } from "./terrain";
 import { PlayState } from "./superstates/play";
 import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
+import randomParts from "./shop/randomparts";
+import random from "random";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -23,7 +25,10 @@ export class Game {
     this.drawCtx = ctx;
     this.zoom = 1000;
     const play = (this.state = this.setState(PlayState, defPlaceholder));
-    this.player = new Player(this, play.makeShip(Vec2(0, 0)));
+    this.player = new Player(
+      this,
+      play.makeShip(Vec2(0, 0), { makeup: "default" }),
+    );
     play.resetPlayerShip();
   }
 
@@ -101,6 +106,16 @@ export class Game {
       if (aiship.floor > play.waterLevel * 0.5) {
         aiship.die();
         continue;
+      }
+      const parts = randomParts(
+        3 + random.exponential(1.5)() * 15,
+        aiship.makeup.make,
+      );
+      console.log(parts);
+      for (const part of parts) {
+        aiship.makeup.addPart(part);
+        aiship.makeup.inventory.addItem(part);
+        aiship.makeup.addDefaultFuel(part);
       }
       play.makeAIFor(aiship);
       //aiship.setInstigator(playerShip);

@@ -1,9 +1,12 @@
 import { Optional } from "utility-types";
-import { FoodItem, FuelItem, InventoryItem, ShipInventory, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, ShipInventory, ShipItem } from "../inventory";
 import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
 import Vec2 from "victor";
 import { Player } from "../player";
+import { DEFAULT_CANNON, DEFAULT_ENGINE, OARS } from "../shop/partdefs";
+import arrayCounter from "array-counter";
+import match from "rustmatchjs";
 
 export interface ShipPartArgs {
   type: string;
@@ -11,9 +14,13 @@ export interface ShipPartArgs {
   cost?: number;
   damage?: number;
   manned?: boolean;
-  maxDamage: number;
-  vulnerability: number;
+  maxDamage?: number;
+  vulnerability?: number;
   repairCostScale?: number;
+}
+
+export function slots(make: ShipMake): { [type: string]: number } {
+  return arrayCounter(make.slots.map((s) => s.type));
 }
 
 export class ShipPart implements ShipItem {
@@ -40,7 +47,7 @@ export class ShipPart implements ShipItem {
     this.dying = false;
     this.integerAmounts = true;
   }
-  
+
   shopInfo(): string[] {
     return [];
   }
@@ -73,8 +80,7 @@ export class ShipPart implements ShipItem {
     shipMakeup.addPart(this);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  tick(deltaTime: number) {}
+  tick(_deltaTime: number) {}
 
   getItemLabel(): string {
     return `${this.type} ${this.name}`;
@@ -121,7 +127,7 @@ export class CannonballAmmo implements ShipItem {
     this.dying = false;
     this.integerAmounts = true;
   }
-  
+
   canConsolidate(other: CannonballAmmo): boolean {
     return other.caliber === this.caliber;
   }
@@ -135,11 +141,10 @@ export class CannonballAmmo implements ShipItem {
   }
 
   getItemLabel() {
-    return `${Math.round(this.caliber * 10)}mm cannonball${this.amount > 1 ? 's' : ''}`;
+    return `${Math.round(this.caliber * 10)}mm cannonball${this.amount > 1 ? "s" : ""}`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  specialImpact(cannonball: Cannonball, victimShip: Ship) {}
+  specialImpact(_cannonball: Cannonball, _victimShip: Ship) {}
 }
 
 export interface CannonArgs
@@ -154,12 +159,13 @@ export class Cannon extends ShipPart {
   cooldown: number;
   range: number;
   shootRate: number;
-  
+
   shopInfo(): string[] {
     return [
       "caliber: " + Math.round(this.caliber * 10) + "mm",
-      "max SPM:" + (60 / this.shootRate),
-      "max range: " + this.range];
+      "max SPM:" + 60 / this.shootRate,
+      "max range: " + this.range,
+    ];
   }
 
   constructor(args: CannonArgs) {
@@ -216,13 +222,7 @@ export class Cannon extends ShipPart {
   }
 
   static default(): Cannon {
-    return new Cannon({
-      name: "Shooty",
-      cost: 160,
-      caliber: 4,
-      range: 900,
-      shootRate: 2,
-    });
+    return new Cannon(DEFAULT_CANNON);
   }
 
   tick(deltaTime: number) {
@@ -239,6 +239,11 @@ export interface EngineArgs
   thrust: number;
 }
 
+export const FUEL_COSTS = {
+  coal: 3,
+  diesel: 2,
+};
+
 export class Engine extends ShipPart {
   fuelType: string;
   fuelCost: number;
@@ -250,31 +255,21 @@ export class Engine extends ShipPart {
     this.fuelType = (args.fuel && args.fuel.type) || null;
     this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
   }
-  
+
   shopInfo(): string[] {
     return [
       "fuel type: " + this.fuelType,
       "fuel cost /min:" + Math.round(this.fuelCost * 600) / 10,
-      "thrust: " + Math.round(this.thrust * 100)];
+      "thrust: " + Math.round(this.thrust * 100),
+    ];
   }
 
   static default(): Engine {
-    return new Engine({
-      name: "Steamy",
-      cost: 160,
-      thrust: 1.2,
-      fuel: { type: "coal", cost: 0.008 },
-    });
+    return new Engine(DEFAULT_ENGINE);
   }
 
   static oars(): Engine {
-    return new Engine({
-      name: "Oars",
-      cost: 30,
-      thrust: 0.5,
-      vulnerability: 0.003,
-      maxDamage: 1,
-    });
+    return new Engine(OARS);
   }
 }
 
@@ -297,6 +292,8 @@ export interface ShipMake {
   lateralCrossSection: number;
   repairCostScale: number;
 }
+
+const DEFAULT_FUEL_FACTOR = 800;
 
 export const DEFAULT_MAKE: ShipMake = {
   name: "Defaulty",
@@ -337,6 +334,33 @@ export class ShipMakeup {
     this.make = make;
     this.hullDamage = hullDamage;
     this.inventory = new ShipInventory();
+  }
+
+  addDefaultFuel(part: ShipPart) {
+    const res = match<string, ShipItem | null>(
+      part.type,
+      match.val("cannon", () => {
+        return new CannonballAmmo((<Cannon>part).caliber, 30);
+      }),
+      match.val("engine", () => {
+        const engine = <Engine>part;
+        if (engine.fuelType == null) return null;
+        const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR;
+        return new FuelItem(
+            engine.fuelType,
+            FUEL_COSTS[engine.fuelType],
+            fuelAmount,
+        );
+      }),
+      match._(() => {
+        throw new Error(
+          "Cannot add default item for part of type: " + part.type,
+        );
+      }),
+    );
+    
+    if (res != null) this.inventory.addItem(res);
+    return res;
   }
 
   defaultLoadout() {
@@ -520,6 +544,9 @@ export class ShipMakeup {
   }
 
   get maxShootRange() {
+    if (this.nextReadyCannon == null) {
+      return null;
+    }
     return this.nextReadyCannon.range;
   }
 

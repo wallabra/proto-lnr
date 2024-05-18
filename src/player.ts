@@ -52,8 +52,7 @@ export class Player {
     return this.possessed.pos.length() >= 2500;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inputEvent(name: string, event: KeyboardEvent) {
+  inputEvent(name: string, _event: KeyboardEvent) {
     if (this.possessed.dying) {
       return;
     }
@@ -73,7 +72,7 @@ export class Player {
     if (name == "repair") {
       const state = this.game.state;
       if (state instanceof IntermissionState) {
-        state.doRepair();
+        state.doHullRepair();
       }
     }
   }

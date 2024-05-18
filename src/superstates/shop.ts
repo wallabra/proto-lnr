@@ -9,6 +9,7 @@ import {
   Engine,
   ShipMakeup,
   ShipPart,
+  slots,
 } from "../objects/shipmakeup";
 import { Player } from "../player";
 import {
@@ -69,6 +70,10 @@ abstract class Pane<
 
   protected abstract buildPane(args: PaneArgs & PA);
   public abstract update?();
+  
+  public destroy() {
+    this.pane.remove();
+  }
 }
 
 interface DrydockPartWidgetArgs extends PaneArgs, CanvasPanelArgs {
@@ -80,7 +85,7 @@ class DrydockPartWidget extends Pane<
   CanvasPanel,
   CanvasPanelArgs
 > {
-  private part: ShipPart;
+  part: ShipPart;
   private label: CanvasLabel;
   private damageMeter: CanvasProgressBar;
   private damageLabel: CanvasLabel;
@@ -152,12 +157,12 @@ class DrydockPartWidget extends Pane<
   }
 
   private tryRepair() {
+    if (this.part.damage === 0) return;
     this.part.tryRepair(this.player);
   }
 
   private tryUninstall() {
-    if (this.makeup.removePart(this.part))
-      this.pane.remove();
+    if (this.makeup.removePart(this.part)) this.pane.remove();
   }
 
   public update() {
@@ -180,7 +185,7 @@ class DrydockInventoryItemWidget extends Pane<
   CanvasPanel,
   CanvasPanelArgs
 > {
-  private item: ShipItem;
+  item: ShipItem;
   private resellFactor: number;
   private resellLabel: CanvasLabel;
   private itemLabel: CanvasLabel;
@@ -192,7 +197,7 @@ class DrydockInventoryItemWidget extends Pane<
 
     this.itemLabel = new CanvasLabel({
       parent: this.pane,
-      label: '-',
+      label: "-",
       color: "#fff",
       font: "bold $Hpx sans-serif",
       height: 12.5,
@@ -208,9 +213,10 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       fillX: true,
       height: 20,
-      callback: (this.onlyResellHalf() ? this.resellHalf : this.resell).bind(this),
-    }).label('-', { color: '#fff' });
-    
+      callback: (this.onlyResellHalf() ? this.resellHalf : this.resell).bind(
+        this,
+      ),
+    }).label("-", { color: "#fff" });
 
     if (this.item instanceof ShipPart) {
       new CanvasButton({
@@ -221,30 +227,30 @@ class DrydockInventoryItemWidget extends Pane<
         fillX: true,
         height: 20,
         callback: this.installPart.bind(this),
-      }).label("Install Part", { color: '#fff' });
+      }).label("Install Part", { color: "#fff" });
     }
   }
 
   private resellCost(factor = 1) {
-    return factor * this.item.cost * (this.item.amount || 1) * this.resellFactor;
+    return (
+      factor * this.item.cost * (this.item.amount || 1) * this.resellFactor
+    );
   }
-  
+
   private onlyResellHalf() {
     return this.item.amount != null && this.item.amount > 1;
   }
-  
+
   private resellHalf() {
     if (this.item.integerAmounts) {
       const half = Math.floor(this.item.amount / 2);
       this.item.amount -= half;
       this.player.money += this.item.cost * half * this.resellFactor;
-    }
-    
-    else {
+    } else {
       this.player.money += this.resellCost(0.5);
       this.item.amount /= 2;
     }
-    
+
     this.update();
   }
 
@@ -262,12 +268,31 @@ class DrydockInventoryItemWidget extends Pane<
     const item = <ShipPart>this.item;
 
     if (this.makeup.addPart(item) == null) return;
+    
+    this.pane.remove();
   }
 
   public update() {
     this.itemLabel.label = itemLabel(this.item, null);
-    this.resellLabel.label = `Resell${this.onlyResellHalf() ? ' Half' : ''} (${moneyString(this.resellCost(0.5))})`;
+    this.resellLabel.label = `Resell${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
   }
+}
+
+function updateList<T, P extends Pane<any, any, any>>(items: T[], widgets: P[], index: (remaining: T[], widget: P) => number, add: (item: T) => void) {
+  const remaining = Array.from(items);
+    
+    for (const widget of widgets) {
+      const idx = index(remaining, widget);
+      if (idx === -1) {
+        widget.destroy();
+      } else {
+        remaining.splice(idx, 1);
+      }
+    }
+
+    for (const item of remaining) {
+      add(item);
+    }
 }
 
 interface DrydockInventoryWidgetArgs extends PaneArgs {
@@ -281,9 +306,11 @@ class DrydockInventoryWidget extends Pane<
 > {
   private itemList: CanvasScroller;
   private resellFactor: number;
+  private itemWidgets: DrydockInventoryItemWidget[];
 
   protected buildPane(args: DrydockInventoryWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
+    this.itemWidgets = [];
 
     new CanvasLabel({
       parent: this.pane,
@@ -336,15 +363,14 @@ class DrydockInventoryWidget extends Pane<
 
     console.log("Update inventory list");
 
-    this.itemList.contentPane.clearChildren();
-
-    for (const item of this.makeup.inventory.items) {
-      if (this.makeup.parts.indexOf(<ShipPart>item) !== -1) {
-        continue;
-      }
-
-      this.addItem(item);
-    }
+    updateList(this.makeup.inventory.items, this.itemWidgets,
+      (remaining, widget) => remaining.indexOf(widget.item),
+      (item) => {
+        if (this.makeup.parts.indexOf(<ShipPart> item) !== -1) {
+          return;
+        }
+        this.addItem(item);
+      })
   }
 
   public update() {
@@ -377,22 +403,24 @@ class ShopItemWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 5,
     });
-    
-    if (this.item.shopInfo) for (let line of this.item.shopInfo()) {
-      const infoLabel = new CanvasLabel({
-        parent: this.pane,
-        height: 11,
-        label: "* " + line,
-        font: "$Hpx sans-serif",
-        autoFont: true,
-        color: '#d0d0d8',
-        childOrdering: 'vertical',
-        childMargin: 2
-      });
-      const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
-      this.pane.height += addedHeight;
-      if (typeof this.pane.fillY === 'number') this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
-    }
+
+    if (this.item.shopInfo)
+      for (const line of this.item.shopInfo()) {
+        const infoLabel = new CanvasLabel({
+          parent: this.pane,
+          height: 11,
+          label: "* " + line,
+          font: "$Hpx sans-serif",
+          autoFont: true,
+          color: "#d0d0d8",
+          childOrdering: "vertical",
+          childMargin: 2,
+        });
+        const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
+        this.pane.height += addedHeight;
+        if (typeof this.pane.fillY === "number")
+          this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
+      }
 
     new CanvasButton({
       parent: this.pane,
@@ -539,7 +567,7 @@ class PaneDrydock extends Pane {
 
     this.buildPartsPane();
     this.buildInventoryPane();
-    
+
     this.hullDamageMeter = new CanvasProgressBar({
       parent: this.pane,
       fillX: 0.5,
@@ -547,8 +575,8 @@ class PaneDrydock extends Pane {
       progress: this.makeup.hullDamage / this.makeup.make.maxDamage,
       dockX: "center",
       childMargin: 0,
-      childOrdering: 'vertical'
-    })
+      childOrdering: "vertical",
+    });
 
     this.repairHullButtonLabel = new CanvasButton({
       parent: this.pane,
@@ -557,7 +585,7 @@ class PaneDrydock extends Pane {
       callback: this.doRepairHull.bind(this),
       dockX: "center",
       childMargin: 0,
-      childOrdering: 'vertical',
+      childOrdering: "vertical",
     }).label("-", { color: "#ccd" });
   }
 
@@ -645,21 +673,20 @@ class PaneDrydock extends Pane {
       return;
     console.log("Update parts list");
 
-    this.partsScroller.contentPane.clearChildren();
-    this.partsWidgets = [];
-
-    for (const part of this.makeup.parts) {
-      this.addPartItem(part);
-    }
+    updateList(this.makeup.parts, this.partsWidgets,
+      (remaining, widget) => remaining.indexOf(widget.part),
+      (item) => {
+        this.addPartItem(item);
+      })
   }
 
   private updateSlotsLabel() {
-    const slots = arrayCounter(this.makeup.make.slots.map((s) => s.type));
+    const makeSlots = slots(this.makeup.make);
     const partTypes = arrayCounter(this.makeup.parts.map((p) => p.type));
 
     const labelParts = [];
 
-    for (const name in slots) {
+    for (const name in makeSlots) {
       labelParts.push(`${name} (${partTypes[name] || 0}/${slots[name]})`);
     }
 
@@ -678,16 +705,19 @@ class PaneDrydock extends Pane {
     }
   }
 
-  updateRepairLabel() {
+  private updateRepairLabel() {
     this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
-    this.hullDamageMeter.progress = this.makeup.hullDamage / this.makeup.make.maxDamage;
+    this.hullDamageMeter.progress =
+      this.makeup.hullDamage / this.makeup.make.maxDamage;
   }
 
-  updateCashCounter() {
+  private updateCashCounter() {
     this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
   }
 
   doRepairHull() {
+    if (this.makeup.hullDamage === 0) return;
+
     const player = this.player;
     const cost = this.repairCost();
 
@@ -746,6 +776,7 @@ export default class IntermissionState extends Superstate {
     unknown & CanvasUIElement,
     unknown & CanvasUIArgs
   >[];
+  private paneDrydock: PaneDrydock;
 
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
@@ -762,7 +793,7 @@ export default class IntermissionState extends Superstate {
   }
 
   buildUI() {
-    this.addPane(PaneDrydock, {
+    this.paneDrydock = this.addPane(PaneDrydock, {
       paddingX: 20,
       axis: "horizontal",
       splits: 3,
@@ -895,6 +926,10 @@ export default class IntermissionState extends Superstate {
     };
 
     this.ui.render(ctx);
+  }
+
+  public doHullRepair() {
+    this.paneDrydock.doRepairHull();
   }
 
   public tick() {

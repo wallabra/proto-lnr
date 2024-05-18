@@ -38,18 +38,23 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
-  resetPlayerShip() {
+  resetPlayerShip(args?: Partial<ShipParams>) {
+    if (args == null) args = {};
+
     if (this.game.player.possessed !== null) {
       this.removeObj(this.game.player.possessed);
     }
 
     const pos = Vec2(1600, 0).rotateBy(Math.PI * 2 * Math.random());
-    const ship = this.game.player.possessed = this.makeShip(pos, {
+    const ship = (this.game.player.possessed = this.makeShip(pos, {
       money: this.game.player.money,
       makeup: this.game.player.makeup,
-      angle: pos.clone().invert().angle()
-    });
+      angle: pos.clone().invert().angle(),
+      ...args,
+    }));
     ship.vel = Vec2(ship.maxEngineThrust(), 0).rotateBy(ship.angle);
+
+    return ship;
   }
 
   removeObj(toRemove) {

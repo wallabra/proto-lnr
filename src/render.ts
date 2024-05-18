@@ -312,7 +312,11 @@ class UIRenderer {
     ctx.font = "30px serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("Press 's' to leave the island.", game.width / 2, game.height * 0.8);
+    ctx.fillText(
+      "Press 's' to leave the island.",
+      game.width / 2,
+      game.height * 0.8,
+    );
   }
 
   renderKillScore() {
