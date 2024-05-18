@@ -251,7 +251,7 @@ class DrydockInventoryItemWidget extends Pane<
   private resell() {
     this.makeup.inventory.removeItem(this.item);
     this.player.money += this.resellCost();
-    
+    this.pane.remove();
   }
 
   private installPart() {
