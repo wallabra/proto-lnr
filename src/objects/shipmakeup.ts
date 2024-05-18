@@ -131,7 +131,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   getItemLabel() {
-    return `${Math.round(this.caliber * 10)}mm cannonball ammo (x${this.amount})`;
+    return `${Math.round(this.caliber * 10)}mm cannonball${this.amount > 1 ? 's' : ''}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
