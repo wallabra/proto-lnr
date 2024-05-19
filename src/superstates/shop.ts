@@ -847,16 +847,20 @@ export default class IntermissionState extends Superstate {
       bgColor: "#2222",
       fillY: 0.85,
       shopItems: [
-        ...PARTDEFS.engine.map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "engine")),
-        ),
-        ...PARTDEFS.cannon.map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "cannon")),
-        ),
+        ...PARTDEFS.engine
+          .map((d) =>
+            Array(d.shopRepeat)
+              .fill(0)
+              .map(() => instantiatePart(d, "engine")),
+          )
+          .reduce((a, b) => a.concat(b), []),
+        ...PARTDEFS.cannon
+          .map((d) =>
+            Array(d.shopRepeat)
+              .fill(0)
+              .map(() => instantiatePart(d, "cannon")),
+          )
+          .reduce((a, b) => a.concat(b), []),
         new FuelItem("coal", FUEL_COSTS.coal, 20),
         new FuelItem("coal", FUEL_COSTS.coal, 20),
         new FuelItem("diesel", FUEL_COSTS.diesel, 10),
