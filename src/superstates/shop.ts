@@ -816,6 +816,7 @@ export default class IntermissionState extends Superstate {
     unknown & CanvasUIArgs
   >[];
   private paneDrydock: PaneDrydock;
+  private changed: boolean;
 
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
@@ -882,6 +883,10 @@ export default class IntermissionState extends Superstate {
       index: 2,
       bgColor: "#2222",
     });
+    
+    for (const pane of this.panes) {
+      if (pane.update) pane.update();
+    }
   }
 
   maximizeUI() {
@@ -890,10 +895,6 @@ export default class IntermissionState extends Superstate {
 
   public render() {
     this.maximizeUI();
-
-    for (const pane of this.panes) {
-      if (pane.update) pane.update();
-    }
 
     const ctx: UIDrawContext = {
       ctx: this.game.drawCtx,
@@ -916,5 +917,9 @@ export default class IntermissionState extends Superstate {
 
     if (event.inside) event.inside.handleEvent(uiEvent);
     else this.ui.handleEvent(uiEvent);
+    
+    for (const pane of this.panes) {
+      if (pane.update) pane.update();
+    }
   }
 }
