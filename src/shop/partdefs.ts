@@ -122,7 +122,7 @@ export const PARTDEFS: {
     },
     {
       name: "Juggernaut",
-      caliber: 9,
+      caliber: 7.5,
       range: 550,
       cost: 1200,
       shootRate: 3.5,

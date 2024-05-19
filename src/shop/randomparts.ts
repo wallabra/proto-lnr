@@ -13,7 +13,7 @@ import { PARTDEFS, PartDef } from "./partdefs";
 import random from "random";
 import rwc from "random-weighted-choice";
 
-function instantiatePart(def, type) {
+export function instantiatePart(def, type) {
   const part = match<string, ShipPart>(
     type,
     match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
@@ -77,7 +77,10 @@ export default function randomParts(
       a.concat(
         PARTDEFS[b]
           .filter((p) => p.rarity === "always")
-          .map((d) => instantiatePart(d, b)),
+          .map((d) => {
+            availableSlots[b]--;
+            return instantiatePart(d, b);
+          }),
       ),
     [],
   );

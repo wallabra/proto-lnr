@@ -346,16 +346,16 @@ export class ShipMakeup {
     this.inventory = new ShipInventory();
   }
 
-  addDefaultFuel(part: ShipPart) {
+  addDefaultFuel(part: ShipPart, factor: number = 1) {
     const res = match<string, ShipItem | null>(
       part.type,
       match.val("cannon", () => {
-        return new CannonballAmmo((<Cannon>part).caliber, 30);
+        return new CannonballAmmo((<Cannon>part).caliber, 20 * factor);
       }),
       match.val("engine", () => {
         const engine = <Engine>part;
         if (engine.fuelType == null) return null;
-        const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR;
+        const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * factor;
         return new FuelItem(
           engine.fuelType,
           FUEL_COSTS[engine.fuelType],
@@ -374,12 +374,13 @@ export class ShipMakeup {
   }
 
   defaultLoadout() {
+    const engine = Engine.default();
     this.inventory.addItem(this.addPart(Cannon.default()));
     this.inventory.addItem(this.addPart(Cannon.default()));
-    this.inventory.addItem(this.addPart(Engine.default()));
+    this.inventory.addItem(this.addPart(engine));
     this.inventory.addItem(this.addPart(Engine.oars()));
-    this.inventory.addItem(new CannonballAmmo(4, 25));
-    this.inventory.addItem(new FuelItem("coal", 0.8, 40));
+    this.addDefaultFuel(engine);
+    this.addDefaultFuel(this.nextReadyCannon, 2);
     return this;
   }
 

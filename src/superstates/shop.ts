@@ -7,6 +7,7 @@ import {
   Cannon,
   CannonballAmmo,
   Engine,
+  FUEL_COSTS,
   ShipMakeup,
   ShipPart,
   slots,
@@ -32,6 +33,8 @@ import {
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
+import { PARTDEFS } from "../shop/partdefs";
+import { instantiatePart } from "../shop/randomparts";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -304,7 +307,7 @@ function updateList<
   widgets: P[],
   index: (remaining: T[], widget: P) => number,
   add: (item: T) => void,
-  shouldSkip?: (item: T) => boolean
+  shouldSkip?: (item: T) => boolean,
 ) {
   const remaining = items.slice();
 
@@ -317,13 +320,13 @@ function updateList<
       remaining.splice(idx, 1);
     }
   }
-  
+
   for (const item of remaining) {
     if (shouldSkip == null || !shouldSkip(item)) {
       add(item);
-    }    
+    }
   }
-  
+
   return widgets.filter((w) => !w.destroyed);
 }
 
@@ -371,17 +374,19 @@ class DrydockInventoryWidget extends Pane<
   }
 
   private addItem(shipItem) {
-    this.itemWidgets.push(new DrydockInventoryItemWidget({
-      parent: this.itemList.contentPane,
-      item: shipItem,
-      resellFactor: this.resellFactor,
-      state: this.state,
-      bgColor: "#fff2",
-      fillX: 0.4,
-      fillY: true,
-      childOrdering: "horizontal",
-      childMargin: 6,
-    }));
+    this.itemWidgets.push(
+      new DrydockInventoryItemWidget({
+        parent: this.itemList.contentPane,
+        item: shipItem,
+        resellFactor: this.resellFactor,
+        state: this.state,
+        bgColor: "#fff2",
+        fillX: 0.4,
+        fillY: true,
+        childOrdering: "horizontal",
+        childMargin: 6,
+      }),
+    );
   }
 
   private furnishItemList() {
@@ -395,14 +400,14 @@ class DrydockInventoryWidget extends Pane<
 
     console.log("Update inventory list");
 
-    this.itemWidgets =updateList(
+    this.itemWidgets = updateList(
       this.makeup.inventory.items,
       this.itemWidgets,
       (remaining, widget) => remaining.indexOf(widget.item),
       (item) => {
         this.addItem(item);
       },
-      (item) => this.makeup.parts.indexOf(<ShipPart>item) !== -1
+      (item) => this.makeup.parts.indexOf(<ShipPart>item) !== -1,
     );
   }
 
@@ -705,7 +710,7 @@ class PaneDrydock extends Pane {
     )
       return;
 
-    console.log('Update parts list');
+    console.log("Update parts list");
     this.partsWidgets = updateList(
       this.makeup.parts,
       this.partsWidgets,
@@ -739,7 +744,7 @@ class PaneDrydock extends Pane {
 
   private updateRepairLabel() {
     if (this.makeup.hullDamage === 0) {
-      this.repairHullButtonLabel.label = 'Ship is healthy';
+      this.repairHullButtonLabel.label = "Ship is healthy";
     } else {
       this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
     }
@@ -844,96 +849,20 @@ export default class IntermissionState extends Superstate {
       bgColor: "#2222",
       fillY: 0.85,
       shopItems: [
-        Engine.default(),
-        Engine.oars(),
-        Cannon.default(),
-        Cannon.default(),
-        new Engine({
-          name: "Hot Betty",
-          thrust: 1.7,
-          cost: 700,
-          maxDamage: 8,
-          fuel: {
-            type: "coal",
-            cost: 0.025,
-          },
-        }),
-        new Engine({
-          name: "Piston Boy",
-          maxDamage: 6,
-          thrust: 2.3,
-          cost: 1200,
-          fuel: {
-            type: "diesel",
-            cost: 0.05,
-          },
-        }),
-        new Engine({
-          name: "Howitzer",
-          maxDamage: 15,
-          thrust: 3.0,
-          cost: 2500,
-          fuel: {
-            type: "diesel",
-            cost: 0.15,
-          },
-        }),
-        new Engine({
-          name: "Oilytron",
-          thrust: 2.7,
-          cost: 1440,
-          fuel: {
-            type: "diesel",
-            cost: 0.12,
-          },
-        }),
-        new Cannon({
-          name: "WX Hefty",
-          caliber: 5.5,
-          range: 600,
-          cost: 622,
-          shootRate: 3.5,
-        }),
-        new Cannon({
-          name: "WX Hefty Mk-II",
-          caliber: 5.5,
-          range: 700,
-          cost: 700,
-          shootRate: 2.4,
-        }),
-        new Cannon({
-          name: "Juggernaut",
-          caliber: 9,
-          range: 550,
-          cost: 1200,
-          shootRate: 3.5,
-        }),
-        new Cannon({
-          name: "Speedy",
-          caliber: 4,
-          range: 800,
-          cost: 1000,
-          shootRate: 1.0,
-        }),
-        new Cannon({
-          name: "Chain Cannon",
-          caliber: 4,
-          range: 600,
-          cost: 2300,
-          shootRate: 0.3,
-        }),
-        new FuelItem("coal", 3, 20),
-        new FuelItem("coal", 3, 20),
-        new FuelItem("diesel", 2, 10),
-        new FuelItem("diesel", 2, 20),
-        new FuelItem("diesel", 2, 40),
+        ...PARTDEFS.engine.map((d) => Array(d.shopRepeat).fill(0).map(() => instantiatePart(d, 'engine'))),
+        ...PARTDEFS.cannon.map((d) => Array(d.shopRepeat).fill(0).map(() => instantiatePart(d, 'cannon'))),
+        new FuelItem("coal", FUEL_COSTS.coal, 20),
+        new FuelItem("coal", FUEL_COSTS.coal, 20),
+        new FuelItem("diesel", FUEL_COSTS.diesel, 10),
+        new FuelItem("diesel", FUEL_COSTS.diesel, 20),
+        new FuelItem("diesel", FUEL_COSTS.diesel, 40),
         new CannonballAmmo(4, 15),
         new CannonballAmmo(4, 15),
         new CannonballAmmo(4, 40),
         new CannonballAmmo(5.5, 15),
         new CannonballAmmo(5.5, 15),
-        new CannonballAmmo(9, 15),
-        new CannonballAmmo(9, 15),
+        new CannonballAmmo(7.5, 15),
+        new CannonballAmmo(7.5, 15),
       ],
     });
     this.addPane(PaneCartography, {

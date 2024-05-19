@@ -307,7 +307,8 @@ export abstract class CanvasUIElement {
       this.dispatchEvent(e);
       this.event(e);
     }
-    if (e.name === "click" && e.inside === this) console.log(e.name, "on", this);
+    if (e.name === "click" && e.inside === this)
+      console.log(e.name, "on", this);
     return true;
   }
 
