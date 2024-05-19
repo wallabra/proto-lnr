@@ -32,6 +32,7 @@ export const DEFAULT_CANNON = {
   shootRate: 2,
   shopRepeat: 2,
   rarity: 1,
+  spread: Math.PI / 12,
 };
 
 export interface BasePartDef {
@@ -100,7 +101,6 @@ export const PARTDEFS: {
   ],
   cannon: [
     DEFAULT_CANNON,
-    DEFAULT_CANNON,
     {
       name: "WX Hefty",
       caliber: 5.5,
@@ -109,6 +109,7 @@ export const PARTDEFS: {
       shootRate: 3.5,
       shopRepeat: 2,
       rarity: 2,
+      spread: Math.PI / 10,
     },
     {
       name: "WX Hefty Mk-II",
@@ -117,6 +118,7 @@ export const PARTDEFS: {
       cost: 700,
       shootRate: 2.4,
       rarity: 2.5,
+      spread: Math.PI / 11,
     },
     {
       name: "Juggernaut",
@@ -125,6 +127,7 @@ export const PARTDEFS: {
       cost: 1200,
       shootRate: 3.5,
       rarity: 5,
+      spread: Math.PI / 9,
     },
     {
       name: "Speedy",
@@ -134,6 +137,7 @@ export const PARTDEFS: {
       shootRate: 1.0,
       shopRepeat: 2,
       rarity: 1.5,
+      spread: Math.PI / 10.5,
     },
     {
       name: "Chain Cannon",
@@ -142,6 +146,7 @@ export const PARTDEFS: {
       cost: 2300,
       shootRate: 0.3,
       rarity: 4,
+      spread: Math.PI / 8,
     },
   ],
 };

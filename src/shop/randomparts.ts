@@ -14,15 +14,15 @@ import random from "random";
 import rwc from "random-weighted-choice";
 
 function instantiatePart(def, type) {
-    const part = match<string, ShipPart>(
-      type,
-      match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
-      match.val("engine", new Engine(<PartDef<EngineArgs>>def)),
-      match._(() => {
-        throw new Error("Can't handle unknown part type: " + type);
-      }),
-    )
-    return part;
+  const part = match<string, ShipPart>(
+    type,
+    match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
+    match.val("engine", new Engine(<PartDef<EngineArgs>>def)),
+    match._(() => {
+      throw new Error("Can't handle unknown part type: " + type);
+    }),
+  );
+  return part;
 }
 
 function pickPart(
@@ -73,7 +73,12 @@ export default function randomParts(
 
   // Start with the parts of rarity 'always'
   const res = Object.keys(PARTDEFS).reduce(
-    (a, b) => a.concat(PARTDEFS[b].filter((p) => p.rarity === "always").map((d) => instantiatePart(d, b))),
+    (a, b) =>
+      a.concat(
+        PARTDEFS[b]
+          .filter((p) => p.rarity === "always")
+          .map((d) => instantiatePart(d, b)),
+      ),
     [],
   );
 

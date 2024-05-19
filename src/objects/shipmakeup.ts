@@ -7,6 +7,7 @@ import { Player } from "../player";
 import { DEFAULT_CANNON, DEFAULT_ENGINE, OARS } from "../shop/partdefs";
 import arrayCounter from "array-counter";
 import match from "rustmatchjs";
+import random from "random";
 
 export interface ShipPartArgs {
   type: string;
@@ -152,6 +153,7 @@ export interface CannonArgs
   caliber: number;
   range?: number;
   shootRate: number;
+  spread?: number;
 }
 
 export class Cannon extends ShipPart {
@@ -159,12 +161,14 @@ export class Cannon extends ShipPart {
   cooldown: number;
   range: number;
   shootRate: number;
+  spread: number;
 
   shopInfo(): string[] {
     return [
       "caliber: " + Math.round(this.caliber * 10) + "mm",
       "max SPM:" + 60 / this.shootRate,
       "max range: " + this.range,
+      "spread (°): " + (this.spread * 180) / Math.PI,
     ];
   }
 
@@ -174,13 +178,17 @@ export class Cannon extends ShipPart {
     this.range = args.range || 600;
     this.shootRate = args.shootRate;
     this.cooldown = 0;
+    this.spread = args.spread || 0;
   }
 
   private shootCannonball(deltaTime: number, ship: Ship, dist: number) {
     dist = Math.min(dist, this.range);
 
-    const cball = ship.play.spawnCannonball(ship, { size: this.caliber });
+    const cball = ship.play.spawnCannonball(ship, {
+      size: this.caliber,
+    });
     cball.phys.vspeed = dist / 250;
+    cball.phys.angle += random.uniform(-this.spread, this.spread)();
     const airtime = cball.airtime();
 
     const velComp = ship.angNorm.dot(ship.vel);
@@ -190,7 +198,9 @@ export class Cannon extends ShipPart {
       ship.pos.clone().subtract(ship.cannonballSpawnSpot()).length() -
       velComp * airtime;
     const targSpeed = (dist / airtime) * deltaTime;
-    cball.phys.vel = Vec2(targSpeed, 0).rotateBy(ship.angle).add(ship.vel);
+    cball.phys.vel = Vec2(targSpeed, 0)
+      .rotateBy(cball.phys.angle)
+      .add(ship.vel);
 
     return cball;
   }
@@ -347,9 +357,9 @@ export class ShipMakeup {
         if (engine.fuelType == null) return null;
         const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR;
         return new FuelItem(
-            engine.fuelType,
-            FUEL_COSTS[engine.fuelType],
-            fuelAmount,
+          engine.fuelType,
+          FUEL_COSTS[engine.fuelType],
+          fuelAmount,
         );
       }),
       match._(() => {
@@ -358,7 +368,7 @@ export class ShipMakeup {
         );
       }),
     );
-    
+
     if (res != null) this.inventory.addItem(res);
     return res;
   }

@@ -111,7 +111,6 @@ export class Game {
         3 + random.exponential(1.5)() * 15,
         aiship.makeup.make,
       );
-      console.log(parts);
       for (const part of parts) {
         aiship.makeup.addPart(part);
         aiship.makeup.inventory.addItem(part);
