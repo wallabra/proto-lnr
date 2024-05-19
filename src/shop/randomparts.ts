@@ -78,7 +78,9 @@ export default function randomParts(
         PARTDEFS[b]
           .filter((p) => p.rarity === "always")
           .map((d) => {
-            availableSlots[b]--;
+            makeSlots[b]--;
+            if (makeSlots[b] === 0) delete makeSlots[b];
+            availableSlots--;
             return instantiatePart(d, b);
           }),
       ),
