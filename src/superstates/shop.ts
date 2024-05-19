@@ -4,9 +4,7 @@ import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
 import {
-  Cannon,
   CannonballAmmo,
-  Engine,
   FUEL_COSTS,
   ShipMakeup,
   ShipPart,
@@ -849,8 +847,16 @@ export default class IntermissionState extends Superstate {
       bgColor: "#2222",
       fillY: 0.85,
       shopItems: [
-        ...PARTDEFS.engine.map((d) => Array(d.shopRepeat).fill(0).map(() => instantiatePart(d, 'engine'))),
-        ...PARTDEFS.cannon.map((d) => Array(d.shopRepeat).fill(0).map(() => instantiatePart(d, 'cannon'))),
+        ...PARTDEFS.engine.map((d) =>
+          Array(d.shopRepeat)
+            .fill(0)
+            .map(() => instantiatePart(d, "engine")),
+        ),
+        ...PARTDEFS.cannon.map((d) =>
+          Array(d.shopRepeat)
+            .fill(0)
+            .map(() => instantiatePart(d, "cannon")),
+        ),
         new FuelItem("coal", FUEL_COSTS.coal, 20),
         new FuelItem("coal", FUEL_COSTS.coal, 20),
         new FuelItem("diesel", FUEL_COSTS.diesel, 10),
