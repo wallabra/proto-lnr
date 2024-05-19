@@ -91,6 +91,7 @@ class DrydockPartWidget extends Pane<
   private label: CanvasLabel;
   private damageMeter: CanvasProgressBar;
   private damageLabel: CanvasLabel;
+  private repairButton: CanvasButton;
 
   protected buildPane(args: DrydockPartWidgetArgs) {
     this.pane = new CanvasPanel(args);
@@ -142,12 +143,13 @@ class DrydockPartWidget extends Pane<
     };
 
     if (this.part.damage > 0) {
-      new CanvasButton({
+      this.repairButton = new CanvasButton({
         ...buttonArgs,
         parent: actions,
         callback: this.tryRepair.bind(this),
         bgColor: "#2020f0c0",
-      }).label("Repair", labelArgs);
+      });
+      this.repairButton.label("Repair", labelArgs);
     }
 
     new CanvasButton({
@@ -159,12 +161,15 @@ class DrydockPartWidget extends Pane<
   }
 
   private tryRepair() {
-    if (this.part.damage === 0) return;
+    if (this.part.damage === 0) {
+      this.repairButton.remove();
+      return;
+    }
     this.part.tryRepair(this.player);
   }
 
   private tryUninstall() {
-    if (this.makeup.removePart(this.part)) this.pane.remove();
+    if (this.makeup.removePart(this.part)) this.destroy();
   }
 
   public update() {
@@ -260,7 +265,7 @@ class DrydockInventoryItemWidget extends Pane<
   private resell() {
     this.makeup.inventory.removeItem(this.item);
     this.player.money += this.resellCost();
-    this.pane.remove();
+    this.destroy();
   }
 
   private installPart() {
@@ -272,7 +277,7 @@ class DrydockInventoryItemWidget extends Pane<
 
     if (this.makeup.addPart(item) == null) return;
 
-    this.pane.remove();
+    this.destroy();
   }
 
   private updateResellAction() {
@@ -305,7 +310,7 @@ function updateList<
 
   for (const widget of widgets) {
     const idx = index(remaining, widget);
-    if (idx === -1) {
+    if (idx === -1 || (shouldSkip != null && shouldSkip(remaining[idx]))) {
       widget.destroy();
     } else {
       widget.update();
@@ -318,6 +323,8 @@ function updateList<
       add(item);
     }    
   }
+  
+  return widgets.filter((w) => !w.destroyed);
 }
 
 interface DrydockInventoryWidgetArgs extends PaneArgs {
@@ -388,7 +395,7 @@ class DrydockInventoryWidget extends Pane<
 
     console.log("Update inventory list");
 
-    updateList(
+    this.itemWidgets =updateList(
       this.makeup.inventory.items,
       this.itemWidgets,
       (remaining, widget) => remaining.indexOf(widget.item),
@@ -397,7 +404,6 @@ class DrydockInventoryWidget extends Pane<
       },
       (item) => this.makeup.parts.indexOf(<ShipPart>item) !== -1
     );
-    this.itemWidgets = this.itemWidgets.filter((w) => !w.destroyed);
   }
 
   public update() {
@@ -473,7 +479,7 @@ class ShopItemWidget extends Pane<
     if (this.player.money < cost) return;
     this.player.makeup.inventory.addItem(this.item);
     this.player.money -= cost;
-    this.pane.remove();
+    this.destroy();
   }
 }
 
@@ -698,9 +704,9 @@ class PaneDrydock extends Pane {
       this.makeup.parts.length
     )
       return;
-    console.log("Update parts list");
 
-    updateList(
+    console.log('Update parts list');
+    this.partsWidgets = updateList(
       this.makeup.parts,
       this.partsWidgets,
       (remaining, widget) => remaining.indexOf(widget.part),
@@ -708,7 +714,6 @@ class PaneDrydock extends Pane {
         this.addPartItem(item);
       },
     );
-    this.partsWidgets = this.partsWidgets.filter((w) => !w.destroyed);
   }
 
   private updateSlotsLabel() {
@@ -733,7 +738,11 @@ class PaneDrydock extends Pane {
   }
 
   private updateRepairLabel() {
-    this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+    if (this.makeup.hullDamage === 0) {
+      this.repairHullButtonLabel.label = 'Ship is healthy';
+    } else {
+      this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+    }
     this.hullDamageMeter.progress =
       this.makeup.hullDamage / this.makeup.make.maxDamage;
   }

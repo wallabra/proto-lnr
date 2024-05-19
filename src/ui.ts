@@ -302,12 +302,12 @@ export abstract class CanvasUIElement {
       return false;
     }
 
-    if (e.name === "click") console.log(e.name, "on", this);
     if (e.inside == null || e.inside === this.parent) e.inside = this;
     if (!e.consumed) {
       this.dispatchEvent(e);
       this.event(e);
     }
+    if (e.name === "click" && e.inside === this) console.log(e.name, "on", this);
     return true;
   }
 
@@ -848,6 +848,7 @@ export class CanvasScroller extends CanvasUIElement {
     if (!shouldHave) {
       this.removeChild(this.scrollbar);
       this.scrollbar = null;
+      this.scrollPos = 0;
       return;
     }
 
