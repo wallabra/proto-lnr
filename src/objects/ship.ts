@@ -524,16 +524,17 @@ export class Ship {
     offs.multiply(Vec2(deltaTime, deltaTime));
 
     const offsNorm = offs.clone().normalize();
-
-    this.phys.applyForce(deltaTime * 5, offs.clone());
-    ship.phys.applyForce(deltaTime * 5, offs.clone().invert());
+    offs.multiply(Vec2(0.5, 0.5));
+    
+    this.pos.add(offs);
+    ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
     this.damageShip(
-      closeness * deltaTime * Math.max(0.3, offsNorm.clone().dot(ship.vel)),
+      closeness * Math.max(0.3, offsNorm.clone().dot(ship.vel)),
     );
     ship.damageShip(
-      closeness * deltaTime * Math.max(0.3, offsNorm.invert().dot(this.vel)),
+      closeness * Math.max(0.3, offsNorm.invert().dot(this.vel)),
     );
   }
 
