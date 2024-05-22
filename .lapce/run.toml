@@ -1,0 +1,3 @@
+[[configs]]
+name = "server"
+program = "./server.sh"

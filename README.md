@@ -17,4 +17,3 @@ JavaScript and HTML5 support are both equired.
 * Move and steer with the **left mouse button.**
 * Shoot with **Spacebar.**
 * Leave the island by going far enough from it; when prompted to, press **S**.
-
