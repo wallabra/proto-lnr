@@ -162,6 +162,7 @@ export abstract class CanvasUIElement {
 
   remove() {
     this.parent.removeChild(this);
+    this.hidden = true;
   }
 
   removeChild(item) {
@@ -290,6 +291,8 @@ export abstract class CanvasUIElement {
   }
 
   isInside(x, y) {
+    if (this.hidden) return false;
+    
     const pos = this.pos();
     x -= pos.x;
     y -= pos.y;
@@ -381,6 +384,7 @@ export interface CanvasButtonArgs extends CanvasUIArgs {
 
 export class CanvasButton extends CanvasUIElement {
   callback: (e: UIEvent) => void;
+  private _label: CanvasLabel;
   bgColor: string;
 
   constructor(args: CanvasButtonArgs) {
@@ -404,7 +408,8 @@ export class CanvasButton extends CanvasUIElement {
     labelOpts?: Optional<CanvasLabelSpecificArgs, "label"> &
       Partial<CanvasUIArgs>,
   ) {
-    return new CanvasLabel({
+    if (this._label != null) this._label.remove();
+    return this._label = new CanvasLabel({
       alignX: "center",
       alignY: "center",
       label: label,
@@ -760,6 +765,8 @@ class CanvasScrollerContentPane extends CanvasUIElement {
   }
 
   isVisible(element: CanvasUIElement) {
+    if (this.hidden || element.hidden) return false;
+    
     const eTopLeft = element.pos();
     const eBottomRight = {
       x: eTopLeft.x + element.realWidth,
