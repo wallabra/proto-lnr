@@ -69,7 +69,7 @@ export class ShipInventory {
 
   endOfDay(player: Player) {
     for (const item of this.inventory) {
-      item.endOfDay(player);
+      if (item.endOfDay != null) item.endOfDay(player);
     }
   }
 }
