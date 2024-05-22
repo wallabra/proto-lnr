@@ -34,6 +34,8 @@ import { moneyString } from "../util";
 import Superstate from "./base";
 import { PARTDEFS } from "../shop/partdefs";
 import { instantiatePart } from "../shop/randomparts";
+import { CREWDEFS } from "../shop/crewdefs";
+import { FOODDEFS } from "../shop/fooddefs";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -75,7 +77,10 @@ abstract class Pane<
   public abstract update?();
 
   public destroy() {
-    this.pane.remove();
+    if (this.pane != null) {
+      this.pane.remove();
+      this.pane = null;
+    }
     this.destroyed = true;
   }
 }
@@ -91,9 +96,15 @@ class DrydockPartWidget extends Pane<
 > {
   part: ShipPart;
   private label: CanvasLabel;
+  private details: CanvasUIGroup;
   private damageMeter: CanvasProgressBar;
   private damageLabel: CanvasLabel;
   private repairButton: CanvasButton;
+  private assignCrewButton: CanvasButton;
+  private buttonArgs: Partial<CanvasButtonArgs>;
+  private labelArgs: Partial<CanvasLabelArgs>;
+  private buttonList: CanvasUIElement;
+  private shouldUpdateDetails: boolean;
 
   protected buildPane(args: DrydockPartWidgetArgs) {
     this.pane = new CanvasPanel(args);
@@ -104,10 +115,18 @@ class DrydockPartWidget extends Pane<
       dockX: "start",
       color: "#fff",
       childOrdering: "vertical",
-      childMargin: 5,
+      childMargin: 7.5,
       height: 13,
       font: "bold 13px sans-serif",
     });
+
+    this.details = new CanvasUIGroup({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 3,
+    });
+    this.shouldUpdateDetails = true;
+    this.updateDetails();
 
     // TODO: image to represent part
 
@@ -126,45 +145,108 @@ class DrydockPartWidget extends Pane<
       color: "#e2d8d8",
     });
 
-    const actions = new CanvasUIGroup({
+    this.buttonList = new CanvasUIGroup({
       parent: this.pane,
       childOrdering: "vertical",
       childMargin: 5,
     });
 
-    const buttonArgs: Partial<CanvasButtonArgs> = {
+    this.buttonArgs = {
       fillX: 1.0,
       height: 20,
       childOrdering: "vertical",
       childMargin: 1,
     };
 
-    const labelArgs: Partial<CanvasLabelArgs> = {
+    this.labelArgs = {
       color: "#fffe",
       font: "11px monospaced",
     };
 
     if (this.part.damage > 0) {
       this.repairButton = new CanvasButton({
-        ...buttonArgs,
-        parent: actions,
+        ...this.buttonArgs,
+        parent: this.buttonList,
         callback: this.tryRepair.bind(this),
         bgColor: "#2020f0c0",
       });
-      this.repairButton.label("Repair", labelArgs);
+      this.repairButton.label("Repair", this.labelArgs);
     }
 
+    this.updateCrewButton();
+
     new CanvasButton({
-      ...buttonArgs,
-      parent: actions,
+      ...this.buttonArgs,
+      parent: this.buttonList,
       callback: this.tryUninstall.bind(this),
       bgColor: "#f02020c0",
-    }).label("Uninstall", labelArgs);
+    }).label("Uninstall", this.labelArgs);
+  }
+
+  private updateCrewButton() {
+    if (this.part.manned) {
+      if (this.assignCrewButton == null) {
+        this.assignCrewButton = new CanvasButton({
+          ...this.buttonArgs,
+          parent: this.buttonList,
+          callback: this.crewButtonAction,
+          bgColor: "#2040f0c0",
+        });
+      }
+
+      this.updateCrewButtonLabel();
+    } else if (this.assignCrewButton != null) {
+      this.assignCrewButton.remove();
+      this.assignCrewButton = null;
+    }
+  }
+
+  private updateCrewButtonLabel() {
+    if (this.part.mannedBy == null) {
+      this.assignCrewButton.label("Assign Crew", this.labelArgs);
+    } else {
+      this.assignCrewButton.label("Unassign Crew", this.labelArgs);
+    }
+  }
+
+  private tryAssignCrew() {
+    if (this.part.alreadyManned()) {
+      return;
+    }
+
+    const success = this.makeup.assignCrewTo(this.part);
+
+    if (success) {
+      this.shouldUpdateDetails = true;
+      this.updateCrewButtonLabel();
+    }
+  }
+
+  private tryUnassignCrew() {
+    if (this.part.mannedBy == null) {
+      return;
+    }
+
+    this.part.mannedBy.map((c) => c.unassign()).every((a) => a);
+
+    this.shouldUpdateDetails = true;
+    this.updateCrewButtonLabel();
+  }
+
+  private crewButtonAction() {
+    if (!this.part.manned) return;
+
+    if (this.part.mannedBy == null) {
+      return this.tryAssignCrew();
+    } else {
+      return this.tryUnassignCrew();
+    }
   }
 
   private tryRepair() {
     if (this.part.damage === 0) {
       this.repairButton.remove();
+      this.repairButton = null;
       return;
     }
     this.part.tryRepair(this.player);
@@ -174,6 +256,52 @@ class DrydockPartWidget extends Pane<
     if (this.makeup.removePart(this.part)) this.destroy();
   }
 
+  private manningStatus() {
+    if (!this.part.manned) return [];
+
+    if (this.part.mannedBy == null) {
+      return ["(Not Manned)"];
+    } else {
+      return ["Manned by: " + this.part.mannedBy.map((c) => c.name).join(", ")];
+    }
+  }
+  
+  private updateDetailLine(line: string, idx: number) {
+    if (this.details.children.length < idx) {
+      new CanvasLabel({
+            parent: this.details,
+            label: line,
+            dockX: "start",
+            dockMarginX: 4,
+            color: "#bbb",
+            childOrdering: "vertical",
+            childMargin: 2,
+            height: 10,
+            autoFont: true,
+            font: "$Hpx sans-serif",
+          })
+    } else {
+      (<CanvasLabel> this.details.children[idx]).label = line;
+    }
+  }
+
+  private updateDetails() {
+    if (!this.shouldUpdateDetails) return;
+    this.shouldUpdateDetails = false;
+
+    const lines = this.part
+      .shopInfo()
+      .concat(this.manningStatus());
+      
+    lines.forEach((line, i) => this.updateDetailLine(line, i));
+
+    for (let child of this.details.children.slice(lines.length).reverse()) {
+      child.remove();
+    }
+
+    this.details.children = this.details.children.slice(lines.length);
+  }
+
   public update() {
     this.label.label = this.part.getItemLabel();
     this.damageMeter.progress = this.part.damage / this.part.maxDamage;
@@ -181,6 +309,9 @@ class DrydockPartWidget extends Pane<
       this.part.damage <= 0
         ? "Not damaged"
         : `${Math.round((100 * this.part.damage) / this.part.maxDamage)}% damaged (${moneyString(this.part.repairCost())})`;
+    if (this.details.isVisible()) {
+      this.updateDetails();
+    }
   }
 }
 
@@ -199,6 +330,8 @@ class DrydockInventoryItemWidget extends Pane<
   private resellLabel: CanvasLabel;
   private itemLabel: CanvasLabel;
   private resellButton: CanvasButton;
+  private details: CanvasUIElement;
+  private shouldUpdateDetails: boolean;
 
   protected buildPane(args: DrydockInventoryItemWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -215,6 +348,14 @@ class DrydockInventoryItemWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 10,
     });
+
+    this.details = new CanvasUIGroup({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 3,
+    });
+    this.shouldUpdateDetails = true;
+    this.updateDetails();
 
     this.resellButton = new CanvasButton({
       parent: this.pane,
@@ -239,6 +380,27 @@ class DrydockInventoryItemWidget extends Pane<
         callback: this.installPart.bind(this),
       }).label("Install Part", { color: "#fff" });
     }
+  }
+
+  private updateDetails() {
+    this.details.clearChildren();
+
+    if (this.item.shopInfo != null)
+      this.item.shopInfo().map(
+        (line) =>
+          new CanvasLabel({
+            parent: this.details,
+            label: line,
+            dockX: "start",
+            dockMarginX: 4,
+            color: "#bbb",
+            childOrdering: "vertical",
+            childMargin: 2,
+            height: 10,
+            autoFont: true,
+            font: "$Hpx sans-serif",
+          }),
+      );
   }
 
   private resellCost(factor = 1) {
@@ -467,7 +629,7 @@ class ShopItemWidget extends Pane<
       paddingY: 4,
       childOrdering: "vertical",
       childMargin: 5,
-    }).label("Buy", {
+    }).label(this.item.type === "crew" ? "Hire" : "Buy", {
       font: "bold $Hpx sans-serif",
       color: "#fff",
       fillY: 1.0,
@@ -693,7 +855,7 @@ class PaneDrydock extends Pane {
         state: this.state,
         parent: this.partsScroller.contentPane,
         bgColor: "#101014d8",
-        fillY: 0.8,
+        fillY: 1.0,
         fillX: 0.4,
         part: part,
         childOrdering: "horizontal",
@@ -875,18 +1037,12 @@ export default class IntermissionState extends Superstate {
         new CannonballAmmo(5.5, 15),
         new CannonballAmmo(7.5, 15),
         new CannonballAmmo(7.5, 15),
-        new FoodItem("pancake", 3, 6, 4),
-        new FoodItem("potato", 5, 3, 7),
-        new FoodItem("cake", 2.5, 9, 2),
-        new FoodItem("bread", 1.5, 5, 3),
-        new FoodItem("bread", 1.5, 5, 3),
-        new FoodItem("crackers", 2, 4, 5),
-        new Crew({ name: "Jason", salary: 80 }),
-        new Crew({ name: "Rodrick", salary: 85, strength: 15 }),
-        new Crew({ name: "Malcolm", salary: 90, strength: 15 }),
-        new Crew({ name: "Jacklin", salary: 95, strength: 18 }),
-        new Crew({ name: "Guterrez", salary: 130, strength: 24 }),
-        new Crew({ name: "Mr. Conk", salary: 160, strength: 26 }),
+        ...FOODDEFS.map((f) =>
+          Array(f.shopRepeat)
+            .fill(0)
+            .map(() => new FoodItem(f)),
+        ).reduce((a, b) => a.concat(b), []),
+        ...CREWDEFS.map((c) => new Crew(c)),
       ],
     });
     this.addPane(PaneCartography, {

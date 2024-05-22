@@ -369,6 +369,7 @@ export class Ship {
 
   dropItems() {
     for (const item of this.makeup.inventory.items) {
+      if (item.type === "crew") continue;
       this.spawnDroppedItem(item);
     }
   }
@@ -525,17 +526,13 @@ export class Ship {
 
     const offsNorm = offs.clone().normalize();
     offs.multiply(Vec2(0.5, 0.5));
-    
+
     this.pos.add(offs);
     ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(
-      closeness * Math.max(0.3, offsNorm.clone().dot(ship.vel)),
-    );
-    ship.damageShip(
-      closeness * Math.max(0.3, offsNorm.invert().dot(this.vel)),
-    );
+    this.damageShip(closeness * Math.max(0.3, offsNorm.clone().dot(ship.vel)));
+    ship.damageShip(closeness * Math.max(0.3, offsNorm.invert().dot(this.vel)));
   }
 
   checkShipCollisions(deltaTime) {

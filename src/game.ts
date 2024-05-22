@@ -114,7 +114,7 @@ export class Game {
       for (const part of parts) {
         aiship.makeup.addPart(part);
         aiship.makeup.inventory.addItem(part);
-        aiship.makeup.addDefaultFuel(part);
+        aiship.makeup.addDefaultDependencies(part);
       }
       play.makeAIFor(aiship);
       //aiship.setInstigator(playerShip);

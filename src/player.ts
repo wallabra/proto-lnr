@@ -5,6 +5,7 @@ import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
 import { PlayState } from "./superstates/play";
 import { ShipMakeup } from "./objects/shipmakeup";
+import { lerp } from "./util";
 
 export type PlayerAction = (deltaTime: number) => void;
 
@@ -43,9 +44,9 @@ export class Player {
     this.possessed.steer(deltaTime, targ);
   }
 
-  approach(offs: Vec2, deltaTime: number) {
+  approach(offs: Vec2, deltaTime: number, throttle: number = 1.0) {
     const dot = Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
-    this.possessed.thrustForward(deltaTime, dot + 1 / 2);
+    this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }
 
   canShop() {
@@ -106,14 +107,30 @@ export class Player {
 
     if (
       offs.length() <
-      this.possessed.size * this.possessed.lateralCrossSection * 2
+      this.possessed.size * this.possessed.lateralCrossSection
     ) {
       // close enough
       return;
+    } else if (
+      offs.length() <
+      this.possessed.size * this.possessed.lateralCrossSection * 3
+    ) {
+      this.approach(
+        offs,
+        deltaTime,
+        lerp(
+          0,
+          1,
+          (offs.length() -
+            this.possessed.size * this.possessed.lateralCrossSection) /
+            (this.possessed.size * this.possessed.lateralCrossSection * 2),
+        ),
+      );
+    } else {
+      this.approach(offs, deltaTime);
     }
 
     this.steer(offs, deltaTime);
-    this.approach(offs, deltaTime);
   }
 
   tick(deltaTime: number) {

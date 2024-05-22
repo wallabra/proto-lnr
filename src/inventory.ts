@@ -100,6 +100,13 @@ export class FuelItem implements ShipItem {
   }
 }
 
+export interface FoodArgs {
+  name: string;
+  cost: number;
+  amount: number;
+  spoilDays: number;
+}
+
 export class FoodItem implements ShipItem {
   name: string;
   cost: number;
@@ -113,11 +120,11 @@ export class FoodItem implements ShipItem {
     return other.spoilDays === this.spoilDays && other.name === this.name;
   }
 
-  constructor(name, cost = 25, amount = 10, spoilDays = 3) {
-    this.name = name;
-    this.cost = cost;
-    this.amount = amount;
-    this.spoilDays = spoilDays;
+  constructor(args: FoodArgs) {
+    this.name = args.name;
+    this.cost = args.cost;
+    this.amount = args.amount;
+    this.spoilDays = args.spoilDays;
     this.type = "food";
     this.dying = false;
     this.integerAmounts = false;

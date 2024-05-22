@@ -90,6 +90,7 @@ export interface CanvasUIArgs {
   childOrdering?: UIAxis | null;
   childMargin?: number;
   layer?: number;
+  cullOutOfBounds?: boolean;
 }
 
 export abstract class CanvasUIElement {
@@ -114,6 +115,7 @@ export abstract class CanvasUIElement {
   number;
   childOrdering: UIAxis | null;
   layer: number;
+  cullOutOfBounds: boolean;
 
   constructor(args: CanvasUIArgs) {
     this.parent = args.parent;
@@ -137,6 +139,8 @@ export abstract class CanvasUIElement {
     this.childOrdering = args.childOrdering || null;
     this.childMargin = args.childMargin || 5;
     this.layer = args.layer || 0;
+    this.cullOutOfBounds =
+      args.cullOutOfBounds != null ? args.cullOutOfBounds : false;
 
     if (this.parent != null) {
       this.parent._addChild(this);
@@ -171,7 +175,9 @@ export abstract class CanvasUIElement {
   }
 
   clearChildren() {
-    this.children = [];
+    for (const child of this.children) {
+      child.remove();
+    }
   }
 
   get realWidth() {
@@ -292,7 +298,7 @@ export abstract class CanvasUIElement {
 
   isInside(x, y) {
     if (this.hidden) return false;
-    
+
     const pos = this.pos();
     x -= pos.x;
     y -= pos.y;
@@ -328,8 +334,34 @@ export abstract class CanvasUIElement {
   abstract preChildrenRender(ctx: UIDrawContext);
   abstract postChildrenRender(ctx: UIDrawContext);
 
-  isVisible(_element: CanvasUIElement) {
-    return true;
+  childIsVisible(element: CanvasUIElement) {
+    if (this.parent != null && !this.parent.childIsVisible(this)) return false;
+
+    if (this.hidden || element.hidden) return false;
+
+    if (!this.cullOutOfBounds) return true;
+
+    const eTopLeft = element.pos();
+    const eBottomRight = {
+      x: eTopLeft.x + element.realWidth,
+      y: eTopLeft.y + element.realHeight,
+    };
+    const cTopLeft = this.innerPos();
+    const cBottomRight = {
+      x: cTopLeft.x + this.innerWidth,
+      y: cTopLeft.y + this.innerHeight,
+    };
+
+    return (
+      eTopLeft.x < cBottomRight.x &&
+      eBottomRight.x > cTopLeft.x &&
+      eTopLeft.y < cBottomRight.y &&
+      eBottomRight.y > cTopLeft.y
+    );
+  }
+
+  isVisible() {
+    return this.parent == null || this.parent.childIsVisible(this);
   }
 
   render(ctx: UIDrawContext) {
@@ -341,7 +373,7 @@ export abstract class CanvasUIElement {
 
     this.preChildrenRender(ctx);
     for (const child of this.children.sort((a, b) => b.layer - a.layer)) {
-      if (this.isVisible(child)) child.render(ctx);
+      if (this.childIsVisible(child)) child.render(ctx);
     }
     this.postChildrenRender(ctx);
   }
@@ -409,7 +441,7 @@ export class CanvasButton extends CanvasUIElement {
       Partial<CanvasUIArgs>,
   ) {
     if (this._label != null) this._label.remove();
-    return this._label = new CanvasLabel({
+    return (this._label = new CanvasLabel({
       alignX: "center",
       alignY: "center",
       label: label,
@@ -420,7 +452,7 @@ export class CanvasButton extends CanvasUIElement {
       font: `{this.realHeight * 0.8}px Arial`,
       parent: this,
       ...(labelOpts || {}),
-    });
+    }));
   }
 
   _render(uictx: UIDrawContext) {
@@ -764,28 +796,6 @@ class CanvasScrollerContentPane extends CanvasUIElement {
     return { x: 0, y: 0 };
   }
 
-  isVisible(element: CanvasUIElement) {
-    if (this.hidden || element.hidden) return false;
-    
-    const eTopLeft = element.pos();
-    const eBottomRight = {
-      x: eTopLeft.x + element.realWidth,
-      y: eTopLeft.y + element.realHeight,
-    };
-    const cTopLeft = this.innerPos();
-    const cBottomRight = {
-      x: cTopLeft.x + this.innerWidth,
-      y: cTopLeft.y + this.innerHeight,
-    };
-
-    return (
-      eTopLeft.x < cBottomRight.x &&
-      eBottomRight.x > cTopLeft.x &&
-      eTopLeft.y < cBottomRight.y &&
-      eBottomRight.y > cTopLeft.y
-    );
-  }
-
   get realWidth() {
     return this.parent.contentWidth();
   }
@@ -809,7 +819,7 @@ export class CanvasScroller extends CanvasUIElement {
   scrollbarOpts: ScrollbarOptions;
 
   constructor(args: CanvasScrollerArgs) {
-    super({ paddingX: 0, paddingY: 0, ...args });
+    super({ paddingX: 0, paddingY: 0, cullOutOfBounds: true, ...args });
     this.bgColor = args.bgColor;
     this.axis = args.axis;
     this.contentPane = new CanvasScrollerContentPane({
@@ -1041,12 +1051,12 @@ export class CanvasUIGroup extends CanvasUIElement {
 
     this.measuring = true; // prevent infinite recursion
     const [start, end] = this.contentDims;
-    if (start.x == null || end.x == null) return null;
+    if (start.x == null || end.x == null) return { x: 0, y: 0 };
+    this.measuring = false;
     return {
       x: end.x - start.x,
       y: end.y - start.y,
     };
-    this.measuring = false;
   }
 
   get realWidth() {

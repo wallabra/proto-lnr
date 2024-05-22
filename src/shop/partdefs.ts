@@ -13,6 +13,7 @@ export const OARS: PartDef<EngineArgs> = {
   vulnerability: 0.003,
   maxDamage: 1,
   rarity: "always",
+  manned: 12,
 };
 
 export const DEFAULT_ENGINE = {
@@ -22,6 +23,7 @@ export const DEFAULT_ENGINE = {
   fuel: { type: "coal", cost: 0.008 },
   shopRepeat: 2,
   rarity: 1,
+  manned: 10,
 };
 
 export const DEFAULT_CANNON = {
@@ -33,6 +35,7 @@ export const DEFAULT_CANNON = {
   shopRepeat: 2,
   rarity: 1,
   spread: Math.PI / 12,
+  manned: 10,
 };
 
 export interface BasePartDef {
@@ -64,6 +67,7 @@ export const PARTDEFS: {
       },
       shopRepeat: 2,
       rarity: 3,
+      manned: 15,
     },
     {
       name: "Piston Boy",
@@ -76,6 +80,7 @@ export const PARTDEFS: {
       },
       shopRepeat: 2,
       rarity: 1.5,
+      manned: 12,
     },
     {
       name: "Howitzer",
@@ -87,6 +92,7 @@ export const PARTDEFS: {
         cost: 0.15,
       },
       rarity: 7,
+      manned: 13,
     },
     {
       name: "Oilytron",
@@ -97,6 +103,7 @@ export const PARTDEFS: {
         cost: 0.12,
       },
       rarity: 4,
+      manned: 15,
     },
   ],
   cannon: [
@@ -110,6 +117,7 @@ export const PARTDEFS: {
       shopRepeat: 2,
       rarity: 2,
       spread: Math.PI / 10,
+      manned: 10,
     },
     {
       name: "WX Hefty Mk-II",
@@ -119,6 +127,7 @@ export const PARTDEFS: {
       shootRate: 2.4,
       rarity: 2.5,
       spread: Math.PI / 11,
+      manned: 10,
     },
     {
       name: "Juggernaut",
@@ -128,6 +137,7 @@ export const PARTDEFS: {
       shootRate: 3.5,
       rarity: 5,
       spread: Math.PI / 9,
+      manned: 18,
     },
     {
       name: "Speedy",
@@ -138,6 +148,7 @@ export const PARTDEFS: {
       shopRepeat: 2,
       rarity: 1.5,
       spread: Math.PI / 10.5,
+      manned: 10,
     },
     {
       name: "Chain Cannon",
@@ -147,6 +158,7 @@ export const PARTDEFS: {
       shootRate: 0.3,
       rarity: 4,
       spread: Math.PI / 8,
+      manned: 18,
     },
   ],
 };

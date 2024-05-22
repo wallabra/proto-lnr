@@ -8,13 +8,15 @@ import { DEFAULT_CANNON, DEFAULT_ENGINE, OARS } from "../shop/partdefs";
 import arrayCounter from "array-counter";
 import match from "rustmatchjs";
 import random from "random";
+import { CREWDEFS } from "../shop/crewdefs";
+import { FOODDEFS } from "../shop/fooddefs";
 
 export interface ShipPartArgs {
   type: string;
   name?: string;
   cost?: number;
   damage?: number;
-  manned?: boolean;
+  manned?: boolean | number;
   maxDamage?: number;
   vulnerability?: number;
   repairCostScale?: number;
@@ -35,7 +37,7 @@ export class ShipPart implements ShipItem {
   dying: boolean;
   repairCostScale: number;
   integerAmounts: boolean;
-  mannedBy: Crew | null;
+  mannedBy: Crew[];
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -48,7 +50,7 @@ export class ShipPart implements ShipItem {
     this.repairCostScale = args.repairCostScale || 2;
     this.dying = false;
     this.integerAmounts = true;
-    this.mannedBy = null;
+    this.mannedBy = [];
   }
 
   endLevelUpdate(_player: Player, _makeup: ShipMakeup) {}
@@ -60,9 +62,9 @@ export class ShipPart implements ShipItem {
   alreadyManned() {
     return (
       !this.manned ||
-      (this.mannedBy != null &&
+      (this.mannedBy.length > 0 &&
         (typeof this.manned !== "number" ||
-          this.mannedBy.strength >= this.manned))
+          this.mannedBy.reduce((a, b) => a + b.strength, 0) >= this.manned))
     );
   }
 
@@ -114,23 +116,32 @@ export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">;
 export interface CrewArgs extends ShipPartArgsSuper {
   salary: number;
   strength?: number;
+  caloricIntake?: number;
 }
 
-export class Crew extends ShipPart {
+export interface CrewRandomArgs {
+  minStrength?: number;
+  maxStrength?: number;
+}
+
+export class Crew implements ShipItem {
   salary: number;
-  hunger: number;
-  manningPart: ShipPart | null;
-  salaryWithhold: number;
+  hunger: number = 0;
+  manningPart: ShipPart | null = null;
+  salaryWithhold: number = 0;
   strength: number;
+  caloricIntake: number;
+  cost: number;
+  type = "crew" as const;
+  dying: boolean = false;
+  name: string;
 
   constructor(args: CrewArgs) {
-    super({ type: "crew", ...args });
+    this.name = args.name;
     this.salary = args.salary;
-    this.hunger = 0;
-    this.manningPart = null;
-    this.salaryWithhold = 0;
     this.strength = args.strength || 10;
     this.cost = this.salary * 7;
+    this.caloricIntake = args.caloricIntake || 1;
   }
 
   endLevelUpdate(player: Player, makeup: ShipMakeup) {
@@ -140,7 +151,7 @@ export class Crew extends ShipPart {
       player.money -= this.salary;
       this.salaryWithhold = 0;
     }
-    this.hunger += 5;
+    this.hunger += this.caloricIntake;
     this.hunger -= makeup.subtractFood(this.hunger);
   }
 
@@ -149,7 +160,7 @@ export class Crew extends ShipPart {
   }
 
   isHappy(): boolean {
-    return this.hunger < 15 && this.salaryWithhold < 3;
+    return this.hunger < this.caloricIntake * 3 && this.salaryWithhold < 3;
   }
 
   isOccupied(): boolean {
@@ -161,25 +172,19 @@ export class Crew extends ShipPart {
   }
 
   assignToPart(part: ShipPart): boolean {
-    if (part.mannedBy != null) return false;
-
-    // has to be strong enough!
-    if (typeof part.manned === "number" && this.strength < part.manned)
-      return false;
-
-    if (this.manningPart != null) {
-      this.manningPart.mannedBy = null;
-    }
+    if (part.alreadyManned()) return false;
 
     this.manningPart = part;
-    part.mannedBy = this;
+    part.mannedBy.push(this);
     return true;
   }
 
   unassign(): boolean {
-    if (this.manningPart == null) return false;
+    const idx = this.manningPart.mannedBy.indexOf(this);
 
-    this.manningPart.mannedBy = null;
+    if (idx === -1) return false;
+
+    this.manningPart.mannedBy.splice(idx, 1);
     this.manningPart = null;
     return true;
   }
@@ -188,6 +193,20 @@ export class Crew extends ShipPart {
     if (this.manningPart.dying) {
       this.manningPart = null;
     }
+  }
+
+  static random(crewRandomArgs?: CrewRandomArgs): Crew | null {
+    const args = { minStrength: null, maxStrength: null, ...crewRandomArgs };
+
+    const applicable = CREWDEFS.filter(
+      (c) =>
+        (args.minStrength == null || c.strength >= args.minStrength) &&
+        (args.maxStrength == null || c.strength <= args.maxStrength),
+    );
+
+    if (applicable.length === 0) return null;
+
+    return new Crew(random.choice(applicable));
   }
 }
 
@@ -443,14 +462,16 @@ export class ShipMakeup {
   }
 
   get crew() {
-    return <Crew[]>this.getPartsOf("crew");
+    return <Crew[]>this.inventory.getItemsOf("crew");
   }
 
   assignCrewTo(part: ShipPart): Crew | null {
     const crew = this.crew;
     if (crew.length === 0) return null;
 
-    return crew.find((c) => c.assignToPart(part)) || null;
+    return (
+      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null
+    );
   }
 
   constructor(make, hullDamage = 0) {
@@ -487,14 +508,48 @@ export class ShipMakeup {
     return res;
   }
 
+  addDefaultFood(crew: Crew) {
+    let nutrition = crew.caloricIntake * 2;
+    while (nutrition > 0) {
+      const food = new FoodItem(random.choice(FOODDEFS));
+      nutrition -= food.amount;
+      this.inventory.addItem(food);
+    }
+  }
+
+  addDefaultCrew(part: ShipPart) {
+    if (!part.manned) return false;
+    let neededStrength = typeof part.manned === "number" ? part.manned : 1;
+    while (neededStrength > 0) {
+      const crew =
+        Crew.random({ maxStrength: neededStrength }) || Crew.random();
+      if (crew == null) {
+        return false;
+      }
+      crew.assignToPart(part);
+      this.addDefaultFood(crew);
+      this.inventory.addItem(crew);
+      neededStrength -= crew.strength;
+    }
+    return true;
+  }
+
+  addDefaultDependencies(part, factor: number = 1) {
+    this.addDefaultFuel(part, factor);
+    this.addDefaultCrew(part);
+  }
+
   defaultLoadout() {
-    const engine = Engine.default();
-    this.inventory.addItem(this.addPart(Cannon.default()));
-    this.inventory.addItem(this.addPart(Cannon.default()));
-    this.inventory.addItem(this.addPart(engine));
-    this.inventory.addItem(this.addPart(Engine.oars()));
-    this.addDefaultFuel(engine);
-    this.addDefaultFuel(this.nextReadyCannon, 2);
+    const engines = [Engine.oars(), Engine.default()];
+    const cannons = Array(2).fill(0).map(Cannon.default);
+    for (const engine of engines) {
+      this.inventory.addItem(this.addPart(engine));
+      this.addDefaultDependencies(engine);
+    }
+    for (const cannon of cannons) {
+      this.inventory.addItem(this.addPart(cannon));
+      this.addDefaultDependencies(cannon);
+    }
     return this;
   }
 
@@ -528,6 +583,9 @@ export class ShipMakeup {
   }
 
   removePart(part: ShipPart) {
+    for (const crew of part.mannedBy) {
+      crew.unassign();
+    }
     const idx = this.parts.indexOf(part);
     if (idx === -1) return false;
     this.parts.splice(idx, 1);
@@ -618,12 +676,16 @@ export class ShipMakeup {
     return false;
   }
 
-  damageShip(amount: number) {
-    this.hullDamage += amount;
+  private damageParts(amount: number) {
     for (const part of this.parts) {
       const partDamage = Math.random() * amount * part.vulnerability;
       part.damagePart(partDamage);
     }
+  }
+
+  damageShip(amount: number) {
+    this.hullDamage += amount;
+    this.damageParts(amount);
     this.pruneDestroyedParts();
     return this.hullDamage > this.make.maxDamage;
   }
@@ -650,9 +712,9 @@ export class ShipMakeup {
     if (readyCannon) return readyCannon;
 
     // just return the cannon that's closest to ready to fire again
-    const cannons = (<Array<Cannon>>this.getPartsOf("cannon")).sort(
-      (a, b) => a.cooldown - b.cooldown,
-    );
+    const cannons = (<Array<Cannon>>this.getPartsOf("cannon"))
+      .filter((c) => c.alreadyManned())
+      .sort((a, b) => a.cooldown - b.cooldown);
     return cannons[0] || null;
   }
 
@@ -683,6 +745,6 @@ export class ShipMakeup {
     for (const part of this.parts) {
       part.endLevelUpdate(player, this);
     }
-    this.inventory.endOfDay(player, this);
+    this.inventory.endOfDay(player);
   }
 }
