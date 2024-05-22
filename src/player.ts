@@ -66,6 +66,7 @@ export class Player {
         return;
       }
 
+      this.makeup.endLevelUpdate(this);
       this.game.setState(IntermissionState);
     }
 

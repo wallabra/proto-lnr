@@ -29,12 +29,13 @@ export class ShipPart implements ShipItem {
   name: string | null;
   cost: number;
   damage: number;
-  manned: boolean;
+  manned: boolean | number;
   maxDamage: number;
   vulnerability: number;
   dying: boolean;
   repairCostScale: number;
   integerAmounts: boolean;
+  mannedBy: Crew | null;
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -47,6 +48,17 @@ export class ShipPart implements ShipItem {
     this.repairCostScale = args.repairCostScale || 2;
     this.dying = false;
     this.integerAmounts = true;
+    this.mannedBy = null;
+  }
+
+  endLevelUpdate(_player: Player, _makeup: ShipMakeup) {}
+
+  protected _available(_makeup: ShipMakeup): boolean {
+    return true;
+  }
+
+  available(makeup: ShipMakeup): boolean {
+    return (!this.manned || this.mannedBy != null) && this._available(makeup);
   }
 
   shopInfo(): string[] {
@@ -92,21 +104,73 @@ export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">;
 
 export interface CrewArgs extends ShipPartArgsSuper {
   salary: number;
-  hunger: number;
+  strength?: number;
 }
 
 export class Crew extends ShipPart {
   salary: number;
   hunger: number;
+  manningPart: ShipPart | null;
+  salaryWithhold: number;
+  strength: number;
 
   constructor(args: CrewArgs) {
     super({ type: "crew", ...args });
     this.salary = args.salary;
-    this.hunger = args.hunger;
+    this.hunger = 0;
+    this.manningPart = null;
+    this.salaryWithhold = 0;
+    this.strength = args.strength || 10;
+    this.cost = this.salary * 7;
+  }
+
+  endLevelUpdate(player: Player, makeup: ShipMakeup) {
+    if (player.money < this.salary) {
+      this.salaryWithhold++;
+    } else {
+      player.money -= this.salary;
+      this.salaryWithhold = 0;
+    }
+    this.hunger += 5;
+    this.hunger -= makeup.subtractFood(this.hunger);
+  }
+
+  shopInfo(): string[] {
+    return ["name: " + this.name, "daily salary: " + this.salary];
+  }
+
+  isHappy(): boolean {
+    return this.hunger < 15 && this.salaryWithhold < 3;
+  }
+
+  isOccupied(): boolean {
+    return this.manningPart != null;
   }
 
   getItemLabel(): string {
     return `crewmate ${this.name}`;
+  }
+
+  assignToPart(part: ShipPart): boolean {
+    if (part.mannedBy != null) return false;
+
+    // has to be strong enough!
+    if (typeof part.manned === "number" && this.strength < part.manned)
+      return false;
+
+    if (this.manningPart != null) {
+      this.manningPart.mannedBy = null;
+    }
+
+    this.manningPart = part;
+    part.mannedBy = this;
+    return true;
+  }
+
+  tick(_deltaTime: number): void {
+    if (this.manningPart.dying) {
+      this.manningPart = null;
+    }
   }
 }
 
@@ -162,6 +226,10 @@ export class Cannon extends ShipPart {
   range: number;
   shootRate: number;
   spread: number;
+
+  protected _available(makeup: ShipMakeup): boolean {
+    return makeup.hasAmmo(this.caliber) && this.cooldown === 0;
+  }
 
   shopInfo(): string[] {
     return [
@@ -259,6 +327,10 @@ export class Engine extends ShipPart {
   fuelCost: number;
   thrust: number;
 
+  protected _available(makeup: ShipMakeup): boolean {
+    return this.fuelType == null || makeup.hasFuel(this.fuelType);
+  }
+
   constructor(args: EngineArgs) {
     super({ type: "engine", maxDamage: 6, vulnerability: 0.3, ...args });
     this.thrust = args.thrust;
@@ -306,7 +378,7 @@ export interface ShipMake {
 const DEFAULT_FUEL_FACTOR = 800;
 
 export const DEFAULT_MAKE: ShipMake = {
-  name: "Defaulty",
+  name: "Dependable Dave",
   slots: [
     { type: "cannon" },
     { type: "cannon" },
@@ -326,6 +398,20 @@ export class ShipMakeup {
   parts: Array<ShipPart>;
   hullDamage: number;
   inventory: ShipInventory;
+
+  subtractFood(hunger: number): number {
+    if (hunger <= 0) return 0;
+    for (const food of this.inventory.getItemsOf("food")) {
+      if (food.amount > hunger) {
+        food.amount -= hunger;
+        return 0;
+      }
+      hunger -= food.amount;
+      food.amount = 0;
+      food.dying = true;
+    }
+    return hunger;
+  }
 
   get ammo() {
     return <CannonballAmmo[]>this.inventory.getItemsOf("ammo");
@@ -519,8 +605,8 @@ export class ShipMakeup {
   }
 
   getReadyEngines(): Array<Engine> {
-    return (<Array<Engine>>this.getPartsOf("engine")).filter(
-      (p: Engine) => p.fuelType == null || this.hasFuel(p.fuelType),
+    return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
+      p.available(this),
     );
   }
 
@@ -545,7 +631,7 @@ export class ShipMakeup {
   get readyCannon(): Cannon | null {
     // return the biggest caliber cannon currently available
     const cannons = (<Array<Cannon>>this.getPartsOf("cannon"))
-      .filter((c) => c.cooldown === 0 && this.hasAmmo(c.caliber))
+      .filter((c) => c.available(this))
       .sort((a, b) => b.caliber - a.caliber);
     return cannons[0] || null;
   }
@@ -563,5 +649,12 @@ export class ShipMakeup {
 
   tick(deltaTime: number) {
     this.parts.forEach((p) => p.tick(deltaTime));
+  }
+
+  endLevelUpdate(player: Player) {
+    for (const part of this.parts) {
+      part.endLevelUpdate(player, this);
+    }
+    this.inventory.endOfDay(player, this);
   }
 }

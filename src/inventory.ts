@@ -8,7 +8,7 @@ export interface InventoryItem {
   amount?: number;
   shopInfo?(): string[];
   postBuy?(player: Player): void;
-  endOfDay?(): void;
+  endOfDay?(player: Player): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
 }
 
@@ -66,6 +66,12 @@ export class ShipInventory {
   pruneItems() {
     this.inventory = this.inventory.filter((i) => !i.dying);
   }
+
+  endOfDay(player: Player) {
+    for (const item of this.inventory) {
+      item.endOfDay(player);
+    }
+  }
 }
 
 export class FuelItem implements ShipItem {
@@ -120,9 +126,10 @@ export class FoodItem implements ShipItem {
   private spoil() {
     this.amount = 0;
     this.name += " (spoiled)";
+    this.dying = true;
   }
 
-  endOfDay() {
+  endOfDay(_player: Player) {
     if (this.spoilDays <= 0) {
       return;
     }
@@ -131,6 +138,10 @@ export class FoodItem implements ShipItem {
       this.spoil();
       return;
     }
+  }
+
+  shopInfo(): string[] {
+    return ["days until spoiled: " + Math.ceil(this.spoilDays)];
   }
 
   getItemLabel() {

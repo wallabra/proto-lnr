@@ -1,10 +1,11 @@
 import { Game } from "../game";
-import { FuelItem, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, ShipItem } from "../inventory";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
 import {
   CannonballAmmo,
+  Crew,
   FUEL_COSTS,
   ShipMakeup,
   ShipPart,
@@ -874,6 +875,18 @@ export default class IntermissionState extends Superstate {
         new CannonballAmmo(5.5, 15),
         new CannonballAmmo(7.5, 15),
         new CannonballAmmo(7.5, 15),
+        new FoodItem("pancake", 3, 6, 4),
+        new FoodItem("potato", 5, 3, 7),
+        new FoodItem("cake", 2.5, 9, 2),
+        new FoodItem("bread", 1.5, 5, 3),
+        new FoodItem("bread", 1.5, 5, 3),
+        new FoodItem("crackers", 2, 4, 5),
+        new Crew({ name: "Jason", salary: 80 }),
+        new Crew({ name: "Rodrick", salary: 85, strength: 15 }),
+        new Crew({ name: "Malcolm", salary: 90, strength: 15 }),
+        new Crew({ name: "Jacklin", salary: 95, strength: 18 }),
+        new Crew({ name: "Guterrez", salary: 130, strength: 24 }),
+        new Crew({ name: "Mr. Conk", salary: 160, strength: 26 }),
       ],
     });
     this.addPane(PaneCartography, {
@@ -883,7 +896,7 @@ export default class IntermissionState extends Superstate {
       index: 2,
       bgColor: "#2222",
     });
-    
+
     for (const pane of this.panes) {
       if (pane.update) pane.update();
     }
@@ -917,7 +930,7 @@ export default class IntermissionState extends Superstate {
 
     if (event.inside) event.inside.handleEvent(uiEvent);
     else this.ui.handleEvent(uiEvent);
-    
+
     for (const pane of this.panes) {
       if (pane.update) pane.update();
     }
