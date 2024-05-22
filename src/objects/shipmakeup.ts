@@ -57,8 +57,17 @@ export class ShipPart implements ShipItem {
     return true;
   }
 
+  alreadyManned() {
+    return (
+      !this.manned ||
+      (this.mannedBy != null &&
+        (typeof this.manned !== "number" ||
+          this.mannedBy.strength >= this.manned))
+    );
+  }
+
   available(makeup: ShipMakeup): boolean {
-    return (!this.manned || this.mannedBy != null) && this._available(makeup);
+    return this.alreadyManned() && this._available(makeup);
   }
 
   shopInfo(): string[] {
@@ -167,6 +176,14 @@ export class Crew extends ShipPart {
     return true;
   }
 
+  unassign(): boolean {
+    if (this.manningPart == null) return false;
+
+    this.manningPart.mannedBy = null;
+    this.manningPart = null;
+    return true;
+  }
+
   tick(_deltaTime: number): void {
     if (this.manningPart.dying) {
       this.manningPart = null;
@@ -236,7 +253,7 @@ export class Cannon extends ShipPart {
       "caliber: " + Math.round(this.caliber * 10) + "mm",
       "max SPM:" + 60 / this.shootRate,
       "max range: " + this.range,
-      "spread (°): " + (this.spread * 180) / Math.PI,
+      "spread (°): " + Math.max((this.spread * 360) / Math.PI),
     ];
   }
 
@@ -423,6 +440,17 @@ export class ShipMakeup {
 
   get food() {
     return <FoodItem[]>this.inventory.getItemsOf("food");
+  }
+
+  get crew() {
+    return <Crew[]>this.getPartsOf("crew");
+  }
+
+  assignCrewTo(part: ShipPart): Crew | null {
+    const crew = this.crew;
+    if (crew.length === 0) return null;
+
+    return crew.find((c) => c.assignToPart(part)) || null;
   }
 
   constructor(make, hullDamage = 0) {
