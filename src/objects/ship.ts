@@ -533,17 +533,19 @@ export class Ship {
     }
 
     const offs = this.pos.clone().subtract(ship.pos);
-    offs.multiply(Vec2(deltaTime, deltaTime));
-
-    const offsNorm = offs.clone().normalize();
-    offs.multiply(Vec2(0.5, 0.5));
+    offs.multiply(Vec2(deltaTime * 0.5, deltaTime * 0.5));
+    const totalEnergy = this.kineticEnergy() + ship.kineticEnergy();
 
     this.pos.add(offs);
     ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(closeness * Math.max(0.3, offsNorm.clone().dot(ship.vel)));
-    ship.damageShip(closeness * Math.max(0.3, offsNorm.invert().dot(this.vel)));
+    this.damageShip(totalEnergy);
+    ship.damageShip(totalEnergy);
+  }
+  
+  kineticEnergy(): number {
+    return 1/2 * this.weight * Math.pow(this.vel.length(), 2);
   }
 
   checkShipCollisions(deltaTime) {
