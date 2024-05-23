@@ -432,15 +432,15 @@ export class Cannon extends ShipPart {
     this.cooldown = this.shootRate;
   }
 
-  shoot(deltaTime: number, ship: Ship, dist: number) {
+  shoot(deltaTime: number, ship: Ship, dist: number): Cannonball | null {
     // TODO: spawn cannonball
     if (!ship.makeup.spendAmmo(this.caliber)) {
-      return false;
+      return null;
     }
 
-    this.shootCannonball(deltaTime, ship, dist);
+    const cannonball = this.shootCannonball(deltaTime, ship, dist);
     this.afterShot();
-    return true;
+    return cannonball;
   }
 
   static default(): Cannon {

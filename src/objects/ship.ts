@@ -222,7 +222,10 @@ export class Ship {
         return false;
       }
 
-      cannon.shoot(deltaTime, this, shootDist);
+      const cannonball = cannon.shoot(deltaTime, this, shootDist);
+      if (cannonball != null) {
+        this.phys.applyForce(1.0, cannonball.vel.multiply(-cannonball.weight, -cannonball.weight));
+      }
       return true;
     });
   }
