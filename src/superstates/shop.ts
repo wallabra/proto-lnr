@@ -759,6 +759,16 @@ interface ShipMakeWidgetArgs {
   make: ShipMake;
 }
 
+class PaneStats extends Pane {
+  protected buildPane(args: PaneArgs & CanvasPanelArgs) {
+    // TODO
+  }
+  
+  public update() {
+    // TODO
+  }
+}
+
 class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
   private make: ShipMake;
   private detail: CanvasUIGroup;
