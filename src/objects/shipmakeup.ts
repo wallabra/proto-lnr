@@ -101,7 +101,7 @@ export class ShipPart implements ShipItem {
   }
 
   repairCost() {
-    return this.damage * this.cost * this.repairCostScale / this.maxDamage;
+    return (this.damage * this.cost * this.repairCostScale) / this.maxDamage;
   }
 
   damagePart(damage: number) {

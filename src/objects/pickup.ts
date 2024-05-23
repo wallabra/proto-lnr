@@ -16,7 +16,10 @@ export abstract class Pickup {
     if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
 
     this.play = play;
-    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), { weight: 100, ...params });
+    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), {
+      weight: 100,
+      ...params,
+    });
     this.dying = false;
   }
 

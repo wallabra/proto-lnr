@@ -102,7 +102,8 @@ export class Ship {
     this.lastInstigTime = null;
     this.killScore = 0;
     this.tickActions = [];
-    this.money = params.money != null ? params.money : random.uniform(80, 500)();
+    this.money =
+      params.money != null ? params.money : random.uniform(80, 500)();
 
     this.dragMixin();
     this.updateWeight();
@@ -224,7 +225,10 @@ export class Ship {
 
       const cannonball = cannon.shoot(deltaTime, this, shootDist);
       if (cannonball != null) {
-        this.phys.applyForce(1.0, cannonball.vel.multiply(-cannonball.weight, -cannonball.weight));
+        this.phys.applyForce(
+          1.0,
+          cannonball.vel.multiply(-cannonball.weight, -cannonball.weight),
+        );
       }
       return true;
     });
