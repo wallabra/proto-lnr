@@ -14,7 +14,7 @@ export const DEFAULT_MAKE: ShipMake = {
   drag: 0.3,
   size: 20,
   lateralCrossSection: 1.7,
-  repairCostScale: 0.007,
+  repairCostScale: 1.5,
   weight: 1300,
 };
 
@@ -27,7 +27,7 @@ export const MAKEDEFS: ShipMake[] = [
     drag: 0.2,
     size: 12,
     lateralCrossSection: 2,
-    repairCostScale: 0.004,
+    repairCostScale: 1.1,
     weight: 300,
   },
   {
@@ -38,7 +38,7 @@ export const MAKEDEFS: ShipMake[] = [
     drag: 0.25,
     size: 14,
     lateralCrossSection: 2.5,
-    repairCostScale: 0.0055,
+    repairCostScale: 1.3,
     weight: 700,
   },
   DEFAULT_MAKE,
@@ -59,7 +59,7 @@ export const MAKEDEFS: ShipMake[] = [
     drag: 0.32,
     size: 22,
     lateralCrossSection: 1.8,
-    repairCostScale: 0.008,
+    repairCostScale: 1.6,
     weight: 1550,
   },
   {
@@ -77,7 +77,7 @@ export const MAKEDEFS: ShipMake[] = [
     drag: 0.34,
     size: 25,
     lateralCrossSection: 1.4,
-    repairCostScale: 0.008,
+    repairCostScale: 1.9,
     weight: 2100,
   },
   {
@@ -98,7 +98,7 @@ export const MAKEDEFS: ShipMake[] = [
     drag: 0.37,
     size: 32,
     lateralCrossSection: 2.2,
-    repairCostScale: 0.0105,
+    repairCostScale: 2.5,
     weight: 4000,
   },
 ];
