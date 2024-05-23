@@ -546,8 +546,8 @@ export class Ship {
     ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(collisionEnergy / 2);
-    ship.damageShip(collisionEnergy / 2);
+    this.damageShip(collisionEnergy * 0.3);
+    ship.damageShip(collisionEnergy * 0.3);
   }
 
   kineticEnergy(): number {
