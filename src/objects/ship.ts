@@ -5,9 +5,11 @@ import { ObjectRenderInfo } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
-import { DEFAULT_MAKE, Engine, ShipMakeup } from "./shipmakeup";
+import { Engine, ShipMake, ShipMakeup } from "./shipmakeup";
 import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType } from "./pickup";
+import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
+import random from "random";
 
 const DEBUG_DRAW = false;
 
@@ -15,6 +17,7 @@ export interface ShipParams extends PhysicsParams {
   money: number;
   damage: number;
   makeup: ShipMakeup | "default";
+  make?: ShipMake | "random";
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -78,14 +81,21 @@ export class Ship {
     if (params.size == null) params.size = 14;
     if (params.baseFriction == null) params.baseFriction = 0.005;
 
+    const make: ShipMake =
+      params.make != null
+        ? params.make === "random"
+          ? random.choice(MAKEDEFS)
+          : params.make
+        : DEFAULT_MAKE;
+
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
     this.setMakeup(
       params.makeup === "default"
-        ? new ShipMakeup(DEFAULT_MAKE).defaultLoadout()
+        ? new ShipMakeup(make).defaultLoadout()
         : params.makeup != null
           ? params.makeup
-          : new ShipMakeup(DEFAULT_MAKE),
+          : new ShipMakeup(make),
     );
     this.dying = false;
     this.lastInstigator = null;

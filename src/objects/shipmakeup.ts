@@ -124,6 +124,10 @@ export class ShipPart implements ShipItem {
 
   tick(_deltaTime: number) {}
 
+  getInventoryLabel(_makeup: ShipMakeup): string {
+    return this.getItemLabel();
+  }
+
   getItemLabel(): string {
     return `${this.type} ${this.name}`;
   }
@@ -153,6 +157,18 @@ export class Crew implements ShipItem {
   type = "crew" as const;
   dying: boolean = false;
   name: string;
+  integerAmounts: boolean;
+
+  nameInDeck(makeup: ShipMakeup) {
+    const which =
+      makeup.crew.filter((c) => c.name === this.name).indexOf(this) + 1;
+
+    return this.name + (which === 1 ? "" : " " + which);
+  }
+
+  maxSalaryWithhold(): number {
+    return 3;
+  }
 
   constructor(args: CrewArgs) {
     this.name = args.name;
@@ -160,6 +176,7 @@ export class Crew implements ShipItem {
     this.strength = args.strength || 10;
     this.cost = this.salary * 7;
     this.caloricIntake = args.caloricIntake || 1;
+    this.integerAmounts = true;
   }
 
   onRemove() {
@@ -178,15 +195,28 @@ export class Crew implements ShipItem {
   }
 
   shopInfo(): string[] {
-    return ["name: " + this.name, "daily salary: " + this.salary, this.manningPart == null ? 'idle' : 'manning a ' + this.manningPart.getItemLabel()];
+    return [
+      "name: " + this.name,
+      "daily salary: " + this.salary,
+      this.manningPart == null
+        ? "idle"
+        : "manning a " + this.manningPart.getItemLabel(),
+    ];
   }
 
   isHappy(): boolean {
-    return this.hunger < this.caloricIntake * 3 && this.salaryWithhold < 3;
+    return (
+      this.hunger < this.caloricIntake * 3 &&
+      this.salaryWithhold < this.maxSalaryWithhold()
+    );
   }
 
   isOccupied(): boolean {
     return this.manningPart != null;
+  }
+
+  getInventoryLabel(makeup: ShipMakeup): string {
+    return this.nameInDeck(makeup);
   }
 
   getItemLabel(): string {
@@ -398,7 +428,7 @@ export class Engine extends ShipPart {
 
   shopInfo(): string[] {
     return [
-      this.fuelType == null ? 'no fuel' : "fuel type: " + this.fuelType,
+      this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
       "fuel cost /min: " + Math.round(this.fuelCost * 600) / 10,
       "thrust: " + Math.round(this.thrust * 100),
     ];
@@ -435,23 +465,6 @@ export interface ShipMake {
 }
 
 const DEFAULT_FUEL_FACTOR = 800;
-
-export const DEFAULT_MAKE: ShipMake = {
-  name: "Dependable Dave",
-  cost: 1500,
-  slots: [
-    { type: "cannon" },
-    { type: "cannon" },
-    { type: "cannon" },
-    { type: "engine" },
-    { type: "engine" },
-  ],
-  maxDamage: 50,
-  drag: 0.3,
-  size: 20,
-  lateralCrossSection: 1.7,
-  repairCostScale: 7,
-};
 
 export class ShipMakeup {
   make: ShipMake;
@@ -494,7 +507,7 @@ export class ShipMakeup {
     if (crew.length === 0) return null;
 
     const res =
-      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null;
+      crew.find((c) => !c.manningPart && c.assignToPart(part) && part.alreadyManned()) || null;
 
     if (!res) part.unassignCrew();
     return res;
@@ -506,7 +519,7 @@ export class ShipMakeup {
     this.hullDamage = hullDamage;
     this.inventory = new ShipInventory();
   }
-  
+
   setMake(make: ShipMake) {
     this.make = make;
   }

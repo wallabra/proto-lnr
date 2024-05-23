@@ -12,7 +12,7 @@ export const OARS: PartDef<EngineArgs> = {
   thrust: 0.5,
   vulnerability: 0.003,
   maxDamage: 1,
-  rarity: "always",
+  rarity: 1,
   manned: 12,
 };
 

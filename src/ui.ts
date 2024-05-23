@@ -255,7 +255,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         ? this.parent.innerWidth
         : this.parent.innerHeight) -
       this.parent.children
-        .filter((c) => c.childOrdering === order)
+        .filter((c) => c.childOrdering === order && !c.hidden)
         .reduce(
           (sum, child) =>
             sum +
@@ -272,7 +272,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   private childFillTotalFill() {
     return this.parent.children
-      .filter((c) => c.childOrdering === this.childOrdering && c.childFill > 0)
+      .filter((c) => c.childOrdering === this.childOrdering && c.childFill > 0 && !c.hidden)
       .reduce((sum, child) => sum + child.childFill, 0);
   }
 
@@ -369,7 +369,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         this.childMargin +
         this.parent.children
           .slice(0, this.childIndex())
-          .filter((e) => e.childOrdering === "horizontal")
+          .filter((e) => e.childOrdering === "horizontal" && !e.hidden)
           .map((e) => e.realWidth + e.childMargin * 2)
           .reduce((a, b) => a + b, 0);
     else if (this.childOrdering === "vertical")
@@ -377,7 +377,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         this.childMargin +
         this.parent.children
           .slice(0, this.childIndex())
-          .filter((e) => e.childOrdering === "vertical")
+          .filter((e) => e.childOrdering === "vertical" && !e.hidden)
           .map((e) => e.realHeight + e.childMargin * 2)
           .reduce((a, b) => a + b, 0);
 
@@ -593,9 +593,11 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   textAlign: CanvasTextAlign;
   textBaseline: CanvasTextBaseline;
   autoFont: boolean;
+  textWidth: number | null = null;
+  bgColor: string | null;
 
   constructor(args: CanvasLabelArgs) {
-    super(args);
+    super({ bgColor: null, ...args });
     this.label = args.label;
     this.color = args.color || "black";
     this.font = args.font || `${this.height}px sans-serif`;
@@ -607,9 +609,18 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   preChildrenRender() {}
   postChildrenRender() {}
 
+  computeWidth(): number {
+    return this.textWidth || this.width;
+  }
+
   _render(uictx: UIDrawContext) {
     const ctx = uictx.ctx;
     const pos = this.pos();
+
+    if (this.bgColor != null) {
+      ctx.fillStyle = this.bgColor;
+      ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+    }
 
     const font = this.autoFont
       ? this.font.replace("$H", "" + this.height)
@@ -620,6 +631,10 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.textBaseline;
     ctx.fillText(this.label, pos.x, pos.y);
+
+    const measures = ctx.measureText(this.label);
+    this.textWidth =
+      measures.actualBoundingBoxRight - measures.actualBoundingBoxLeft;
   }
 
   event() {}

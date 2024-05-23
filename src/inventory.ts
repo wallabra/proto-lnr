@@ -1,3 +1,4 @@
+import { ShipMakeup } from "./objects/shipmakeup";
 import { Player } from "./player";
 
 export interface InventoryItem {
@@ -11,6 +12,7 @@ export interface InventoryItem {
   postBuy?(player: Player): void;
   endOfDay?(player: Player): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
+  getInventoryLabel?(makeup: ShipMakeup): string;
 }
 
 export interface ShipItem extends InventoryItem {

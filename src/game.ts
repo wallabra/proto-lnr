@@ -98,10 +98,10 @@ export class Game {
 
     while (toSpawn > 0) {
       const aiship = play.makeShip(
-        /*pos   */ Vec2(Math.random() * 1500 + 400, 0).rotateBy(
+        Vec2(Math.random() * 1500 + 400, 0).rotateBy(
           Math.random() * Math.PI * 2,
         ),
-        /*params*/ { angle: Math.random() * Math.PI * 2 },
+        { angle: Math.random() * Math.PI * 2, make: "random" },
       );
       if (aiship.floor > play.waterLevel * 0.5) {
         aiship.die();
