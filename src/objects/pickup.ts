@@ -16,7 +16,7 @@ export abstract class Pickup {
     if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
 
     this.play = play;
-    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), params);
+    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), { weight: 100, ...params });
     this.dying = false;
   }
 
@@ -100,9 +100,9 @@ export abstract class Pickup {
     if (!this.phys.inWater()) return;
     this.phys.applyForce(
       deltaTime,
-      Vec2(Math.random() * 2, 0)
+      Vec2(Math.random() * 1, 0)
         .rotateBy(Math.random() * Math.PI * 2)
-        .add(this.phys.vel),
+        .add(this.phys.vel.multiply(Vec2(0.6, 0.6))),
     );
     this.phys.angVel += ((Math.random() * Math.PI) / 4) * deltaTime;
   }
