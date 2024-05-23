@@ -457,14 +457,21 @@ class DrydockInventoryItemWidget extends Pane<
 
   private resellCost(factor = 1) {
     let repairFactor = 0;
-    const damageableItem = <ShipItem & { damage?: number, maxDamage: number, repairCostScale: number }> this.item;
+    const damageableItem = <
+      ShipItem & { damage?: number; maxDamage: number; repairCostScale: number }
+    >this.item;
     if (damageableItem.damage != null) {
       repairFactor = Math.min(
-        this.item.cost * 0.9, /* leaving only the scraps! */
-        damageableItem.damage / damageableItem.maxDamage * damageableItem.repairCostScale);
+        this.item.cost * 0.9 /* leaving only the scraps! */,
+        (damageableItem.damage / damageableItem.maxDamage) *
+          damageableItem.repairCostScale,
+      );
     }
     return (
-      factor * (this.item.cost - repairFactor) * (this.item.amount || 1) * this.resellFactor
+      factor *
+      (this.item.cost - repairFactor) *
+      (this.item.amount || 1) *
+      this.resellFactor
     );
   }
 
@@ -985,7 +992,9 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
     return (
       this.make.cost -
       this.makeup.make.cost *
-        (1 - this.makeup.hullDamage * this.makeup.make.repairCostScale / this.makeup.make.maxDamage)
+        (1 -
+          (this.makeup.hullDamage * this.makeup.make.repairCostScale) /
+            this.makeup.make.maxDamage)
     );
   }
 
@@ -1559,7 +1568,7 @@ export default class IntermissionState extends Superstate {
         name: "Weight",
         stat: function (this: StatRow) {
           return `Your ship weights ${this.makeup.totalWeight()}kgs`;
-        }
+        },
       },
     ];
   }

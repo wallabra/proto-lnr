@@ -843,7 +843,7 @@ export class ShipMakeup {
     }
     return this.nextReadyCannon.range;
   }
-  
+
   totalWeight() {
     return (
       this.make.weight +
