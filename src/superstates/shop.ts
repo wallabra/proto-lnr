@@ -206,7 +206,7 @@ class DrydockPartWidget extends Pane<
   }
 
   private updateCrewButtonLabel() {
-    if (this.part.mannedBy == null) {
+    if (!this.part.alreadyManned()) {
       this.assignCrewButton.label("Assign Crew", this.labelArgs);
     } else {
       this.assignCrewButton.label("Unassign Crew", this.labelArgs);
@@ -227,7 +227,7 @@ class DrydockPartWidget extends Pane<
   }
 
   private tryUnassignCrew() {
-    if (this.part.mannedBy == null) {
+    if (!this.part.alreadyManned()) {
       return;
     }
 
@@ -240,7 +240,7 @@ class DrydockPartWidget extends Pane<
   private crewButtonAction() {
     if (!this.part.manned) return;
 
-    if (this.part.mannedBy == null) {
+    if (!this.part.alreadyManned()) {
       return this.tryAssignCrew();
     } else {
       return this.tryUnassignCrew();
@@ -263,7 +263,7 @@ class DrydockPartWidget extends Pane<
   private manningStatus() {
     if (!this.part.manned) return [];
 
-    if (this.part.mannedBy == null) {
+    if (!this.part.alreadyManned()) {
       return ["(Not Manned)"];
     } else {
       return ["Manned by: " + this.part.mannedBy.map((c) => c.name).join(", ")];
@@ -300,8 +300,6 @@ class DrydockPartWidget extends Pane<
     for (const child of this.details.children.slice(lines.length).reverse()) {
       child.remove();
     }
-
-    this.details.children = this.details.children.slice(lines.length);
   }
 
   public update() {

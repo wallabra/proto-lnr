@@ -52,6 +52,17 @@ export class ShipPart implements ShipItem {
     this.integerAmounts = true;
     this.mannedBy = [];
   }
+  
+  onRemove(): void {
+    this.unassignCrew();
+  }
+  
+  unassignCrew(): void {
+    const allCrew = Array.from(this.mannedBy);
+    for (const crew of allCrew) {
+      crew.unassign();
+    }
+  }
 
   endLevelUpdate(_player: Player, _makeup: ShipMakeup) {}
 
@@ -142,6 +153,10 @@ export class Crew implements ShipItem {
     this.strength = args.strength || 10;
     this.cost = this.salary * 7;
     this.caloricIntake = args.caloricIntake || 1;
+  }
+  
+  onRemove() {
+    this.unassign();
   }
 
   endLevelUpdate(player: Player, makeup: ShipMakeup) {
@@ -469,9 +484,12 @@ export class ShipMakeup {
     const crew = this.crew;
     if (crew.length === 0) return null;
 
-    return (
+    const res = (
       crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null
     );
+    
+    if (!res) part.unassignCrew();
+    return res;
   }
 
   constructor(make, hullDamage = 0) {

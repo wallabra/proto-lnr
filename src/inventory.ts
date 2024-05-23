@@ -6,6 +6,7 @@ export interface InventoryItem {
   dying: boolean;
   integerAmounts?: boolean;
   amount?: number;
+  onRemove?(): void;
   shopInfo?(): string[];
   postBuy?(player: Player): void;
   endOfDay?(player: Player): void;
@@ -53,6 +54,7 @@ export class ShipInventory {
   }
 
   removeItem(item: ShipItem) {
+    if (item.onRemove) item.onRemove();
     const idx = this.inventory.indexOf(item);
     if (idx === -1) return false;
     this.inventory.splice(idx, 1);

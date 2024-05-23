@@ -370,6 +370,7 @@ export class Ship {
   dropItems() {
     for (const item of this.makeup.inventory.items) {
       if (item.type === "crew") continue;
+      this.makeup.inventory.removeItem(item);
       this.spawnDroppedItem(item);
     }
   }
