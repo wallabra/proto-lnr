@@ -51,7 +51,7 @@ export class ShipPart implements ShipItem {
     this.manned = args.manned || false;
     this.weight = args.weight;
     this.vulnerability = args.vulnerability;
-    this.repairCostScale = args.repairCostScale || 0.3;
+    this.repairCostScale = args.repairCostScale || 3;
     this.dying = false;
     this.integerAmounts = true;
     this.mannedBy = [];
@@ -101,7 +101,7 @@ export class ShipPart implements ShipItem {
   }
 
   repairCost() {
-    return this.damage * this.repairCostScale;
+    return this.damage * this.cost * this.repairCostScale / this.maxDamage;
   }
 
   damagePart(damage: number) {
