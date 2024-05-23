@@ -196,7 +196,6 @@ export class Crew implements ShipItem {
 
   shopInfo(): string[] {
     return [
-      "name: " + this.name,
       "daily salary: " + this.salary,
       this.manningPart == null
         ? "idle"

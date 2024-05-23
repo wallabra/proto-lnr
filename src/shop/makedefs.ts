@@ -19,16 +19,6 @@ export const DEFAULT_MAKE: ShipMake = {
 
 export const MAKEDEFS: ShipMake[] = [
   {
-    name: "Hubris",
-    cost: 800,
-    slots: [{ type: "cannon" }, { type: "cannon" }, { type: "engine" }],
-    maxDamage: 15,
-    drag: 0.25,
-    size: 11,
-    lateralCrossSection: 2.5,
-    repairCostScale: 5.5,
-  },
-  {
     name: "Patroller",
     cost: 900,
     slots: [{ type: "cannon" }, { type: "engine" }],
@@ -37,6 +27,16 @@ export const MAKEDEFS: ShipMake[] = [
     size: 12,
     lateralCrossSection: 2,
     repairCostScale: 4,
+  },
+  {
+    name: "Hubris",
+    cost: 800,
+    slots: [{ type: "cannon" }, { type: "cannon" }, { type: "engine" }],
+    maxDamage: 15,
+    drag: 0.25,
+    size: 14,
+    lateralCrossSection: 2.5,
+    repairCostScale: 5.5,
   },
   DEFAULT_MAKE,
   {

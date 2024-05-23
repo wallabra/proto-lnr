@@ -1053,7 +1053,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
 
   get scrollLength() {
     return this.contentPane.children
-      .filter((child) => child.childOrdering === this.axis)
+      .filter((child) => child.childOrdering === this.axis && !child.hidden)
       .reduce(
         (sum, child) =>
           sum +

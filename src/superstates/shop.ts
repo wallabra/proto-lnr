@@ -888,6 +888,7 @@ class PaneStats extends Pane<PaneStatsArgs> {
 class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
   private make: ShipMake;
   private detail: CanvasUIGroup;
+  private detail2: CanvasUIGroup;
   private switchLabel: CanvasLabel;
   private statusLabel: CanvasLabel;
 
@@ -906,13 +907,28 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
       childMargin: 6,
       height: 15,
     });
+    
+    const detailGroup = new CanvasUIGroup({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 10,
+      fillX: true
+    })
 
     this.detail = new CanvasUIGroup({
-      parent: this.pane,
-      childOrdering: "vertical",
-      childMargin: 5,
-      fillX: true,
+      parent: detailGroup,
+      dockX: 'start',
+      dockY: 'start',
+      fillX: 0.5,
       bgColor: "#00003006",
+    });
+    
+    this.detail2 = new CanvasUIGroup({
+      parent: this.pane,
+      dockX: 'end',
+      dockY: 'start',
+      fillX: 0.5,
+      bgColor: "#303000030",
     });
 
     this.populateDetail();
@@ -981,9 +997,13 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
     const slotCounts = slots(this.makeup.make);
     const info = [
       "HP: " + this.make.maxDamage,
+      "Size: " + this.make.size,
       "Lateral cross section: " + this.make.lateralCrossSection,
       "Repair cost / HP: " + this.make.repairCostScale,
       "Drag: " + this.make.drag,
+    ];
+    
+    const info2 = [
       "Slots:",
       ...this.make.slots.map((s) => this.slotInfo(s)),
     ];
@@ -995,6 +1015,20 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
         childMargin: 2,
         childOrdering: "vertical",
         color: '#dde',
+        textBaseline: "middle",
+        autoFont: true,
+        font: "$Hpx sans-serif",
+        height: 11,
+      });
+    }
+    
+    for (const line of info2) {
+      new CanvasLabel({
+        parent: this.detail2,
+        label: line,
+        childMargin: 2,
+        childOrdering: "vertical",
+        color: '#eda',
         textBaseline: "middle",
         autoFont: true,
         font: "$Hpx sans-serif",
@@ -1510,6 +1544,10 @@ export default class IntermissionState extends Superstate {
 
   public render() {
     this.maximizeUI();
+    
+    for (const pane of this.panes) {
+      if (pane.update) pane.update();
+    }
 
     const ctx: UIDrawContext = {
       ctx: this.game.drawCtx,
@@ -1525,9 +1563,7 @@ export default class IntermissionState extends Superstate {
   }
 
   public tick() {
-    for (const pane of this.panes) {
-      if (pane.update) pane.update();
-    }
+    // no-op
   }
 
   mouseEvent(event: MouseEvent & GameMouseInfo) {
