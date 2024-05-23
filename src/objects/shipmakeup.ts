@@ -231,6 +231,8 @@ export class Crew implements ShipItem {
   }
 
   unassign(): boolean {
+    if (this.manningPart == null) return false;
+    
     const idx = this.manningPart.mannedBy.indexOf(this);
 
     if (idx === -1) return false;
