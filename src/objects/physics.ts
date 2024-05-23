@@ -182,7 +182,7 @@ export class PhysicsObject {
     const dragForce = Vec2(-drag, -drag).multiply(this.vel);
     this.applyForce(deltaTime, dragForce);
   }
-  
+
   kineticEnergy(): number {
     return (1 / 2) * this.weight * Math.pow(this.vel.length(), 2);
   }

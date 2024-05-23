@@ -63,7 +63,7 @@ export class Cannonball {
     // TODO: make depend on munition type (corrosive, oxidizing, explosive, incendiary etc)
     return 1;
   }
-  
+
   kineticEnergy(): number {
     return this.phys.kineticEnergy();
   }
