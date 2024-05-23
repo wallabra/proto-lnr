@@ -75,7 +75,7 @@ export class ShipPart implements ShipItem {
       !this.manned ||
       (this.mannedBy.length > 0 &&
         (typeof this.manned !== "number" ||
-          this.mannedBy.reduce((a, b) => a + b.strength, 0) >= this.manned))
+          this.mannedBy.filter((c) => c.isHappy()).reduce((a, b) => a + b.strength, 0) >= this.manned))
     );
   }
 
@@ -217,7 +217,9 @@ export class Crew implements ShipItem {
   }
 
   getInventoryLabel(makeup: ShipMakeup): string {
-    return this.nameInDeck(makeup);
+    let res = this.nameInDeck(makeup);
+    if (!this.isHappy()) res += ' (on strike)';
+    return res;
   }
 
   getItemLabel(): string {
@@ -225,6 +227,8 @@ export class Crew implements ShipItem {
   }
 
   assignToPart(part: ShipPart): boolean {
+    if (!this.isHappy()) return false;
+    if (this.manningPart != null) return false;
     if (part.alreadyManned()) return false;
 
     this.manningPart = part;
@@ -511,7 +515,7 @@ export class ShipMakeup {
 
     const res =
       crew.find(
-        (c) => !c.manningPart && c.assignToPart(part) && part.alreadyManned(),
+        (c) => c.assignToPart(part) && part.alreadyManned(),
       ) || null;
 
     if (!res) part.unassignCrew();
