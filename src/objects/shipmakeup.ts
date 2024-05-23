@@ -20,6 +20,7 @@ export interface ShipPartArgs {
   maxDamage?: number;
   vulnerability?: number;
   repairCostScale?: number;
+  weight: number;
 }
 
 export function slots(make: ShipMake): { [type: string]: number } {
@@ -37,6 +38,7 @@ export class ShipPart implements ShipItem {
   dying: boolean;
   repairCostScale: number;
   integerAmounts: boolean;
+  weight: number;
   mannedBy: Crew[];
 
   constructor(args: ShipPartArgs) {
@@ -46,8 +48,9 @@ export class ShipPart implements ShipItem {
     this.damage = args.damage || 0;
     this.maxDamage = args.maxDamage;
     this.manned = args.manned || false;
+    this.weight = args.weight;
     this.vulnerability = args.vulnerability;
-    this.repairCostScale = args.repairCostScale || 2;
+    this.repairCostScale = args.repairCostScale || 0.3;
     this.dying = false;
     this.integerAmounts = true;
     this.mannedBy = [];
@@ -75,7 +78,9 @@ export class ShipPart implements ShipItem {
       !this.manned ||
       (this.mannedBy.length > 0 &&
         (typeof this.manned !== "number" ||
-          this.mannedBy.filter((c) => c.isHappy()).reduce((a, b) => a + b.strength, 0) >= this.manned))
+          this.mannedBy
+            .filter((c) => c.isHappy())
+            .reduce((a, b) => a + b.strength, 0) >= this.manned))
     );
   }
 
@@ -135,10 +140,12 @@ export class ShipPart implements ShipItem {
 
 export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">;
 
-export interface CrewArgs extends ShipPartArgsSuper {
+export interface CrewArgs {
+  name: string;
   salary: number;
   strength?: number;
   caloricIntake?: number;
+  weight?: number;
 }
 
 export interface CrewRandomArgs {
@@ -154,6 +161,7 @@ export class Crew implements ShipItem {
   strength: number;
   caloricIntake: number;
   cost: number;
+  weight: number;
   type = "crew" as const;
   dying: boolean = false;
   name: string;
@@ -177,12 +185,13 @@ export class Crew implements ShipItem {
     this.cost = this.salary * 7;
     this.caloricIntake = args.caloricIntake || 1;
     this.integerAmounts = true;
+    this.weight = args.weight || 20;
   }
 
   onRemove() {
     this.unassign();
   }
-  
+
   private payWages(player: Player) {
     if (player.money < this.salary) {
       this.salaryWithhold++;
@@ -191,12 +200,12 @@ export class Crew implements ShipItem {
       this.salaryWithhold = 0;
     }
   }
-  
+
   private consumeFood(makeup: ShipMakeup) {
     this.hunger += this.caloricIntake;
     this.hunger -= makeup.subtractFood(this.hunger);
   }
-  
+
   nextSalary(): number {
     return this.salary * (1 + this.salaryWithhold);
   }
@@ -208,35 +217,37 @@ export class Crew implements ShipItem {
 
   shopInfo(makeup?: ShipMakeup): string[] {
     return [
-      (makeup == null ? 'daily salary: ' : "next day's salary: ") + this.nextSalary(),
+      (makeup == null ? "daily salary: " : "next day's salary: ") +
+        this.nextSalary(),
       "daily food intake: " + this.caloricIntake,
       "manning strength: " + this.strength,
-      ...makeup == null ? [] : [this.manningPart == null
-        ? "idle"
-        : "manning a " + this.manningPart.getItemLabel()],
+      ...(makeup == null
+        ? []
+        : [
+            this.manningPart == null
+              ? "idle"
+              : "manning a " + this.manningPart.getItemLabel(),
+          ]),
     ];
   }
-  
+
   isHungry(): boolean {
     return this.hunger >= this.caloricIntake * 3;
   }
-  
+
   isUnderpaid(): boolean {
     return this.salaryWithhold > this.maxSalaryWithhold();
   }
 
   isHappy(): boolean {
-    return (
-      !this.isHungry() &&
-      !this.isUnderpaid()
-    );
+    return !this.isHungry() && !this.isUnderpaid();
   }
-  
+
   strikeReason(): string {
     const reasons = [];
-    if (this.isHungry()) reasons.push('hunger');
-    if (this.isUnderpaid()) reasons.push('wage withholding');
-    return reasons.join(' and ')
+    if (this.isHungry()) reasons.push("hunger");
+    if (this.isUnderpaid()) reasons.push("wage withholding");
+    return reasons.join(" and ");
   }
 
   isOccupied(): boolean {
@@ -265,7 +276,7 @@ export class Crew implements ShipItem {
 
   unassign(): boolean {
     if (this.manningPart == null) return false;
-    
+
     const idx = this.manningPart.mannedBy.indexOf(this);
 
     if (idx === -1) return false;
@@ -296,6 +307,8 @@ export class Crew implements ShipItem {
   }
 }
 
+export const CANNONBALL_DENSITY = 15;
+
 export class CannonballAmmo implements ShipItem {
   type = "ammo";
   name: string;
@@ -304,11 +317,13 @@ export class CannonballAmmo implements ShipItem {
   amount: number;
   dying: boolean;
   integerAmounts: boolean;
+  weight: number;
 
   constructor(caliber, amount = 15) {
     this.caliber = caliber;
     this.amount = amount;
     this.type = "ammo";
+    this.weight = this.sphericalVolume() * CANNONBALL_DENSITY;
     this.cost = this.estimateCost();
     this.name = `${this.caliber}cm cannonball ammo`;
     this.dying = false;
@@ -363,7 +378,7 @@ export class Cannon extends ShipPart {
   }
 
   constructor(args: CannonArgs) {
-    super({ type: "cannon", maxDamage: 8, vulnerability: 0.02, ...args });
+    super({ type: "cannon", maxDamage: 8, vulnerability: 0.002, ...args });
     this.caliber = args.caliber;
     this.range = args.range || 600;
     this.shootRate = args.shootRate;
@@ -371,11 +386,16 @@ export class Cannon extends ShipPart {
     this.spread = args.spread || 0;
   }
 
+  cannonballSphericalVolume() {
+    return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
+  }
+
   private shootCannonball(deltaTime: number, ship: Ship, dist: number) {
     dist = Math.min(dist, this.range);
 
     const cball = ship.play.spawnCannonball(ship, {
       size: this.caliber,
+      weight: this.cannonballSphericalVolume() * CANNONBALL_DENSITY,
     });
     cball.phys.vspeed = dist / 250;
     cball.phys.angle += random.uniform(-this.spread, this.spread)();
@@ -439,9 +459,15 @@ export interface EngineArgs
   thrust: number;
 }
 
-export const FUEL_COSTS = {
-  coal: 3,
-  diesel: 2,
+export const FUEL_PROPS = {
+  coal: {
+    cost: 3,
+    weight: 8,
+  },
+  diesel: {
+    cost: 2,
+    weight: 3.5,
+  },
 };
 
 export class Engine extends ShipPart {
@@ -454,7 +480,7 @@ export class Engine extends ShipPart {
   }
 
   constructor(args: EngineArgs) {
-    super({ type: "engine", maxDamage: 6, vulnerability: 0.3, ...args });
+    super({ type: "engine", maxDamage: 6, vulnerability: 0.003, ...args });
     this.thrust = args.thrust;
     this.fuelType = (args.fuel && args.fuel.type) || null;
     this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
@@ -496,6 +522,7 @@ export interface ShipMake {
   lateralCrossSection: number;
   repairCostScale: number;
   cost: number;
+  weight: number;
 }
 
 const DEFAULT_FUEL_FACTOR = 800;
@@ -541,9 +568,7 @@ export class ShipMakeup {
     if (crew.length === 0) return null;
 
     const res =
-      crew.find(
-        (c) => c.assignToPart(part) && part.alreadyManned(),
-      ) || null;
+      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null;
 
     if (!res) part.unassignCrew();
     return res;
@@ -570,11 +595,12 @@ export class ShipMakeup {
         const engine = <Engine>part;
         if (engine.fuelType == null) return null;
         const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * factor;
-        return new FuelItem(
-          engine.fuelType,
-          FUEL_COSTS[engine.fuelType],
-          fuelAmount,
-        );
+        return new FuelItem({
+          name: engine.fuelType,
+          cost: FUEL_PROPS[engine.fuelType].cost,
+          amount: fuelAmount,
+          weight: FUEL_PROPS[engine.fuelType].weight,
+        });
       }),
       match._(() => {
         throw new Error(

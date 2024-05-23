@@ -61,7 +61,7 @@ export class Cannonball {
 
   get damageFactor() {
     // TODO: make depend on munition type
-    return Math.PI * Math.pow(this.size / 10, 2) * 5;
+    return Math.pow(this.size / 3, 3) * 5;
   }
 
   get damage() {

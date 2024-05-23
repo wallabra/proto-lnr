@@ -6,7 +6,7 @@ import arrayCounter from "array-counter";
 import {
   CannonballAmmo,
   Crew,
-  FUEL_COSTS,
+  FUEL_PROPS,
   PartSlot,
   ShipMake,
   ShipMakeup,
@@ -1014,7 +1014,6 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
     const info = [
       "HP: " + this.make.maxDamage,
       `Size: ${this.make.size * this.make.lateralCrossSection}x${this.make.size}`,
-      "Repair cost / HP: " + this.make.repairCostScale,
       "Drag: " + this.make.drag,
     ];
 
@@ -1090,7 +1089,6 @@ class PaneHarbour extends Pane<PaneHarbourArgs> {
     let counter = 0;
     for (const make of args.makes) {
       const bgColor = `#04${counter % 2 ? "00" : "10"}${counter % 2 ? "30" : "20"}80`;
-      console.log(bgColor);
       this.shipMakeWidgets.push(
         new ShipMakeWidget({
           parent: this.shipMakeScroller.contentPane,
@@ -1320,7 +1318,12 @@ class PaneDrydock extends Pane {
   }
 
   repairCost() {
-    return this.makeup.hullDamage * this.makeup.make.repairCostScale;
+    return (
+      (this.makeup.hullDamage *
+        this.makeup.make.repairCostScale *
+        this.makeup.make.cost) /
+      this.makeup.make.maxDamage
+    );
   }
 }
 
@@ -1407,6 +1410,26 @@ export default class IntermissionState extends Superstate {
     return res;
   }
 
+  private fuelItems() {
+    return [
+      {
+        type: "coal",
+        amount: 5,
+        repeat: 4,
+      },
+      {
+        type: "coal",
+        amount: 20,
+        repeat: 2,
+      },
+      {
+        type: "diesel",
+        amount: 40,
+        repeat: 5,
+      },
+    ];
+  }
+
   private generateShopItems() {
     return [
       ...PARTDEFS.engine
@@ -1423,11 +1446,19 @@ export default class IntermissionState extends Superstate {
             .map(() => instantiatePart(d, "cannon")),
         )
         .reduce((a, b) => a.concat(b), []),
-      new FuelItem("coal", FUEL_COSTS.coal, 20),
-      new FuelItem("coal", FUEL_COSTS.coal, 20),
-      new FuelItem("diesel", FUEL_COSTS.diesel, 10),
-      new FuelItem("diesel", FUEL_COSTS.diesel, 20),
-      new FuelItem("diesel", FUEL_COSTS.diesel, 40),
+      ...this.fuelItems()
+        .map((p) => {
+          const item = {
+            name: p.type,
+            ...FUEL_PROPS[p.type],
+            amount: p.amount,
+          };
+          return Array(p.repeat)
+            .fill(0)
+            .map(() => Object.assign({}, item));
+        })
+        .reduce((a, b) => a.concat(b), [])
+        .map((def) => new FuelItem(def)),
       new CannonballAmmo(4, 15),
       new CannonballAmmo(4, 15),
       new CannonballAmmo(4, 40),

@@ -105,6 +105,7 @@ export class Ship {
     this.money = params.money != null ? params.money : 30 + Math.random() * 180;
 
     this.dragMixin();
+    this.updateWeight();
   }
 
   nextTick<T>(action: TickActionFunction<T>): TickAction<T> {
@@ -535,7 +536,10 @@ export class Ship {
     const offs = this.pos.clone().subtract(ship.pos);
     offs.multiply(Vec2(deltaTime * 0.5, deltaTime * 0.5));
     const totalEnergy = this.kineticEnergy() + ship.kineticEnergy();
-    const directionality = this.vel.subtract(ship.vel).norm().dot(ship.pos.clone().subtract(this.pos).norm());
+    const directionality = this.vel
+      .subtract(ship.vel)
+      .norm()
+      .dot(ship.pos.clone().subtract(this.pos).norm());
     const collisionEnergy = totalEnergy * directionality;
 
     this.pos.add(offs);
@@ -545,9 +549,9 @@ export class Ship {
     this.damageShip(collisionEnergy / 2);
     ship.damageShip(collisionEnergy / 2);
   }
-  
+
   kineticEnergy(): number {
-    return 1/2 * this.weight * Math.pow(this.vel.length(), 2);
+    return (1 / 2) * this.weight * Math.pow(this.vel.length(), 2);
   }
 
   checkShipCollisions(deltaTime) {
@@ -593,7 +597,21 @@ export class Ship {
     return cannon.airtime(deltaTime, this, dist);
   }
 
+  computeWeight() {
+    return (
+      this.makeup.make.weight +
+      this.makeup.inventory.items
+        .map((item) => item.weight * (item.amount || 1))
+        .reduce((a, b) => a + b, 0)
+    );
+  }
+
+  private updateWeight() {
+    this.phys.weight = this.computeWeight();
+  }
+
   tick(deltaTime) {
+    this.updateWeight();
     this.processTickActions(deltaTime);
     this.makeup.tick(deltaTime);
     this.checkShipCollisions(deltaTime);

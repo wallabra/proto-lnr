@@ -26,7 +26,7 @@ export function instantiatePart(def, type) {
 }
 
 function pickPart(
-  defs: PartDef<unknown>[],
+  defs: PartDef<ShipPartArgsSuper>[],
   points: number,
   temperature: number = 50,
 ) {
