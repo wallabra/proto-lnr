@@ -131,8 +131,8 @@ export class PhysicsObject {
     this.applyForce(
       deltaTime,
       Vec2(
-        -dHeight.x * this.gravity * this.weight * 100,
-        -dHeight.y * this.gravity * this.weight * 100,
+        -dHeight.x * this.gravity * this.weight * 500,
+        -dHeight.y * this.gravity * this.weight * 500,
       ),
     );
   }
@@ -204,7 +204,7 @@ export class PhysicsObject {
       .norm()
       .multiply(Vec2(-friction, -friction));
 
-    if (fricForce.length() * deltaTime > this.vel.length()) {
+    if (fricForce.length() * deltaTime / this.weight > this.vel.length()) {
       this.vel = Vec2(0, 0);
     } else {
       this.applyForce(deltaTime, fricForce);

@@ -373,6 +373,7 @@ export class Ship {
       this.pickupSpawnPos(),
       {
         cash: this.money,
+        vel: this.vel,
       },
     );
     this.setMoney(0);
@@ -390,7 +391,10 @@ export class Ship {
     this.play.spawn<ItemPickup<I>, ItemPickupParamType<I>>(
       ItemPickup,
       this.pickupSpawnPos(),
-      { item: item },
+      {
+        item: item,
+        vel: this.vel,
+      },
     );
   }
 
@@ -570,7 +574,7 @@ export class Ship {
 
   checkTerrainDamage(deltaTime) {
     if (this.phys.floor > this.play.waterLevel) {
-      this.damageShip(10 * deltaTime);
+      this.damageShip(10000 * deltaTime);
     }
   }
 
