@@ -111,7 +111,7 @@ function or(item, def) {
   return item != null ? item : def;
 }
 
-export abstract class CanvasUIElement<ExtraProps = Record<string, never>> {
+export abstract class CanvasUIElement<ExtraProps = object> {
   parent: CanvasUIElement | undefined;
   children: Array<CanvasUIElement>;
   x: number;
@@ -525,7 +525,7 @@ export interface CanvasButtonArgs extends CanvasUIArgs {
   callback: (e: UIEvent) => void;
 }
 
-export class CanvasButton extends CanvasUIElement {
+export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
   callback: (e: UIEvent) => void;
   private _label: CanvasLabel;
   bgColor: string;
@@ -586,7 +586,7 @@ export interface CanvasLabelSpecificArgs {
 
 export type CanvasLabelArgs = CanvasUIArgs & CanvasLabelSpecificArgs;
 
-export class CanvasLabel extends CanvasUIElement {
+export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   label: string;
   color: string;
   font: string;
@@ -629,7 +629,7 @@ export interface CanvasPanelArgs extends CanvasUIArgs {
   bgColor: string;
 }
 
-export class CanvasPanel extends CanvasUIElement {
+export class CanvasPanel extends CanvasUIElement<CanvasPanelArgs> {
   bgColor: string;
 
   constructor(args: CanvasPanelArgs) {
@@ -752,7 +752,7 @@ type ScrollbarArgs = CanvasUIArgs &
     scroller: CanvasScroller;
   };
 
-class Scrollbar extends CanvasUIElement {
+class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
   barSize: number;
   scroller: CanvasScroller;
   thickness: number;
@@ -927,7 +927,7 @@ class CanvasScrollerContentPane extends CanvasUIElement {
   postChildrenRender() {}
 }
 
-export class CanvasScroller extends CanvasUIElement {
+export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
   axis: UIAxis;
   bgColor: string;
   contentPane: CanvasScrollerContentPane;

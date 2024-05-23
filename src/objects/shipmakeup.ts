@@ -399,7 +399,7 @@ export class Engine extends ShipPart {
   shopInfo(): string[] {
     return [
       this.fuelType == null ? 'no fuel' : "fuel type: " + this.fuelType,
-      "fuel cost /min:" + Math.round(this.fuelCost * 600) / 10,
+      "fuel cost /min: " + Math.round(this.fuelCost * 600) / 10,
       "thrust: " + Math.round(this.thrust * 100),
     ];
   }
@@ -431,12 +431,14 @@ export interface ShipMake {
   size: number;
   lateralCrossSection: number;
   repairCostScale: number;
+  cost: number;
 }
 
 const DEFAULT_FUEL_FACTOR = 800;
 
 export const DEFAULT_MAKE: ShipMake = {
   name: "Dependable Dave",
+  cost: 1500,
   slots: [
     { type: "cannon" },
     { type: "cannon" },
@@ -503,6 +505,10 @@ export class ShipMakeup {
     this.make = make;
     this.hullDamage = hullDamage;
     this.inventory = new ShipInventory();
+  }
+  
+  setMake(make: ShipMake) {
+    this.make = make;
   }
 
   addDefaultFuel(part: ShipPart, factor: number = 1) {

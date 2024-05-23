@@ -7,6 +7,8 @@ import {
   CannonballAmmo,
   Crew,
   FUEL_COSTS,
+  PartSlot,
+  ShipMake,
   ShipMakeup,
   ShipPart,
   slots,
@@ -16,10 +18,9 @@ import {
   CanvasButton,
   CanvasLabel,
   CanvasPanel,
-  CanvasSplitPanel,
   CanvasRoot,
   UIDrawContext,
-  CanvasSplitPanelArgs,
+  CanvasPanelArgs,
   UIEvent,
   CanvasScroller,
   CanvasUIGroup,
@@ -28,7 +29,6 @@ import {
   CanvasLabelArgs,
   CanvasUIElement,
   CanvasUIArgs,
-  CanvasPanelArgs,
 } from "../ui";
 import { moneyString } from "../util";
 import Superstate from "./base";
@@ -52,8 +52,8 @@ function itemLabel(item, priceFactor = 1) {
 
 abstract class Pane<
   A extends PaneArgs = PaneArgs,
-  P extends CanvasUIElement = CanvasSplitPanel,
-  PA extends CanvasUIArgs = CanvasSplitPanelArgs,
+  P extends CanvasUIElement = CanvasPanel,
+  PA extends CanvasUIArgs = CanvasPanelArgs,
 > {
   protected pane: P;
   protected state: IntermissionState;
@@ -514,6 +514,7 @@ class DrydockInventoryWidget extends Pane<
   private itemList: CanvasScroller;
   private resellFactor: number;
   private itemWidgets: DrydockInventoryItemWidget[];
+  private counters: CanvasLabel;
 
   protected buildPane(args: DrydockInventoryWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -521,10 +522,6 @@ class DrydockInventoryWidget extends Pane<
 
     new CanvasLabel({
       parent: this.pane,
-      dockX: "start",
-      dockY: "start",
-      dockMarginX: 10,
-      dockMarginY: 10,
       label: "Inventory",
       height: 20,
       autoFont: true,
@@ -533,6 +530,21 @@ class DrydockInventoryWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 15,
     });
+    
+    this.counters = new CanvasLabel({
+      parent: this.pane,
+      dockMarginX: 10,
+      dockMarginY: 12,
+      label: '-',
+      height: 14,
+      autoFont: true,
+      color: '#a887',
+      font: '$Hpx sans-serif',
+      childOrdering: 'vertical',
+      childMargin: 10,
+      x: 5
+    });
+    this.updateCounters();
 
     this.itemList = new CanvasScroller({
       parent: this.pane,
@@ -543,6 +555,10 @@ class DrydockInventoryWidget extends Pane<
       fillY: 0.8,
       bgColor: "#0000",
     });
+  }
+  
+  private updateCounters() {
+    this.counters.label = `Food: ${this.makeup.inventory.getItemsOf('food').reduce((a, b) => a + b.amount, 0)} (-${this.makeup.crew.reduce((sum, crew) => sum + crew.caloricIntake, 0)}/day)`;
   }
 
   private addItem(shipItem) {
@@ -585,6 +601,7 @@ class DrydockInventoryWidget extends Pane<
 
   public update() {
     this.furnishItemList();
+    this.updateCounters();
   }
 }
 
@@ -669,9 +686,9 @@ class PaneShop extends Pane<PaneShopArgs> {
   private itemList: CanvasScroller;
   private itemWidgets: ShopItemWidget[];
 
-  buildPane(args: PaneShopArgs & CanvasSplitPanelArgs) {
+  buildPane(args: PaneShopArgs & CanvasPanelArgs) {
     this.shopItems = args.shopItems;
-    this.pane = new CanvasSplitPanel(args);
+    this.pane = new CanvasPanel(args);
     this.itemWidgets = [];
 
     new CanvasLabel({
@@ -738,6 +755,129 @@ interface PaneDrydockArgs extends PaneArgs {
   hullRepairCostScale?: number;
 }
 
+interface ShipMakeWidgetArgs {
+  make: ShipMake;
+}
+
+class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
+  private make: ShipMake;
+  private detail: CanvasUIGroup;
+  private switchLabel: CanvasLabel;
+  private statusLabel: CanvasLabel;
+  
+  protected buildPane(args: PaneArgs & ShipMakeWidgetArgs & CanvasPanelArgs) {
+    this.pane = new CanvasPanel(args);
+    this.make = args.make;
+    
+    new CanvasLabel({
+      parent: this.pane,
+      autoFont: true,
+      font: 'bold $Hpx sans-serif',
+      color: '#fff',
+      label: this.make.name,
+      x: 5,
+      childOrdering: 'vertical',
+      childMargin: 6,
+      height: 15
+    });
+    
+    this.detail = new CanvasUIGroup({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 5,
+      childFill: 2,
+      fillX: true,
+      bgColor: '#00003006'
+    });
+    
+    this.populateDetail();
+    
+    this.switchLabel = new CanvasButton({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 10,
+      childFill: 1,
+      fillX: true,
+      bgColor: '#0082',
+      callback: this.trySwitch.bind(this)
+    }).label(this.constructLabel());
+    
+    this.statusLabel = new CanvasLabel({
+      parent: this.pane,
+      childOrdering: 'vertical',
+      childMargin: 4,
+      label: '',
+      fillX: true,
+      height: 14,
+      autoFont: true,
+      font: '%H sans-serif'
+    })
+  }
+  
+  private getCost() {
+    return this.make.cost - this.makeup.make.cost * (1 - this.makeup.hullDamage / this.makeup.make.maxDamage);
+  }
+  
+  private constructLabel() {
+    return `Buy & Switch to Make (${this.makeup.make.cost > this.make.cost ? '+' : '-'}$${Math.abs(this.make.cost - this.makeup.make.cost)})`
+  }
+  
+  private trySwitch() {
+    this.statusLabel.label = '';
+    
+    if (this.makeup.parts.length > 0) {
+      this.statusLabel.label = 'Uninstall every ship part first!';
+      return;
+    }
+    
+    const cost = this.getCost();
+    
+    if (this.player.money < cost) {
+      this.statusLabel.label = 'Not enough money!';
+      return;
+    }
+    
+    this.makeup.setMake(this.make);
+    this.player.money -= cost;
+    this.makeup.hullDamage = 0;
+  }
+  
+  private slotInfo(slot: PartSlot) {
+    return slot.type;
+  }
+  
+  private populateDetail(): void {
+    const info = [
+      'HP: ' + this.make.maxDamage,
+      'Lateral cross section: ' + this.make.lateralCrossSection,
+      'Repair cost / HP: ' + this.make.repairCostScale,
+      'Drag: ' + this.make.drag,
+      'Slots:',
+      ...this.make.slots.map((s) => this.slotInfo(s))
+    ];
+    
+    for (const line of info) {
+      new CanvasLabel({
+        parent: this.detail,
+        label: line,
+        childMargin: 2,
+        childOrdering: 'vertical',
+        childFill: 1,
+        textBaseline: 'middle',
+        autoFont: true,
+        font: '$Hpx sans-serif',
+        height: 11
+      })
+    }
+  }
+  
+  public update() {}
+}
+
+class PaneHarbour extends Pane {
+  private shipMakeWidgets: 
+}
+
 class PaneDrydock extends Pane {
   private cashCounter: CanvasLabel;
   private repairHullButtonLabel: CanvasLabel;
@@ -747,8 +887,8 @@ class PaneDrydock extends Pane {
   private slotsLabel: CanvasLabel;
   private hullDamageMeter: CanvasProgressBar;
 
-  buildPane(args: PaneDrydockArgs & CanvasSplitPanelArgs) {
-    this.pane = new CanvasSplitPanel(args);
+  buildPane(args: PaneDrydockArgs & CanvasPanelArgs) {
+    this.pane = new CanvasPanel(args);
     this.partsWidgets = [];
 
     new CanvasLabel({
@@ -954,11 +1094,11 @@ class PaneCartography extends Pane {
     this.game.nextLevel();
   }
 
-  buildPane(args: PaneArgs & CanvasSplitPanelArgs) {
+  buildPane(args: PaneArgs & CanvasPanelArgs) {
     const state = args.state;
     this.game = state.game;
 
-    this.pane = new CanvasSplitPanel(args);
+    this.pane = new CanvasPanel(args);
     new CanvasLabel({
       parent: this.pane,
       label: "Cartography",
@@ -992,37 +1132,32 @@ export default class IntermissionState extends Superstate {
   >[];
   private paneDrydock: PaneDrydock;
   private changed: boolean;
-
+  private paneScroller: CanvasScroller;
+  
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
     this.game.setKeyboardHandler(IntermissionKeyHandler);
     this.panes = [];
     this.ui = new CanvasRoot(this.game, "#040404");
+    this.paneScroller = new CanvasScroller({
+      parent: this.ui,
+      fillX: 1,
+      fillY: 1,
+      paddingX: 0,
+      paddingY: 0,
+      axis: 'horizontal'
+    });
     this.game.player.makeup.inventory.consolidateInventory();
     this.buildUI();
   }
 
   addPane(paneType, args) {
-    args = { state: this, parent: this.ui, ...args };
+    args = { state: this, parent: this.paneScroller, ...args };
     return new paneType(args);
   }
-
-  buildUI() {
-    this.paneDrydock = this.addPane(PaneDrydock, {
-      paddingX: 20,
-      axis: "horizontal",
-      splits: 3,
-      index: 0,
-      bgColor: "#2222",
-    });
-    this.addPane(PaneShop, {
-      paddingX: 20,
-      axis: "horizontal",
-      splits: 3,
-      index: 1,
-      bgColor: "#2222",
-      fillY: 0.85,
-      shopItems: [
+  
+  private generateShopItems() {
+    return [
         ...PARTDEFS.engine
           .map((d) =>
             Array(d.shopRepeat)
@@ -1055,13 +1190,53 @@ export default class IntermissionState extends Superstate {
             .map(() => new FoodItem(f)),
         ).reduce((a, b) => a.concat(b), []),
         ...CREWDEFS.map((c) => new Crew(c)),
-      ],
+      ];
+  }
+
+  buildUI() {
+    this.paneDrydock = this.addPane(PaneDrydock, {
+      paddingX: 20,
+      childOrdering: "horizontal",
+      childMargin: 20,
+      childFill: 1,
+      fillX: 0.4,
+      bgColor: "#2222",
+    });
+    this.addPane(PaneShop, {
+      paddingX: 20,
+      childOrdering: "horizontal",
+      childMargin: 20,
+      childFill: 1,
+      bgColor: "#2222",
+      fillY: 0.85,
+      shopItems: this.generateShopItems(),
+    });
+    this.addPane(PaneHarbour, {
+      paddingX: 20,
+      childOrdering: "horizontal",
+      childMargin: 20,
+      childFill: 1,
+      fillX: 0.4,
+      bgColor: "#2222",
+      fillY: 0.85,
+      shopItems: this.generateShopItems(),
+    });
+    this.addPane(PaneStats, {
+      paddingX: 20,
+      childOrdering: "horizontal",
+      childMargin: 20,
+      childFill: 1,
+      fillX: 0.4,
+      bgColor: "#2222",
+      fillY: 0.85,
+      shopItems: this.generateShopItems(),
     });
     this.addPane(PaneCartography, {
       paddingX: 20,
-      axis: "horizontal",
-      splits: 3,
-      index: 2,
+      childOrdering: "horizontal",
+      childMargin: 20,
+      childFill: 1,
+      fillX: 0.4,
       bgColor: "#2222",
     });
 
