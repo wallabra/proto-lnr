@@ -197,6 +197,8 @@ export class Crew implements ShipItem {
   shopInfo(): string[] {
     return [
       "daily salary: " + this.salary,
+      "daily food intake: " + this.caloricIntake,
+      "manning strength: " + this.strength,
       this.manningPart == null
         ? "idle"
         : "manning a " + this.manningPart.getItemLabel(),
