@@ -450,7 +450,7 @@ export class Ship {
   maxEngineThrust(enginesList?: Engine[]) {
     const engines = enginesList || this.makeup.getReadyEngines();
     const engineThrust = engines
-      .map((e) => e.thrust)
+      .map((e) => e.thrust * (1 - e.damage / 2 / e.maxDamage))
       .reduce((a, b) => a + b, 0);
 
     return engineThrust;
