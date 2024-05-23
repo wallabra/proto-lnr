@@ -10,7 +10,7 @@ export const OARS: PartDef<EngineArgs> = {
   name: "Oars",
   cost: 30,
   thrust: 5000,
-  vulnerability: 0.001,
+  vulnerability: 0.0002,
   maxDamage: 20,
   rarity: 1,
   manned: 25,
