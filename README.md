@@ -12,7 +12,7 @@ physics simulation.
 # How to Play
 
 You can currently play on the [GitHub Pages site](wallabra.github.io/proto-lnr).
-JavaScript and HTML5 support are both equired.
+Your browser must support JavaScript, as well as HTML5 Canvas.
 
 * Move and steer with the **left mouse button.**
 * Shoot with **Spacebar.**
