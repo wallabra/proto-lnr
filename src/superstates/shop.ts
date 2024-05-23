@@ -1548,6 +1548,12 @@ export default class IntermissionState extends Superstate {
           }
         },
       },
+      {
+        name: "Weight",
+        stat: function (this: StatRow) {
+          return `Your ship weights ${this.makeup.totalWeight()}kgs`;
+        }
+      },
     ];
   }
 

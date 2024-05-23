@@ -843,6 +843,15 @@ export class ShipMakeup {
     }
     return this.nextReadyCannon.range;
   }
+  
+  totalWeight() {
+    return (
+      this.make.weight +
+      this.inventory.items
+        .map((item) => item.weight * (item.amount || 1))
+        .reduce((a, b) => a + b, 0)
+    );
+  }
 
   tick(deltaTime: number) {
     this.parts.forEach((p) => p.tick(deltaTime));

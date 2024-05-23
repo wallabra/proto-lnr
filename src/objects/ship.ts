@@ -598,12 +598,7 @@ export class Ship {
   }
 
   computeWeight() {
-    return (
-      this.makeup.make.weight +
-      this.makeup.inventory.items
-        .map((item) => item.weight * (item.amount || 1))
-        .reduce((a, b) => a + b, 0)
-    );
+    return this.makeup.totalWeight();
   }
 
   private updateWeight() {
