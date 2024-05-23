@@ -535,13 +535,15 @@ export class Ship {
     const offs = this.pos.clone().subtract(ship.pos);
     offs.multiply(Vec2(deltaTime * 0.5, deltaTime * 0.5));
     const totalEnergy = this.kineticEnergy() + ship.kineticEnergy();
+    const directionality = this.vel.subtract(ship.vel).norm().dot(ship.pos.clone().subtract(this.pos).norm());
+    const collisionEnergy = totalEnergy * directionality;
 
     this.pos.add(offs);
     ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(totalEnergy);
-    ship.damageShip(totalEnergy);
+    this.damageShip(collisionEnergy / 2);
+    ship.damageShip(collisionEnergy / 2);
   }
   
   kineticEnergy(): number {
