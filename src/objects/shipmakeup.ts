@@ -294,7 +294,7 @@ export class Cannon extends ShipPart {
       "caliber: " + Math.round(this.caliber * 10) + "mm",
       "max SPM:" + 60 / this.shootRate,
       "max range: " + this.range,
-      "spread (°): " + Math.max((this.spread * 360) / Math.PI),
+      "spread (°): " + Math.ceil((this.spread * 360) / Math.PI),
     ];
   }
 
@@ -398,7 +398,7 @@ export class Engine extends ShipPart {
 
   shopInfo(): string[] {
     return [
-      "fuel type: " + this.fuelType,
+      this.fuelType == null ? 'no fuel' : "fuel type: " + this.fuelType,
       "fuel cost /min:" + Math.round(this.fuelCost * 600) / 10,
       "thrust: " + Math.round(this.thrust * 100),
     ];
