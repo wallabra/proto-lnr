@@ -311,7 +311,7 @@ class DrydockPartWidget extends Pane<
     this.shouldUpdateDetails = false;
 
     const lines = [
-      ...this.part.shopInfo(),
+      ...this.part.shopInfo(this.makeup),
       ...this.manningRequirements(),
       ...this.manningStatus(),
     ];
@@ -422,7 +422,7 @@ class DrydockInventoryItemWidget extends Pane<
       return;
     }
 
-    const lines = this.item.shopInfo();
+    const lines = this.item.shopInfo(this.makeup);
 
     if (lines.length < this.details.children.length) {
       this.details.children
@@ -1451,7 +1451,7 @@ export default class IntermissionState extends Superstate {
         name: "Salary",
         stat: function (this: StatRow) {
           const totalSalary = this.makeup.crew
-            .map((c) => c.salary)
+            .map((c) => c.nextSalary())
             .reduce((a, b) => a + b, 0);
           if (this.player.money < totalSalary) {
             const hasUnhappy = this.makeup.crew.some((c) => !c.isHappy());

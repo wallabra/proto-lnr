@@ -8,7 +8,7 @@ export interface InventoryItem {
   integerAmounts?: boolean;
   amount?: number;
   onRemove?(): void;
-  shopInfo?(): string[];
+  shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;
   endOfDay?(player: Player): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;

@@ -83,13 +83,13 @@ export class ShipPart implements ShipItem {
     return this.alreadyManned() && this._available(makeup);
   }
 
-  shopInfo(): string[] {
-    return this.manned && !this.alreadyManned()
+  shopInfo(makeup?: ShipMakeup): string[] {
+    return makeup != null && this.manned && !this.alreadyManned()
       ? [
           "Needs to be manned" +
             (typeof this.manned !== "number"
               ? ""
-              : ` (min. total crew strength ${this.manned})`),
+              : ` (min. crew strength ${this.manned})`),
         ]
       : [];
   }
@@ -182,34 +182,61 @@ export class Crew implements ShipItem {
   onRemove() {
     this.unassign();
   }
-
-  endLevelUpdate(player: Player, makeup: ShipMakeup) {
+  
+  private payWages(player: Player) {
     if (player.money < this.salary) {
       this.salaryWithhold++;
     } else {
-      player.money -= this.salary;
+      player.money -= this.nextSalary();
       this.salaryWithhold = 0;
     }
+  }
+  
+  private consumeFood(makeup: ShipMakeup) {
     this.hunger += this.caloricIntake;
     this.hunger -= makeup.subtractFood(this.hunger);
   }
+  
+  nextSalary(): number {
+    return this.salary * (1 + this.salaryWithhold);
+  }
 
-  shopInfo(): string[] {
+  endLevelUpdate(player: Player, makeup: ShipMakeup) {
+    this.payWages(player);
+    this.consumeFood(makeup);
+  }
+
+  shopInfo(makeup?: ShipMakeup): string[] {
     return [
-      "daily salary: " + this.salary,
+      (makeup == null ? 'daily salary: ' : "next day's salary: ") + this.nextSalary(),
       "daily food intake: " + this.caloricIntake,
       "manning strength: " + this.strength,
-      this.manningPart == null
+      ...makeup == null ? [] : [this.manningPart == null
         ? "idle"
-        : "manning a " + this.manningPart.getItemLabel(),
+        : "manning a " + this.manningPart.getItemLabel()],
     ];
+  }
+  
+  isHungry(): boolean {
+    return this.hunger >= this.caloricIntake * 3;
+  }
+  
+  isUnderpaid(): boolean {
+    return this.salaryWithhold > this.maxSalaryWithhold();
   }
 
   isHappy(): boolean {
     return (
-      this.hunger < this.caloricIntake * 3 &&
-      this.salaryWithhold < this.maxSalaryWithhold()
+      !this.isHungry() &&
+      !this.isUnderpaid()
     );
+  }
+  
+  strikeReason(): string {
+    const reasons = [];
+    if (this.isHungry()) reasons.push('hunger');
+    if (this.isUnderpaid()) reasons.push('wage withholding');
+    return reasons.join(' and ')
   }
 
   isOccupied(): boolean {
@@ -218,7 +245,7 @@ export class Crew implements ShipItem {
 
   getInventoryLabel(makeup: ShipMakeup): string {
     let res = this.nameInDeck(makeup);
-    if (!this.isHappy()) res += ' (on strike)';
+    if (!this.isHappy()) res += ` (on strike for ${this.strikeReason()})`;
     return res;
   }
 
