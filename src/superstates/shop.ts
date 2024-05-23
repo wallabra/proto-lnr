@@ -556,7 +556,6 @@ class DrydockInventoryWidget extends Pane<
   private itemList: CanvasScroller;
   private resellFactor: number;
   private itemWidgets: DrydockInventoryItemWidget[];
-  private counters: CanvasLabel;
 
   protected buildPane(args: DrydockInventoryWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -573,21 +572,6 @@ class DrydockInventoryWidget extends Pane<
       childMargin: 15,
     });
 
-    this.counters = new CanvasLabel({
-      parent: this.pane,
-      dockMarginX: 10,
-      dockMarginY: 12,
-      label: "-",
-      height: 14,
-      autoFont: true,
-      color: "#a887",
-      font: "$Hpx sans-serif",
-      childOrdering: "vertical",
-      childMargin: 10,
-      x: 5,
-    });
-    this.updateCounters();
-
     this.itemList = new CanvasScroller({
       parent: this.pane,
       axis: "horizontal",
@@ -597,10 +581,6 @@ class DrydockInventoryWidget extends Pane<
       fillX: true,
       bgColor: "#0000",
     });
-  }
-
-  private updateCounters() {
-    this.counters.label = `Food: ${this.makeup.inventory.getItemsOf("food").reduce((a, b) => a + b.amount, 0)} (-${this.makeup.crew.reduce((sum, crew) => sum + crew.caloricIntake, 0)}/day)`;
   }
 
   private addItem(shipItem) {
@@ -643,7 +623,6 @@ class DrydockInventoryWidget extends Pane<
 
   public update() {
     this.furnishItemList();
-    this.updateCounters();
   }
 }
 
