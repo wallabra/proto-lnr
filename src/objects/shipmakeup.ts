@@ -52,11 +52,11 @@ export class ShipPart implements ShipItem {
     this.integerAmounts = true;
     this.mannedBy = [];
   }
-  
+
   onRemove(): void {
     this.unassignCrew();
   }
-  
+
   unassignCrew(): void {
     const allCrew = Array.from(this.mannedBy);
     for (const crew of allCrew) {
@@ -84,7 +84,14 @@ export class ShipPart implements ShipItem {
   }
 
   shopInfo(): string[] {
-    return [];
+    return this.manned && !this.alreadyManned()
+      ? [
+          "Needs to be manned" +
+            (typeof this.manned !== "number"
+              ? ""
+              : ` (min. total crew strength ${this.manned})`),
+        ]
+      : [];
   }
 
   repairCost() {
@@ -154,7 +161,7 @@ export class Crew implements ShipItem {
     this.cost = this.salary * 7;
     this.caloricIntake = args.caloricIntake || 1;
   }
-  
+
   onRemove() {
     this.unassign();
   }
@@ -484,10 +491,9 @@ export class ShipMakeup {
     const crew = this.crew;
     if (crew.length === 0) return null;
 
-    const res = (
-      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null
-    );
-    
+    const res =
+      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null;
+
     if (!res) part.unassignCrew();
     return res;
   }

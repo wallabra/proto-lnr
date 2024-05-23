@@ -80,19 +80,6 @@ export const PARTDEFS: {
       },
       shopRepeat: 2,
       rarity: 1.5,
-      manned: 12,
-    },
-    {
-      name: "Howitzer",
-      maxDamage: 15,
-      thrust: 3.0,
-      cost: 2500,
-      fuel: {
-        type: "diesel",
-        cost: 0.15,
-      },
-      rarity: 7,
-      manned: 13,
     },
     {
       name: "Oilytron",
@@ -103,7 +90,28 @@ export const PARTDEFS: {
         cost: 0.12,
       },
       rarity: 4,
-      manned: 15,
+    },
+    {
+      name: "Howitzer",
+      maxDamage: 15,
+      thrust: 3.0,
+      cost: 1900,
+      fuel: {
+        type: "diesel",
+        cost: 0.15,
+      },
+      rarity: 7,
+    },
+    {
+      name: "V-Star",
+      thrust: 3.3,
+      cost: 2500,
+      fuel: {
+        type: "diesel",
+        cost: 0.17,
+      },
+      manned: 12,
+      rarity: 4,
     },
   ],
   cannon: [
