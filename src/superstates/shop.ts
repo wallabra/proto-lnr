@@ -124,6 +124,7 @@ class DrydockPartWidget extends Pane<
       parent: this.pane,
       childOrdering: "vertical",
       childMargin: 3,
+      fillX: true,
     });
     this.shouldUpdateDetails = true;
     this.updateDetails();
@@ -147,8 +148,10 @@ class DrydockPartWidget extends Pane<
 
     this.buttonList = new CanvasUIGroup({
       parent: this.pane,
+      fillX: true,
       childOrdering: "vertical",
-      childMargin: 5,
+      childFill: 1,
+      childMargin: 7,
     });
 
     this.buttonArgs = {
@@ -156,6 +159,7 @@ class DrydockPartWidget extends Pane<
       height: 20,
       childOrdering: "vertical",
       childMargin: 1,
+      childFill: 1,
     };
 
     this.labelArgs = {
@@ -189,7 +193,7 @@ class DrydockPartWidget extends Pane<
         this.assignCrewButton = new CanvasButton({
           ...this.buttonArgs,
           parent: this.buttonList,
-          callback: this.crewButtonAction,
+          callback: this.crewButtonAction.bind(this),
           bgColor: "#2040f0c0",
         });
       }
@@ -265,23 +269,23 @@ class DrydockPartWidget extends Pane<
       return ["Manned by: " + this.part.mannedBy.map((c) => c.name).join(", ")];
     }
   }
-  
+
   private updateDetailLine(line: string, idx: number) {
-    if (this.details.children.length < idx) {
+    if (this.details.children.length <= idx) {
       new CanvasLabel({
-            parent: this.details,
-            label: line,
-            dockX: "start",
-            dockMarginX: 4,
-            color: "#bbb",
-            childOrdering: "vertical",
-            childMargin: 2,
-            height: 10,
-            autoFont: true,
-            font: "$Hpx sans-serif",
-          })
+        parent: this.details,
+        label: line,
+        dockX: "start",
+        dockMarginX: 4,
+        color: "#bbb",
+        childOrdering: "vertical",
+        childMargin: 2,
+        height: 10,
+        autoFont: true,
+        font: "$Hpx sans-serif",
+      });
     } else {
-      (<CanvasLabel> this.details.children[idx]).label = line;
+      (<CanvasLabel>this.details.children[idx]).label = line;
     }
   }
 
@@ -289,13 +293,11 @@ class DrydockPartWidget extends Pane<
     if (!this.shouldUpdateDetails) return;
     this.shouldUpdateDetails = false;
 
-    const lines = this.part
-      .shopInfo()
-      .concat(this.manningStatus());
-      
+    const lines = this.part.shopInfo().concat(this.manningStatus());
+
     lines.forEach((line, i) => this.updateDetailLine(line, i));
 
-    for (let child of this.details.children.slice(lines.length).reverse()) {
+    for (const child of this.details.children.slice(lines.length).reverse()) {
       child.remove();
     }
 
@@ -304,7 +306,7 @@ class DrydockPartWidget extends Pane<
 
   public update() {
     this.label.label = this.part.getItemLabel();
-    this.damageMeter.progress = this.part.damage / this.part.maxDamage;
+    this.damageMeter.setProgress(this.part.damage / this.part.maxDamage);
     this.damageLabel.label =
       this.part.damage <= 0
         ? "Not damaged"
@@ -331,6 +333,7 @@ class DrydockInventoryItemWidget extends Pane<
   private itemLabel: CanvasLabel;
   private resellButton: CanvasButton;
   private details: CanvasUIElement;
+  private buttonList: CanvasUIGroup;
   private shouldUpdateDetails: boolean;
 
   protected buildPane(args: DrydockInventoryItemWidgetArgs & CanvasPanelArgs) {
@@ -357,11 +360,20 @@ class DrydockInventoryItemWidget extends Pane<
     this.shouldUpdateDetails = true;
     this.updateDetails();
 
-    this.resellButton = new CanvasButton({
+    this.buttonList = new CanvasUIGroup({
       parent: this.pane,
+      fillX: true,
+      childOrdering: "vertical",
+      childFill: 1,
+      childMargin: 7,
+    });
+
+    this.resellButton = new CanvasButton({
+      parent: this.buttonList,
       bgColor: "#22882290",
       childOrdering: "vertical",
       childMargin: 1,
+      childFill: 1,
       fillX: true,
       height: 20,
       callback: () => {},
@@ -371,10 +383,11 @@ class DrydockInventoryItemWidget extends Pane<
 
     if (this.item instanceof ShipPart) {
       new CanvasButton({
-        parent: this.pane,
+        parent: this.buttonList,
         bgColor: "#22228890",
         childOrdering: "vertical",
         childMargin: 1,
+        childFill: 1,
         fillX: true,
         height: 20,
         callback: this.installPart.bind(this),
@@ -680,7 +693,7 @@ class PaneShop extends Pane<PaneShopArgs> {
       childOrdering: "vertical",
       childMargin: 30,
       fillX: 1.0,
-      fillY: 0.6,
+      childFill: 1,
       axis: "vertical",
     });
 
@@ -909,8 +922,9 @@ class PaneDrydock extends Pane {
     } else {
       this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
     }
-    this.hullDamageMeter.progress =
-      this.makeup.hullDamage / this.makeup.make.maxDamage;
+    this.hullDamageMeter.setProgress(
+      this.makeup.hullDamage / this.makeup.make.maxDamage,
+    );
   }
 
   private updateCashCounter() {
@@ -1070,6 +1084,7 @@ export default class IntermissionState extends Superstate {
       game: this.game,
     };
 
+    this.ui.checkUpdateCache();
     this.ui.render(ctx);
   }
 

@@ -89,11 +89,29 @@ export interface CanvasUIArgs {
   paddingY?: number;
   childOrdering?: UIAxis | null;
   childMargin?: number;
+  childFill?: number;
   layer?: number;
   cullOutOfBounds?: boolean;
 }
 
-export abstract class CanvasUIElement {
+export interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type CachedInfo = {
+  last: Date;
+  dims: Rectangle;
+  innerPos: { x: number; y: number };
+} & { [infoName: string]: unknown };
+
+function or(item, def) {
+  return item != null ? item : def;
+}
+
+export abstract class CanvasUIElement<ExtraProps = Record<string, never>> {
   parent: CanvasUIElement | undefined;
   children: Array<CanvasUIElement>;
   x: number;
@@ -111,20 +129,24 @@ export abstract class CanvasUIElement {
   fillY: boolean | number;
   paddingX: number;
   paddingY: number;
-  childMargin;
-  number;
+  childMargin: number;
+  childFill: number;
   childOrdering: UIAxis | null;
   layer: number;
   cullOutOfBounds: boolean;
+  cached: CachedInfo;
+  modified: boolean;
 
-  constructor(args: CanvasUIArgs) {
+  constructor(args: CanvasUIArgs & ExtraProps) {
     this.parent = args.parent;
     this.children = [];
 
+    Object.assign(this, args);
+
     this.x = args.x || 0;
     this.y = args.y || 0;
-    this.width = args.width || 1;
-    this.height = args.height || 1;
+    this.width = or(args.width, 1);
+    this.height = or(args.height, 1);
     this.hidden = args.hidden || false;
     this.alignX = args.alignX || "start";
     this.alignY = args.alignY || "start";
@@ -134,10 +156,11 @@ export abstract class CanvasUIElement {
     this.dockMarginY = args.dockMarginY || 0;
     this.fillX = args.fillX || false;
     this.fillY = args.fillY || false;
-    this.paddingX = args.paddingX || 8;
-    this.paddingY = args.paddingY || 8;
+    this.paddingX = or(args.paddingX, 8);
+    this.paddingY = or(args.paddingY, 8);
     this.childOrdering = args.childOrdering || null;
-    this.childMargin = args.childMargin || 5;
+    this.childMargin = or(args.childMargin, 5);
+    this.childFill = args.childFill || 0;
     this.layer = args.layer || 0;
     this.cullOutOfBounds =
       args.cullOutOfBounds != null ? args.cullOutOfBounds : false;
@@ -145,6 +168,49 @@ export abstract class CanvasUIElement {
     if (this.parent != null) {
       this.parent._addChild(this);
     }
+
+    this.updateCache();
+    this.modified = false;
+  }
+
+  checkUpdateCache() {
+    for (const child of this.children) {
+      child.checkUpdateCache();
+    }
+
+    if (!this.modified) return;
+    this.modified = false;
+    this.updateCache();
+  }
+
+  updateCache() {
+    this.cached = {
+      last: new Date(),
+      dims: {
+        x: 0,
+        y: 0,
+        width: this.computeWidth(),
+        height: this.computeHeight(),
+      },
+      innerPos: { x: 0, y: 0 },
+    };
+    const { x, y } = this.computePos();
+    Object.assign(this.cached.dims, {
+      x,
+      y,
+      right: x + this.cached.dims.width,
+      bottom: y + this.cached.dims.height,
+    });
+    this.cached.innerPos = this.computeInnerPos();
+    Object.assign(this.cached, this.extraCacheInfo());
+
+    for (const child of this.children) {
+      child.updateCache();
+    }
+  }
+
+  protected extraCacheInfo(): { [infoName: string]: unknown } {
+    return {};
   }
 
   childIndex() {
@@ -162,6 +228,7 @@ export abstract class CanvasUIElement {
 
   _addChild(item) {
     this.children.push(item);
+    this.modified = true;
   }
 
   remove() {
@@ -172,6 +239,7 @@ export abstract class CanvasUIElement {
   removeChild(item) {
     const idx = this.children.indexOf(item);
     if (idx != -1) this.children.splice(idx, 1);
+    this.modified = true;
   }
 
   clearChildren() {
@@ -180,8 +248,49 @@ export abstract class CanvasUIElement {
     }
   }
 
-  get realWidth() {
-    if (this.parent == null || !this.fillX) {
+  private childFillRealEstate() {
+    const order = this.childOrdering;
+    return (
+      (order === "horizontal"
+        ? this.parent.innerWidth
+        : this.parent.innerHeight) -
+      this.parent.children
+        .filter((c) => c.childOrdering === order)
+        .reduce(
+          (sum, child) =>
+            sum +
+            (child.childFill === 0
+              ? order === "horizontal"
+                ? child.realWidth
+                : child.realHeight
+              : 0) +
+            child.childMargin * 2,
+          0,
+        )
+    );
+  }
+
+  private childFillTotalFill() {
+    return this.parent.children
+      .filter((c) => c.childOrdering === this.childOrdering && c.childFill > 0)
+      .reduce((sum, child) => sum + child.childFill, 0);
+  }
+
+  private childFillSize() {
+    const realEstate = this.childFillRealEstate();
+    const totalFill = this.childFillTotalFill();
+    const ratio = this.childFill / totalFill;
+    return realEstate * ratio;
+  }
+
+  computeWidth() {
+    if (
+      this.childOrdering === "horizontal" &&
+      this.childFill > 0 &&
+      this.parent != null
+    ) {
+      return this.childFillSize();
+    } else if (this.parent == null || !this.fillX) {
       return this.width;
     } else if (typeof this.fillX === "number") {
       return this.parent.innerWidth * this.fillX;
@@ -190,14 +299,28 @@ export abstract class CanvasUIElement {
     }
   }
 
-  get realHeight() {
-    if (this.parent == null || !this.fillY) {
+  computeHeight() {
+    if (
+      this.childOrdering === "vertical" &&
+      this.childFill > 0 &&
+      this.parent != null
+    ) {
+      return this.childFillSize();
+    } else if (this.parent == null || !this.fillY) {
       return this.height;
     } else if (typeof this.fillY === "number") {
       return this.parent.innerHeight * this.fillY;
     } else {
       return this.parent.innerHeight;
     }
+  }
+
+  get realWidth() {
+    return this.cached.dims.width;
+  }
+
+  get realHeight() {
+    return this.cached.dims.height;
   }
 
   get innerWidth() {
@@ -229,19 +352,7 @@ export abstract class CanvasUIElement {
     }
 
     if (changed) {
-      this.propagateUpdate();
-    }
-  }
-
-  checkPropagateUpdate() {
-    if (this.fillX || this.fillY) {
-      this.propagateUpdate();
-    }
-  }
-
-  propagateUpdate() {
-    for (const child of this.children) {
-      child.checkPropagateUpdate();
+      this.modified = true;
     }
   }
 
@@ -249,7 +360,7 @@ export abstract class CanvasUIElement {
     return this.parent.childrenOffset();
   }
 
-  pos() {
+  computePos() {
     let x = this.x;
     let y = this.y;
 
@@ -289,7 +400,15 @@ export abstract class CanvasUIElement {
     };
   }
 
+  pos() {
+    return { x: this.cached.dims.x, y: this.cached.dims.y };
+  }
+
   innerPos() {
+    return Object.assign({}, this.cached.innerPos);
+  }
+
+  computeInnerPos() {
     const pos = this.pos();
     pos.x += this.paddingX;
     pos.y += this.paddingY;
@@ -379,26 +498,18 @@ export abstract class CanvasUIElement {
   }
 }
 
-export class CanvasRoot extends CanvasUIElement {
+export class CanvasRoot extends CanvasUIElement<{ game: Game }> {
   game: Game;
   bgColor: string;
 
   constructor(game, bgColor = "#050505") {
-    super({ parent: null });
+    super({ parent: null, game: game, x: 0, y: 0 });
     this.game = game;
     this.bgColor = bgColor;
   }
 
   preChildrenRender() {}
   postChildrenRender() {}
-
-  get realWidth() {
-    return this.game.width;
-  }
-
-  get realHeight() {
-    return this.game.height;
-  }
 
   _render(uictx: UIDrawContext): void {
     const ctx = uictx.ctx;
@@ -449,7 +560,7 @@ export class CanvasButton extends CanvasUIElement {
       dockY: "center",
       textAlign: "center",
       textBaseline: "middle",
-      font: `{this.realHeight * 0.8}px Arial`,
+      font: `${Math.min(16, this.realHeight * 0.5)}px sans-serif`,
       parent: this,
       ...(labelOpts || {}),
     }));
@@ -564,7 +675,7 @@ export class CanvasSplitPanel extends CanvasPanel {
   preChildrenRender() {}
   postChildrenRender() {}
 
-  pos() {
+  computePos() {
     const pos = super.pos();
 
     pos.x += this.margin;
@@ -581,7 +692,7 @@ export class CanvasSplitPanel extends CanvasPanel {
     return pos;
   }
 
-  get realWidth() {
+  computeWidth() {
     let width;
 
     if (this.axis == "horizontal") {
@@ -595,7 +706,7 @@ export class CanvasSplitPanel extends CanvasPanel {
     return width - this.margin * 2;
   }
 
-  get realHeight() {
+  computeHeight() {
     let height;
 
     if (this.axis == "horizontal") {
@@ -655,11 +766,7 @@ class Scrollbar extends CanvasUIElement {
 
   constructor(args: ScrollbarArgs) {
     super(args);
-    this.barSize = args.barSize;
-    this.scroller = args.scroller;
     this.thickness = args.thickness || 10;
-    this.bgColor = args.bgColor;
-    this.barColor = args.barColor;
     this.barPadding = args.barPadding != null ? args.barPadding : 2;
     this.barSize = 1.0;
   }
@@ -676,6 +783,7 @@ class Scrollbar extends CanvasUIElement {
       0,
       Math.min(1, this.scroller.scrollPos + delta),
     );
+    this.scroller.modified = true;
   }
 
   scrollSpan() {
@@ -708,12 +816,12 @@ class Scrollbar extends CanvasUIElement {
     }
   }
 
-  get realWidth() {
+  computeWidth() {
     if (this.scroller.axis === "vertical") return this.thickness;
     return this.parent.innerWidth;
   }
 
-  get realHeight() {
+  computeHeight() {
     if (this.scroller.axis === "horizontal") return this.thickness;
     return this.parent.innerHeight;
   }
@@ -782,12 +890,21 @@ class Scrollbar extends CanvasUIElement {
 class CanvasScrollerContentPane extends CanvasUIElement {
   parent: CanvasScroller;
   measuring: boolean = false;
+  private updatingParent: boolean = false;
+
+  updateCache(): void {
+    super.updateCache();
+    if (this.updatingParent) return;
+    this.updatingParent = true;
+    this.parent.updateCache();
+    this.updatingParent = false;
+  }
 
   inheritedOffset(): { x: number; y: number } {
     return { x: 0, y: 0 };
   }
 
-  pos() {
+  computePos() {
     return this.parent.innerPos();
   }
 
@@ -796,11 +913,11 @@ class CanvasScrollerContentPane extends CanvasUIElement {
     return { x: 0, y: 0 };
   }
 
-  get realWidth() {
+  computeWidth() {
     return this.parent.contentWidth();
   }
 
-  get realHeight() {
+  computeHeight() {
     return this.parent.contentHeight();
   }
 
@@ -836,6 +953,7 @@ export class CanvasScroller extends CanvasUIElement {
       ...DEFAULT_SCROLLBAR_OPTIONS,
       ...(args.scrollbarOpts || {}),
     };
+    this.updateCache();
   }
 
   public addChild(item) {
@@ -895,7 +1013,7 @@ export class CanvasScroller extends CanvasUIElement {
     if (this.axis === "vertical") return this.realHeight;
   }
 
-  get scrollDims() {
+  scrollDims() {
     let start = null,
       end = null;
 
@@ -919,9 +1037,15 @@ export class CanvasScroller extends CanvasUIElement {
   }
 
   get scrollLength() {
-    const [start, end] = this.scrollDims;
-
-    return end - start;
+    return this.contentPane.children
+      .filter((child) => child.childOrdering === this.axis)
+      .reduce(
+        (sum, child) =>
+          sum +
+          child.childMargin * 2 +
+          (this.axis === "horizontal" ? child.realWidth : child.realHeight),
+        0,
+      );
   }
 
   get axialSize() {
@@ -930,7 +1054,7 @@ export class CanvasScroller extends CanvasUIElement {
   }
 
   get scrollOffs() {
-    const [start, end] = this.scrollDims;
+    const [start, end] = this.scrollDims();
     const len = end - start;
     return start + len * this.scrollPos - this.axialSize;
   }
@@ -1020,6 +1144,10 @@ export class CanvasImage extends CanvasUIElement {
 export class CanvasUIGroup extends CanvasUIElement {
   private measuring: boolean;
 
+  constructor(args: CanvasUIArgs) {
+    super({ paddingY: 0, paddingX: 0, ...args });
+  }
+
   isInside(x: number, y: number): boolean {
     return this.children.some((c) => c.isInside(x, y));
   }
@@ -1050,32 +1178,30 @@ export class CanvasUIGroup extends CanvasUIElement {
     }
 
     this.measuring = true; // prevent infinite recursion
+    this.updateCache();
     const [start, end] = this.contentDims;
-    if (start.x == null || end.x == null) return { x: 0, y: 0 };
     this.measuring = false;
+    this.modified = true;
+
+    if (start.x == null || end.x == null) return { x: 0, y: 0 };
     return {
       x: end.x - start.x,
       y: end.y - start.y,
     };
   }
 
-  get realWidth() {
+  computeWidth() {
+    if (this.measuring) return super.computeWidth();
     return this.contentSize.x;
   }
 
-  get realHeight() {
+  computeHeight() {
+    if (this.measuring) return super.computeHeight();
     return this.contentSize.y;
   }
 
-  get innerWidth() {
-    return this.parent.innerWidth;
-  }
-
-  get innerHeight() {
-    return this.parent.innerHeight;
-  }
-
-  innerPos() {
+  computeInnerPos() {
+    if (this.measuring) return { x: 0, y: 0 };
     return this.pos();
   }
 
@@ -1101,6 +1227,11 @@ export class CanvasProgressBar extends CanvasUIElement {
     this.bgColor = args.bgColor || "#222222D8";
     this.progressColor = args.progressColor || "#A22A";
     this.progress = args.progress || 0;
+  }
+
+  setProgress(progress: number) {
+    this.progress = progress;
+    this.modified = true;
   }
 
   _render(ctx: UIDrawContext): void {
