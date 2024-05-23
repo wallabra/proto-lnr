@@ -262,13 +262,28 @@ class DrydockPartWidget extends Pane<
     if (this.makeup.removePart(this.part)) this.destroy();
   }
 
+  private manningRequirements() {
+    if (!this.part.manned) return [];
+
+    if (typeof this.part.manned !== "number") {
+      return ["Needs to be manned"];
+    } else {
+      return [`Needs min. ${this.part.manned} total manning strength`];
+    }
+  }
+
   private manningStatus() {
     if (!this.part.manned) return [];
 
     if (!this.part.alreadyManned()) {
       return ["(Not Manned)"];
     } else {
-      return ["Manned by: " + this.part.mannedBy.map((c) => c.name).join(", ")];
+      return [
+        "Manned by: " +
+          this.part.mannedBy
+            .map((c) => c.getInventoryLabel(this.makeup))
+            .join(", "),
+      ];
     }
   }
 
@@ -295,7 +310,11 @@ class DrydockPartWidget extends Pane<
     if (!this.shouldUpdateDetails) return;
     this.shouldUpdateDetails = false;
 
-    const lines = this.part.shopInfo().concat(this.manningStatus());
+    const lines = [
+      ...this.part.shopInfo(),
+      ...this.manningRequirements(),
+      ...this.manningStatus(),
+    ];
 
     lines.forEach((line, i) => this.updateDetailLine(line, i));
 
@@ -398,24 +417,42 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   private updateDetails() {
-    this.details.clearChildren();
+    if (this.item.shopInfo == null) {
+      this.details.clearChildren();
+      return;
+    }
 
-    if (this.item.shopInfo != null)
-      this.item.shopInfo().map(
-        (line) =>
-          new CanvasLabel({
-            parent: this.details,
-            label: line,
-            dockX: "start",
-            dockMarginX: 4,
-            color: "#bbb",
-            childOrdering: "vertical",
-            childMargin: 2,
-            height: 10,
-            autoFont: true,
-            font: "$Hpx sans-serif",
-          }),
-      );
+    const lines = this.item.shopInfo();
+
+    if (lines.length < this.details.children.length) {
+      this.details.children
+        .slice(lines.length)
+        .reverse()
+        .forEach((c) => {
+          c.remove();
+        });
+    }
+
+    while (this.details.children.length < lines.length) {
+      new CanvasLabel({
+        parent: this.details,
+        label: "",
+        dockX: "start",
+        dockMarginX: 4,
+        color: "#bbb",
+        childOrdering: "vertical",
+        childMargin: 2,
+        height: 10,
+        autoFont: true,
+        font: "$Hpx sans-serif",
+      });
+    }
+
+    let idx = 0;
+    for (const line of lines) {
+      (<CanvasLabel>this.details.children[idx]).label = line;
+      idx++;
+    }
   }
 
   private resellCost(factor = 1) {
@@ -467,8 +504,9 @@ class DrydockInventoryItemWidget extends Pane<
 
   public update() {
     this.itemLabel.label = itemLabel(this.item, this.makeup, null);
-    this.resellLabel.label = `${this.item.type === 'crew' ? 'Fire' : 'Resell'}${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
+    this.resellLabel.label = `${this.item.type === "crew" ? "Fire" : "Resell"}${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
+    this.updateDetails();
   }
 }
 
@@ -907,26 +945,26 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
       childMargin: 6,
       height: 15,
     });
-    
+
     const detailGroup = new CanvasUIGroup({
       parent: this.pane,
-      childOrdering: 'vertical',
+      childOrdering: "vertical",
       childMargin: 10,
-      fillX: true
-    })
+      fillX: true,
+    });
 
     this.detail = new CanvasUIGroup({
       parent: detailGroup,
-      dockX: 'start',
-      dockY: 'start',
+      dockX: "start",
+      dockY: "start",
       fillX: 0.5,
       bgColor: "#00003006",
     });
-    
+
     this.detail2 = new CanvasUIGroup({
       parent: this.pane,
-      dockX: 'end',
-      dockY: 'start',
+      dockX: "end",
+      dockY: "start",
       fillX: 0.5,
       bgColor: "#303000030",
     });
@@ -990,11 +1028,10 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
   }
 
   private slotInfo(slot: PartSlot) {
-    return ' *  ' + slot.type;
+    return " *  " + slot.type;
   }
 
   private populateDetail(): void {
-    const slotCounts = slots(this.makeup.make);
     const info = [
       "HP: " + this.make.maxDamage,
       "Size: " + this.make.size,
@@ -1002,11 +1039,8 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
       "Repair cost / HP: " + this.make.repairCostScale,
       "Drag: " + this.make.drag,
     ];
-    
-    const info2 = [
-      "Slots:",
-      ...this.make.slots.map((s) => this.slotInfo(s)),
-    ];
+
+    const info2 = ["Slots:", ...this.make.slots.map((s) => this.slotInfo(s))];
 
     for (const line of info) {
       new CanvasLabel({
@@ -1014,21 +1048,21 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
         label: line,
         childMargin: 2,
         childOrdering: "vertical",
-        color: '#dde',
+        color: "#dde",
         textBaseline: "middle",
         autoFont: true,
         font: "$Hpx sans-serif",
         height: 11,
       });
     }
-    
+
     for (const line of info2) {
       new CanvasLabel({
         parent: this.detail2,
         label: line,
         childMargin: 2,
         childOrdering: "vertical",
-        color: '#eda',
+        color: "#eda",
         textBaseline: "middle",
         autoFont: true,
         font: "$Hpx sans-serif",
@@ -1062,18 +1096,18 @@ class PaneHarbour extends Pane<PaneHarbourArgs> {
       height: 30,
       font: "bold $Hpx sans-serif",
       label: "Harbour",
-      color: '#fff'
+      color: "#fff",
     });
-    
+
     this.shipMakeScroller = new CanvasScroller({
       parent: this.pane,
       fillX: true,
-      childOrdering: 'vertical',
+      childOrdering: "vertical",
       childFill: 1,
       childMargin: 3,
-      bgColor: '#0003',
-      axis: 'vertical'
-    })
+      bgColor: "#0003",
+      axis: "vertical",
+    });
 
     let counter = 0;
     for (const make of args.makes) {
@@ -1544,7 +1578,7 @@ export default class IntermissionState extends Superstate {
 
   public render() {
     this.maximizeUI();
-    
+
     for (const pane of this.panes) {
       if (pane.update) pane.update();
     }

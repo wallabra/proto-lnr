@@ -506,7 +506,9 @@ export class ShipMakeup {
     if (crew.length === 0) return null;
 
     const res =
-      crew.find((c) => !c.manningPart && c.assignToPart(part) && part.alreadyManned()) || null;
+      crew.find(
+        (c) => !c.manningPart && c.assignToPart(part) && part.alreadyManned(),
+      ) || null;
 
     if (!res) part.unassignCrew();
     return res;

@@ -272,7 +272,12 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   private childFillTotalFill() {
     return this.parent.children
-      .filter((c) => c.childOrdering === this.childOrdering && c.childFill > 0 && !c.hidden)
+      .filter(
+        (c) =>
+          c.childOrdering === this.childOrdering &&
+          c.childFill > 0 &&
+          !c.hidden,
+      )
       .reduce((sum, child) => sum + child.childFill, 0);
   }
 
