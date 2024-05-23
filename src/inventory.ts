@@ -8,6 +8,7 @@ export interface InventoryItem {
   integerAmounts?: boolean;
   amount?: number;
   weight: number;
+  dropChance?: number;
   onRemove?(): void;
   shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;
@@ -94,6 +95,7 @@ export class FuelItem implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
+  dropChance: number = 0.6;
 
   canConsolidate(other: FuelItem): boolean {
     return other.cost === this.cost && other.name === this.name;
@@ -131,6 +133,7 @@ export class FoodItem implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
+  dropChance: number = 0.5;
 
   canConsolidate(other: FoodItem): boolean {
     return other.spoilDays === this.spoilDays && other.name === this.name;

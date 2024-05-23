@@ -40,6 +40,7 @@ export class ShipPart implements ShipItem {
   integerAmounts: boolean;
   weight: number;
   mannedBy: Crew[];
+  dropChance: number = 0.4;
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -166,6 +167,7 @@ export class Crew implements ShipItem {
   dying: boolean = false;
   name: string;
   integerAmounts: boolean;
+  dropChance: number = 0;
 
   nameInDeck(makeup: ShipMakeup) {
     const which =

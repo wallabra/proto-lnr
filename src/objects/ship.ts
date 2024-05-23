@@ -380,8 +380,8 @@ export class Ship {
 
   dropItems() {
     for (const item of this.makeup.inventory.items) {
-      if (item.type === "crew") continue;
       this.makeup.inventory.removeItem(item);
+      if (item.dropChance != null && Math.random() > item.dropChance) continue;
       this.spawnDroppedItem(item);
     }
   }
@@ -551,7 +551,7 @@ export class Ship {
   }
 
   kineticEnergy(): number {
-    return (1 / 2) * this.weight * Math.pow(this.vel.length(), 2);
+    return this.phys.kineticEnergy();
   }
 
   checkShipCollisions(deltaTime) {

@@ -60,12 +60,16 @@ export class Cannonball {
   // --
 
   get damageFactor() {
-    // TODO: make depend on munition type
-    return Math.pow(this.size / 3, 3) * 5;
+    // TODO: make depend on munition type (corrosive, oxidizing, explosive, incendiary etc)
+    return 1;
+  }
+  
+  kineticEnergy(): number {
+    return this.phys.kineticEnergy();
   }
 
   get damage() {
-    return this.damageFactor * this.weight;
+    return this.damageFactor * this.phys.kineticEnergy();
   }
 
   destroy() {
