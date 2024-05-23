@@ -1013,8 +1013,7 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
   private populateDetail(): void {
     const info = [
       "HP: " + this.make.maxDamage,
-      "Size: " + this.make.size,
-      "Lateral cross section: " + this.make.lateralCrossSection,
+      `Size: ${this.make.size * this.make.lateralCrossSection}x${this.make.size}`,
       "Repair cost / HP: " + this.make.repairCostScale,
       "Drag: " + this.make.drag,
     ];
