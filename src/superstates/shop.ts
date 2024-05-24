@@ -44,9 +44,12 @@ interface PaneArgs {
 }
 
 function weightInfo(item: ShipItem) {
-  if (item.weight < 10) return `weight: ${Math.ceil(item.weight * 1000)}g`;
+  const amount = item.amount != null ? item.amount : 1;
+  const weight = amount * item.weight;
 
-  return `weight: ${Math.ceil(item.weight)}kg`;
+  if (weight < 10) return `weight: ${Math.ceil(weight * 1000)}g`;
+
+  return `weight: ${Math.ceil(weight)}kg`;
 }
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
