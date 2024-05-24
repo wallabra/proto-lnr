@@ -19,7 +19,7 @@ export const OARS: PartDef<EngineArgs> = {
 
 export const DEFAULT_ENGINE = {
   name: "Steamy",
-  cost: 160,
+  cost: 350,
   thrust: 16000,
   maxDamage: 100,
   fuel: { type: "coal", cost: 0.008 },
@@ -31,7 +31,7 @@ export const DEFAULT_ENGINE = {
 
 export const DEFAULT_CANNON = {
   name: "Shooty",
-  cost: 160,
+  cost: 500,
   caliber: 4,
   range: 900,
   shootRate: 2,
@@ -132,7 +132,7 @@ export const PARTDEFS: {
       name: "WX Hefty",
       caliber: 5.5,
       range: 600,
-      cost: 622,
+      cost: 700,
       maxDamage: 150,
       shootRate: 3.5,
       shopRepeat: 2,
@@ -145,7 +145,7 @@ export const PARTDEFS: {
       name: "WX Hefty Mk-II",
       caliber: 5.5,
       range: 700,
-      cost: 700,
+      cost: 820,
       maxDamage: 170,
       shootRate: 2.4,
       rarity: 2.5,
@@ -157,7 +157,7 @@ export const PARTDEFS: {
       name: "Juggernaut",
       caliber: 7.5,
       range: 550,
-      cost: 1200,
+      cost: 2100,
       maxDamage: 400,
       shootRate: 3.5,
       rarity: 5,
@@ -169,7 +169,7 @@ export const PARTDEFS: {
       name: "Speedy",
       caliber: 4,
       range: 800,
-      cost: 1000,
+      cost: 650,
       maxDamage: 130,
       shootRate: 1.0,
       shopRepeat: 2,
