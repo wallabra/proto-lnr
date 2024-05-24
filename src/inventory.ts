@@ -12,7 +12,7 @@ export interface InventoryItem {
   onRemove?(): void;
   shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;
-  endLevelUpdate?(player: Player, makeup: ShipMakeup): void;
+  endLevelUpdate?(player: Player): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
   getInventoryLabel?(makeup: ShipMakeup): string;
 }
@@ -156,7 +156,7 @@ export class FoodItem implements ShipItem {
     this.dying = true;
   }
 
-  endOfDay(_player: Player) {
+  endLevelUpdate(_player: Player) {
     if (this.spoilDays <= 0) {
       return;
     }

@@ -311,7 +311,7 @@ export class Crew implements ShipItem {
   }
 }
 
-export const CANNONBALL_DENSITY = 15;
+export const CANNONBALL_DENSITY = 2;
 
 export class CannonballAmmo implements ShipItem {
   type = "ammo";
