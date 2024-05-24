@@ -46,12 +46,13 @@ export class AIController {
         if (
           this.possessed.maxShootRange != null &&
           Math.abs(angDiff(this.possessed.angle, targetAngle)) <
-            Math.atan(
-              (this.possessed.lastInstigator.size +
-                this.possessed.lastInstigator.lateralCrossSection) /
-                2 /
-                targetDist,
-            ) &&
+            this.possessed.maxSpread() * 0.6 +
+              Math.atan(
+                (this.possessed.lastInstigator.size +
+                  this.possessed.lastInstigator.lateralCrossSection) /
+                  2 /
+                  targetDist,
+              ) &&
           targetDist < this.possessed.maxShootRange
         ) {
           this.possessed.tryShoot(targetDist);

@@ -5,7 +5,7 @@ import { ObjectRenderInfo } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
-import { Engine, ShipMake, ShipMakeup } from "./shipmakeup";
+import { Engine, ShipMake, ShipMakeup, Cannon } from "./shipmakeup";
 import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
@@ -138,6 +138,15 @@ export class Ship {
       const cs = 1 + (alpha * this.lateralCrossSection) / this.size;
       return this.phys.baseDrag * cs;
     }.bind(this);
+  }
+
+  maxSpread() {
+    return Math.max(
+      ...this.makeup
+        .getPartsOf("cannon")
+        .filter((c) => c.available(this.makeup))
+        .map((c) => (<Cannon>c).spread),
+    );
   }
 
   // -- phys util getters
