@@ -1,5 +1,6 @@
 import Vec2 from "victor";
 import { PlayState } from "../superstates/play";
+import { getReturnOfExpression } from "utility-types";
 
 export interface PhysicsParams {
   size: number;
@@ -183,8 +184,12 @@ export class PhysicsObject {
     this.applyForce(deltaTime, dragForce);
   }
 
-  kineticEnergy(): number {
-    return (1 / 2) * this.weight * Math.pow(this.vel.length(), 2);
+  kineticEnergy(vel?: number): number {
+    return (1 / 2) * this.weight * Math.pow((vel != null ? vel : this.vel.length()), 2);
+  }
+
+  kineticEnergyRelativeTo(other: PhysicsObject): number {
+    return this.kineticEnergy(this.vel.subtract(other.vel).length(getReturnOfExpression));
   }
 
   physFriction(deltaTime: number) {

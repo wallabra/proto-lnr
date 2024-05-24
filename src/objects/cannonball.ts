@@ -64,14 +64,6 @@ export class Cannonball {
     return 1;
   }
 
-  kineticEnergy(): number {
-    return this.phys.kineticEnergy();
-  }
-
-  get damage() {
-    return this.damageFactor * this.phys.kineticEnergy();
-  }
-
   destroy() {
     this.dying = true;
     this.phys.dying = true;
@@ -90,7 +82,7 @@ export class Cannonball {
       0.75,
       Math.pow(1.5, this.vel.subtract(ship.vel).norm().dot(toward)),
     );
-    ship.damageShip(this.damage * this.vel.length() * damageScale);
+    ship.damageShip(this.damageFactor * this.phys.kineticEnergyRelativeTo(ship) * damageScale * 10);
     if (ship.dying) {
       this.instigator.killScore++;
     }
