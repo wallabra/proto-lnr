@@ -858,7 +858,7 @@ class StatRow {
 
     this.pane = new CanvasPanel({
       parent: args.parent,
-      bgColor: "#eeffff90",
+      bgColor: "#eeffff10",
       fillX: 0.9,
       dockX: "center",
       childOrdering: "vertical",
