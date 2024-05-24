@@ -608,6 +608,7 @@ class DrydockInventoryWidget extends Pane<
   protected buildPane(args: DrydockInventoryWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
     this.itemWidgets = [];
+    console.log(this.makeup.inventory.items);
 
     new CanvasLabel({
       parent: this.pane,
