@@ -544,7 +544,7 @@ class DrydockInventoryItemWidget extends Pane<
       this.item.type === "crew"
         ? "Fire"
         : `Resell (${moneyString(this.resellCost())})`;
-    this.resellHalfLabel.label = `Resell (${moneyString(this.resellCost(0.5))})`;
+    this.resellHalfLabel.label = `Resell Half (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
     this.updateDetails();
   }
