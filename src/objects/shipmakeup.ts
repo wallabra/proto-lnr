@@ -113,7 +113,8 @@ export class ShipPart implements ShipItem {
 
   tryRepair(owner: Player) {
     const cost = this.repairCost();
-    const maxFix = owner.money * this.maxDamage / this.repairCostScale / this.cost;
+    const maxFix =
+      (owner.money * this.maxDamage) / this.repairCostScale / this.cost;
 
     if (owner.money < cost) {
       this.damage -= maxFix;
@@ -547,6 +548,13 @@ export class ShipMakeup {
       food.dying = true;
     }
     return hunger;
+  }
+
+  hullRepairCost(): number {
+    return (
+      (this.hullDamage * this.make.repairCostScale * this.make.cost) /
+      this.make.maxDamage
+    );
   }
 
   get ammo() {

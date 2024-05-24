@@ -1334,12 +1334,7 @@ class PaneDrydock extends Pane {
   }
 
   repairCost() {
-    return (
-      (this.makeup.hullDamage *
-        this.makeup.make.repairCostScale *
-        this.makeup.make.cost) /
-      this.makeup.make.maxDamage
-    );
+    return this.makeup.hullRepairCost();
   }
 }
 
@@ -1549,7 +1544,7 @@ export default class IntermissionState extends Superstate {
         name: "Repairs",
         stat: function (this: StatRow) {
           const totalRepairCost =
-            this.makeup.hullDamage * this.makeup.make.repairCostScale +
+            this.makeup.hullRepairCost() +
             this.makeup.parts
               .map((p) => p.repairCost())
               .reduce((a, b) => a + b, 0);
