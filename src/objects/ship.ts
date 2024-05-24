@@ -373,13 +373,21 @@ export class Ship {
       );
   }
 
+  private pickupParams(): Partial<PhysicsParams> {
+    return {
+        vel: this.vel.add(Vec2(0.3, 0).rotateBy(random.uniform(0, Math.PI * 2)())),
+        vspeed: 0.5,
+        height: this.height + 0.1
+    }
+  }
+
   dropCash() {
     this.play.spawn<CashPickup, CashPickupParams>(
       CashPickup,
       this.pickupSpawnPos(),
       {
         cash: this.money,
-        vel: this.vel,
+        ...this.pickupParams()
       },
     );
     this.setMoney(0);
@@ -399,7 +407,7 @@ export class Ship {
       this.pickupSpawnPos(),
       {
         item: item,
-        vel: this.vel,
+        ...this.pickupParams()
       },
     );
   }
