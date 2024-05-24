@@ -509,15 +509,23 @@ class DrydockInventoryItemWidget extends Pane<
     this.destroy();
   }
 
+  private fireCrew() {
+    const crew = <Crew> this.item;
+    crew.unassign();
+    this.makeup.inventory.removeItem(this.item);
+    this.destroy();
+  }
+
   private updateResellAction() {
     this.resellButton.callback = (
-      this.onlyResellHalf() ? this.resellHalf : this.resell
+      this.item.type === 'crew' ? this.fireCrew :
+      (this.onlyResellHalf() ? this.resellHalf : this.resell)
     ).bind(this);
   }
 
   public update() {
     this.itemLabel.label = itemLabel(this.item, this.makeup, null);
-    this.resellLabel.label = `${this.item.type === "crew" ? "Fire" : "Resell"}${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
+    this.resellLabel.label = this.item.type === 'crew' ? 'Fire' : `Resell${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
     this.updateDetails();
   }
