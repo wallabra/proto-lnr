@@ -113,7 +113,7 @@ export class ShipPart implements ShipItem {
 
   tryRepair(owner: Player) {
     const cost = this.repairCost();
-    const maxFix = owner.money / this.repairCostScale;
+    const maxFix = owner.money * this.maxDamage / this.repairCostScale / this.cost;
 
     if (owner.money < cost) {
       this.damage -= maxFix;
