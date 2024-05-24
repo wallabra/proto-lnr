@@ -31,7 +31,7 @@ export const MAKEDEFS: ShipMake[] = [
     weight: 300,
   },
   {
-    name: 'Queen Bee',
+    name: "Queen Bee",
     cost: 1400,
     slots: [{ type: "cannon" }, { type: "cannon" }, { type: "engine" }],
     maxDamage: 26000,
@@ -39,12 +39,17 @@ export const MAKEDEFS: ShipMake[] = [
     size: 16,
     lateralCrossSection: 1.4,
     repairCostScale: 1.3,
-    weight: 750
+    weight: 750,
   },
   {
     name: "Hubris",
     cost: 1700,
-    slots: [{ type: "cannon" }, { type: "cannon" }, { type: "engine" }, { type: 'engine' }],
+    slots: [
+      { type: "cannon" },
+      { type: "cannon" },
+      { type: "engine" },
+      { type: "engine" },
+    ],
     maxDamage: 24000,
     drag: 0.25,
     size: 14,
@@ -72,7 +77,7 @@ export const MAKEDEFS: ShipMake[] = [
     weight: 1550,
   },
   {
-    name: 'High Harpooner',
+    name: "High Harpooner",
     cost: 5200,
     slots: [
       { type: "cannon" },
@@ -88,7 +93,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 22,
     lateralCrossSection: 2.15,
     repairCostScale: 2,
-    weight: 2000
+    weight: 2000,
   },
   {
     name: "Jasper",

@@ -102,7 +102,11 @@ export class Ship {
     this.lastInstigTime = null;
     this.killScore = 0;
     this.tickActions = [];
-    this.setMoney(params.money != null ? params.money : this.makeup.make.cost * random.uniform(0.02, 0.2)());
+    this.setMoney(
+      params.money != null
+        ? params.money
+        : this.makeup.make.cost * random.uniform(0.02, 0.2)(),
+    );
 
     this.dragMixin();
     this.updateWeight();
@@ -375,10 +379,12 @@ export class Ship {
 
   private pickupParams(): Partial<PhysicsParams> {
     return {
-        vel: this.vel.add(Vec2(0.3, 0).rotateBy(random.uniform(0, Math.PI * 2)())),
-        vspeed: 0.5,
-        height: this.height + 0.1
-    }
+      vel: this.vel.add(
+        Vec2(0.3, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
+      ),
+      vspeed: 0.5,
+      height: this.height + 0.1,
+    };
   }
 
   dropCash() {
@@ -387,7 +393,7 @@ export class Ship {
       this.pickupSpawnPos(),
       {
         cash: this.money,
-        ...this.pickupParams()
+        ...this.pickupParams(),
       },
     );
     this.setMoney(0);
@@ -407,7 +413,7 @@ export class Ship {
       this.pickupSpawnPos(),
       {
         item: item,
-        ...this.pickupParams()
+        ...this.pickupParams(),
       },
     );
   }

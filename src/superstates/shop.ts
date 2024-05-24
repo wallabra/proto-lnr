@@ -310,6 +310,7 @@ class DrydockPartWidget extends Pane<
     this.shouldUpdateDetails = false;
 
     const lines = [
+      `weight: ${Math.ceil(this.part.weight)}kgs`,
       ...this.part.shopInfo(this.makeup),
       ...this.manningRequirements(),
       ...this.manningStatus(),
@@ -436,7 +437,10 @@ class DrydockInventoryItemWidget extends Pane<
       return;
     }
 
-    const lines = this.item.shopInfo(this.makeup);
+    const lines = [
+      `weight: ${Math.ceil(this.item.weight)}kgs`,
+      ...this.item.shopInfo(this.makeup),
+    ];
 
     if (lines.length < this.details.children.length) {
       this.details.children
