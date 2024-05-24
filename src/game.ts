@@ -103,6 +103,16 @@ export class Game {
         ),
         { angle: Math.random() * Math.PI * 2, make: "random" },
       );
+      if (
+        aiship.pos.clone().subtract(play.player.possessed.pos).length() <
+        aiship.size * aiship.lateralCrossSection +
+          play.player.possessed.size *
+            play.player.possessed.lateralCrossSection +
+          800
+      ) {
+        aiship.die();
+        continue;
+      }
       if (aiship.floor > play.waterLevel * 0.5) {
         aiship.die();
         continue;
