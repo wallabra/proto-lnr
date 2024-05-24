@@ -118,7 +118,7 @@ export class Game {
         continue;
       }
       const parts = randomParts(
-        3 + random.exponential(1.5)() * 15,
+        Math.max(2.5, 3 + random.exponential(1.5)() * 5) * aiship.makeup.make.slots.length,
         aiship.makeup.make,
       );
       for (const part of parts) {
