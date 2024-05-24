@@ -602,7 +602,7 @@ export class Ship {
 
   checkTerrainDamage(deltaTime) {
     if (this.phys.floor > this.play.waterLevel) {
-      this.damageShip(10000 * deltaTime);
+      this.damageShip(1000 * deltaTime);
     }
   }
 

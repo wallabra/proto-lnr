@@ -311,7 +311,7 @@ export class Crew implements ShipItem {
   }
 }
 
-export const CANNONBALL_DENSITY = 0.03;
+export const CANNONBALL_DENSITY = 0.065;
 
 export class CannonballAmmo implements ShipItem {
   type = "ammo";
@@ -401,7 +401,7 @@ export class Cannon extends ShipPart {
       size: this.caliber,
       weight: this.cannonballSphericalVolume() * CANNONBALL_DENSITY,
     });
-    cball.phys.vspeed = dist / 500;
+    cball.phys.vspeed = dist / 350;
     cball.phys.angle += random.uniform(-this.spread, this.spread)();
     const airtime = cball.airtime();
 
