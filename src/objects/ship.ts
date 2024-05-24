@@ -551,7 +551,7 @@ export class Ship {
       .subtract(ship.vel)
       .norm()
       .dot(ship.pos.clone().subtract(this.pos).norm());
-    const collisionEnergy = totalEnergy * directionality;
+    const collisionEnergy = totalEnergy * Math.max(0.2, directionality);
 
     this.pos.add(offs);
     ship.pos.subtract(offs);
