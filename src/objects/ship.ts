@@ -10,6 +10,7 @@ import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
+import { getReturnOfExpression } from "utility-types";
 
 const DEBUG_DRAW = false;
 
@@ -568,23 +569,20 @@ export class Ship {
 
     const offs = this.pos.clone().subtract(ship.pos);
     offs.multiply(Vec2(deltaTime * 0.5, deltaTime * 0.5));
-    const totalEnergy = this.kineticEnergy() + ship.kineticEnergy();
-    const directionality = this.vel
+    let directionality = this.vel
       .subtract(ship.vel)
       .norm()
       .dot(ship.pos.clone().subtract(this.pos).norm());
-    const collisionEnergy = totalEnergy * Math.max(0.2, directionality);
+    directionality = Math.max(0.2, directionality);
 
     this.pos.add(offs);
     ship.pos.subtract(offs);
+    this.phys.applyForce(1.0, ship.vel.multiply(Vec2(ship.weight, ship.weight)));
+    ship.phys.applyForce(1.0, this.vel.multiply(Vec2(this.weight, this.weight)));
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(collisionEnergy * 0.3);
-    ship.damageShip(collisionEnergy * 0.3);
-  }
-
-  kineticEnergy(): number {
-    return this.phys.kineticEnergy();
+    this.damageShip(ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.3);
+    ship.damageShip(this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.3);
   }
 
   checkShipCollisions(deltaTime) {
