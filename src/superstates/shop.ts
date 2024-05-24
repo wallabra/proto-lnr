@@ -894,7 +894,7 @@ interface PaneStatsArgs extends PaneArgs {
 }
 
 class PaneStats extends Pane<PaneStatsArgs> {
-  statRows: StatRow[] = [];
+  statRows: StatRow[];
 
   private _buildPane(args: PaneStatsArgs) {
     new CanvasLabel({
@@ -925,7 +925,6 @@ class PaneStats extends Pane<PaneStatsArgs> {
   }
 
   private updateStats() {
-    console.log(this.statRows);
     for (const stat of this.statRows) {
       stat.update();
     }
@@ -1101,7 +1100,7 @@ interface PaneHarbourArgs extends PaneArgs {
 }
 
 class PaneHarbour extends Pane<PaneHarbourArgs> {
-  private shipMakeWidgets: ShipMakeWidget[] = [];
+  private shipMakeWidgets: ShipMakeWidget[];
   private shipMakeScroller: CanvasScroller;
 
   protected buildPane(args: PaneHarbourArgs & CanvasPanelArgs) {
