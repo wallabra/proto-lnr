@@ -86,7 +86,7 @@ export class Cannonball {
       this.damageFactor *
         this.phys.kineticEnergyRelativeTo(ship) *
         damageScale *
-        50,
+        30,
     );
     if (ship.dying) {
       this.instigator.killScore++;
