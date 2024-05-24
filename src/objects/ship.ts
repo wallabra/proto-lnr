@@ -102,7 +102,7 @@ export class Ship {
     this.lastInstigTime = null;
     this.killScore = 0;
     this.tickActions = [];
-    this.setMoney(params.money != null ? params.money : this.makeup.make.cost * random.uniform(0.08, 0.5)());
+    this.setMoney(params.money != null ? params.money : this.makeup.make.cost * random.uniform(0.02, 0.2)());
 
     this.dragMixin();
     this.updateWeight();
