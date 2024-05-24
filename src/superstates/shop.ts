@@ -438,11 +438,6 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   private updateDetails() {
-    if (this.item.shopInfo == null) {
-      this.details.clearChildren();
-      return;
-    }
-
     const lines = [weightInfo(this.item), ...this.item.shopInfo(this.makeup)];
 
     if (lines.length < this.details.children.length) {
