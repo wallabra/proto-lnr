@@ -355,6 +355,8 @@ class DrydockInventoryItemWidget extends Pane<
   private details: CanvasUIElement;
   private buttonList: CanvasUIGroup;
   private shouldUpdateDetails: boolean;
+  private resellHalfButton: CanvasButton;
+  private resellHalfLabel: CanvasLabel;
 
   protected buildPane(args: DrydockInventoryItemWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -387,6 +389,19 @@ class DrydockInventoryItemWidget extends Pane<
       childFill: 1,
       childMargin: 7,
     });
+
+    this.resellHalfButton = new CanvasButton({
+      parent: this.buttonList,
+      bgColor: "#22882290",
+      childOrdering: "vertical",
+      childMargin: 1,
+      childFill: 1,
+      fillX: true,
+      height: 20,
+      hidden: !this.letResellHalf(),
+      callback: this.resellHalf.bind(this),
+    });
+    this.resellHalfLabel = this.resellHalfButton.label("-", { color: "#fff" });
 
     this.resellButton = new CanvasButton({
       parent: this.buttonList,
@@ -474,7 +489,7 @@ class DrydockInventoryItemWidget extends Pane<
     );
   }
 
-  private onlyResellHalf() {
+  private letResellHalf() {
     return this.item.amount != null && this.item.amount > 1;
   }
 
@@ -518,12 +533,9 @@ class DrydockInventoryItemWidget extends Pane<
 
   private updateResellAction() {
     this.resellButton.callback = (
-      this.item.type === "crew"
-        ? this.fireCrew
-        : this.onlyResellHalf()
-          ? this.resellHalf
-          : this.resell
+      this.item.type === "crew" ? this.fireCrew : this.resell
     ).bind(this);
+    this.resellHalfButton.hidden = !this.letResellHalf();
   }
 
   public update() {
@@ -531,7 +543,8 @@ class DrydockInventoryItemWidget extends Pane<
     this.resellLabel.label =
       this.item.type === "crew"
         ? "Fire"
-        : `Resell${this.onlyResellHalf() ? " Half" : ""} (${moneyString(this.resellCost(0.5))})`;
+        : `Resell (${moneyString(this.resellCost())})`;
+    this.resellHalfLabel.label = `Resell (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
     this.updateDetails();
   }
@@ -912,6 +925,7 @@ class PaneStats extends Pane<PaneStatsArgs> {
   }
 
   private updateStats() {
+    console.log(this.statRows);
     for (const stat of this.statRows) {
       stat.update();
     }
