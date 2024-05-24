@@ -682,7 +682,7 @@ class ShopItemWidget extends Pane<
   CanvasPanel,
   CanvasPanelArgs
 > {
-  private item: ShipItem;
+  item: ShipItem;
 
   protected buildPane(args: ShopItemWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -807,11 +807,13 @@ class PaneShop extends Pane<PaneShopArgs> {
       return;
     console.log("Update shop listings");
 
-    this.itemList.contentPane.clearChildren();
-
-    for (const item of this.shopItems) {
-      this.addShopItem(item);
-    }
+    updateList(
+      this.shopItems,
+      this.itemWidgets,
+      (remaining, widget) => remaining.indexOf(widget.item),
+      (item) => this.addShopItem(item),
+      (item) => this.makeup.inventory.items.indexOf(item) > -1,
+    );
   }
 
   public update() {
