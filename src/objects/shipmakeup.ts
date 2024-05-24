@@ -656,7 +656,7 @@ export class ShipMakeup {
   }
 
   defaultLoadout() {
-    const engines = [Engine.oars(), Engine.default()];
+    const engines = [Engine.default(), Engine.default()];
     const cannons = Array(2).fill(0).map(Cannon.default);
     for (const engine of engines) {
       this.inventory.addItem(this.addPart(engine));
