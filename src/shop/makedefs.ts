@@ -15,7 +15,7 @@ export const DEFAULT_MAKE: ShipMake = {
   size: 20,
   lateralCrossSection: 1.7,
   repairCostScale: 1.5,
-  weight: 1300,
+  weight: 4000,
 };
 
 export const MAKEDEFS: ShipMake[] = [
@@ -28,7 +28,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 12,
     lateralCrossSection: 2,
     repairCostScale: 1.1,
-    weight: 300,
+    weight: 1000,
   },
   {
     name: "Queen Bee",
@@ -39,7 +39,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 16,
     lateralCrossSection: 1.4,
     repairCostScale: 1.3,
-    weight: 750,
+    weight: 2000,
   },
   {
     name: "Hubris",
@@ -55,7 +55,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 14,
     lateralCrossSection: 2.5,
     repairCostScale: 1.3,
-    weight: 700,
+    weight: 1800,
   },
   DEFAULT_MAKE,
   {
@@ -74,7 +74,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 22,
     lateralCrossSection: 1.8,
     repairCostScale: 1.6,
-    weight: 1550,
+    weight: 7000,
   },
   {
     name: "High Harpooner",
@@ -93,7 +93,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 22,
     lateralCrossSection: 2.15,
     repairCostScale: 2,
-    weight: 2000,
+    weight: 8500,
   },
   {
     name: "Jasper",
@@ -113,7 +113,7 @@ export const MAKEDEFS: ShipMake[] = [
     size: 27,
     lateralCrossSection: 1.4,
     repairCostScale: 1.9,
-    weight: 2100,
+    weight: 11000,
   },
   {
     name: "Marie Antoniette",
@@ -138,6 +138,6 @@ export const MAKEDEFS: ShipMake[] = [
     size: 33,
     lateralCrossSection: 2.2,
     repairCostScale: 2.5,
-    weight: 4000,
+    weight: 16000,
   },
 ];
