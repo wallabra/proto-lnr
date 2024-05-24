@@ -1562,7 +1562,7 @@ export default class IntermissionState extends Superstate {
       {
         name: "Weight",
         stat: function (this: StatRow) {
-          return `Your ship weights ${this.makeup.totalWeight()}kgs`;
+          return `Your ship weights ${Math.ceil(this.makeup.totalWeight())}kgs; ${Math.ceil(this.makeup.make.weight)}kgs of that is the hull.`;
         },
       },
     ];
