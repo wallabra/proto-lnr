@@ -250,12 +250,11 @@ class DrydockPartWidget extends Pane<
   }
 
   private tryRepair() {
+    this.part.tryRepair(this.player);
     if (this.part.damage === 0) {
       this.repairButton.remove();
       this.repairButton = null;
-      return;
     }
-    this.part.tryRepair(this.player);
   }
 
   private tryUninstall() {
