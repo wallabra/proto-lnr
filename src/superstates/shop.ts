@@ -1029,7 +1029,8 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
   }
 
   private constructLabel() {
-    return `Buy & Switch to Make (${this.makeup.make.cost > this.make.cost ? "+" : "-"}$${Math.abs(this.make.cost - this.makeup.make.cost)})`;
+    const cost = this.getCost();
+    return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}$${Math.abs(cost)})`;
   }
 
   private trySwitch() {
