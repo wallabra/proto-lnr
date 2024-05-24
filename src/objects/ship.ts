@@ -577,12 +577,10 @@ export class Ship {
 
     this.pos.add(offs);
     ship.pos.subtract(offs);
-    this.phys.applyForce(1.0, ship.vel.multiply(Vec2(ship.weight, ship.weight)));
-    ship.phys.applyForce(1.0, this.vel.multiply(Vec2(this.weight, this.weight)));
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.3);
-    ship.damageShip(this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.3);
+    this.damageShip(ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2);
+    ship.damageShip(this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2);
   }
 
   checkShipCollisions(deltaTime) {
