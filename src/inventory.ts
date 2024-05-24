@@ -12,7 +12,7 @@ export interface InventoryItem {
   onRemove?(): void;
   shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;
-  endOfDay?(player: Player): void;
+  endLevelUpdate?(player: Player, makeup: ShipMakeup): void;
   canConsolidate?(other: unknown & InventoryItem): boolean;
   getInventoryLabel?(makeup: ShipMakeup): string;
 }
@@ -73,9 +73,9 @@ export class ShipInventory {
     this.inventory = this.inventory.filter((i) => !i.dying);
   }
 
-  endOfDay(player: Player) {
+  endLevelUpdate(player: Player) {
     for (const item of this.inventory) {
-      if (item.endOfDay != null) item.endOfDay(player);
+      if (item.endLevelUpdate != null) item.endLevelUpdate(player);
     }
   }
 }

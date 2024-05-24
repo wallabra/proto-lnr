@@ -68,7 +68,7 @@ export class ShipPart implements ShipItem {
     }
   }
 
-  endLevelUpdate(_player: Player, _makeup: ShipMakeup) {}
+  endLevelUpdate(_player: Player) {}
 
   protected _available(_makeup: ShipMakeup): boolean {
     return true;
@@ -196,10 +196,11 @@ export class Crew implements ShipItem {
   }
 
   private payWages(player: Player) {
-    if (player.money < this.salary) {
+    const amount = this.nextSalary();
+    if (player.money < amount) {
       this.salaryWithhold++;
     } else {
-      player.money -= this.nextSalary();
+      player.money -= status;
       this.salaryWithhold = 0;
     }
   }
@@ -213,9 +214,9 @@ export class Crew implements ShipItem {
     return this.salary * (1 + this.salaryWithhold);
   }
 
-  endLevelUpdate(player: Player, makeup: ShipMakeup) {
+  endLevelUpdate(player: Player) {
     this.payWages(player);
-    this.consumeFood(makeup);
+    this.consumeFood(player.makeup);
   }
 
   shopInfo(makeup?: ShipMakeup): string[] {
@@ -866,9 +867,6 @@ export class ShipMakeup {
   }
 
   endLevelUpdate(player: Player) {
-    for (const part of this.parts) {
-      part.endLevelUpdate(player, this);
-    }
-    this.inventory.endOfDay(player);
+    this.inventory.endLevelUpdate(player);
   }
 }
