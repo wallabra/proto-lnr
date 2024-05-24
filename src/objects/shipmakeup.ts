@@ -401,7 +401,7 @@ export class Cannon extends ShipPart {
       size: this.caliber,
       weight: this.cannonballSphericalVolume() * CANNONBALL_DENSITY,
     });
-    cball.phys.vspeed = dist / 250;
+    cball.phys.vspeed = dist / 500;
     cball.phys.angle += random.uniform(-this.spread, this.spread)();
     const airtime = cball.airtime();
 
