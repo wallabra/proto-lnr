@@ -11,7 +11,7 @@ physics simulation.
 
 ## How to Play
 
-You can currently play on the [GitHub Pages site](wallabra.github.io/proto-lnr).
+You can currently play on the [GitHub Pages site](https://wallabra.github.io/proto-lnr).
 Your browser must support JavaScript, as well as HTML5 Canvas.
 
 * Move and steer with the **left mouse button.**
