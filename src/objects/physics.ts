@@ -185,11 +185,15 @@ export class PhysicsObject {
   }
 
   kineticEnergy(vel?: number): number {
-    return (1 / 2) * this.weight * Math.pow((vel != null ? vel : this.vel.length()), 2);
+    return (
+      (1 / 2) * this.weight * Math.pow(vel != null ? vel : this.vel.length(), 2)
+    );
   }
 
   kineticEnergyRelativeTo(other: PhysicsObject): number {
-    return this.kineticEnergy(this.vel.subtract(other.vel).length(getReturnOfExpression));
+    return this.kineticEnergy(
+      this.vel.subtract(other.vel).length(getReturnOfExpression),
+    );
   }
 
   physFriction(deltaTime: number) {

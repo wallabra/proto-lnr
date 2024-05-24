@@ -493,7 +493,7 @@ export class Engine extends ShipPart {
     return [
       this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
       "fuel cost /min: " + Math.round(this.fuelCost * 600) / 10,
-      "thrust: " + Math.round(this.thrust / 10) / 100 + 'kN',
+      "thrust: " + Math.round(this.thrust / 10) / 100 + "kN",
     ];
   }
 

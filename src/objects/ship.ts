@@ -10,7 +10,6 @@ import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
-import { getReturnOfExpression } from "utility-types";
 
 const DEBUG_DRAW = false;
 
@@ -579,8 +578,12 @@ export class Ship {
     ship.pos.subtract(offs);
     ship.setInstigator(this);
     this.setInstigator(ship);
-    this.damageShip(ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2);
-    ship.damageShip(this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2);
+    this.damageShip(
+      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2,
+    );
+    ship.damageShip(
+      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2,
+    );
   }
 
   checkShipCollisions(deltaTime) {

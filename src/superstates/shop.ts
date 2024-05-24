@@ -43,6 +43,12 @@ interface PaneArgs {
   state: IntermissionState;
 }
 
+function weightInfo(item: ShipItem) {
+  if (item.weight < 10) return `weight: ${Math.ceil(item.weight * 1000)}g`;
+
+  return `weight: ${Math.ceil(item.weight)}kg`;
+}
+
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
   return (
     `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${item.getInventoryLabel && makeup != null ? item.getInventoryLabel(makeup) : item.getItemLabel()}` +
@@ -310,7 +316,7 @@ class DrydockPartWidget extends Pane<
     this.shouldUpdateDetails = false;
 
     const lines = [
-      `weight: ${Math.ceil(this.part.weight)}kgs`,
+      weightInfo(this.part),
       ...this.part.shopInfo(this.makeup),
       ...this.manningRequirements(),
       ...this.manningStatus(),
@@ -437,10 +443,7 @@ class DrydockInventoryItemWidget extends Pane<
       return;
     }
 
-    const lines = [
-      `weight: ${Math.ceil(this.item.weight)}kgs`,
-      ...this.item.shopInfo(this.makeup),
-    ];
+    const lines = [weightInfo(this.item), ...this.item.shopInfo(this.makeup)];
 
     if (lines.length < this.details.children.length) {
       this.details.children
