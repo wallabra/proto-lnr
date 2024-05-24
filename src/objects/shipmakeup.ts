@@ -382,7 +382,7 @@ export class Cannon extends ShipPart {
   }
 
   constructor(args: CannonArgs) {
-    super({ type: "cannon", maxDamage: 8, vulnerability: 0.002, ...args });
+    super({ type: "cannon", maxDamage: 8, vulnerability: 0.02, ...args });
     this.caliber = args.caliber;
     this.range = args.range || 600;
     this.shootRate = args.shootRate;
@@ -484,7 +484,7 @@ export class Engine extends ShipPart {
   }
 
   constructor(args: EngineArgs) {
-    super({ type: "engine", maxDamage: 6, vulnerability: 0.003, ...args });
+    super({ type: "engine", maxDamage: 6, vulnerability: 0.03, ...args });
     this.thrust = args.thrust;
     this.fuelType = (args.fuel && args.fuel.type) || null;
     this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
