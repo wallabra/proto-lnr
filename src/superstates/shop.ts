@@ -168,7 +168,7 @@ class DrydockPartWidget extends Pane<
 
     this.buttonArgs = {
       fillX: 1.0,
-      height: 20,
+      height: 13,
       childOrdering: "vertical",
       childMargin: 1,
       childFill: 1,
@@ -176,7 +176,9 @@ class DrydockPartWidget extends Pane<
 
     this.labelArgs = {
       color: "#fffe",
-      font: "11px monospaced",
+      height: 11,
+      autoFont: true,
+      font: "$Hpx monospaced",
     };
 
     if (this.part.damage > 0) {
@@ -364,7 +366,7 @@ class DrydockInventoryItemWidget extends Pane<
   private itemLabel: CanvasLabel;
   private resellButton: CanvasButton;
   private details: CanvasUIElement;
-  private buttonList: CanvasUIGroup;
+  private buttonList: CanvasPanel;
   private shouldUpdateDetails: boolean;
   private resellHalfButton: CanvasButton;
   private resellHalfLabel: CanvasLabel;
@@ -393,14 +395,22 @@ class DrydockInventoryItemWidget extends Pane<
     this.shouldUpdateDetails = true;
     this.updateDetails();
 
-    this.buttonList = new CanvasUIGroup({
+    this.buttonList = new CanvasPanel({
       parent: this.pane,
       fillX: true,
       childOrdering: "vertical",
       childFill: 1,
       childMargin: 7,
+      bgColor: "#00000008",
     });
 
+    const labelArgs = {
+      color: "#fff",
+      height: 12,
+      fillY: 0.3,
+      autoFont: true,
+      font: "$Hpx sans-serif",
+    };
     this.resellHalfButton = new CanvasButton({
       parent: this.buttonList,
       bgColor: "#22882290",
@@ -408,11 +418,11 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 20,
+      height: 13,
       hidden: !this.letResellHalf(),
       callback: this.resellHalf.bind(this),
     });
-    this.resellHalfLabel = this.resellHalfButton.label("-", { color: "#fff" });
+    this.resellHalfLabel = this.resellHalfButton.label("-", labelArgs);
 
     this.resellButton = new CanvasButton({
       parent: this.buttonList,
@@ -421,10 +431,10 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 20,
+      height: 13,
       callback: () => {},
     });
-    this.resellLabel = this.resellButton.label("-", { color: "#fff" });
+    this.resellLabel = this.resellButton.label("-", labelArgs);
     this.updateResellAction();
 
     if (this.item instanceof ShipPart) {
@@ -435,9 +445,9 @@ class DrydockInventoryItemWidget extends Pane<
         childMargin: 1,
         childFill: 1,
         fillX: true,
-        height: 20,
+        height: 13,
         callback: this.installPart.bind(this),
-      }).label("Install Part", { color: "#fff" });
+      }).label("Install Part", labelArgs);
     }
   }
 
@@ -732,7 +742,6 @@ class ShopItemWidget extends Pane<
       color: "#fff",
       fillY: 1.0,
       height: 12,
-      textBaseline: "top",
       dockY: "center",
       autoFont: true,
     });
@@ -956,15 +965,19 @@ class PaneStats extends Pane<PaneStatsArgs> {
   }
 }
 
-class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
+class ShipMakeWidget extends Pane<
+  PaneArgs & ShipMakeWidgetArgs,
+  CanvasUIGroup,
+  CanvasUIGroupArgs
+> {
   private make: ShipMake;
   private detail: CanvasUIGroup;
   private detail2: CanvasUIGroup;
   private switchLabel: CanvasLabel;
   private statusLabel: CanvasLabel;
 
-  protected buildPane(args: PaneArgs & ShipMakeWidgetArgs & CanvasPanelArgs) {
-    this.pane = new CanvasPanel(args);
+  protected buildPane(args: PaneArgs & ShipMakeWidgetArgs & CanvasUIGroupArgs) {
+    this.pane = new CanvasUIGroup(args);
     this.make = args.make;
 
     new CanvasLabel({
@@ -995,11 +1008,12 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
     });
 
     this.detail2 = new CanvasUIGroup({
-      parent: this.pane,
+      parent: detailGroup,
       dockX: "end",
       dockY: "start",
-      fillX: 0.5,
-      bgColor: "#303000030",
+      bgColor: "#00000018",
+      paddingX: 12,
+      paddingY: 8,
     });
 
     this.populateDetail();
@@ -1008,12 +1022,16 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
       parent: this.pane,
       childOrdering: "vertical",
       childMargin: 10,
-      childFill: 1,
       fillX: true,
       bgColor: "#0082",
-      height: 30,
+      height: 22,
       callback: this.trySwitch.bind(this),
-    }).label(this.constructLabel(), { color: "#fff" });
+    }).label(this.constructLabel(), {
+      color: "#fee",
+      height: 14,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
+    });
 
     this.statusLabel = new CanvasLabel({
       parent: this.pane,
@@ -1040,7 +1058,7 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
 
   private constructLabel() {
     const cost = this.getCost();
-    return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}$${moneyString(Math.abs(cost))}))`;
+    return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}${moneyString(Math.abs(cost))}))`;
   }
 
   private trySwitch() {
@@ -1083,7 +1101,6 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
         childMargin: 2,
         childOrdering: "vertical",
         color: "#dde",
-        textBaseline: "middle",
         autoFont: true,
         font: "$Hpx sans-serif",
         height: 11,
@@ -1097,7 +1114,6 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
         childMargin: 2,
         childOrdering: "vertical",
         color: "#eda",
-        textBaseline: "middle",
         autoFont: true,
         font: "$Hpx sans-serif",
         height: 11,
@@ -1150,7 +1166,7 @@ class PaneHarbour extends Pane<PaneHarbourArgs> {
         new ShipMakeWidget({
           parent: this.shipMakeScroller.contentPane,
           fillX: 0.9,
-          fillY: 0.35,
+          fillY: 0.2,
           dockX: "center",
           paddingX: 8,
           paddingY: 12,
@@ -1158,6 +1174,7 @@ class PaneHarbour extends Pane<PaneHarbourArgs> {
           state: this.state,
           childOrdering: "vertical",
           childMargin: 9,
+          childFill: 1,
           make: make,
         }),
       );
@@ -1189,7 +1206,7 @@ class PaneDrydock extends Pane {
       textAlign: "center",
       height: 30,
       childOrdering: "vertical",
-      childMargin: 20,
+      childMargin: 10,
     });
 
     this.cashCounter = new CanvasLabel({
@@ -1233,10 +1250,10 @@ class PaneDrydock extends Pane {
     const partsPane = new CanvasPanel({
       parent: this.pane,
       fillX: true,
-      fillY: 0.4,
       dockX: "center",
       childOrdering: "vertical",
       childMargin: 5,
+      childFill: 3,
       bgColor: "#0006",
     });
 
@@ -1279,13 +1296,13 @@ class PaneDrydock extends Pane {
   private buildInventoryPane() {
     this.inventoryWidget = new DrydockInventoryWidget({
       parent: this.pane,
-      fillY: 0.4,
       dockX: "center",
       fillX: true,
       resellFactor: 0.6,
       state: this.state,
       childOrdering: "vertical",
       childMargin: 5,
+      childFill: 2,
       bgColor: "#0006",
     });
   }
@@ -1436,6 +1453,9 @@ export default class IntermissionState extends Superstate {
       paddingX: 2,
       paddingY: 2,
       axis: "horizontal",
+      scrollbarOpts: {
+        thickness: 10,
+      },
     });
     this.game.player.makeup.inventory.consolidateInventory();
     this.buildUI();

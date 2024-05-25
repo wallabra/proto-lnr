@@ -183,7 +183,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.updateCache();
   }
 
-  setCache() {    
+  setCache() {
     this.cached = {
       last: new Date(),
       dims: {
@@ -292,35 +292,33 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   computeWidth() {
-    if (
-      this.childOrdering === "horizontal" &&
-      this.childFill > 0 &&
-      this.parent != null
-    ) {
-      return this.childFillSize();
-    } else if (this.parent == null || !this.fillX) {
-      return this.width;
+    if (this.parent == null) return this.width;
+
+    let special = 0;
+    if (this.childOrdering === "horizontal" && this.childFill > 0) {
+      special = this.childFillSize();
     } else if (typeof this.fillX === "number") {
-      return this.parent.innerWidth * this.fillX;
-    } else {
-      return this.parent.innerWidth;
+      special = this.parent.innerWidth * this.fillX;
+    } else if (this.fillX) {
+      special = this.parent.innerWidth;
     }
+
+    return Math.max(special, this.width);
   }
 
   computeHeight() {
-    if (
-      this.childOrdering === "vertical" &&
-      this.childFill > 0 &&
-      this.parent != null
-    ) {
-      return this.childFillSize();
-    } else if (this.parent == null || !this.fillY) {
-      return this.height;
+    if (this.parent == null) return this.height;
+
+    let special = 0;
+    if (this.childOrdering === "vertical" && this.childFill > 0) {
+      special = this.childFillSize();
     } else if (typeof this.fillY === "number") {
-      return this.parent.innerHeight * this.fillY;
-    } else {
-      return this.parent.innerHeight;
+      special = this.parent.innerHeight * this.fillY;
+    } else if (this.fillY) {
+      special = this.parent.innerHeight;
     }
+
+    return Math.max(special, this.height);
   }
 
   get realWidth() {
@@ -329,6 +327,40 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   get realHeight() {
     return this.cached.dims.height;
+  }
+
+  outerPos() {
+    const { x, y } = this.pos();
+    return {
+      x: x - this.outerMarginX(),
+      y: y - this.outerMarginY(),
+    };
+  }
+
+  outerMarginX() {
+    if (this.childOrdering === "horizontal") {
+      return this.childMargin;
+    } else if (this.dockX === "start" || this.dockX === "end") {
+      return this.dockMarginX;
+    }
+    return 0;
+  }
+
+  outerMarginY() {
+    if (this.childOrdering === "vertical") {
+      return this.childMargin;
+    } else if (this.dockY === "start" || this.dockY === "end") {
+      return this.dockMarginY;
+    }
+    return 0;
+  }
+
+  outerWidth() {
+    return this.realWidth + this.outerMarginX() * 2;
+  }
+
+  outerHeight() {
+    return this.realHeight + this.outerMarginY() * 2;
   }
 
   get innerWidth() {
@@ -566,8 +598,6 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
       label: label,
       dockX: "center",
       dockY: "center",
-      textAlign: "center",
-      textBaseline: "middle",
       font: `${Math.min(16, this.realHeight * 0.5)}px sans-serif`,
       parent: this,
       ...(labelOpts || {}),
@@ -1043,13 +1073,10 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
     this.contentPane.measuring = true; // prevent infinite recursion
 
     for (const item of this.contentPane.children) {
-      const pos = item.pos();
-      let off = this.axis === "horizontal" ? pos.x : pos.y;
-      let size = this.axis === "horizontal" ? item.realWidth : item.realHeight;
-      if (item.childOrdering === this.axis) {
-        off -= item.childMargin;
-        size += item.childMargin * 2;
-      }
+      const pos = item.outerPos();
+      const off = this.axis === "horizontal" ? pos.x : pos.y;
+      const size =
+        this.axis === "horizontal" ? item.outerWidth() : item.outerHeight();
       if (start == null || off < start) start = off;
       if (end == null || off + size > end) end = off + size;
     }
@@ -1190,8 +1217,8 @@ export class CanvasUIGroup extends CanvasUIElement {
       end = { x: null, y: null };
 
     for (const item of this.children) {
-      const { x, y } = item.pos();
-      const size = { x: item.realWidth, y: item.realHeight };
+      const { x, y } = item.outerPos();
+      const size = { x: item.outerWidth(), y: item.outerHeight() };
       start = {
         x: start.x == null || x < start.x ? x : start.x,
         y: start.y == null || y < start.y ? y : start.y,
@@ -1227,12 +1254,18 @@ export class CanvasUIGroup extends CanvasUIElement {
 
   computeWidth() {
     if (this.measuring) return super.computeWidth();
-    return Math.max(super.computeWidth(), this.contentSize.x + this.paddingX * 2);
+    return Math.max(
+      super.computeWidth(),
+      this.contentSize.x + this.paddingX * 2,
+    );
   }
 
   computeHeight() {
     if (this.measuring) return super.computeHeight();
-    return Math.max(super.computeHeight(), this.contentSize.y + this.paddingY * 2);
+    return Math.max(
+      super.computeHeight(),
+      this.contentSize.y + this.paddingY * 2,
+    );
   }
 
   event() {}
