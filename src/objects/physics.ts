@@ -123,6 +123,7 @@ export class PhysicsObject {
     if (this.play.terrain == null) return 0;
     return this.play.terrain.heightAt(this.pos.x, this.pos.y);
   }
+
   slideDownLand(deltaTime: number) {
     const floor = this.floor;
     if (floor <= this.play.waterLevel || this.height > floor + 0.1) {
