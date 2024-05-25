@@ -200,7 +200,7 @@ export class Crew implements ShipItem {
     if (player.money < amount) {
       this.salaryWithhold++;
     } else {
-      player.money -= status;
+      player.money -= amount;
       this.salaryWithhold = 0;
     }
   }
