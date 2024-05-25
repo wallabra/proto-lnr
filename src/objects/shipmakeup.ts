@@ -548,6 +548,7 @@ export class ShipMakeup {
       food.amount = 0;
       food.dying = true;
     }
+    this.inventory.pruneItems();
     return hunger;
   }
 

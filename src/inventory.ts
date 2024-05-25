@@ -42,7 +42,6 @@ export class ShipInventory {
         if (item.type !== otherItem.type) continue;
         if (item.canConsolidate == null) continue;
         if (!item.canConsolidate(otherItem)) continue;
-        console.log(`Consolidated ${otherItem.getItemLabel()} into ${item.getItemLabel()}`);
         item.amount += otherItem.amount;
         otherItem.dying = true;
       }
@@ -71,7 +70,7 @@ export class ShipInventory {
   }
 
   pruneItems() {
-    this.inventory = this.inventory.filter((i) => !i.dying && i.amount > 0);
+    this.inventory = this.inventory.filter((i) => !i.dying);
   }
 
   endLevelUpdate(player: Player) {

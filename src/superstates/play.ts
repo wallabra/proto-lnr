@@ -55,8 +55,6 @@ export class PlayState extends Superstate {
     ship.vel = Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
       ship.angle,
     );
-    console.log("thrust:", ship.maxEngineThrust());
-    console.log("weight:", ship.computeWeight());
 
     return ship;
   }

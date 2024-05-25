@@ -25,6 +25,7 @@ export class Player {
     this.money = money;
     this.makeup = ship.makeup;
     this.registerActions();
+    console.log(this.makeup);
   }
 
   get damage() {
