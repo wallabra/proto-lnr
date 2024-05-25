@@ -318,8 +318,8 @@ class DrydockPartWidget extends Pane<
   }
 
   private updateDetails() {
-    if (!this.shouldUpdateDetails) return;
-    this.shouldUpdateDetails = false;
+    //if (!this.shouldUpdateDetails) return;
+    //this.shouldUpdateDetails = false;
 
     const lines = [
       weightInfo(this.part),
@@ -347,6 +347,8 @@ class DrydockPartWidget extends Pane<
     if (this.details.isVisible()) {
       this.updateDetails();
     }
+    this.updateCrewButton();
+    this.updateCrewButtonLabel();
   }
 }
 
