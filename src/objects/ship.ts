@@ -105,7 +105,8 @@ export class Ship {
     this.setMoney(
       params.money != null
         ? params.money
-        : random.uniform(5, 15)() + this.makeup.make.cost * random.uniform(0.008, 0.08)(),
+        : random.uniform(5, 15)() +
+            this.makeup.make.cost * random.uniform(0.008, 0.08)(),
     );
 
     this.dragMixin();

@@ -118,7 +118,8 @@ export class Game {
         continue;
       }
       const parts = randomParts(
-        Math.max(2.5, 3.5 + random.exponential(1.5)() * 6) * random.uniform(1, aiship.makeup.make.slots.length)(),
+        Math.max(2.5, 3.5 + random.exponential(1.5)() * 6) *
+          random.uniform(1, aiship.makeup.make.slots.length)(),
         aiship.makeup.make,
       );
       for (const part of parts) {
