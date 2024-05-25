@@ -186,7 +186,7 @@ export class Crew implements ShipItem {
     this.salary = args.salary;
     this.strength = args.strength || 10;
     this.cost = this.salary * 7;
-    this.caloricIntake = args.caloricIntake || 1;
+    this.caloricIntake = args.caloricIntake || 5;
     this.integerAmounts = true;
     this.weight = args.weight || 20;
   }
