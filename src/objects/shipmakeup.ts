@@ -20,6 +20,8 @@ export interface ShipPartArgs {
   maxDamage?: number;
   vulnerability?: number;
   repairCostScale?: number;
+  dropChance?: number;
+  shopChance?: number;
   weight: number;
 }
 
@@ -40,7 +42,8 @@ export class ShipPart implements ShipItem {
   integerAmounts: boolean;
   weight: number;
   mannedBy: Crew[];
-  dropChance: number = 0.4;
+  dropChance: number;
+  shopChance: number;
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -52,6 +55,8 @@ export class ShipPart implements ShipItem {
     this.weight = args.weight;
     this.vulnerability = args.vulnerability;
     this.repairCostScale = args.repairCostScale || 3;
+    this.dropChance = args.dropChance != null ? args.dropChance : 0.4;
+    this.shopChance = args.shopChance != null ? args.shopChance : 0.5;
     this.dying = false;
     this.integerAmounts = true;
     this.mannedBy = [];
@@ -148,6 +153,7 @@ export interface CrewArgs {
   strength?: number;
   caloricIntake?: number;
   weight?: number;
+  shopChance?: number;
 }
 
 export interface CrewRandomArgs {
@@ -169,6 +175,7 @@ export class Crew implements ShipItem {
   name: string;
   integerAmounts: boolean;
   dropChance: number = 0;
+  shopChance: number;
 
   nameInDeck(makeup: ShipMakeup) {
     const which =
@@ -189,6 +196,7 @@ export class Crew implements ShipItem {
     this.caloricIntake = args.caloricIntake || 5;
     this.integerAmounts = true;
     this.weight = args.weight || 20;
+    this.shopChance = args.shopChance != null ? args.shopChance : 0.4;
   }
 
   onRemove() {

@@ -1520,7 +1520,7 @@ export default class IntermissionState extends Superstate {
           .map(() => new FoodItem(f)),
       ).reduce((a, b) => a.concat(b), []),
       ...CREWDEFS.map((c) => new Crew(c)),
-    ];
+    ].filter((i) => i.shopChance == null || Math.random() < i.shopChance);
   }
 
   private statsRows(): StatRowOptions[] {
