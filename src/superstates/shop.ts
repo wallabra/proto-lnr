@@ -1243,7 +1243,7 @@ class PaneDrydock extends Pane {
       dockX: "center",
       childMargin: 0,
       childOrdering: "vertical",
-    }).label("-", { color: "#ccd" });
+    }).label("-", { color: "#ccd", height: 13, autoFont: true, font: '$Hpx sans-serif' });
   }
 
   buildPartsPane() {
@@ -1424,7 +1424,7 @@ class PaneCartography extends Pane {
       height: 100,
       callback: this.doNextLevel.bind(this),
     });
-    nextLevelButton.label("Invade Next Island", { color: "#ccd" });
+    nextLevelButton.label("Invade Next Island", { color: "#ccd", height: 18, autoFont: true, font: 'bold $Hpx sans-serif' });
   }
 
   public update = undefined;
