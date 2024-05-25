@@ -183,7 +183,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.updateCache();
   }
 
-  updateCache() {
+  setCache() {    
     this.cached = {
       last: new Date(),
       dims: {
@@ -203,7 +203,10 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     });
     this.cached.innerPos = this.computeInnerPos();
     Object.assign(this.cached, this.extraCacheInfo());
+  }
 
+  updateCache() {
+    this.setCache();
     for (const child of this.children) {
       child.updateCache();
     }
@@ -1161,11 +1164,21 @@ export class CanvasImage extends CanvasUIElement {
   event() {}
 }
 
+export interface CanvasUIGroupArgs extends CanvasUIArgs {
+  bgColor?: string;
+}
+
 export class CanvasUIGroup extends CanvasUIElement {
   private measuring: boolean;
+  bgColor: string | OnBeforeUnloadEventHandler;
 
-  constructor(args: CanvasUIArgs) {
-    super({ paddingY: 0, paddingX: 0, ...args });
+  constructor(args: CanvasUIGroupArgs) {
+    super({
+      paddingY: 2,
+      paddingX: 2,
+      bgColor: args.bgColor != null ? args.bgColor : null,
+      ...args,
+    });
   }
 
   isInside(x: number, y: number): boolean {
@@ -1177,15 +1190,15 @@ export class CanvasUIGroup extends CanvasUIElement {
       end = { x: null, y: null };
 
     for (const item of this.children) {
-      const ipos = item.pos();
+      const { x, y } = item.pos();
       const size = { x: item.realWidth, y: item.realHeight };
       start = {
-        x: start.x == null || ipos.x < start.x ? ipos.x : start.x,
-        y: start.y == null || ipos.y < start.y ? ipos.y : start.y,
+        x: start.x == null || x < start.x ? x : start.x,
+        y: start.y == null || y < start.y ? y : start.y,
       };
       end = {
-        x: end.x == null || ipos.x + size.x > end.x ? ipos.x + size.x : end.x,
-        y: end.y == null || ipos.y + size.y > end.y ? ipos.y + size.y : end.y,
+        x: end.x == null || x + size.x > end.x ? x + size.x : end.x,
+        y: end.y == null || y + size.y > end.y ? y + size.y : end.y,
       };
     }
 
@@ -1198,7 +1211,9 @@ export class CanvasUIGroup extends CanvasUIElement {
     }
 
     this.measuring = true; // prevent infinite recursion
-    this.updateCache();
+    this.setCache();
+    this.cached.dims.width = super.computeWidth();
+    this.cached.dims.height = super.computeHeight();
     const [start, end] = this.contentDims;
     this.measuring = false;
     this.modified = true;
@@ -1212,21 +1227,26 @@ export class CanvasUIGroup extends CanvasUIElement {
 
   computeWidth() {
     if (this.measuring) return super.computeWidth();
-    return this.contentSize.x;
+    return Math.max(super.computeWidth(), this.contentSize.x + this.paddingX * 2);
   }
 
   computeHeight() {
     if (this.measuring) return super.computeHeight();
-    return this.contentSize.y;
-  }
-
-  computeInnerPos() {
-    if (this.measuring) return { x: 0, y: 0 };
-    return this.pos();
+    return Math.max(super.computeHeight(), this.contentSize.y + this.paddingY * 2);
   }
 
   event() {}
-  _render() {}
+  _render(ctx: UIDrawContext) {
+    if (this.bgColor == null) return;
+
+    const pos = this.pos();
+    const width = this.realWidth;
+    const height = this.realHeight;
+
+    const pctx = ctx.ctx;
+    pctx.fillStyle = <string>this.bgColor;
+    pctx.fillRect(pos.x, pos.y, width, height);
+  }
   preChildrenRender() {}
   postChildrenRender() {}
 }

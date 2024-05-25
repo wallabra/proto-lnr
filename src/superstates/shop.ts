@@ -24,6 +24,7 @@ import {
   UIEvent,
   CanvasScroller,
   CanvasUIGroup,
+  CanvasUIGroupArgs,
   CanvasButtonArgs,
   CanvasProgressBar,
   CanvasLabelArgs,
@@ -680,13 +681,13 @@ interface ShopItemWidgetArgs extends PaneArgs {
 
 class ShopItemWidget extends Pane<
   ShopItemWidgetArgs,
-  CanvasPanel,
-  CanvasPanelArgs
+  CanvasUIGroup,
+  CanvasUIGroupArgs
 > {
   item: ShipItem;
 
   protected buildPane(args: ShopItemWidgetArgs & CanvasPanelArgs) {
-    this.pane = new CanvasPanel(args);
+    this.pane = new CanvasUIGroup(args);
     this.item = args.item;
 
     new CanvasLabel({
@@ -720,17 +721,19 @@ class ShopItemWidget extends Pane<
 
     new CanvasButton({
       parent: this.pane,
-      height: 20,
       fillX: 1.0,
       callback: this.buyItem.bind(this),
       paddingY: 4,
       childOrdering: "vertical",
-      childMargin: 5,
+      childMargin: 3,
+      height: 24,
     }).label(this.item.type === "crew" ? "Hire" : "Buy", {
       font: "bold $Hpx sans-serif",
       color: "#fff",
       fillY: 1.0,
-      height: 11,
+      height: 12,
+      textBaseline: "top",
+      dockY: "center",
       autoFont: true,
     });
   }
@@ -793,9 +796,10 @@ class PaneShop extends Pane<PaneShopArgs> {
         bgColor: "#1a1a38d0",
         fillX: 0.9,
         dockX: "center",
-        height: 100,
         childOrdering: "vertical",
-        childMargin: 8,
+        childMargin: 10,
+        paddingX: 12,
+        paddingY: 6,
       }),
     );
   }
@@ -1014,11 +1018,11 @@ class ShipMakeWidget extends Pane<PaneArgs & ShipMakeWidgetArgs> {
     this.statusLabel = new CanvasLabel({
       parent: this.pane,
       childOrdering: "vertical",
-      childMargin: 4,
+      childMargin: 1,
       color: "#ffa",
       label: "",
       fillX: true,
-      height: 14,
+      height: 12,
       autoFont: true,
       font: "%H sans-serif",
     });
