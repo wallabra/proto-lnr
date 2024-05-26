@@ -575,8 +575,10 @@ export class Ship {
       .dot(ship.pos.clone().subtract(this.pos).norm());
     directionality = Math.max(0.2, directionality);
 
-    this.phys.shift(offs);
-    ship.phys.shift(offs.invert());
+    const shift = offs.norm().multiply(Vec2(closeness, closeness));
+
+    this.phys.shift(shift);
+    ship.phys.shift(shift.invert());
     ship.setInstigator(this);
     this.setInstigator(ship);
     this.damageShip(
