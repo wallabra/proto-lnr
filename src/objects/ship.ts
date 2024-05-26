@@ -240,7 +240,7 @@ export class Ship {
       if (cannonball != null) {
         this.phys.applyForce(
           null,
-          cannonball.vel.multiply(-cannonball.weight, -cannonball.weight),
+          cannonball.phys.vecMomentum().invert(),
         );
       }
       return true;
@@ -576,17 +576,27 @@ export class Ship {
       .dot(ship.pos.clone().subtract(this.pos).norm());
     directionality = Math.max(0.2, directionality);
 
-    const shift = offs.norm().multiply(Vec2(closeness, closeness));
+    const dir = offs.clone().norm();
+    const shift = dir.clone().multiply(Vec2(closeness, closeness));
+    const relMom = this.phys.vecMomentum().subtract(ship.phys.vecMomentum());
+    const colEnergy = relMom.dot(dir.clone().invert());
 
     this.phys.shift(shift);
     ship.phys.shift(shift.invert());
+
+    this.phys.applyForce(null, dir.clone().multiply(Vec2(colEnergy * this.phys.restitution, colEnergy * this.phys.restitution)));
+    ship.phys.applyForce(null, dir.clone().multiply(Vec2(-colEnergy * ship.phys.restitution, -colEnergy * ship.phys.restitution)));
+
+    // TODO: add torque
+    
     ship.setInstigator(this);
     this.setInstigator(ship);
+
     this.damageShip(
-      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2 * deltaTime,
+      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2,
     );
     ship.damageShip(
-      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2 * deltaTime,
+      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2,
     );
   }
 

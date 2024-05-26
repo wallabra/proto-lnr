@@ -15,6 +15,7 @@ export interface PhysicsParams {
   angVel: number;
   gravity: number;
   buoyancy: number;
+  restitution: number;
 }
 
 export class PhysicsSimulation {
@@ -70,6 +71,7 @@ export class PhysicsObject {
   buoyancy: number;
   age: number;
   dying: boolean;
+  restitution: number;
 
   constructor(play: PlayState, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
@@ -93,6 +95,7 @@ export class PhysicsObject {
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
     this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.06;
+    this.restitution = params.restitution != null ? params.restitution : 0.5;
   }
 
   setPos(newPos: Vec2) {
@@ -184,7 +187,7 @@ export class PhysicsObject {
       this.height <= this.play.waterLevel + 0.05
     );
   }
-
+  
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
@@ -202,8 +205,20 @@ export class PhysicsObject {
 
   kineticEnergyRelativeTo(other: PhysicsObject): number {
     return this.kineticEnergy(
-      this.vel.subtract(other.vel).length(getReturnOfExpression),
+      this.vel.subtract(other.vel).length(),
     );
+  }
+
+  momentum(vel?: number): number {
+      return this.weight * (vel != null ? vel : this.vel.length());
+  }
+
+  vecMomentum(): Vec2 {
+    return this.vel.multiply(Vec2(this.weight, this.weight));
+  }
+
+  momentumRelativeTo(other: PhysicsObject): number {
+      return this.momentum(this.vel.subtract(other.vel).length());
   }
 
   physFriction(deltaTime: number) {
