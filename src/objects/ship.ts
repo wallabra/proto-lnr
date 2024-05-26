@@ -412,7 +412,8 @@ export class Ship {
   dropItems() {
     for (const item of this.makeup.inventory.items) {
       this.makeup.inventory.removeItem(item);
-      if (item.dropChance != null && Math.random() > item.dropChance) continue;
+      if (item.dropChance != null && Math.random() > item.dropChance * (item.amount != null ? item.amount : 1)) continue;
+      if (item.amount != null) item.amount = Math.ceil(item.amount * Math.random());
       this.spawnDroppedItem(item);
     }
   }
