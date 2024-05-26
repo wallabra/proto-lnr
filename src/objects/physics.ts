@@ -147,12 +147,16 @@ export class PhysicsObject {
     this.lastPos = this.pos.clone().subtract(vel);
   }
 
-  applyForce(deltaTime: number, force: Vec2) {
-    this.lastPos.add(
-      force
-        .clone()
-        .multiply(Vec2(-deltaTime / this.weight, -deltaTime / this.weight)),
-    );
+  applyForce(deltaTime: number | null, force: Vec2) {
+    const factor = -(deltaTime != null ? deltaTime : 1) / this.weight;
+    const offs = force.clone().multiply(Vec2(factor, factor));
+    this.lastPos.add(offs);
+    if (deltaTime != null) {
+      const integ = -deltaTime / 2;
+      const integVec = offs.clone().multiply(Vec2(integ, integ));
+      this.pos.add(integVec);
+      this.lastPos.add(integVec);
+    }
   }
 
   physVel() {

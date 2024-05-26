@@ -239,7 +239,7 @@ export class Ship {
       const cannonball = cannon.shoot(deltaTime, this, shootDist);
       if (cannonball != null) {
         this.phys.applyForce(
-          1.0,
+          null,
           cannonball.vel.multiply(-cannonball.weight, -cannonball.weight),
         );
       }
