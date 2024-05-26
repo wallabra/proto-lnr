@@ -575,15 +575,15 @@ export class Ship {
       .dot(ship.pos.clone().subtract(this.pos).norm());
     directionality = Math.max(0.2, directionality);
 
-    this.pos.add(offs);
-    ship.pos.subtract(offs);
+    this.phys.shift(offs);
+    ship.phys.shift(offs.invert());
     ship.setInstigator(this);
     this.setInstigator(ship);
     this.damageShip(
-      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2,
+      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2 * deltaTime,
     );
     ship.damageShip(
-      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2,
+      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2 * deltaTime,
     );
   }
 

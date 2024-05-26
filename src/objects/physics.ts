@@ -101,6 +101,11 @@ export class PhysicsObject {
     this.vel = vel;
   }
 
+  shift(offset: Vec2) {
+    this.pos.add(offset);
+    this.lastPos.add(offset);
+  }
+
   touchingShip(ship) {
     if (Math.abs(this.height - ship.height) > 0.6) {
       return 0;
