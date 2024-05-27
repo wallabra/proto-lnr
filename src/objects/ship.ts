@@ -640,24 +640,14 @@ export class Ship {
     );
   }
 
-  collision(ship: Ship): {
-    dist: number;
-    point: Vec2;
-    circle1: CollisionCircle;
-    circle2: CollisionCircle;
-  } | null {
-    if (!this.nearShip(ship)) {
-      return null;
-    }
-
-    const circles1 = this.collisionCircles();
-    const circles2 = ship.collisionCircles();
-
+  collisionWithCircle(circles2: CollisionCircle[]) {
     interface CircleColInfo {
       circle1: CollisionCircle;
       circle2: CollisionCircle;
       dist: number;
     }
+    const circles1 = this.collisionCircles();
+
     const closest = iter(circles1)
       .flatMap<CircleColInfo>((c1) =>
         iter(circles2).map<CircleColInfo>((c2) => ({
@@ -681,6 +671,21 @@ export class Ship {
       circle1: closest.circle1,
       circle2: closest.circle2,
     };
+  }
+
+  collision(ship: Ship): {
+    dist: number;
+    point: Vec2;
+    circle1: CollisionCircle;
+    circle2: CollisionCircle;
+  } | null {
+    if (!this.nearShip(ship)) {
+      return null;
+    }
+
+    const circles2 = ship.collisionCircles();
+
+    return this.collisionWithCircle(circles2);
   }
 
   collisionCircles(): CollisionCircle[] {
@@ -714,7 +719,10 @@ export class Ship {
     const offs = dir.clone().multiplyScalar(collision.dist);
     const relMom = this.phys.vecMomentum().subtract(ship.phys.vecMomentum());
     const colEnergy = relMom.dot(dir.clone().invert());
-    const directionality = Math.max(0.2, this.phys.vel.subtract(ship.phys.vel).norm().dot(dir.clone().invert()));
+    const directionality = Math.max(
+      0.2,
+      this.phys.vel.subtract(ship.phys.vel).norm().dot(dir.clone().invert()),
+    );
 
     //const totalWeight = this.phys.weight + ship.phys.weight;
 

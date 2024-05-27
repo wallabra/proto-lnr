@@ -1,5 +1,6 @@
 import Vec2 from "victor";
 import { PlayState } from "../superstates/play";
+import { Ship } from "./ship";
 
 export interface PhysicsParams {
   size: number;
@@ -108,22 +109,15 @@ export class PhysicsObject {
     this.lastPos.add(offset);
   }
 
-  touchingShip(ship) {
+  touchingShip(ship: Ship) {
     if (Math.abs(this.height - ship.height) > 0.6) {
       return 0;
     }
 
-    const angle2 = this.pos.clone().subtract(ship.pos).angle();
-    const r1 = this.size;
-    const r2 = ship.intermediaryRadius(angle2);
-
-    const dist = this.pos.clone().subtract(ship.pos).length();
-
-    if (dist > r1 + r2) {
-      return 0;
-    }
-
-    return r1 + r2 - dist;
+    const collision = ship.collisionWithCircle([
+      { center: this.pos.clone(), radius: this.size },
+    ]);
+    return collision == null ? 0 : -collision.dist;
   }
 
   get floor() {
@@ -163,10 +157,11 @@ export class PhysicsObject {
 
   applyTorqueAt(deltaTime: number | null, pos: Vec2, force: Vec2) {
     const arm = pos.clone().subtract(this.pos);
-    const torque = arm
-      .clone()
-      .rotate(Math.PI / 2)
-      .dot(force) / arm.lengthSq();
+    const torque =
+      arm
+        .clone()
+        .rotate(Math.PI / 2)
+        .dot(force) / arm.lengthSq();
     this.applyTorque(deltaTime, torque);
   }
 
@@ -241,7 +236,7 @@ export class PhysicsObject {
 
   orbitalMomentumAt(pos: Vec2): Vec2 {
     return this.orbitalVelocityAt(pos).multiplyScalar(
-      this.angularInertiaAt(pos)
+      this.angularInertiaAt(pos),
     );
   }
 
