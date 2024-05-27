@@ -730,9 +730,8 @@ export class Ship {
     const angMom = ship.phys
       .orbitalMomentumAt(bumpAt)
       .subtract(this.phys.orbitalMomentumAt(bumpAt));
-    const outwardForce = dir.clone().multiplyScalar(colEnergy);
-    const force = outwardForce.clone().add(angMom);
-
+    const force = dir.clone().add(ship.pos.clone().subtract(this.pos).norm()).multiplyScalar(colEnergy / 2).add(angMom);
+    
     this.phys.shift(offs);
     ship.phys.shift(offs.invert());
 
@@ -762,10 +761,10 @@ export class Ship {
     this.setInstigator(ship);
 
     this.damageShip(
-      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.2,
+      Math.sqrt(ship.phys.kineticEnergyRelativeTo(this.phys)) * directionality * 0.2,
     );
     ship.damageShip(
-      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.2,
+      Math.sqrt(this.phys.kineticEnergyRelativeTo(ship.phys)) * directionality * 0.2,
     );
   }
 
