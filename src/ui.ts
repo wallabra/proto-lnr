@@ -599,7 +599,7 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
       dockX: "center",
       dockY: "center",
       font: `${Math.min(16, this.realHeight * 0.5)}px sans-serif`,
-      textAlign: 'center',
+      textAlign: "center",
       parent: this,
       ...(labelOpts || {}),
     }));
