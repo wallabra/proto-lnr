@@ -168,9 +168,8 @@ class DrydockPartWidget extends Pane<
 
     this.buttonArgs = {
       fillX: 1.0,
-      height: 13,
       childOrdering: "vertical",
-      childMargin: 1,
+      childMargin: 2.5,
       childFill: 1,
     };
 
