@@ -714,6 +714,7 @@ export class Ship {
     const offs = dir.clone().multiplyScalar(collision.dist);
     const relMom = this.phys.vecMomentum().subtract(ship.phys.vecMomentum());
     const colEnergy = relMom.dot(dir.clone().invert());
+    const directionality = Math.max(0.2, this.phys.vel.subtract(ship.phys.vel).norm().dot(dir.clone().invert()));
 
     //const totalWeight = this.phys.weight + ship.phys.weight;
 
