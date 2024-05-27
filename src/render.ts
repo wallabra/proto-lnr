@@ -18,6 +18,8 @@ export type ObjectRenderInfo = {
   cam: Vec2;
   smallEdge: number;
   renderer: ObjectRenderer;
+  width: number;
+  height: number;
 };
 
 export interface Renderable {
@@ -50,12 +52,14 @@ export class ObjectRenderer {
 
     const info: ObjectRenderInfo = {
       scale: zoom,
-      scaleVec: Vec2(zoom, zoom),
+      scaleVec: new Vec2(zoom, zoom),
       ctx: ctx,
-      base: Vec2(baseX, baseY),
+      base: new Vec2(baseX, baseY),
       cam: cam,
       smallEdge: smallEdge,
       renderer: this,
+      width: this.game.width,
+      height: this.game.height,
     };
 
     for (const obj of this.game.renderables) {

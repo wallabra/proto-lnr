@@ -1,6 +1,5 @@
 import Vec2 from "victor";
 import { PlayState } from "../superstates/play";
-import { getReturnOfExpression } from "utility-types";
 
 export interface PhysicsParams {
   size: number;
@@ -140,7 +139,7 @@ export class PhysicsObject {
     const dHeight = this.heightGradient();
     this.applyForce(
       deltaTime,
-      Vec2(
+      new Vec2(
         -dHeight.x * this.gravity * this.weight * 500,
         -dHeight.y * this.gravity * this.weight * 500,
       ),
@@ -155,21 +154,32 @@ export class PhysicsObject {
     this.lastPos = this.pos.clone().subtract(vel);
   }
 
+  applyTorque(deltaTime: number | null, torque: number) {
+    if (deltaTime == null) deltaTime = 1;
+    const factor = deltaTime / this.angularInertia();
+    const offs = torque * factor;
+    this.angVel += offs;
+  }
+
+  applyTorqueAt(deltaTime: number | null, pos: Vec2, force: Vec2) {
+    const arm = pos.clone().subtract(this.pos);
+    const torque = arm
+      .clone()
+      .rotate(Math.PI / 2)
+      .dot(force) / arm.lengthSq();
+    this.applyTorque(deltaTime, torque);
+  }
+
   applyForce(deltaTime: number | null, force: Vec2) {
-    const factor = -(deltaTime != null ? deltaTime : 1) / this.weight;
-    const offs = force.clone().multiply(Vec2(factor, factor));
+    if (deltaTime == null) deltaTime = 1;
+    const factor = -deltaTime / this.weight;
+    const offs = force.clone().multiplyScalar(factor);
     this.lastPos.add(offs);
-    if (deltaTime != null) {
-      const integ = -deltaTime / 2;
-      const integVec = offs.clone().multiply(Vec2(integ, integ));
-      this.pos.add(integVec);
-      this.lastPos.add(integVec);
-    }
   }
 
   physVel() {
     const lastPos = this.pos.clone();
-    this.pos = this.pos.clone().multiply(Vec2(2, 2)).subtract(this.lastPos);
+    this.pos = this.pos.clone().multiplyScalar(2).subtract(this.lastPos);
     this.lastPos = lastPos;
   }
 
@@ -187,13 +197,13 @@ export class PhysicsObject {
       this.height <= this.play.waterLevel + 0.05
     );
   }
-  
+
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
     const drag = this.weight * (inWater ? this.waterDrag() : this.airDrag());
 
-    const dragForce = Vec2(-drag, -drag).multiply(this.vel);
+    const dragForce = this.vel.clone().multiplyScalar(-drag);
     this.applyForce(deltaTime, dragForce);
   }
 
@@ -204,21 +214,39 @@ export class PhysicsObject {
   }
 
   kineticEnergyRelativeTo(other: PhysicsObject): number {
-    return this.kineticEnergy(
-      this.vel.subtract(other.vel).length(),
-    );
+    return this.kineticEnergy(this.vel.subtract(other.vel).length());
   }
 
   momentum(vel?: number): number {
-      return this.weight * (vel != null ? vel : this.vel.length());
+    return this.weight * (vel != null ? vel : this.vel.length());
   }
 
   vecMomentum(): Vec2 {
-    return this.vel.multiply(Vec2(this.weight, this.weight));
+    return this.vel.multiplyScalar(this.weight);
+  }
+
+  orbitalVelocityAt(pos: Vec2): Vec2 {
+    const rel = pos.clone().subtract(this.pos);
+    return rel.rotate(Math.PI / 2).multiplyScalar(this.angVel);
+  }
+
+  angularInertia(): number {
+    // TODO: make depend on geometry
+    return this.weight;
+  }
+
+  angularInertiaAt(pos: Vec2): number {
+    return this.weight / pos.clone().subtract(this.pos).length();
+  }
+
+  orbitalMomentumAt(pos: Vec2): Vec2 {
+    return this.orbitalVelocityAt(pos).multiplyScalar(
+      this.angularInertiaAt(pos)
+    );
   }
 
   momentumRelativeTo(other: PhysicsObject): number {
-      return this.momentum(this.vel.subtract(other.vel).length());
+    return this.momentum(this.vel.subtract(other.vel).length());
   }
 
   physFriction(deltaTime: number) {

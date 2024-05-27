@@ -4,7 +4,7 @@ export const angDiff = (from: number, to: number): number =>
   umod(to - from + Math.PI, Math.PI * 2) - Math.PI;
 
 export const lerp = (a: number, b: number, alpha: number): number =>
-  (b - a) * alpha + a * (1 - alpha);
+  (b - a) * alpha + a;
 
 export function rgbString(rgb: [number, number, number]): string {
   return `rgb(${rgb.join(", ")})`;

@@ -46,7 +46,7 @@ export abstract class Pickup {
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.phys.height / 2;
-    const proximityScale = camheight / Vec2(hdist + cdist).length();
+    const proximityScale = camheight / new Vec2(hdist, cdist).length();
     const size =
       (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
 
@@ -114,6 +114,11 @@ export abstract class Pickup {
     this.bob(deltaTime);
     this.checkShipCollisions(deltaTime);
   }
+}
+
+export class DebugPickup extends Pickup {
+  checkShipCollisions() {}
+  collect(): void {}
 }
 
 export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & {

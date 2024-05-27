@@ -1,5 +1,5 @@
 import Vec2 from "victor";
-import { angDiff, umod } from "../util";
+import { angDiff, umod, lerp } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
 import { ObjectRenderInfo } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
@@ -7,11 +7,13 @@ import { PlayState } from "../superstates/play";
 import { Game } from "../game";
 import { Engine, ShipMake, ShipMakeup, Cannon } from "./shipmakeup";
 import { ShipItem } from "../inventory";
-import { ItemPickup, ItemPickupParamType } from "./pickup";
+import { ItemPickup, ItemPickupParamType, DebugPickup } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
+import { iter } from "iterator-helper";
 
 const DEBUG_DRAW = false;
+const DEBUG_COLL = false;
 
 export interface ShipParams extends PhysicsParams {
   money: number;
@@ -56,6 +58,46 @@ export class TickAction<T> {
   }
 }
 
+export interface CollisionCircle {
+  center: Vec2;
+  radius: number;
+}
+
+export function circleIntersects(
+  circle1: CollisionCircle,
+  circle2: CollisionCircle,
+): boolean {
+  return circleDist(circle1, circle2) < 0;
+}
+
+export function circleDist(
+  circle1: CollisionCircle,
+  circle2: CollisionCircle,
+): number {
+  return circleCentreDist(circle1, circle2) - circle1.radius - circle2.radius;
+}
+
+export function circleCentreDist(
+  circle1: CollisionCircle,
+  circle2: CollisionCircle,
+): number {
+  return circle1.center.clone().subtract(circle2.center).length();
+}
+
+export function closestCircle(
+  soup: CollisionCircle[],
+  target: CollisionCircle,
+): { circle: CollisionCircle; dist: number } {
+  return iter(soup)
+    .map<{ circle: CollisionCircle; dist: number }>((c) => ({
+      circle: c,
+      dist: circleCentreDist(c, target),
+    }))
+    .reduce<{ circle: CollisionCircle; dist: number }>((a, b) =>
+      a.dist < b.dist ? a : b,
+    );
+}
+
 export class Ship {
   game: Game;
   phys: PhysicsObject;
@@ -89,7 +131,10 @@ export class Ship {
         : DEFAULT_MAKE;
 
     this.game = game;
-    this.phys = (<PlayState>game.state).makePhysObj(pos || Vec2(0, 0), params);
+    this.phys = (<PlayState>game.state).makePhysObj(
+      pos || new Vec2(0, 0),
+      params,
+    );
     this.setMakeup(
       params.makeup === "default"
         ? new ShipMakeup(make).defaultLoadout()
@@ -135,7 +180,7 @@ export class Ship {
   dragMixin() {
     this.phys.waterDrag = function () {
       const alpha =
-        1 - Math.abs(Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
+        1 - Math.abs(new Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
       const cs = 1 + (alpha * this.lateralCrossSection) / this.size;
       return this.phys.baseDrag * cs;
     }.bind(this);
@@ -238,10 +283,7 @@ export class Ship {
 
       const cannonball = cannon.shoot(deltaTime, this, shootDist);
       if (cannonball != null) {
-        this.phys.applyForce(
-          null,
-          cannonball.phys.vecMomentum().invert(),
-        );
+        this.phys.applyForce(null, cannonball.phys.vecMomentum().invert());
       }
       return true;
     });
@@ -249,6 +291,18 @@ export class Ship {
 
   get angNorm() {
     return this.phys.angNorm;
+  }
+
+  isVisible(info: ObjectRenderInfo) {
+    const pos = this.pos.clone().subtract(info.cam).multiply(info.scaleVec);
+    const edge = this.size * this.lateralCrossSection;
+
+    return (
+      pos.x > -edge &&
+      pos.x < info.width + edge &&
+      pos.y > -edge &&
+      pos.y < info.height + edge
+    );
   }
 
   render(info: ObjectRenderInfo) {
@@ -262,8 +316,9 @@ export class Ship {
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
     const hdist = camheight - this.height / 2;
-    const proximityScale = camheight / Vec2(hdist + cdist).length();
-    const size = this.size * proximityScale * info.scale;
+    const proximityScale = camheight / new Vec2(hdist, cdist).length();
+    const scale = proximityScale * info.scale;
+    const size = this.size * scale;
     const isPlayer = this.isPlayer;
 
     if (hdist < 0.1) {
@@ -322,20 +377,54 @@ export class Ship {
     ctx.lineWidth = 1.75;
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
-    const to = Vec2(this.size * this.lateralCrossSection)
+    const to = new Vec2(this.size * this.lateralCrossSection * scale, 0)
       .rotateBy(this.angle)
       .add(drawPos);
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
 
-    // Draw velocity
     if (DEBUG_DRAW) {
-      ctx.strokeStyle = "#00f";
+      const from = this.pos
+        .clone()
+        .add(
+          new Vec2(this.size * this.lateralCrossSection, 0).rotateBy(
+            this.angle,
+          ),
+        );
+      const fromDraw = info.base
+        .clone()
+        .add(from.clone().subtract(info.cam).multiplyScalar(scale));
+      const angmom = this.phys.orbitalVelocityAt(from).multiplyScalar(scale);
+
+      // Draw angular velocity
+      ctx.strokeStyle = "#fa09";
       ctx.beginPath();
-      ctx.moveTo(drawPos.x, drawPos.y);
-      const vto = this.vel.multiply(Vec2(20, 20)).add(drawPos);
+      ctx.moveTo(fromDraw.x, fromDraw.y);
+      ctx.lineTo(fromDraw.x + angmom.x, fromDraw.y + angmom.y);
+      ctx.stroke();
+
+      // Draw velocity
+      ctx.strokeStyle = "#06fc";
+      ctx.beginPath();
+      ctx.moveTo(fromDraw.x, fromDraw.y);
+      const vto = this.vel.multiplyScalar(scale * 10).add(fromDraw);
       ctx.lineTo(vto.x, vto.y);
       ctx.stroke();
+
+      // Draw collision circles
+      const circles = this.collisionCircles();
+
+      ctx.strokeStyle = "#0f0c";
+      ctx.lineWidth = 1.5;
+      for (const circle of circles) {
+        const center = info.base
+          .clone()
+          .add(circle.center.clone().subtract(info.cam).multiplyScalar(scale));
+        const size = circle.radius * scale;
+        ctx.beginPath();
+        ctx.ellipse(center.x, center.y, size, size, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
 
     // Draw damage bar
@@ -412,8 +501,14 @@ export class Ship {
   dropItems() {
     for (const item of this.makeup.inventory.items) {
       this.makeup.inventory.removeItem(item);
-      if (item.dropChance != null && Math.random() > item.dropChance * (item.amount != null ? item.amount : 1)) continue;
-      if (item.amount != null) item.amount = Math.ceil(item.amount * Math.random());
+      if (
+        item.dropChance != null &&
+        Math.random() >
+          item.dropChance * (item.amount != null ? item.amount : 1)
+      )
+        continue;
+      if (item.amount != null)
+        item.amount = Math.ceil(item.amount * Math.random());
       this.spawnDroppedItem(item);
     }
   }
@@ -510,10 +605,7 @@ export class Ship {
     });
 
     const thrust = engineThrust * amount;
-    this.phys.applyForce(
-      deltaTime,
-      Vec2(1, 0).rotateBy(this.angle).multiply(Vec2(thrust, thrust)),
-    );
+    this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotateBy(this.angle));
   }
 
   heightGradient() {
@@ -542,53 +634,121 @@ export class Ship {
     );
   }
 
-  touchingShip(ship) {
+  boundaryPoint(angle) {
+    return this.pos.add(
+      new Vec2(this.intermediaryRadius(angle), 0).rotateBy(angle),
+    );
+  }
+
+  collision(ship: Ship): {
+    dist: number;
+    point: Vec2;
+    circle1: CollisionCircle;
+    circle2: CollisionCircle;
+  } | null {
     if (!this.nearShip(ship)) {
-      return 0;
+      return null;
     }
 
-    const angle1 = ship.pos.clone().subtract(this.pos).angle();
-    const angle2 = this.pos.clone().subtract(ship.pos).angle();
+    const circles1 = this.collisionCircles();
+    const circles2 = ship.collisionCircles();
 
-    const r1 = this.intermediaryRadius(angle1);
-    const r2 = ship.intermediaryRadius(angle2);
-
-    const dist = this.pos.clone().subtract(ship.pos).length();
-
-    if (dist > r1 + r2) {
-      return 0;
+    interface CircleColInfo {
+      circle1: CollisionCircle;
+      circle2: CollisionCircle;
+      dist: number;
     }
+    const closest = iter(circles1)
+      .flatMap<CircleColInfo>((c1) =>
+        iter(circles2).map<CircleColInfo>((c2) => ({
+          circle1: c1,
+          circle2: c2,
+          dist: circleDist(c1, c2),
+        })),
+      )
+      .reduce((a: CircleColInfo, b: CircleColInfo) =>
+        a.dist < b.dist ? a : b,
+      );
 
-    return r1 + r2 - dist;
+    const dist = circleDist(closest.circle1, closest.circle2);
+    if (dist > 0) return null;
+    return {
+      dist: dist,
+      point: closest.circle1.center
+        .clone()
+        .add(closest.circle2.center)
+        .divideScalar(2),
+      circle1: closest.circle1,
+      circle2: closest.circle2,
+    };
+  }
+
+  collisionCircles(): CollisionCircle[] {
+    const numCircles = Math.floor(this.lateralCrossSection * 1.6);
+    const edge = this.size * 0.5;
+    const maxOff = this.size * this.lateralCrossSection - edge;
+
+    return iter
+      .range(-numCircles + 1, numCircles)
+      .map((num: number): CollisionCircle => {
+        const alpha = num / Math.max(1, numCircles - 1);
+        const off = maxOff * alpha;
+        return {
+          center: new Vec2(off, 0).rotate(this.angle).add(this.pos),
+          radius: lerp(this.size, edge, Math.abs(alpha)),
+        };
+      })
+      .toArray();
   }
 
   checkShipCollision(deltaTime, ship) {
-    const closeness = this.touchingShip(ship);
-    if (closeness <= 0) {
+    const collision = this.collision(ship);
+    if (collision == null) {
       return;
     }
 
-    const offs = this.pos.clone().subtract(ship.pos);
-    offs.multiply(Vec2(deltaTime * 0.5, deltaTime * 0.5));
-    let directionality = this.vel
-      .subtract(ship.vel)
-      .norm()
-      .dot(ship.pos.clone().subtract(this.pos).norm());
-    directionality = Math.max(0.2, directionality);
-
-    const dir = offs.clone().norm();
-    const shift = dir.clone().multiply(Vec2(closeness, closeness));
+    const dir = collision.circle2.center
+      .clone()
+      .subtract(collision.circle1.center)
+      .norm();
+    const offs = dir.clone().multiplyScalar(collision.dist);
     const relMom = this.phys.vecMomentum().subtract(ship.phys.vecMomentum());
     const colEnergy = relMom.dot(dir.clone().invert());
 
-    this.phys.shift(shift);
-    ship.phys.shift(shift.invert());
+    //const totalWeight = this.phys.weight + ship.phys.weight;
 
-    this.phys.applyForce(null, dir.clone().multiply(Vec2(colEnergy * this.phys.restitution, colEnergy * this.phys.restitution)));
-    ship.phys.applyForce(null, dir.clone().multiply(Vec2(-colEnergy * ship.phys.restitution, -colEnergy * ship.phys.restitution)));
+    const bumpAt = collision.point;
+    const angMom = ship.phys
+      .orbitalMomentumAt(bumpAt)
+      .subtract(this.phys.orbitalMomentumAt(bumpAt));
+    const outwardForce = dir.clone().multiplyScalar(colEnergy);
+    const force = outwardForce.clone().add(angMom);
 
-    // TODO: add torque
-    
+    this.phys.shift(offs);
+    ship.phys.shift(offs.invert());
+
+    this.phys.applyTorqueAt(
+      null,
+      bumpAt,
+      force.clone().multiplyScalar(this.phys.restitution),
+    );
+    ship.phys.applyTorqueAt(
+      null,
+      bumpAt,
+      force.clone().multiplyScalar(-ship.phys.restitution),
+    );
+
+    if (DEBUG_COLL) this.play.spawn(DebugPickup, bumpAt, { height: 1.5 });
+
+    this.phys.applyForce(
+      null,
+      force.clone().multiplyScalar(this.phys.restitution),
+    );
+    ship.phys.applyForce(
+      null,
+      force.clone().multiplyScalar(-ship.phys.restitution),
+    );
+
     ship.setInstigator(this);
     this.setInstigator(ship);
 
