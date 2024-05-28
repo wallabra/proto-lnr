@@ -1,0 +1,11 @@
+[package]
+name = 'lootnroam-physics'
+version = '0.0.1'
+
+[dependencies]
+fixed = "1.27.0"
+fixed_trigonometry = "0.4.3"
+itertools = "0.13.0"
+
+[lib]
+crate-type = ['cdylib']
