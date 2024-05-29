@@ -308,8 +308,8 @@ class DrydockPartWidget extends Pane<
         dockMarginX: 4,
         color: "#bbb",
         childOrdering: "vertical",
-        childMargin: 2,
-        height: 10,
+        childMargin: 1.5,
+        height: 9.5,
         autoFont: true,
         font: "$Hpx sans-serif",
       });
@@ -430,8 +430,8 @@ class DrydockInventoryItemWidget extends Pane<
           height: 11,
           autoFont: true,
           font: "bold $Hpx sans-serif",
-          color: '#fff',
-          childOrdering: 'vertical',
+          color: "#fff",
+          childOrdering: "vertical",
           childMargin: 2,
           label: `${Math.round(100 * this.damageFactor())}% damaged (${moneyString(this.item.repairCost())} to repair)`,
         });
@@ -524,8 +524,8 @@ class DrydockInventoryItemWidget extends Pane<
         dockMarginX: 4,
         color: "#bbb",
         childOrdering: "vertical",
-        childMargin: 2,
-        height: 10,
+        childMargin: 1.2,
+        height: 9.5,
         autoFont: true,
         font: "$Hpx sans-serif",
       });
