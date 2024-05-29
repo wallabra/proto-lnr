@@ -353,6 +353,20 @@ class DrydockPartWidget extends Pane<
   }
 }
 
+interface Damageable {
+  damage: number;
+  maxDamage: number;
+  repairCost(): number;
+}
+
+function isDamageable(item: unknown): item is Damageable {
+  return (
+    (item as Damageable).damage != null &&
+    (item as Damageable).maxDamage != null &&
+    (item as Damageable).repairCost != null
+  );
+}
+
 interface DrydockInventoryItemWidgetArgs extends PaneArgs {
   item: ShipItem;
   resellFactor: number;
@@ -397,6 +411,31 @@ class DrydockInventoryItemWidget extends Pane<
     });
     this.shouldUpdateDetails = true;
     this.updateDetails();
+
+    if (isDamageable(this.item)) {
+      new CanvasProgressBar({
+        parent: this.pane,
+        fillX: true,
+        childOrdering: "vertical",
+        childMargin: 3,
+        height: 5,
+        progress: this.damageFactor(),
+      });
+      const damage = this.item.damage;
+
+      if (damage > 0)
+        new CanvasLabel({
+          parent: this.pane,
+          dockX: "center",
+          height: 11,
+          autoFont: true,
+          font: "bold $Hpx sans-serif",
+          color: '#fff',
+          childOrdering: 'vertical',
+          childMargin: 2,
+          label: `${Math.round(100 * this.damageFactor())}% damaged (${moneyString(this.item.repairCost())} to repair)`,
+        });
+    }
 
     this.buttonList = new CanvasPanel({
       parent: this.pane,
@@ -451,6 +490,14 @@ class DrydockInventoryItemWidget extends Pane<
         height: 13,
         callback: this.installPart.bind(this),
       }).label("Install Part", labelArgs);
+    }
+  }
+
+  private damageFactor(): number {
+    if (!isDamageable(this.item)) {
+      return -1;
+    } else {
+      return this.item.damage / this.item.maxDamage;
     }
   }
 
