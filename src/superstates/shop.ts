@@ -685,6 +685,9 @@ class DrydockInventoryWidget extends Pane<
 
   public update() {
     this.furnishItemList();
+    for (const widget of this.itemWidgets) {
+      widget.update();
+    }
   }
 }
 

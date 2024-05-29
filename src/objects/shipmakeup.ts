@@ -708,9 +708,7 @@ export class ShipMakeup {
   }
 
   removePart(part: ShipPart) {
-    for (const crew of part.mannedBy) {
-      crew.unassign();
-    }
+    part.onRemove();
     const idx = this.parts.indexOf(part);
     if (idx === -1) return false;
     this.parts.splice(idx, 1);
