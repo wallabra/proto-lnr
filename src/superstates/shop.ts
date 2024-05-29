@@ -219,6 +219,7 @@ class DrydockPartWidget extends Pane<
   }
 
   private updateCrewButtonLabel() {
+    if (this.assignCrewButton == null) return;
     if (!this.part.alreadyManned()) {
       this.assignCrewButton.label("Assign Crew", this.labelArgs);
     } else {
