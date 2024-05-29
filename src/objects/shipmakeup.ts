@@ -825,6 +825,18 @@ export class ShipMakeup {
     );
   }
 
+  maxEngineThrust(enginesList?: Engine[]): number {
+    const engines = enginesList != null ? enginesList : this.getReadyEngines();
+    if (engines.length === 0) return 0;
+    return match(
+      engines.filter((e) => e.available(this)),
+      match.fn((a) => a.length === 0, 0),
+      match._((engines: Engine[]) =>
+        engines.map((e) => e.thrust).reduce((a, b) => a + b, 0),
+      ),
+    );
+  }
+
   get drag() {
     return this.make.drag;
   }

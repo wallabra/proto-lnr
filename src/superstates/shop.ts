@@ -1638,6 +1638,12 @@ export default class IntermissionState extends Superstate {
           return `Your ship weights ${Math.ceil(this.makeup.totalWeight())}kgs; ${Math.ceil(this.makeup.make.weight)}kgs of that is the hull.`;
         },
       },
+      {
+        name: "Engine Capability",
+        stat: function (this: StatRow) {
+          return `Your ship, with its current engine arrangement, crew and fuel situation, can output ${Math.round(this.makeup.maxEngineThrust())} kN/s.`;
+        },
+      },
     ];
   }
 

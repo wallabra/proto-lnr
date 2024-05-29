@@ -578,12 +578,7 @@ export class Ship {
   }
 
   maxEngineThrust(enginesList?: Engine[]) {
-    const engines = enginesList || this.makeup.getReadyEngines();
-    const engineThrust = engines
-      .map((e) => e.thrust * (1 - e.damage / 2 / e.maxDamage))
-      .reduce((a, b) => a + b, 0);
-
-    return engineThrust;
+    return this.makeup.maxEngineThrust(enginesList);
   }
 
   thrustForward(deltaTime, amount) {
@@ -765,14 +760,10 @@ export class Ship {
     this.setInstigator(ship);
 
     this.damageShip(
-      ship.phys.kineticEnergyRelativeTo(this.phys) *
-        directionality *
-        0.02,
+      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.02,
     );
     ship.damageShip(
-      this.phys.kineticEnergyRelativeTo(ship.phys) *
-        directionality *
-        0.02,
+      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.02,
     );
   }
 
