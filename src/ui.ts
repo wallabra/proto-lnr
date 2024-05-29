@@ -1197,7 +1197,7 @@ export interface CanvasUIGroupArgs extends CanvasUIArgs {
 }
 
 export class CanvasUIGroup extends CanvasUIElement {
-  private measuring: boolean;
+  private measuring: number = 0;
   bgColor: string | OnBeforeUnloadEventHandler;
 
   constructor(args: CanvasUIGroupArgs) {
@@ -1238,13 +1238,14 @@ export class CanvasUIGroup extends CanvasUIElement {
       return { x: 0, y: 0 };
     }
 
-    this.measuring = true; // prevent infinite recursion
-    this.setCache();
+    this.measuring = 2; // prevent infinite recursion
+    this.updateCache();
     this.cached.dims.width = super.computeWidth();
     this.cached.dims.height = super.computeHeight();
     const [start, end] = this.contentDims;
-    this.measuring = false;
+    this.measuring = 1;
     this.modified = true;
+    this.measuring = 0;
 
     if (start.x == null || end.x == null) return { x: 0, y: 0 };
     return {
@@ -1254,7 +1255,7 @@ export class CanvasUIGroup extends CanvasUIElement {
   }
 
   computeWidth() {
-    if (this.measuring) return super.computeWidth();
+    if (this.measuring > 1) return super.computeWidth();
     return Math.max(
       super.computeWidth(),
       this.contentSize.x + this.paddingX * 2,
@@ -1262,7 +1263,7 @@ export class CanvasUIGroup extends CanvasUIElement {
   }
 
   computeHeight() {
-    if (this.measuring) return super.computeHeight();
+    if (this.measuring > 1) return super.computeHeight();
     return Math.max(
       super.computeHeight(),
       this.contentSize.y + this.paddingY * 2,
