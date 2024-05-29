@@ -765,14 +765,14 @@ export class Ship {
     this.setInstigator(ship);
 
     this.damageShip(
-      Math.sqrt(ship.phys.kineticEnergyRelativeTo(this.phys)) *
+      ship.phys.kineticEnergyRelativeTo(this.phys) *
         directionality *
-        0.2,
+        0.02,
     );
     ship.damageShip(
-      Math.sqrt(this.phys.kineticEnergyRelativeTo(ship.phys)) *
+      this.phys.kineticEnergyRelativeTo(ship.phys) *
         directionality *
-        0.2,
+        0.02,
     );
   }
 
