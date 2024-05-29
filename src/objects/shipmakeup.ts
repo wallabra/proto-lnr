@@ -819,6 +819,12 @@ export class ShipMakeup {
     return this.fuel.some((f: FuelItem) => f.name === fuelType && f.amount > 0);
   }
 
+  totalFuel(fuelType: string) {
+    return this.fuel
+      .filter((f: FuelItem) => f.name === fuelType)
+      .reduce((a, b) => a + b.amount, 0);
+  }
+
   getReadyEngines(): Array<Engine> {
     return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
       p.available(this),

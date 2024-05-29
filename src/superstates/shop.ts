@@ -6,6 +6,7 @@ import arrayCounter from "array-counter";
 import {
   CannonballAmmo,
   Crew,
+  Engine,
   FUEL_PROPS,
   PartSlot,
   ShipMake,
@@ -1642,6 +1643,50 @@ export default class IntermissionState extends Superstate {
         name: "Engine Capability",
         stat: function (this: StatRow) {
           return `Your ship, with its current engine arrangement, crew and fuel situation, can output ${Math.round(this.makeup.maxEngineThrust())} kN/s.`;
+        },
+      },
+      {
+        name: "Fuel",
+        stat: function (this: StatRow) {
+          const engines = <Engine[]>this.makeup.getPartsOf("engine");
+          const fueled = engines.filter((e) => this.makeup.hasFuel(e.fuelType));
+          const consumption = fueled.reduce(
+            (accum, engine) => ({
+              ...accum,
+              [engine.fuelType]:
+                (accum[engine.fuelType] || 0) + engine.fuelCost,
+            }),
+            {},
+          );
+          const quickest = Object.keys(consumption)
+            .map((fuelType) => ({
+              type: fuelType,
+              duration: this.makeup.totalFuel(fuelType) / consumption[fuelType],
+            }))
+            .reduce(
+              (a, b) => (a == null || a.duration > b.duration ? b : a),
+              null,
+            );
+          return (
+            `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length} out of your ${engines.length} currently installed engines have fuel.` +
+            (quickest == null
+              ? ""
+              : ` The fuel you'll first run out of is ${quickest.type}, at ${quickest.duration}s.`)
+          );
+        },
+      },
+      {
+        name: "Manned Parts",
+        stat: function (this: StatRow) {
+          const parts = this.makeup.parts;
+          const manned = parts.filter((p) => p.manned !== false);
+          const satisfied = manned.filter((p) => p.alreadyManned());
+          return (
+            `Of your ship's ${parts.length} currently installed part, ${manned.length === parts.length ? "all" : manned.length === 0 ? "none" : manned.length} are manned.` +
+            (manned.length === 0
+              ? ""
+              : ` Of these, ${satisfied.length === manned.length ? "all" : satisfied.length === 0 ? "none" : satisfied.length} have crew manning them.`)
+          );
         },
       },
     ];
