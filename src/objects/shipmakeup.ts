@@ -399,7 +399,7 @@ export class Cannon extends ShipPart {
   }
 
   endLevelUpdate(_player: Player): void {
-      this.cooldown = 0;
+    this.cooldown = 0;
   }
 
   cannonballSphericalVolume() {
@@ -824,6 +824,12 @@ export class ShipMakeup {
   totalFuel(fuelType: string) {
     return this.fuel
       .filter((f: FuelItem) => f.name === fuelType)
+      .reduce((a, b) => a + b.amount, 0);
+  }
+
+  totalAmmo(caliber: number) {
+    return this.ammo
+      .filter((a: CannonballAmmo) => a.caliber === caliber)
       .reduce((a, b) => a + b.amount, 0);
   }
 

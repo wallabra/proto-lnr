@@ -44,11 +44,12 @@ export class PlayKeyHandler extends KeyHandler {
   register() {
     this.registerKey(" ", this.game.inputHandler.bind(this.game, "shoot"));
     this.registerKey("s", this.game.inputHandler.bind(this.game, "shop"));
+    this.registerKey("h", this.game.inputHandler.bind(this.game, "hud"));
   }
 }
 
 export class IntermissionKeyHandler extends KeyHandler {
   register() {
-    this.registerKey("s", this.game.inputHandler.bind(this.game, "tryRepair"));
+    this.registerKey("r", this.game.inputHandler.bind(this.game, "tryRepair"));
   }
 }

@@ -25,3 +25,9 @@ export function zeroPad(text: string, size: number) {
 export function moneyString(cash: number) {
   return cash.toLocaleString(undefined, { style: "currency", currency: "USD" });
 }
+
+export function weightString(weight: number) {
+  if (weight < 10) return `weight: ${Math.ceil(weight * 1000)}g`;
+
+  return `weight: ${Math.ceil(weight)}kg`;
+}

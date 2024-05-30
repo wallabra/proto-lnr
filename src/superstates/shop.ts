@@ -32,7 +32,7 @@ import {
   CanvasUIElement,
   CanvasUIArgs,
 } from "../ui";
-import { moneyString } from "../util";
+import { moneyString, weightString } from "../util";
 import Superstate from "./base";
 import { PARTDEFS } from "../shop/partdefs";
 import { instantiatePart } from "../shop/randomparts";
@@ -49,9 +49,7 @@ function weightInfo(item: ShipItem) {
   const amount = item.amount != null ? item.amount : 1;
   const weight = amount * item.weight;
 
-  if (weight < 10) return `weight: ${Math.ceil(weight * 1000)}g`;
-
-  return `weight: ${Math.ceil(weight)}kg`;
+  return weightString(weight);
 }
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {

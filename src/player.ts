@@ -16,6 +16,7 @@ export class Player {
   game: Game;
   money: number;
   makeup: ShipMakeup;
+  kills: number = 0;
 
   constructor(game: Game, ship: Ship, money: number = 0) {
     this.game = game;
@@ -61,6 +62,12 @@ export class Player {
 
     if (name == "shoot") {
       this.inputState = "shoot";
+    }
+
+    if (name == "hud") {
+      const state = this.game.state as PlayState;
+      const renderer = state.renderer;
+      renderer.toggleHud();
     }
 
     if (name == "shop") {

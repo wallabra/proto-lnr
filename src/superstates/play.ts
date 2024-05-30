@@ -1,6 +1,10 @@
 import { Cannonball, CannonballParams } from "../objects/cannonball";
 import { Ship, ShipParams } from "../objects/ship";
-import { PhysicsSimulation, PhysicsParams } from "../objects/physics";
+import {
+  PhysicsSimulation,
+  PhysicsParams,
+  PhysicsObject,
+} from "../objects/physics";
 import { Terrain, TerraDef } from "../terrain";
 import Superstate from "./base";
 
@@ -45,23 +49,25 @@ export class PlayState extends Superstate {
       this.removeObj(this.game.player.possessed);
     }
 
-    const pos = Vec2(1600, 0).rotateBy(Math.PI * 2 * Math.random());
+    const pos = new Vec2(1600, 0).rotateBy(Math.PI * 2 * Math.random());
     const ship = (this.game.player.possessed = this.makeShip(pos, {
       money: this.game.player.money,
       makeup: this.game.player.makeup,
       angle: pos.clone().invert().angle(),
       ...args,
     }));
-    ship.vel = Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
+    ship.vel = new Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
       ship.angle,
     );
 
     return ship;
   }
 
-  removeObj(toRemove) {
-    const it = this.tickables.indexOf(toRemove);
-    const ir = this.renderables.indexOf(toRemove);
+  removeObj<T extends Tickable | Renderable | { phys: PhysicsObject }>(
+    toRemove: T,
+  ) {
+    const it = this.tickables.indexOf(toRemove as Tickable);
+    const ir = this.renderables.indexOf(toRemove as Renderable);
 
     if (it !== -1) {
       this.tickables.splice(it, 1);
@@ -71,8 +77,8 @@ export class PlayState extends Superstate {
       this.renderables.splice(it, 1);
     }
 
-    if (toRemove.phys != null) {
-      this.physics.removePhysObj(toRemove.phys);
+    if ((toRemove as { phys: PhysicsObject }).phys != null) {
+      this.physics.removePhysObj((toRemove as { phys: PhysicsObject }).phys);
     }
   }
 
@@ -117,7 +123,7 @@ export class PlayState extends Superstate {
     if (this.player != null && this.player.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
-      return Vec2(0, 0);
+      return new Vec2(0, 0);
     }
   }
 
@@ -142,7 +148,9 @@ export class PlayState extends Superstate {
     if (params.speed == null) params.speed = 2;
     if (params.angle == null) params.angle = ship.angle;
     if (params.vel == null)
-      params.vel = Vec2(params.speed, 0).rotateBy(params.angle).add(ship.vel);
+      params.vel = new Vec2(params.speed, 0)
+        .rotateBy(params.angle)
+        .add(ship.vel);
     if (params.size == null) params.size = 3.5;
     if (params.vspeed == null) params.vspeed = 2;
     if (params.height == null) params.height = ship.height + 0.2;

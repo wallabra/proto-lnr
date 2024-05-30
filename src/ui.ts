@@ -1,4 +1,4 @@
-// UI utilities for the canvas.
+/// UI utilities for the canvas.
 import { Optional } from "utility-types";
 import { Game } from "./game";
 import { GameMouseInfo } from "./mouse";
@@ -156,8 +156,8 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.dockMarginY = args.dockMarginY || 0;
     this.fillX = args.fillX || false;
     this.fillY = args.fillY || false;
-    this.paddingX = or(args.paddingX, 8);
-    this.paddingY = or(args.paddingY, 8);
+    this.paddingX = or(args.paddingX, 2);
+    this.paddingY = or(args.paddingY, 2);
     this.childOrdering = args.childOrdering || null;
     this.childMargin = or(args.childMargin, 5);
     this.childFill = args.childFill || 0;
@@ -166,7 +166,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
       args.cullOutOfBounds != null ? args.cullOutOfBounds : false;
 
     if (this.parent != null) {
-      this.parent._addChild(this);
+      this.parent = this.parent._addChild(this);
     }
 
     this.updateCache();
@@ -225,13 +225,14 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     return { x: 0, y: 0 };
   }
 
-  public addChild(item) {
-    this._addChild(item);
+  public addChild(item: CanvasUIElement): CanvasUIElement {
+    return this._addChild(item);
   }
 
-  _addChild(item) {
+  _addChild(item: CanvasUIElement): CanvasUIElement {
     this.children.push(item);
     this.modified = true;
+    return this;
   }
 
   remove() {
@@ -542,7 +543,7 @@ export class CanvasRoot extends CanvasUIElement<{ game: Game }> {
   game: Game;
   bgColor: string;
 
-  constructor(game, bgColor = "#050505") {
+  constructor(game, bgColor = "#0000") {
     super({ parent: null, game: game, x: 0, y: 0 });
     this.game = game;
     this.bgColor = bgColor;
@@ -649,12 +650,12 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   postChildrenRender() {}
 
   computeWidth(): number {
-    return this.textWidth || this.width;
+    return Math.max(this.textWidth || 0, super.computeWidth() || 0);
   }
 
   _render(uictx: UIDrawContext) {
     const ctx = uictx.ctx;
-    const pos = this.pos();
+    const pos = this.innerPos();
 
     if (this.bgColor != null) {
       ctx.fillStyle = this.bgColor;
@@ -665,15 +666,15 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       ? this.font.replace("$H", "" + this.height)
       : this.font;
 
+    const measures = ctx.measureText(this.label);
+    this.textWidth =
+      measures.actualBoundingBoxRight - measures.actualBoundingBoxLeft;
+
     ctx.fillStyle = this.color;
     ctx.font = font;
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.textBaseline;
     ctx.fillText(this.label, pos.x, pos.y);
-
-    const measures = ctx.measureText(this.label);
-    this.textWidth =
-      measures.actualBoundingBoxRight - measures.actualBoundingBoxLeft;
   }
 
   event() {}
@@ -1010,8 +1011,9 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
     this.updateCache();
   }
 
-  public addChild(item) {
-    this.contentPane._addChild(item);
+  public addChild(item: CanvasUIElement): CanvasUIElement {
+    this.contentPane.addChild(item);
+    return this.contentPane;
   }
 
   childrenOffset() {
@@ -1270,7 +1272,8 @@ export class CanvasUIGroup extends CanvasUIElement {
     );
   }
 
-  event() {}
+  event<E extends UIEvent>(_e: E) {}
+
   _render(ctx: UIDrawContext) {
     if (this.bgColor == null) return;
 
@@ -1284,6 +1287,133 @@ export class CanvasUIGroup extends CanvasUIElement {
   }
   preChildrenRender() {}
   postChildrenRender() {}
+}
+
+export interface Widget {
+  pane: CanvasUIElement;
+  update(): void;
+}
+
+export interface CanvasTabArgs extends CanvasUIGroupArgs {
+  label: string;
+  content: Widget;
+  labelArgs?: CanvasLabelArgs;
+  colors?: { inactive: string; active: string };
+  parent: CanvasTabRow;
+}
+
+export class CanvasTab extends CanvasUIGroup {
+  content: Widget;
+  label: CanvasLabel;
+  protected active: boolean;
+  colors: { inactive: string; active: string };
+  parent: CanvasTabRow;
+
+  constructor(args: CanvasTabArgs) {
+    if (args.colors == null)
+      args.colors = { inactive: "#2238", active: "#223c" };
+    super({
+      childFill: 1,
+      paddingX: 15,
+      paddingY: 3,
+      childOrdering: "horizontal",
+      childMargin: 1,
+      ...args,
+    });
+    this.content = args.content;
+    this.label = new CanvasLabel({
+      parent: this,
+      dockX: "center",
+      dockY: "center",
+      width: 20,
+      label: args.label,
+      ...(args.labelArgs || {}),
+    });
+    this.updateColor();
+  }
+
+  updateColor() {
+    this.bgColor = this.active ? this.colors.active : this.colors.inactive;
+  }
+
+  activate() {
+    for (const tab of this.parent.tabs) {
+      tab.active = tab === this;
+    }
+    this.updateColor();
+    this.parent.parent.contentPane.clearChildren();
+    this.parent.parent.contentPane.addChild(this.content.pane);
+  }
+
+  protected handleClick() {
+    this.activate();
+  }
+
+  event<E extends UIEvent>(e: E) {
+    if (e.name === "click") {
+      this.handleClick();
+      e.consumed = true;
+    }
+  }
+}
+
+export interface CanvasTabRowArgs extends CanvasUIGroupArgs {
+  parent: CanvasTabPanel;
+  tabOptions?: Optional<CanvasTabArgs, "label" | "parent" | "content">;
+  tabs: { label: string; content: Widget }[];
+}
+
+export class CanvasTabRow extends CanvasUIGroup {
+  tabs: CanvasTab[];
+  parent: CanvasTabPanel;
+
+  constructor(args: CanvasTabRowArgs) {
+    super({ paddingX: 2, paddingY: 2, ...args });
+    for (const tab of args.tabs) {
+      const opts: CanvasTabArgs = {
+        parent: this,
+        ...(args.tabOptions || {}),
+        ...tab,
+      };
+
+      const tabEl = new CanvasTab(opts);
+      this.tabs.push(tabEl);
+    }
+  }
+}
+
+export interface CanvasTabPanelArgs extends CanvasPanelArgs {
+  rowOptions?: Partial<CanvasUIGroupArgs>;
+  tabOptions?: Optional<CanvasTabArgs, "label" | "parent" | "content">;
+  tabs: { label: string; content: Widget }[];
+}
+
+export class CanvasTabPanel extends CanvasPanel {
+  tabs: CanvasTabRow;
+  contentPane: CanvasUIGroup;
+
+  constructor(args: CanvasTabPanelArgs) {
+    super(args);
+    this.tabs = new CanvasTabRow({
+      ...(args.rowOptions || {}),
+      parent: this,
+      childOrdering: "vertical",
+      childMargin: 2,
+      fillX: true,
+      tabOptions: args.tabOptions,
+      tabs: args.tabs,
+    });
+    this.contentPane = new CanvasUIGroup({
+      parent: this,
+      childOrdering: "vertical",
+      childFill: 1,
+      fillX: true,
+    });
+
+    if (this.tabs.tabs.length > 0) {
+      this.contentPane.addChild(this.tabs.tabs[0].content.pane);
+    }
+  }
 }
 
 export interface CanvasProgressBarArgs extends CanvasUIArgs {

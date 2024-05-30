@@ -158,6 +158,14 @@ export class Ship {
     this.updateWeight();
   }
 
+  scoreKill() {
+    this.killScore++;
+
+    if ((this.game.player != null) & (this.game.player.possessed === this)) {
+      this.game.player.kills++;
+    }
+  }
+
   nextTick<T>(action: TickActionFunction<T>): TickAction<T> {
     const actionObj = new TickAction(action);
     this.tickActions.push(actionObj);

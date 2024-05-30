@@ -89,7 +89,7 @@ export class Cannonball {
         30,
     );
     if (ship.dying) {
-      this.instigator.killScore++;
+      this.instigator.scoreKill();
     }
     this.destroy();
 
