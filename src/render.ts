@@ -525,7 +525,7 @@ class HudCannonList {
 
   tick(deltaTime: number) {
     this.pruneWidgets();
-    this.pane.bgColor = this.makeup.readyCannon != null ? '#F0E09018' : '#0000';
+    this.pane.bgColor = this.makeup.readyCannon != null ? "#F0E09018" : "#0000";
 
     for (const widget of this.widgets) widget.tick(deltaTime);
   }
