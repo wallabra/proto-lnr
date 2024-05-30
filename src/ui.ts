@@ -666,14 +666,20 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       ? this.font.replace("$H", "" + Math.max(this.innerHeight, this.height))
       : this.font;
 
-    const measures = ctx.measureText(this.label);
-    this.textWidth =
-      measures.actualBoundingBoxRight - measures.actualBoundingBoxLeft;
-
     ctx.fillStyle = this.color;
     ctx.font = font;
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.textBaseline;
+
+    const measures = ctx.measureText(this.label);
+    const remeasured = measures.width != this.textWidth;
+    this.textWidth = measures.width;
+
+    if (remeasured) {
+      this.cached.dims.width = measures.width;
+      this.updateCache();
+    }
+
     ctx.fillText(this.label, pos.x, pos.y);
   }
 

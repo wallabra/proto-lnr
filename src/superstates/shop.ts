@@ -447,10 +447,11 @@ class DrydockInventoryItemWidget extends Pane<
     const labelArgs = {
       color: "#fff",
       height: 12,
-      fillY: 0.3,
+      fillY: 0.15,
       autoFont: true,
       font: "$Hpx sans-serif",
     };
+
     this.resellHalfButton = new CanvasButton({
       parent: this.buttonList,
       bgColor: "#22882290",
@@ -927,8 +928,9 @@ class StatRow {
       dockX: "center",
       childOrdering: "vertical",
       childFill: 1,
-      childMargin: 4,
-      paddingY: 5,
+      childMargin: 6,
+      paddingY: 4,
+      paddingX: 7,
     });
 
     new CanvasLabel({
@@ -952,7 +954,6 @@ class StatRow {
       height: 12,
       autoFont: true,
       font: "$Hpx sans-serif",
-
       dockX: "center",
     });
     this.update();
@@ -1622,10 +1623,10 @@ export default class IntermissionState extends Superstate {
               ),
             );
             return (
-              `You need ${moneyString(totalSalary - this.player.money)} to break even with salaries for next night, at ${moneyString(totalSalary)}/day. ` +
+              `You need +${moneyString(totalSalary - this.player.money)} to meet salaries tomorrow, at ${moneyString(totalSalary)}/day. ` +
               (hasUnhappy
                 ? ""
-                : `Otherwise, crew revolts may start in ${soonestRevolt} days.`)
+                : `Or else, some crew may refuse to work in ${soonestRevolt} days.`)
             );
           } else {
             const salaryDays = Math.floor(this.player.money / totalSalary);
@@ -1717,7 +1718,7 @@ export default class IntermissionState extends Superstate {
             `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length} out of your ${engines.length} currently installed engines have fuel.` +
             (quickest == null
               ? ""
-              : ` The fuel you'll first run out of is ${quickest.type}, at ${quickest.duration}s.`)
+              : ` The fuel you'll first run out of is ${quickest.type}, at ${Math.max(quickest.duration)}s.`)
           );
         },
       },
