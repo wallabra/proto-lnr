@@ -1126,7 +1126,7 @@ class HudRenderer {
 
   renderUI(ctx: UIDrawContext) {
     if (this.renderDeathScreen()) return;
-    
+
     this.root.checkChangeDimensions(this.game.width, this.game.height);
     this.root.checkUpdateCache();
     this.root.render(ctx);
