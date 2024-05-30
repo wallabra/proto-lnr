@@ -81,13 +81,19 @@ export class Player {
 
     if (name === "steerLeft") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.steer(deltaTime, this.possessed.angle + this.possessed.phys.angVel - Math.PI / 2),
+        this.possessed.steer(
+          deltaTime,
+          this.possessed.angle + this.possessed.phys.angVel - Math.PI / 2,
+        ),
       );
     }
 
     if (name === "steerRight") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.steer(deltaTime, this.possessed.angle + this.possessed.phys.angVel + Math.PI / 2),
+        this.possessed.steer(
+          deltaTime,
+          this.possessed.angle + this.possessed.phys.angVel + Math.PI / 2,
+        ),
       );
     }
 
