@@ -409,6 +409,7 @@ class HudCannon {
       dockY: "center",
       dockMarginX: 10,
       paddingY: 4,
+      maxHeight: 15,
       label: this.cannon.name,
       color: "#fff",
     });
@@ -589,6 +590,7 @@ class HudEngine {
       dockY: "center",
       dockMarginX: 10,
       paddingY: 4,
+      maxHeight: 15,
       label: this.getLabel(),
       color: "#fff",
     });
