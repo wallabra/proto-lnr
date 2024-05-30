@@ -663,7 +663,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     let size = Math.max(this.innerHeight, this.height);
 
     if (this.maxHeight != null && this.maxHeight < size) size = this.maxHeight;
-    
+
     if (this.bgColor != null) {
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
@@ -680,14 +680,22 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     const oldWidth = this.textWidth;
     this.textWidth = measures.width;
 
-    const wideWidth = this.textWidth + this.paddingX * 2 + (this.childOrdering === 'horizontal' ? this.childMargin * 2 : this.dockX === 'start' || this.dockX === 'end' ? this.dockMarginX : 0);
+    const wideWidth =
+      this.textWidth +
+      this.paddingX * 2 +
+      (this.childOrdering === "horizontal"
+        ? this.childMargin * 2
+        : this.dockX === "start" || this.dockX === "end"
+          ? this.dockMarginX
+          : 0);
 
     if (wideWidth > this.parent.innerWidth) {
       const factor = this.parent.innerWidth / wideWidth;
       size *= factor;
       font = this.font.replace("$H", size + "");
       ctx.font = font;
-      this.maxHeight = this.maxHeight == null ? size : Math.min(this.maxHeight, size);
+      this.maxHeight =
+        this.maxHeight == null ? size : Math.min(this.maxHeight, size);
       this.textWidth *= factor;
     }
 

@@ -142,6 +142,7 @@ export class Game {
   /// Order of tick operations
   tick(deltaTime: number) {
     this.tickPlayer(deltaTime);
+    this.keyboard.tick();
     this.state.tick(deltaTime);
   }
 

@@ -1183,7 +1183,7 @@ class Hud extends CanvasPanel {
         dockMarginY: 90,
         color: "#fecd",
         textAlign: "center",
-        label: "Press S to leave the island.",
+        label: "Press H to leave the island.",
       });
 
       this.damageBar = new HudDamageBar({

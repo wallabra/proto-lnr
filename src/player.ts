@@ -47,7 +47,7 @@ export class Player {
   }
 
   approach(offs: Vec2, deltaTime: number, throttle: number = 1.0) {
-    const dot = Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
+    const dot = new Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
     this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }
 
@@ -77,6 +77,30 @@ export class Player {
 
       this.makeup.endLevelUpdate(this);
       this.game.setState(IntermissionState);
+    }
+
+    if (name === "steerLeft") {
+      this.possessed.nextTick((deltaTime) =>
+        this.possessed.steer(deltaTime, this.possessed.angle + this.possessed.phys.angVel - Math.PI / 2),
+      );
+    }
+
+    if (name === "steerRight") {
+      this.possessed.nextTick((deltaTime) =>
+        this.possessed.steer(deltaTime, this.possessed.angle + this.possessed.phys.angVel + Math.PI / 2),
+      );
+    }
+
+    if (name === "thrustForward") {
+      this.possessed.nextTick((deltaTime) =>
+        this.possessed.thrustForward(deltaTime, 1.0),
+      );
+    }
+
+    if (name === "thrustBackward") {
+      this.possessed.nextTick((deltaTime) =>
+        this.possessed.thrustForward(deltaTime, -1.0),
+      );
     }
 
     if (name == "repair") {

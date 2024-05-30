@@ -14,10 +14,10 @@ physics simulation.
 You can currently play on the [GitHub Pages site](https://wallabra.github.io/proto-lnr).
 Your browser must support JavaScript, as well as HTML5 Canvas.
 
-* Move and steer with the **left mouse button.**
+* Move and steer with the **left mouse button.** Alternatively, use **WASD**.
 * Shoot with **Spacebar.**
 * Toggle the HUD with **H**.
-* Leave the island by going far enough from it; when prompted to, press **S**.
+* Leave the island by going far enough from it; when prompted to, press **L**.
 
 ## Technical
 
