@@ -1613,9 +1613,7 @@ export default class IntermissionState extends Superstate {
       {
         name: "Salary",
         stat: function (this: StatRow) {
-          const totalSalary = this.makeup.crew
-            .map((c) => c.nextSalary())
-            .reduce((a, b) => a + b, 0);
+          const totalSalary = this.makeup.totalSalary();
           if (this.player.money < totalSalary) {
             const hasUnhappy = this.makeup.crew.some((c) => !c.isHappy());
             const soonestRevolt = Math.min(

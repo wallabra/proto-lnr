@@ -384,6 +384,7 @@ class HudCannon {
     this.damage = new CanvasProgressBar({
       parent: this.pane,
       childOrdering: "vertical",
+      childMargin: 1,
       fillX: true,
       height: 2,
       fillY: 0.05,
@@ -397,12 +398,13 @@ class HudCannon {
       childOrdering: "vertical",
       childFill: 1,
       childMargin: 2,
-      height: 12,
+      fillX: true,
       autoFont: true,
       font: "$Hpx sans-serif",
       dockX: "start",
       dockY: "center",
       dockMarginX: 10,
+      paddingY: 4,
       label: this.cannon.name,
       color: "#fff",
     });
@@ -547,8 +549,8 @@ class HudFuel {
       fillX: true,
       childOrdering: "vertical",
       childMargin: 2,
-      childFill: 1,
-      height: 13,
+      height: 17,
+      //childFill: 1,
       bgColor: "#7781",
       progressColor: "89cb",
       progress: 1,
@@ -686,9 +688,10 @@ class HudAmmo {
     this.caliber = args.caliber;
     this.pane = new CanvasProgressBar({
       parent: args.parent,
-      height: 10,
-      childFill: 1,
+      height: 17,
+      //childFill: 1,
       childOrdering: "vertical",
+      childMargin: 2,
       fillX: true,
       progress: 1,
       bgColor: "#7781",
@@ -808,12 +811,12 @@ interface HudCountersArgs {
 
 class HudCounters {
   player: Player;
-  moneyCounter: CanvasLabel;
-  killCounter: CanvasLabel;
   pane: CanvasPanel;
+  updaters: (() => void)[];
 
   constructor(args: HudCountersArgs) {
     this.player = args.player;
+    this.updaters = [];
     this.pane = new CanvasPanel({
       parent: args.parent,
       fillX: true,
@@ -822,11 +825,39 @@ class HudCounters {
       bgColor: "#0001",
     });
 
-    this.moneyCounter = this.addRow("Cash");
-    this.killCounter = this.addRow("Kills");
+    this.addRow("Cash", (label, player) => {
+      const money = player.money;
+      label.label = moneyString(money);
+    });
+    this.addRow("(After Salary)", (label, player) => {
+      const totalSalary = player.makeup.totalSalary();
+      const money = player.money;
+      label.label =
+        (money > totalSalary ? "+" : "-") +
+        moneyString(Math.abs(money - totalSalary));
+      label.color = money > totalSalary ? "#aaf" : "#f98";
+    });
+    this.addRow("Total Value", (label, player) => {
+      const money = player.money + player.makeup.totalValue();
+      label.label = moneyString(money);
+    });
+    this.addRow("(After Salary)", (label, player) => {
+      const totalSalary = player.makeup.totalSalary();
+      const money = player.money + player.makeup.totalValue();
+      label.label =
+        (money > totalSalary ? "+" : "-") +
+        moneyString(Math.abs(money - totalSalary));
+      label.color = money > totalSalary ? "#aaf" : "#f98";
+    });
+    this.addRow("Kills", (label, player) => {
+      label.label = player.kills.toString();
+    });
   }
 
-  private addRow(name: string, startingValue?: string): CanvasLabel {
+  private addRow(
+    name: string,
+    updater?: (label: CanvasLabel, player: Player) => void,
+  ): CanvasLabel {
     const row = new CanvasUIGroup({
       parent: this.pane,
       childOrdering: "vertical",
@@ -857,16 +888,25 @@ class HudCounters {
       label: name,
     });
 
-    return new CanvasLabel({
+    const label = new CanvasLabel({
       ...opts,
       color: "#aaf",
-      label: startingValue != null ? startingValue : "",
+      label: "",
     });
+
+    if (updater != null) {
+      const appliedUpdater = updater.bind(this, label, this.player);
+      this.updaters.push(appliedUpdater);
+      appliedUpdater();
+    }
+
+    return label;
   }
 
   update() {
-    this.moneyCounter.label = moneyString(this.player.money);
-    this.killCounter.label = moneyString(this.player.kills);
+    for (const updater of this.updaters) {
+      updater();
+    }
   }
 
   tick(_deltaTime: number) {
@@ -930,7 +970,7 @@ class Hud extends CanvasPanel {
       });
 
       new CanvasLabel({
-        height: 9,
+        height: 10.5,
         dockX: "start",
         dockMarginX: 35,
         parent: this.content,
@@ -942,16 +982,16 @@ class Hud extends CanvasPanel {
 
       this.leaveIslandLabel = new CanvasLabel({
         parent: args.parent,
-        dockX: 'center',
-        dockY: 'start',
+        dockX: "center",
+        dockY: "start",
         height: 20,
         autoFont: true,
-        font: 'bold $Hpx sans-serif',
+        font: "bold $Hpx sans-serif",
         dockMarginY: 90,
-        color: '#fecd',
-        textAlign: 'center',
-        label: 'Press S to leave the island.',
-      })
+        color: "#fecd",
+        textAlign: "center",
+        label: "Press S to leave the island.",
+      });
 
       this.damageBar = new HudDamageBar({
         parent: this.content,

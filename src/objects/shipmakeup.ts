@@ -833,6 +833,17 @@ export class ShipMakeup {
       .reduce((a, b) => a + b.amount, 0);
   }
 
+  totalSalary() {
+    return this.crew.map((c) => c.nextSalary()).reduce((a, b) => a + b, 0);
+  }
+
+  totalValue() {
+    return this.inventory.items
+      .filter((i) => this.parts.indexOf(i) === -1 && !(i instanceof Crew))
+      .map((i) => i.cost * (i.amount != null ? i.amount : 1))
+      .reduce((a, b) => a + b, 0);
+  }
+
   getReadyEngines(): Array<Engine> {
     return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
       p.available(this),

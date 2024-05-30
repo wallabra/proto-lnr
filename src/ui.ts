@@ -663,7 +663,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     }
 
     const font = this.autoFont
-      ? this.font.replace("$H", "" + this.height)
+      ? this.font.replace("$H", "" + Math.max(this.innerHeight, this.height))
       : this.font;
 
     const measures = ctx.measureText(this.label);
