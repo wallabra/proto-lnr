@@ -270,6 +270,8 @@ class FpsCounter extends CanvasLabel {
       dockY: "start",
       dockMarginX: 25,
       dockMarginY: 20,
+      textAlign: "end",
+      color: "#ff08",
       ...args,
     });
     this.fps = null;
@@ -290,7 +292,7 @@ class FpsCounter extends CanvasLabel {
       }
     }
 
-    this.label = this.fps.toString();
+    this.label = Math.ceil(this.fps).toString();
   }
 }
 
