@@ -1017,13 +1017,11 @@ class HudCounters {
       const money = player.money + player.makeup.totalValue();
       label.label = moneyString(money);
     });
-    this.addRow("(After Salary)", (label, player) => {
-      const totalSalary = player.makeup.totalSalary();
-      const money = player.money + player.makeup.totalValue();
-      label.label =
-        (money > totalSalary ? "+" : "-") +
-        moneyString(Math.abs(money - totalSalary));
-      label.color = money > totalSalary ? "#aaf" : "#f98";
+    this.addRow("Repair Cost", (label, player) => {
+      const repairCost = player.makeup.hullRepairCost();
+      const money = player.money;
+      label.label = moneyString(repairCost);
+      label.color = money > repairCost ? "#aaf" : "#f98";
     });
     this.addRow("Kills", (label, player) => {
       label.label = player.kills.toString();
