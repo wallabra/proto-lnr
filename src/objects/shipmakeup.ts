@@ -741,22 +741,6 @@ export class ShipMakeup {
     this.parts = this.parts.filter((p) => !p.dying);
   }
 
-  spendFood(amount: number) {
-    for (const food of this.food) {
-      if (food.amount >= amount) {
-        food.amount -= amount;
-        return true;
-      }
-
-      amount -= food.amount;
-      food.amount = 0;
-    }
-
-    this.pruneSpentFood();
-
-    return amount <= 0;
-  }
-
   spendFuel(fuelType: string, amount: number) {
     for (const fuel of this.fuel) {
       if (fuel.name !== fuelType) {
@@ -841,6 +825,19 @@ export class ShipMakeup {
     return this.inventory.items
       .filter((i) => this.parts.indexOf(i) === -1 && !(i instanceof Crew))
       .map((i) => i.cost * (i.amount != null ? i.amount : 1))
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalFood() {
+    return this.inventory
+      .getItemsOf("food")
+      .map((i) => i.amount)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalFoodIntake() {
+    return this.crew
+      .map((c) => c.caloricIntake + c.hunger)
       .reduce((a, b) => a + b, 0);
   }
 

@@ -380,6 +380,8 @@ class HudCannon {
       progressColor: "#aaa6",
       fillX: 0.9,
       dockX: "center",
+      paddingX: 4,
+      paddingY: 8,
       ...(args.opts || {}),
     });
 
@@ -558,6 +560,8 @@ class HudEngine {
       bgColor: "#2224",
       fillX: 0.9,
       dockX: "center",
+      paddingX: 4,
+      paddingY: 8,
       ...(args.opts || {}),
     });
 
@@ -585,16 +589,20 @@ class HudEngine {
       dockY: "center",
       dockMarginX: 10,
       paddingY: 4,
-      label: `${this.engine.name}   (${this.engine.fuelType})`,
+      label: this.getLabel(),
       color: "#fff",
     });
 
     this.update();
   }
 
+  getLabel() {
+    return `${this.engine.name}  (${this.engine.fuelType})`;
+  }
+
   alert(message: string) {
     this.pane.bgColor = "#a776";
-    this.label.label += ` (${message})`;
+    this.label.label += ` - ${message}`;
     this.label.color = "#faa";
   }
 
@@ -613,7 +621,7 @@ class HudEngine {
   }
 
   resetLabel() {
-    this.label.label = this.engine.name;
+    this.label.label = this.getLabel();
     this.label.color = "#fff";
   }
 
@@ -1024,6 +1032,13 @@ class HudCounters {
       label.label = moneyString(repairCost);
       label.color = money >= repairCost ? "#aaf" : "#f98";
     });
+    this.addRow("Food", (label, player) => {
+      const makeup = player.makeup;
+      const food = makeup.totalFood();
+      const required = makeup.totalFoodIntake();
+      label.label = `${food} / ${required}`;
+      label.color = food > required ? "#aaf" : "#f98";
+    });
     this.addRow("Kills", (label, player) => {
       label.label = player.kills.toString();
     });
@@ -1123,7 +1138,7 @@ class Hud extends CanvasPanel {
   constructor(args: HudArgs) {
     super({
       ...args,
-      fillY: 0.23,
+      fillY: 0.3,
       height: 200,
       fillX: true,
       dockY: "end",

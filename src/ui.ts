@@ -622,6 +622,7 @@ export interface CanvasLabelSpecificArgs {
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
   autoFont?: boolean;
+  maxHeight?: number;
 }
 
 export type CanvasLabelArgs = CanvasUIArgs & CanvasLabelSpecificArgs;
@@ -635,9 +636,11 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   autoFont: boolean;
   textWidth: number | null = null;
   bgColor: string | null;
+  maxHeight: number | null;
 
   constructor(args: CanvasLabelArgs) {
     super({ bgColor: null, ...args });
+    this.maxHeight = args.maxHeight || null;
     this.label = args.label;
     this.color = args.color || "black";
     this.font = args.font || `${this.height}px sans-serif`;
@@ -657,14 +660,16 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     const ctx = uictx.ctx;
     const pos = this.innerPos();
 
+    let size = Math.max(this.innerHeight, this.height);
+
+    if (this.maxHeight != null && this.maxHeight < size) size = this.maxHeight;
+    
     if (this.bgColor != null) {
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
     }
 
-    const font = this.autoFont
-      ? this.font.replace("$H", "" + Math.max(this.innerHeight, this.height))
-      : this.font;
+    let font = this.font.replace("$H", size + "");
 
     ctx.fillStyle = this.color;
     ctx.font = font;
@@ -672,9 +677,21 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     ctx.textBaseline = this.textBaseline;
 
     const measures = ctx.measureText(this.label);
-    const remeasured = measures.width != this.textWidth;
+    const oldWidth = this.textWidth;
     this.textWidth = measures.width;
 
+    const wideWidth = this.textWidth + this.paddingX * 2 + (this.childOrdering === 'horizontal' ? this.childMargin * 2 : this.dockX === 'start' || this.dockX === 'end' ? this.dockMarginX : 0);
+
+    if (wideWidth > this.parent.innerWidth) {
+      const factor = this.parent.innerWidth / wideWidth;
+      size *= factor;
+      font = this.font.replace("$H", size + "");
+      ctx.font = font;
+      this.maxHeight = this.maxHeight == null ? size : Math.min(this.maxHeight, size);
+      this.textWidth *= factor;
+    }
+
+    const remeasured = oldWidth != this.textWidth;
     if (remeasured) {
       this.cached.dims.width = measures.width;
       this.updateCache();
