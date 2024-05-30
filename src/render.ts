@@ -1100,11 +1100,11 @@ class HudRenderer {
     const ctx = game.drawCtx;
 
     if (game.player == null || game.player.possessed == null) {
-      return;
+      return false;
     }
 
     if (!game.player.possessed.dying) {
-      return;
+      return false;
     }
 
     ctx.fillStyle = "#22222240";
@@ -1115,6 +1115,8 @@ class HudRenderer {
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.fillText("rip", game.width / 2, game.height / 2);
+
+    return true;
   }
 
   tick(deltaTime: number) {
@@ -1123,6 +1125,8 @@ class HudRenderer {
   }
 
   renderUI(ctx: UIDrawContext) {
+    if (this.renderDeathScreen()) return;
+    
     this.root.checkChangeDimensions(this.game.width, this.game.height);
     this.root.checkUpdateCache();
     this.root.render(ctx);
