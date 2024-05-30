@@ -1253,6 +1253,7 @@ class Hud extends CanvasPanel {
     this.leaveIslandLabel.hidden = !this.player.canShop();
     this.damageBar.tick(deltaTime);
     this.cannonList.tick(deltaTime);
+    this.engineList.tick(deltaTime);
     this.fuelList.tick(deltaTime);
     this.ammoList.tick(deltaTime);
     this.counters.tick(deltaTime);
