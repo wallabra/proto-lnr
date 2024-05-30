@@ -1330,7 +1330,7 @@ class HudRenderer {
   }
 
   renderUI(ctx: UIDrawContext) {
-    if (this.renderDeathScreen()) return;
+    if (this.renderDeathScreen()) this.hud.hidden = true;
 
     this.root.checkChangeDimensions(this.game.width, this.game.height);
     this.root.checkUpdateCache();
@@ -1352,6 +1352,8 @@ export class GameRenderer {
   }
 
   toggleHud() {
+    if (this.game.player.possessed != null && this.game.player.possessed.dying)
+      return;
     this.r_hud.toggleHud();
   }
 
