@@ -16,6 +16,7 @@ Your browser must support JavaScript, as well as HTML5 Canvas.
 
 * Move and steer with the **left mouse button.**
 * Shoot with **Spacebar.**
+* Toggle the HUD with **H**.
 * Leave the island by going far enough from it; when prompted to, press **S**.
 
 ## Technical
