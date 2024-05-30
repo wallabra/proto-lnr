@@ -457,6 +457,8 @@ class HudCannon {
     this.resetLabel();
     this.resetBgColor();
     this.updateCooldown();
+    this.updateHasAmmo();
+    this.updateHasCrew();
     this.updateDamage();
   }
 
@@ -516,6 +518,178 @@ class HudCannonList {
   pruneWidgets() {
     this.widgets = this.widgets.filter(
       (w) => w.cannon.damage < w.cannon.maxDamage,
+    );
+  }
+
+  tick(deltaTime: number) {
+    this.pruneWidgets();
+
+    for (const widget of this.widgets) widget.tick(deltaTime);
+  }
+}
+
+interface HudEngineArgs {
+  engine: Engine;
+  makeup: ShipMakeup;
+  parent: CanvasUIElement;
+  opts?: Partial<CanvasUIArgs>;
+}
+
+class HudEngine {
+  pane: CanvasPanel;
+  label: CanvasLabel;
+  engine: Engine;
+  makeup: ShipMakeup;
+  damage: CanvasProgressBar;
+
+  constructor(args: HudEngineArgs) {
+    this.engine = args.engine;
+    this.makeup = args.makeup;
+
+    this.pane = new CanvasPanel({
+      parent: args.parent,
+      childFill: 1,
+      height: 12,
+      childOrdering: "vertical",
+      childMargin: 2,
+      bgColor: "#2224",
+      fillX: 0.9,
+      dockX: "center",
+      ...(args.opts || {}),
+    });
+
+    this.damage = new CanvasProgressBar({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 1,
+      fillX: true,
+      height: 2,
+      fillY: 0.05,
+      bgColor: "#000",
+      progressColor: "#028",
+      progress: 0,
+    });
+
+    this.label = new CanvasLabel({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childFill: 1,
+      childMargin: 2,
+      fillX: true,
+      autoFont: true,
+      font: "$Hpx sans-serif",
+      dockX: "start",
+      dockY: "center",
+      dockMarginX: 10,
+      paddingY: 4,
+      label: `${this.engine.name}   (${this.engine.fuelType})`,
+      color: "#fff",
+    });
+
+    this.update();
+  }
+
+  alert(message: string) {
+    this.pane.bgColor = "#a776";
+    this.label.label += ` (${message})`;
+    this.label.color = "#faa";
+  }
+
+  updateHasFuel() {
+    if (this.makeup.hasFuel(this.engine.fuelType)) return;
+    this.alert("No Fuel!");
+  }
+
+  updateHasCrew() {
+    if (this.engine.alreadyManned()) return;
+    this.alert("No Crew!");
+  }
+
+  updateDamage() {
+    this.damage.progress = 1 - this.engine.damage / this.engine.maxDamage;
+  }
+
+  resetLabel() {
+    this.label.label = this.engine.name;
+    this.label.color = "#fff";
+  }
+
+  resetBgColor() {
+    this.pane.bgColor = "#2224";
+  }
+
+  checkDestroyed(): boolean {
+    if (this.engine.damage < this.engine.maxDamage) return false;
+
+    this.pane.remove();
+    return true;
+  }
+
+  update() {
+    if (this.checkDestroyed()) return;
+    this.resetLabel();
+    this.resetBgColor();
+    this.updateHasFuel();
+    this.updateHasCrew();
+    this.updateDamage();
+  }
+
+  tick(_deltaTime: number) {
+    this.update();
+  }
+}
+
+interface HudEngineListArgs {
+  parent: CanvasUIElement;
+  makeup: ShipMakeup;
+}
+
+class HudEngineList {
+  pane: CanvasUIGroup;
+  widgets: HudEngine[];
+  makeup: ShipMakeup;
+
+  constructor(args: HudEngineListArgs) {
+    this.makeup = args.makeup;
+    this.widgets = [];
+
+    this.pane = new CanvasUIGroup({
+      parent: args.parent,
+      childOrdering: "vertical",
+      fillX: true,
+      childFill: 1,
+      childMargin: 3,
+    });
+
+    new CanvasLabel({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 5,
+      height: 16.5,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
+      label: "Engines",
+      color: "#fff",
+    });
+
+    this.populateEngineList();
+  }
+
+  populateEngineList() {
+    for (const engine of this.makeup.getPartsOf("engine") as Engine[]) {
+      this.widgets.push(
+        new HudEngine({
+          parent: this.pane,
+          engine: engine,
+          makeup: this.makeup,
+        }),
+      );
+    }
+  }
+
+  pruneWidgets() {
+    this.widgets = this.widgets.filter(
+      (w) => w.engine.damage < w.engine.maxDamage,
     );
   }
 
@@ -927,6 +1101,7 @@ class Hud extends CanvasPanel {
   leaveIslandLabel: CanvasLabel;
   damageBar: HudDamageBar;
   cannonList: HudCannonList;
+  engineList: HudEngineList;
   fuelList: HudFuelList;
   ammoList: HudAmmoList;
   counters: HudCounters;
@@ -1024,6 +1199,13 @@ class Hud extends CanvasPanel {
 
       addPanel((panel: CanvasUIElement) => {
         this.cannonList = new HudCannonList({
+          parent: panel,
+          makeup: this.makeup,
+        });
+      });
+
+      addPanel((panel: CanvasUIElement) => {
+        this.engineList = new HudEngineList({
           parent: panel,
           makeup: this.makeup,
         });
