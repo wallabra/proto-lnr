@@ -1122,7 +1122,7 @@ class Hud extends CanvasPanel {
   constructor(args: HudArgs) {
     super({
       ...args,
-      fillY: 0.2,
+      fillY: 0.23,
       height: 200,
       fillX: true,
       dockY: "end",
