@@ -373,7 +373,7 @@ class HudCannon {
     this.pane = new CanvasProgressBar({
       parent: args.parent,
       childFill: 1,
-      height: 12,
+      height: 25,
       childOrdering: "vertical",
       childMargin: 2,
       bgColor: "#2224",
@@ -555,7 +555,7 @@ class HudEngine {
     this.pane = new CanvasPanel({
       parent: args.parent,
       childFill: 1,
-      height: 12,
+      height: 25,
       childOrdering: "vertical",
       childMargin: 2,
       bgColor: "#2224",
@@ -736,7 +736,9 @@ class HudFuel {
       fillX: true,
       childOrdering: "vertical",
       childMargin: 2,
-      height: 17,
+      paddingX: 6,
+      paddingY: 3,
+      height: 22,
       //childFill: 1,
       bgColor: "#7781",
       progressColor: "89cb",
@@ -875,10 +877,12 @@ class HudAmmo {
     this.caliber = args.caliber;
     this.pane = new CanvasProgressBar({
       parent: args.parent,
-      height: 17,
+      height: 22,
       //childFill: 1,
       childOrdering: "vertical",
       childMargin: 2,
+      paddingX: 6,
+      paddingY: 3,
       fillX: true,
       progress: 1,
       bgColor: "#7781",
