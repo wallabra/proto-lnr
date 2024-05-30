@@ -1012,7 +1012,7 @@ class HudCounters {
       label.label =
         (money > totalSalary ? "+" : "-") +
         moneyString(Math.abs(money - totalSalary));
-      label.color = money > totalSalary ? "#aaf" : "#f98";
+      label.color = money >= totalSalary ? "#aaf" : "#f98";
     });
     this.addRow("Total Value", (label, player) => {
       const money = player.money + player.makeup.totalValue();
@@ -1022,7 +1022,7 @@ class HudCounters {
       const repairCost = player.makeup.hullRepairCost();
       const money = player.money;
       label.label = moneyString(repairCost);
-      label.color = money > repairCost ? "#aaf" : "#f98";
+      label.color = money >= repairCost ? "#aaf" : "#f98";
     });
     this.addRow("Kills", (label, player) => {
       label.label = player.kills.toString();
