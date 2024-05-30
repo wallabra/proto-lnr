@@ -398,6 +398,10 @@ export class Cannon extends ShipPart {
     this.spread = args.spread || 0;
   }
 
+  endLevelUpdate(_player: Player): void {
+      this.cooldown = 0;
+  }
+
   cannonballSphericalVolume() {
     return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
@@ -420,7 +424,7 @@ export class Cannon extends ShipPart {
       ship.pos.clone().subtract(ship.cannonballSpawnSpot()).length() -
       velComp * airtime;
     const targSpeed = (dist / airtime) * deltaTime;
-    cball.phys.vel = Vec2(targSpeed, 0)
+    cball.phys.vel = new Vec2(targSpeed, 0)
       .rotateBy(cball.phys.angle)
       .add(ship.vel);
 
