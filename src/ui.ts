@@ -594,13 +594,12 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
   ) {
     if (this._label != null) this._label.remove();
     return (this._label = new CanvasLabel({
-      alignX: "center",
-      alignY: "center",
       label: label,
       dockX: "center",
       dockY: "center",
-      font: `${Math.min(16, this.realHeight * 0.5)}px sans-serif`,
-      textAlign: "center",
+      height: Math.min(16, this.realHeight * 0.5),
+      autoFont: true,
+      font: `$Hpx sans-serif`,
       parent: this,
       ...(labelOpts || {}),
     }));

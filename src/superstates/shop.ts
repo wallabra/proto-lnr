@@ -174,9 +174,7 @@ class DrydockPartWidget extends Pane<
 
     this.labelArgs = {
       color: "#fffe",
-      height: 11,
-      autoFont: true,
-      font: "$Hpx monospaced",
+      height: 13,
     };
 
     if (this.part.damage > 0) {
