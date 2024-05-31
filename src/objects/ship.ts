@@ -99,11 +99,6 @@ export function closestCircle(
     );
 }
 
-interface ShipRenderContextArgs {
-  ship: Ship;
-  info: ObjectRenderInfo;
-}
-
 class ShipRenderContext {
   ship: Ship;
   ctx: CanvasRenderingContext2D;
@@ -117,10 +112,15 @@ class ShipRenderContext {
   drawScale: number;
   game: Game;
 
-  constructor(args: ShipRenderContextArgs) {
-    const ship = (this.ship = args.ship);
-    const info = (this.info = args.info);
+  constructor(ship: Ship) {
+    this.ship = ship;
+  }
+
+  update(info: ObjectRenderInfo) {
+    const { ship } = this;
+    this.info = info;
     this.ctx = info.ctx;
+
     this.drawScale = (this.game = ship.game).drawScale;
 
     const drawPos = info.base
@@ -335,9 +335,10 @@ class ShipRenderContext {
       });
   }
 
-  draw() {
-    if (!this.ship.isVisible(this.info)) return;
+  draw(info: ObjectRenderInfo) {
+    if (!this.ship.isVisible(info)) return;
 
+    this.update(info);
     this.drawBody();
     this.drawCannons();
     this.drawDamageBar();
@@ -359,6 +360,7 @@ export class Ship {
   money: number;
   makeup: ShipMakeup;
   tickActions: Array<TickAction<unknown>>;
+  drawer: ShipRenderContext;
 
   get play(): PlayState {
     return <PlayState>this.game.state;
@@ -406,6 +408,8 @@ export class Ship {
 
     this.dragMixin();
     this.updateWeight();
+
+    this.drawer = new ShipRenderContext(this);
   }
 
   scoreKill() {
@@ -566,12 +570,7 @@ export class Ship {
   }
 
   render(info: ObjectRenderInfo) {
-    const drawer = new ShipRenderContext({
-      ship: this,
-      info: info,
-    });
-
-    drawer.draw();
+    this.drawer.draw(info);
   }
 
   setMoney(money: number) {
