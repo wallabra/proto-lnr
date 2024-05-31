@@ -91,7 +91,12 @@ export class Game {
     return smallEdge / this.zoom;
   }
 
-  nextLevel(terraDef: TerraDef = defPlaceholder, numNPCs: number = 40) {
+  nextLevel(
+    terraDef: TerraDef = defPlaceholder,
+    numNPCs: number | null = null,
+  ) {
+    if (numNPCs == null) numNPCs = random.uniformInt(25, 55)();
+
     const play = this.setState(PlayState, terraDef);
     let toSpawn = numNPCs;
     play.resetPlayerShip();

@@ -11,7 +11,6 @@ import {
 } from "../objects/shipmakeup";
 import { PARTDEFS, PartDef } from "./partdefs";
 import random from "random";
-import rwc from "random-weighted-choice";
 import { pickByRarity } from "./rarity";
 
 export function instantiatePart(def, type) {
