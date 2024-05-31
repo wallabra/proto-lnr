@@ -129,10 +129,24 @@ export const PARTDEFS: {
         cost: 0.25,
       },
       manned: 10,
-      rarity: 6,
+      rarity: 12,
       weight: 40,
       shopChance: 0.1,
     },
+    {
+      name: 'Relic Rotator',
+      thrust: 6000,
+      maxDamage: 320,
+      cost: 2770,
+      fuel: {
+        type: "diesel",
+        cost: 0.19,
+      },
+      manned: 10,
+      rarity: 8,
+      weight: 36,
+      shopChance: 0.12
+    }
   ],
   cannon: [
     DEFAULT_CANNON,
