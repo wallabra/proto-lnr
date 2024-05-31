@@ -277,10 +277,68 @@ class ShipRenderContext {
     }
   }
 
+  drawCannon(cannon: Cannon, offs: Vec2) {
+    const { ctx, ship, drawPos, scale } = this;
+    const width = (1.4 * scale * cannon.caliber) / 2;
+    const length = (width * (0.4 * Math.PI)) / cannon.spread;
+    const maxCooldownOffs = -(length * 0.3);
+    const cooldownOffs = (maxCooldownOffs * cannon.cooldown) / cannon.shootRate;
+
+    ctx.save();
+    ctx.translate(drawPos.x, drawPos.y);
+    ctx.rotate(ship.angle);
+    ctx.scale(scale, scale);
+    ctx.translate(
+      offs.x * (ship.size + ship.lateralCrossSection),
+      offs.y * ship.size,
+    );
+    ctx.fillStyle = "#002";
+    ctx.fillRect(
+      cooldownOffs,
+      -width * 0.3,
+      maxCooldownOffs - cooldownOffs,
+      width * 0.6,
+    );
+    ctx.fillRect(cooldownOffs, -width, length, width * 2);
+    ctx.fillStyle = "#578";
+    ctx.fillRect(cooldownOffs, width * 0.8, length, width * 0.2);
+    ctx.restore();
+  }
+
+  drawCannons() {
+    const cannons = this.ship.makeup.getPartsOf("cannon") as Cannon[];
+
+    iter(cannons)
+      .asIndexedPairs()
+      .forEach(([idx, cannon]) => {
+        this.drawCannon(
+          cannon,
+          new Vec2(
+            lerp(
+              0.3,
+              1.0,
+              cannons.length <= 1
+                ? 1.0
+                : 1.0 -
+                    Math.abs(idx - (cannons.length - 1) / 2) /
+                      (cannons.length - 1) /
+                      2,
+            ),
+            lerp(
+              -0.6,
+              0.6,
+              cannons.length <= 1 ? 0.5 : idx / (cannons.length - 1),
+            ),
+          ),
+        );
+      });
+  }
+
   draw() {
     if (!this.ship.isVisible(this.info)) return;
 
     this.drawBody();
+    this.drawCannons();
     this.drawDamageBar();
 
     if (DEBUG_DRAW) {
