@@ -1,8 +1,15 @@
 import { ShipMake } from "../objects/shipmakeup";
 
-export const DEFAULT_MAKE: ShipMake = {
+export interface ShipMakeDef extends ShipMake {
+  rarity: number;
+}
+
+export function pickRandomDef() {}
+
+export const DEFAULT_MAKE: ShipMakeDef = {
   name: "Dependable Dave",
   cost: 2600,
+  rarity: 5,
   slots: [
     { type: "cannon" },
     { type: "cannon" },
@@ -18,7 +25,7 @@ export const DEFAULT_MAKE: ShipMake = {
   weight: 4000,
 };
 
-export const MAKEDEFS: ShipMake[] = [
+export const MAKEDEFS: ShipMakeDef[] = [
   {
     name: "Patroller",
     cost: 900,
@@ -29,6 +36,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2,
     repairCostScale: 1.1,
     weight: 1000,
+    rarity: 1,
   },
   {
     name: "Queen Bee",
@@ -40,6 +48,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 1.4,
     repairCostScale: 1.3,
     weight: 2000,
+    rarity: 2,
   },
   {
     name: "Hubris",
@@ -56,6 +65,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2.5,
     repairCostScale: 1.3,
     weight: 1800,
+    rarity: 2.5,
   },
   DEFAULT_MAKE,
   {
@@ -75,6 +85,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 1.8,
     repairCostScale: 1.6,
     weight: 7000,
+    rarity: 7,
   },
   {
     name: "High Harpooner",
@@ -94,6 +105,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2.15,
     repairCostScale: 2,
     weight: 8500,
+    rarity: 11,
   },
   {
     name: "High Seas Roberts",
@@ -114,6 +126,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2.45,
     repairCostScale: 2.3,
     weight: 9900,
+    rarity: 13,
   },
   {
     name: "Jasper",
@@ -135,6 +148,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 1.4,
     repairCostScale: 1.9,
     weight: 11000,
+    rarity: 16,
   },
   {
     name: "Marie Antoniette",
@@ -160,6 +174,7 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2.2,
     repairCostScale: 2.5,
     weight: 16000,
+    rarity: 26,
   },
   {
     name: "Vicky Victorious",
@@ -186,5 +201,6 @@ export const MAKEDEFS: ShipMake[] = [
     lateralCrossSection: 2.6,
     repairCostScale: 2.7,
     weight: 17000,
+    rarity: 33,
   },
 ];

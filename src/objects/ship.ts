@@ -11,6 +11,7 @@ import { ItemPickup, ItemPickupParamType, DebugPickup } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
 import { iter } from "iterator-helper";
+import { pickByRarity } from "../shop/rarity";
 
 const DEBUG_DRAW = false;
 const DEBUG_COLL = false;
@@ -375,7 +376,7 @@ export class Ship {
     const make: ShipMake =
       params.make != null
         ? params.make === "random"
-          ? random.choice(MAKEDEFS)
+          ? pickByRarity(MAKEDEFS)
           : params.make
         : DEFAULT_MAKE;
 

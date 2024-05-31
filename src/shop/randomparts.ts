@@ -12,6 +12,7 @@ import {
 import { PARTDEFS, PartDef } from "./partdefs";
 import random from "random";
 import rwc from "random-weighted-choice";
+import { pickByRarity } from "./rarity";
 
 export function instantiatePart(def, type) {
   const part = match<string, ShipPart>(
@@ -23,23 +24,6 @@ export function instantiatePart(def, type) {
     }),
   );
   return part;
-}
-
-function pickPart(
-  defs: PartDef<ShipPartArgsSuper>[],
-  points: number,
-  temperature: number = 50,
-) {
-  defs = defs.filter((d) => d.rarity !== "always" && d.rarity < points);
-  const max = Math.max(...defs.map((d) => <number>d.rarity));
-  return defs[
-    rwc(
-      defs.map((d, i) => {
-        return { id: i, weight: (max * 100) / <number>d.rarity };
-      }),
-      temperature,
-    )
-  ];
 }
 
 export default function randomParts(
@@ -95,7 +79,7 @@ export default function randomParts(
     const type = random.choice(Object.keys(makeSlots));
     if (available < smallestRarity[type]) continue;
 
-    const def: PartDef<unknown & ShipPartArgsSuper> = pickPart(
+    const def: PartDef<unknown & ShipPartArgsSuper> = pickByRarity(
       PARTDEFS[type],
       available,
       temperature,
