@@ -312,20 +312,22 @@ class HudDamageBar {
     this.bar = new CanvasProgressBar({
       parent: args.parent,
       childOrdering: "vertical",
-      childMargin: 10,
+      childMargin: 4,
       fillX: true,
       progress: this.damageProgress(),
       progressColor: "#f82",
-      height: 10,
+      height: 16,
+      paddingY: 1,
       ...(args.opts || {}),
     });
     this.label = new CanvasLabel({
       parent: this.bar,
-      fillY: 0.95,
+      fillY: 1,
       dockX: "center",
       dockY: "center",
       autoFont: true,
-      font: "bold $Hpx white",
+      font: "bold $Hpx sans-serif",
+      color: "white",
       label: "-",
     });
     this.updateLabel();
@@ -337,9 +339,10 @@ class HudDamageBar {
 
   updateLabel() {
     this.label.label =
-      this.makeup.hullDamage === 0
-        ? `No damage`
-        : `${Math.floor(100 * this.damageProgress())}% damage${this.damageProgress() < 0.985 ? "" : "!"}`;
+      "Hull: " +
+      (this.makeup.hullDamage === 0
+        ? `100%`
+        : `${Math.floor(100 * (1 - this.damageProgress()))}%${this.damageProgress() < 0.985 ? "" : "!"}`);
   }
 
   damageProgress() {
