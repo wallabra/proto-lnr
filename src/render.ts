@@ -1032,8 +1032,14 @@ class HudCounters {
       const money = player.money + player.makeup.totalValue();
       label.label = moneyString(money);
     });
-    this.addRow("Repair Cost", (label, player) => {
+    this.addRow("Hull Repair Cost", (label, player) => {
       const repairCost = player.makeup.hullRepairCost();
+      const money = player.money;
+      label.label = moneyString(repairCost);
+      label.color = money >= repairCost ? "#aaf" : "#f98";
+    });
+    this.addRow("Total Repair Cost", (label, player) => {
+      const repairCost = player.makeup.totalRepairCost();
       const money = player.money;
       label.label = moneyString(repairCost);
       label.color = money >= repairCost ? "#aaf" : "#f98";

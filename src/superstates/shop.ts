@@ -1659,11 +1659,7 @@ export default class IntermissionState extends Superstate {
       {
         name: "Repairs",
         stat: function (this: StatRow) {
-          const totalRepairCost =
-            this.makeup.hullRepairCost() +
-            this.makeup.parts
-              .map((p) => p.repairCost())
-              .reduce((a, b) => a + b, 0);
+          const totalRepairCost = this.makeup.totalRepairCost();
 
           if (totalRepairCost === 0)
             return "Your ship is completely fixed and needs no repairs.";
