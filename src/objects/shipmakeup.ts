@@ -330,6 +330,7 @@ export class CannonballAmmo implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
+  shopChance: number = 0.4;
 
   constructor(caliber, amount = 15) {
     this.caliber = caliber;

@@ -134,7 +134,7 @@ export const PARTDEFS: {
       shopChance: 0.1,
     },
     {
-      name: 'Relic Rotator',
+      name: "Relic Rotator",
       thrust: 6000,
       maxDamage: 320,
       cost: 2770,
@@ -145,8 +145,8 @@ export const PARTDEFS: {
       manned: 10,
       rarity: 8,
       weight: 36,
-      shopChance: 0.12
-    }
+      shopChance: 0.12,
+    },
   ],
   cannon: [
     DEFAULT_CANNON,
