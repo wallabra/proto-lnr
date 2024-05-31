@@ -1186,7 +1186,6 @@ class Hud extends CanvasPanel {
         font: "bold $Hpx sans-serif",
         dockMarginY: 90,
         color: "#fecd",
-        textAlign: "center",
         label: "Press L to leave the island.",
       });
 
