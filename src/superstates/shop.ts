@@ -111,7 +111,8 @@ class DrydockPartWidget extends Pane<
   private damageMeter: CanvasProgressBar;
   private damageLabel: CanvasLabel;
   private repairButton: CanvasButton;
-  private assignCrewButton: CanvasButton;
+  private assignCrewButton: CanvasButton | null;
+  private assignCrewLabel: CanvasLabel | null;
   private buttonArgs: Partial<CanvasButtonArgs>;
   private labelArgs: Partial<CanvasLabelArgs>;
   private buttonList: CanvasUIElement;
@@ -206,22 +207,22 @@ class DrydockPartWidget extends Pane<
           callback: this.crewButtonAction.bind(this),
           bgColor: "#2040f0c0",
         });
+        this.assignCrewLabel = this.assignCrewButton.label("", this.labelArgs);
       }
 
       this.updateCrewButtonLabel();
     } else if (this.assignCrewButton != null) {
       this.assignCrewButton.remove();
       this.assignCrewButton = null;
+      this.assignCrewLabel = null;
     }
   }
 
   private updateCrewButtonLabel() {
     if (this.assignCrewButton == null) return;
-    if (!this.part.alreadyManned()) {
-      this.assignCrewButton.label("Assign Crew", this.labelArgs);
-    } else {
-      this.assignCrewButton.label("Unassign Crew", this.labelArgs);
-    }
+    this.assignCrewLabel.label = this.part.alreadyManned()
+      ? "Unassign Crew"
+      : "Assign Crew";
   }
 
   private tryAssignCrew() {
@@ -827,7 +828,6 @@ class PaneShop extends Pane<PaneShopArgs> {
       label: "Shop",
       color: "#e8e8ff",
       dockX: "center",
-      textAlign: "center",
       height: 30,
       childOrdering: "vertical",
       childMargin: 20,
@@ -1253,7 +1253,6 @@ class PaneDrydock extends Pane {
       label: "Drydock",
       color: "#e8e8ff",
       dockX: "center",
-      textAlign: "center",
       height: 30,
       childOrdering: "vertical",
       childMargin: 10,
@@ -1269,7 +1268,6 @@ class PaneDrydock extends Pane {
       dockMarginX: 50,
       dockY: "start",
       dockMarginY: 25,
-      textAlign: "end",
     });
 
     this.buildPartsPane();
@@ -1467,7 +1465,6 @@ class PaneCartography extends Pane {
       color: "#e8e8ff",
       font: "25px sans-serif",
       dockX: "center",
-      textAlign: "center",
     });
 
     const nextLevelButton = new CanvasButton({
