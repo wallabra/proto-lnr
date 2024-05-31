@@ -1306,10 +1306,26 @@ class HudRenderer {
     this.hud.toggleHud();
   }
 
+  renderPauseScreen() {
+    const game = this.game;
+    const ctx = game.drawCtx;
+
+    if (!game.game.paused) return false;
+
+    ctx.fillStyle = "#44228830";
+    ctx.fillRect(0, 0, game.width, game.height);
+
+    ctx.fillStyle = "#eeffffc0";
+    ctx.font = "40px serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("paused", game.width / 2, game.height / 4);
+
+    return true;
+  }
+
   renderDeathScreen() {
     const game = this.game;
-
-    // render death screen
     const ctx = game.drawCtx;
 
     if (game.player == null || game.player.possessed == null) {
@@ -1323,7 +1339,7 @@ class HudRenderer {
     ctx.fillStyle = "#22222240";
     ctx.fillRect(0, 0, game.width, game.height);
 
-    ctx.fillStyle = "#ffff0080";
+    ctx.fillStyle = "#ffff00a0";
     ctx.font = "60px serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
@@ -1343,6 +1359,8 @@ class HudRenderer {
     this.root.checkChangeDimensions(this.game.width, this.game.height);
     this.root.checkUpdateCache();
     this.root.render(ctx);
+
+    this.renderPauseScreen();
   }
 }
 

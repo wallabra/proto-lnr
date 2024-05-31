@@ -16,6 +16,7 @@ export class Game {
   zoom: number;
   mouse: MouseHandler;
   keyboard: KeyHandler;
+  paused: boolean = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -27,9 +28,13 @@ export class Game {
     const play = (this.state = this.setState(PlayState, defPlaceholder));
     this.player = new Player(
       this,
-      play.makeShip(Vec2(0, 0), { makeup: "default" }),
+      play.makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
     play.resetPlayerShip();
+  }
+
+  togglePaused() {
+    this.paused = !this.paused;
   }
 
   setMouseHandler<M extends MouseHandler>(
@@ -146,6 +151,7 @@ export class Game {
 
   /// Order of tick operations
   tick(deltaTime: number) {
+    if (this.paused) return;
     this.tickPlayer(deltaTime);
     this.keyboard.tick();
     this.state.tick(deltaTime);

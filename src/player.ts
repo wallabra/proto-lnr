@@ -70,6 +70,10 @@ export class Player {
       renderer.toggleHud();
     }
 
+    if (name == "pause") {
+      this.game.togglePaused();
+    }
+
     if (name == "shop") {
       if (!this.canShop()) {
         return;

@@ -80,6 +80,7 @@ export class PlayKeyHandler extends KeyHandler {
     this.registerKey(" ", this.game.inputHandler.bind(this.game, "shoot"));
     this.registerKey("l", this.game.inputHandler.bind(this.game, "shop"));
     this.registerKey("h", this.game.inputHandler.bind(this.game, "hud"));
+    this.registerKey("p", this.game.inputHandler.bind(this.game, "pause"));
     this.registerHeldKey(
       "w",
       this.game.inputHandler.bind(this.game, "thrustForward"),
