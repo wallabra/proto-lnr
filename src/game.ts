@@ -32,6 +32,7 @@ export class Game {
     const play = (this.state = this.setState(PlayState, defPlaceholder));
     this.resetPlayer();
     play.resetPlayerShip();
+    this.nextLevel();
   }
 
   resetPlayer() {
