@@ -91,8 +91,9 @@ export class PhysicsObject {
         : Math.max(play.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
-    this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.3;
-    this.baseFriction = params.baseFriction != null ? params.baseFriction : 0.2;
+    this.baseDrag = params.baseDrag != null ? params.baseDrag : 2;
+    this.baseFriction =
+      params.baseFriction != null ? params.baseFriction : 0.01;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
@@ -271,18 +272,15 @@ export class PhysicsObject {
       return;
     }
 
-    if (floor < this.play.waterLevel) {
+    if (floor <= this.play.waterLevel) {
       return;
     }
 
-    const friction = this.baseFriction * this.weight;
-    const fricForce = this.vel
-      .clone()
-      .norm()
-      .multiply(Vec2(-friction, -friction));
+    const friction = this.baseFriction * this.weight * this.weight;
+    const fricForce = this.vel.clone().norm().multiplyScalar(-friction);
 
     if ((fricForce.length() * deltaTime) / this.weight > this.vel.length()) {
-      this.vel = Vec2(0, 0);
+      this.vel = new Vec2(0, 0);
     } else {
       this.applyForce(deltaTime, fricForce);
     }
@@ -290,7 +288,7 @@ export class PhysicsObject {
 
   heightGradient() {
     const terrain = this.play.terrain;
-    if (terrain == null) return Vec2(0, 0);
+    if (terrain == null) return new Vec2(0, 0);
     return terrain.gradientAt(this.pos.x, this.pos.y);
   }
 

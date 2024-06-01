@@ -425,7 +425,6 @@ export class Ship {
   constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
-    if (params.baseFriction == null) params.baseFriction = 0.005;
 
     const make: ShipMake =
       params.make != null
