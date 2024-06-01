@@ -145,6 +145,7 @@ export class Cannonball {
   drawCrosshair(info: ObjectRenderInfo) {
     const { ctx } = info;
 
+    this.predictFall();
     if (this.predictedFall == null) return;
 
     const chrad = Math.max(5, this.airtime() * 50);
