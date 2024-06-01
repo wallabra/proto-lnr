@@ -351,7 +351,7 @@ class ShipRenderContext {
     const shootRadius =
       cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
 
-    const color = available ? "#FFFF0010" : "#88000010";
+    const color = available ? "#FFFF000C" : "#88000008";
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
@@ -378,9 +378,10 @@ class ShipRenderContext {
   drawCrosshairs() {
     const { ship } = this;
 
-    for (const cannon of ship.makeup.getPartsOf("cannon") as Cannon[]) {
-      this.drawCrosshair(cannon);
-    }
+    const cannon = ship.makeup.nextReadyCannon;
+
+    if (cannon == null) return;
+    this.drawCrosshair(cannon);
   }
 
   draw(info: ObjectRenderInfo) {
