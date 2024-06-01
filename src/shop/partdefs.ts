@@ -9,7 +9,7 @@ export type PartRarity = number | "always";
 export const OARS: PartDef<EngineArgs> = {
   name: "Oars",
   cost: 30,
-  thrust: 15360.0,
+  thrust: 24576.0,
   vulnerability: 0.002,
   maxDamage: 20,
   rarity: 1,
@@ -22,7 +22,7 @@ export const OARS: PartDef<EngineArgs> = {
 export const DEFAULT_ENGINE = {
   name: "Steamy",
   cost: 350,
-  thrust: 64000.0,
+  thrust: 102400.0,
   maxDamage: 100,
   fuel: { type: "coal", cost: 0.008 },
   shopRepeat: 3,
@@ -66,7 +66,7 @@ export const PARTDEFS: {
     DEFAULT_ENGINE,
     {
       name: "Hot Betty",
-      thrust: 89600.0,
+      thrust: 143360.0,
       cost: 700,
       maxDamage: 180,
       fuel: {
@@ -82,7 +82,7 @@ export const PARTDEFS: {
     {
       name: "Piston Boy",
       maxDamage: 130,
-      thrust: 94720.0,
+      thrust: 151552.0,
       cost: 1200,
       fuel: {
         type: "diesel",
@@ -95,7 +95,7 @@ export const PARTDEFS: {
     },
     {
       name: "Oilytron",
-      thrust: 107520.0,
+      thrust: 172032.0,
       cost: 1440,
       maxDamage: 200,
       fuel: {
@@ -109,7 +109,7 @@ export const PARTDEFS: {
     {
       name: "Howitzer",
       maxDamage: 280,
-      thrust: 133120.0,
+      thrust: 212992.0,
       cost: 2100,
       fuel: {
         type: "diesel",
@@ -121,7 +121,7 @@ export const PARTDEFS: {
     },
     {
       name: "V-Star",
-      thrust: 204800.0,
+      thrust: 327680.0,
       maxDamage: 400,
       cost: 3370,
       fuel: {
@@ -135,7 +135,7 @@ export const PARTDEFS: {
     },
     {
       name: "Relic Rotator",
-      thrust: 153600.0,
+      thrust: 245760.0,
       maxDamage: 320,
       cost: 2770,
       fuel: {
