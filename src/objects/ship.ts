@@ -490,10 +490,10 @@ export class Ship {
   }
 
   dragMixin() {
-    this.phys.waterDrag = function () {
+    this.phys.waterDrag = function (this: Ship) {
       const alpha =
         1 - Math.abs(new Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()));
-      const cs = 1 + (alpha * this.lateralCrossSection) / this.size;
+      const cs = this.size + this.lateralCrossSection * alpha;
       return this.phys.baseDrag * cs;
     }.bind(this);
   }
