@@ -169,7 +169,7 @@ export class PhysicsObject {
   applyForce(deltaTime: number | null, force: Vec2) {
     if (deltaTime == null) deltaTime = 1;
     const factor = -deltaTime / this.weight;
-    const offs = force.clone().multiplyScalar(factor * 15);
+    const offs = force.clone().multiplyScalar(factor);
     this.lastPos.add(offs);
   }
 

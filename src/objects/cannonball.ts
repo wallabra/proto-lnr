@@ -3,7 +3,6 @@ import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
-import { lerp } from "../util";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
@@ -27,12 +26,16 @@ export class Cannonball {
     this.dying = false;
   }
 
-  predictFall(): Vec2 {
+  computePredictedFall(): Vec2 {
     const airtime = Math.max(0, this.airtime());
     const drag = this.phys.airDrag() / this.phys.weight;
-    return (this.predictedFall = this.pos
+    return this.pos
       .clone()
-      .add(this.vel.multiplyScalar((1 - Math.exp(-drag * airtime)) / drag)));
+      .add(this.vel.multiplyScalar((1 - Math.exp(-drag * airtime)) / drag));
+  }
+
+  predictFall(): Vec2 {
+    return (this.predictedFall = this.computePredictedFall());
   }
 
   // -- phys util getters
@@ -211,53 +214,50 @@ export class Cannonball {
     ctx.fill();
 
     // debug
-    const airtime = Math.max(0, this.airtime());
-    const drag = this.phys.airDrag() / this.phys.weight;
-    ctx.strokeStyle = ctx.fillStyle = "#00F8";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    const from = this.predictedFall
-      .clone()
-      .subtract(info.cam)
-      .multiplyScalar(info.scale)
-      .add(info.base);
-    ctx.moveTo(from.x, from.y);
-    const to = drawPos
-      .clone()
-      .add(
-        this.phys.vel.multiplyScalar(
-          info.scale * ((1 - Math.exp(-drag * airtime)) / drag),
-        ),
-      );
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
+    // TODO: remove when no longer needed
+    // const airtime = Math.max(0, this.airtime());
+    // ctx.strokeStyle = ctx.fillStyle = "#00F8";
+    // ctx.lineWidth = 2;
+    // ctx.beginPath();
+    // const from = this.predictedFall
+    //   .clone()
+    //   .subtract(info.cam)
+    //   .multiplyScalar(info.scale)
+    //   .add(info.base);
+    // ctx.moveTo(from.x, from.y);
+    // const to = this.computePredictedFall()
+    //   .subtract(info.cam)
+    //   .multiplyScalar(info.scale)
+    //   .add(info.base);
+    // ctx.lineTo(to.x, to.y);
+    // ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(drawPos.x, drawPos.y, this.size + airtime * 50, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(drawPos.x + this.size + Math.max(0, airtime * 50), drawPos.y);
-    ctx.lineTo(
-      drawPos.x + this.size + Math.max(0, (airtime - 1) * 50),
-      drawPos.y,
-    );
-    ctx.stroke();
+    // ctx.beginPath();
+    // ctx.arc(drawPos.x, drawPos.y, this.size + airtime * 50, 0, Math.PI * 2);
+    // ctx.stroke();
+    // ctx.beginPath();
+    // ctx.moveTo(drawPos.x + this.size + Math.max(0, airtime * 50), drawPos.y);
+    // ctx.lineTo(
+    //   drawPos.x + this.size + Math.max(0, (airtime - 1) * 50),
+    //   drawPos.y,
+    // );
+    // ctx.stroke();
 
-    ctx.beginPath();
-    const pendulum = this.phys.age % 1;
-    ctx.arc(
-      drawPos.x +
-        this.size +
-        lerp(
-          Math.max(0, airtime * 50),
-          Math.max(0, (airtime - 1) * 50),
-          pendulum,
-        ),
-      drawPos.y,
-      3,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
+    // ctx.beginPath();
+    // const pendulum = this.phys.age % 1;
+    // ctx.arc(
+    //   drawPos.x +
+    //     this.size +
+    //     lerp(
+    //       Math.max(0, airtime * 50),
+    //       Math.max(0, (airtime - 1) * 50),
+    //       pendulum,
+    //     ),
+    //   drawPos.y,
+    //   3,
+    //   0,
+    //   Math.PI * 2,
+    // );
+    // ctx.fill();
   }
 }

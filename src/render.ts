@@ -35,6 +35,8 @@ export type ObjectRenderInfo = {
   renderer: ObjectRenderer;
   width: number;
   height: number;
+  toScreen: (worldPos: Vec2) => Vec2;
+  toWorld: (screenPos: Vec2) => Vec2;
 };
 
 export interface Renderable {
@@ -64,17 +66,20 @@ export class ObjectRenderer {
     const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
+    const base = new Vec2(baseX, baseY);
 
     const info: ObjectRenderInfo = {
       scale: zoom,
       scaleVec: new Vec2(zoom, zoom),
       ctx: ctx,
-      base: new Vec2(baseX, baseY),
+      base: base,
       cam: cam,
       smallEdge: smallEdge,
       renderer: this,
       width: this.game.width,
       height: this.game.height,
+      toScreen: (worldPos: Vec2) => worldPos.clone().subtract(cam).multiplyScalar(zoom).add(base),
+      toWorld: (screenPos: Vec2) => screenPos.clone().subtract(base).divideScalar(zoom).add(cam),
     };
 
     for (const obj of this.game.renderables) {

@@ -407,7 +407,7 @@ export class Cannon extends ShipPart {
     return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
 
-  private shootCannonball(ship: Ship, dist: number) {
+  private shootCannonball(ship: Ship, dist: number, spread: number = this.spread) {
     dist = Math.min(dist, this.range);
 
     const cball = ship.play.spawnCannonball(ship, {
@@ -415,7 +415,7 @@ export class Cannon extends ShipPart {
       weight: this.cannonballSphericalVolume() * CANNONBALL_DENSITY,
     });
     cball.phys.vspeed = dist / 350;
-    cball.phys.angle += random.uniform(-this.spread, this.spread)();
+    cball.phys.angle += random.uniform(-spread, spread)();
     const airtime = cball.airtime();
 
     const velComp = ship.angNorm.dot(ship.vel);
@@ -437,6 +437,13 @@ export class Cannon extends ShipPart {
     const airtime = tempCannonball.airtime();
     tempCannonball.destroy();
     return airtime;
+  }
+
+  public hitLocation(ship: Ship, dist: number) {
+    const tempCannonball = this.shootCannonball(ship, dist, 0);
+    const location = tempCannonball.computePredictedFall();
+    tempCannonball.destroy();
+    return location;
   }
 
   private coolDown(deltaTime: number) {

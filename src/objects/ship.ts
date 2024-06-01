@@ -336,7 +336,7 @@ class ShipRenderContext {
   }
 
   drawCrosshair(cannon: Cannon) {
-    const { ctx, drawPos, ship, isPlayer, info, game } = this;
+    const { ctx, ship, isPlayer, info, game } = this;
 
     if (!isPlayer) return;
 
@@ -347,12 +347,7 @@ class ShipRenderContext {
       mouseDist,
       ship.maxShootRange != null ? ship.maxShootRange : Infinity,
     );
-    const shootTime = cannon == null ? 0 : cannon.airtime(ship, shootDist);
-    const shootPos = new Vec2(shootDist, 0)
-      .rotateBy(ship.angle)
-      .multiplyScalar(info.scale)
-      .add(drawPos)
-      .add(ship.vel.multiplyScalar(shootTime));
+    const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
     const shootRadius =
       cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
 
@@ -362,7 +357,7 @@ class ShipRenderContext {
 
     // draw circles
     ctx.beginPath();
-    ctx.arc(shootPos.x, shootPos.y, 4, 0, 0, Math.PI * 2);
+    ctx.arc(shootPos.x, shootPos.y, 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.fill();
 
