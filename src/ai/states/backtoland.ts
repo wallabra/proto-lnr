@@ -11,8 +11,7 @@ export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
     const commonNext = commonPaths(args);
     if (commonNext != null && commonNext.next != this.name) return commonNext;
 
-    if (ship.pos.length() <= 1500 || ship.lastInstigator != null)
-      return { next: "start" };
+    if (ship.pos.length() <= 1200) return { next: "start" };
 
     // steer toward 0,0
     ship.steer(deltaTime * 0.25, ship.pos.clone().invert().angle());
