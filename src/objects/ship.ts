@@ -855,7 +855,7 @@ export class Ship {
     });
 
     const thrust = engineThrust * amount;
-    this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotateBy(this.angle));
+    this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotate(this.angle));
   }
 
   spawnSmokeFor(engine: Engine, factor: number = 1.0) {
