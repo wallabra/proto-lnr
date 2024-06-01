@@ -1,6 +1,7 @@
 import Vec2 from "victor";
 import { PlayState } from "../superstates/play";
 import { Ship } from "./ship";
+import { ObjectRenderInfo } from "../render";
 
 export interface PhysicsParams {
   size: number;
@@ -138,6 +139,20 @@ export class PhysicsObject {
         -dHeight.x * this.gravity * this.weight * 500,
         -dHeight.y * this.gravity * this.weight * 500,
       ),
+    );
+  }
+
+  isVisible(info: ObjectRenderInfo) {
+    const pos = info.base
+      .clone()
+      .add(this.pos.clone().subtract(info.cam).multiplyScalar(info.scale));
+    const edge = this.size;
+
+    return (
+      pos.x > -edge &&
+      pos.x < info.width + edge &&
+      pos.y > -edge &&
+      pos.y < info.height + edge
     );
   }
 

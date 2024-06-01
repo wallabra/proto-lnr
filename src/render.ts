@@ -42,6 +42,11 @@ export type ObjectRenderInfo = {
 export interface Renderable {
   render: (info: ObjectRenderInfo) => void;
   dying: boolean;
+  renderOrder?: number;
+}
+
+function renderOrderOf(r: Renderable) {
+  return r.renderOrder || 0;
 }
 
 export class ObjectRenderer {
@@ -84,7 +89,9 @@ export class ObjectRenderer {
         screenPos.clone().subtract(base).divideScalar(zoom).add(cam),
     };
 
-    for (const obj of this.game.renderables) {
+    for (const obj of this.game.renderables.sort(
+      (a, b) => renderOrderOf(a) - renderOrderOf(b),
+    )) {
       if (!obj.dying) obj.render(info);
     }
   }

@@ -21,6 +21,10 @@ export interface Tickable {
   dying: boolean;
 }
 
+export interface Physicable {
+  phys: PhysicsObject;
+}
+
 export class PlayState extends Superstate {
   terrain: Terrain | null;
   tickables: Array<Tickable>;
@@ -197,5 +201,15 @@ export class PlayState extends Superstate {
     if (this.game.player != null && this.game.player.possessed != null) {
       this.addShip(this.game.player.possessed);
     }
+  }
+
+  spawnArgs<A, T extends Tickable & Renderable>(
+    objType: new (play: PlayState, ...args: A[]) => T,
+    ...args: A[]
+  ): T {
+    const res = new objType(this, ...args);
+    this.tickables.push(res);
+    this.renderables.push(res);
+    return res;
   }
 }

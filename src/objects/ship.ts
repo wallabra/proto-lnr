@@ -12,6 +12,7 @@ import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
 import { iter } from "iterator-helper";
 import { pickByRarity } from "../shop/rarity";
+import { Wave } from "./fx/wave";
 
 const DEBUG_DRAW = false;
 const DEBUG_COLL = false;
@@ -411,6 +412,7 @@ export class Ship {
   makeup: ShipMakeup;
   tickActions: Array<TickAction<unknown>>;
   drawer: ShipRenderContext;
+  lastWave: number;
 
   get play(): PlayState {
     return <PlayState>this.game.state;
@@ -989,6 +991,23 @@ export class Ship {
     this.phys.weight = this.computeWeight();
   }
 
+  checkSpawnWave() {
+    if (this.dying) return;
+    if (!this.phys.inWater()) return;
+
+    if (
+      this.lastWave != null &&
+      this.phys.age <
+        this.lastWave +
+          0.1 +
+          Math.exp(-(this.vel.length() - this.phys.vspeed) / 60)
+    )
+      return;
+
+    this.lastWave = this.phys.age;
+    this.play.spawnArgs(Wave, this);
+  }
+
   tick(deltaTime: number) {
     this.updateWeight();
     this.processTickActions(deltaTime);
@@ -997,5 +1016,6 @@ export class Ship {
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
     this.makeup.inventory.pruneItems();
+    this.checkSpawnWave();
   }
 }
