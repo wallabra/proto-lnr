@@ -1043,19 +1043,19 @@ class ShipMakeWidget extends Pane<
 
     this.detail = new CanvasUIGroup({
       parent: detailGroup,
-      dockX: "start",
-      dockY: "start",
       fillX: 0.5,
       bgColor: "#00003006",
+      childOrdering: "horizontal",
+      childFill: 1,
     });
 
     this.detail2 = new CanvasUIGroup({
       parent: detailGroup,
-      dockX: "end",
-      dockY: "start",
       bgColor: "#00000018",
       paddingX: 12,
       paddingY: 8,
+      childOrdering: "horizontal",
+      childFill: 1,
     });
 
     this.populateDetail();
