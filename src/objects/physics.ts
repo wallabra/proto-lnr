@@ -93,7 +93,7 @@ export class PhysicsObject {
     this.weight = params.weight != null ? params.weight : 1;
     this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.5;
     this.baseFriction =
-      params.baseFriction != null ? params.baseFriction : 0.01;
+      params.baseFriction != null ? params.baseFriction : 0.007;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
     this.dying = false;
     this.gravity = params.gravity != null ? params.gravity : 1.5;
