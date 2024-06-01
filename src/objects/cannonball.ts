@@ -169,7 +169,7 @@ export class Cannonball {
 
     const color = `rgba(0, 140, 240, ${0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * this.airtime())))})`;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1.7;
+    ctx.lineWidth = 0.75 * this.phys.size;
     ctx.beginPath();
     ctx.arc(fall.x, fall.y, chrad, 0, Math.PI * 2);
     ctx.stroke();

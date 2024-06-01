@@ -362,7 +362,7 @@ class ShipRenderContext {
     ctx.fill();
     ctx.fill();
 
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 1.2 * cannon.caliber;
     ctx.beginPath();
     ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
     ctx.stroke();
