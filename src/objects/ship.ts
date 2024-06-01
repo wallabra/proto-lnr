@@ -772,7 +772,7 @@ export class Ship {
     const engineThrust = this.maxEngineThrust();
 
     engines.forEach((e) => {
-      this.spawnSmokeFor(e);
+      this.spawnSmokeFor(e, amount);
       if (e.fuelType)
         this.makeup.spendFuel(
           e.fuelType,
@@ -784,14 +784,15 @@ export class Ship {
     this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotateBy(this.angle));
   }
 
-  spawnSmokeFor(engine: Engine) {
+  spawnSmokeFor(engine: Engine, factor: number = 1.0) {
     const color = SMOKE_COLORS[engine.fuelType] || null;
+    const amount = factor * engine.thrust;
 
     if (color == null) return;
 
     if (
       this.lastSmoke != null &&
-      this.phys.age < this.lastSmoke + 0.1 + Math.exp(-engine.thrust / 4000)
+      this.phys.age < this.lastSmoke + 0.1 + Math.exp(-amount / 4000)
     )
       return;
     if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
