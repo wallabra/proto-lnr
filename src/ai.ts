@@ -27,7 +27,10 @@ export class AIController {
       this.possessed.steer(deltaTime, dHeight.invert().angle());
       this.possessed.thrustForward(deltaTime, 0.2);
     } else {
-      if (this.possessed.lastInstigator != null) {
+      if (
+        this.possessed.lastInstigator != null &&
+        this.possessed.makeup.nextReadyCannon != null
+      ) {
         const dist = this.possessed.lastInstigator.pos
           .clone()
           .subtract(this.possessed.pos)
