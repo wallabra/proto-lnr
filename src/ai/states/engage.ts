@@ -1,6 +1,7 @@
 import { AIStartArgs, AITickArgs, AIHandler, AIJump } from "../defs";
 import { Ship } from "../../objects/ship";
 import { angDiff } from "../../util";
+import { commonPaths } from "../commonpaths";
 
 export interface EngageStartArgs extends AIStartArgs {
   target: Ship;
@@ -21,6 +22,9 @@ export class EngageState implements AIHandler<EngageStartArgs, AITickArgs> {
   aiTick(args: AITickArgs): void | AIJump<unknown & AIStartArgs> {
     const { target } = this;
     const { ship, deltaTime, soonPos } = args;
+
+    const commonNext = commonPaths(args);
+    if (commonNext != null && commonNext.next != this.name) return commonNext;
 
     if (
       target !== ship.lastInstigator ||

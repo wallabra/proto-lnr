@@ -1,3 +1,4 @@
+import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 
 export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
@@ -5,6 +6,9 @@ export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
 
   aiTick(args: AITickArgs): void | AIJump<AIStartArgs> {
     const { ship, deltaTime } = args;
+
+    const commonNext = commonPaths(args);
+    if (commonNext != null && commonNext.next != this.name) return commonNext;
 
     if (ship.pos.length() <= 1500 || ship.lastInstigator != null)
       return { next: "start" };

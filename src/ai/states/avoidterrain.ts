@@ -1,3 +1,4 @@
+import { commonPaths } from "../commonpaths";
 import { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 
 export class AvoidTerrainState implements AIHandler<AIStartArgs, AITickArgs> {
@@ -5,6 +6,9 @@ export class AvoidTerrainState implements AIHandler<AIStartArgs, AITickArgs> {
 
   aiTick(args: AITickArgs): void | AIJump<AIStartArgs> {
     const { play, soonPos } = args;
+
+    const commonNext = commonPaths(args);
+    if (commonNext != null && commonNext.next != this.name) return commonNext;
 
     if (
       play.terrain == null ||
