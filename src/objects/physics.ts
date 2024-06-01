@@ -168,14 +168,16 @@ export class PhysicsObject {
   applyForce(deltaTime: number | null, force: Vec2) {
     if (deltaTime == null) deltaTime = 1;
     const factor = -deltaTime / this.weight;
-    const offs = force.clone().multiplyScalar(factor);
+    const offs = force.clone().multiplyScalar(factor * 3);
     this.lastPos.add(offs);
   }
 
-  physVel() {
+  physVel(deltaTime: number) {
+    deltaTime = Math.max(deltaTime, 0.1);
     const lastPos = this.pos.clone();
-    this.pos = this.pos.clone().multiplyScalar(2).subtract(this.lastPos);
-    this.lastPos = lastPos;
+    const offs = this.pos.clone().subtract(this.lastPos).multiplyScalar(deltaTime);
+    this.pos.add(offs);
+    this.lastPos.add(offs);
   }
 
   waterDrag() {
@@ -196,7 +198,7 @@ export class PhysicsObject {
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
-    const drag = this.weight * (inWater ? this.waterDrag() : this.airDrag());
+    const drag = (inWater ? this.waterDrag() : this.airDrag());
 
     const dragForce = this.vel.clone().multiplyScalar(-drag);
     this.applyForce(deltaTime, dragForce);
@@ -317,7 +319,7 @@ export class PhysicsObject {
 
     this.physAngle(deltaTime);
     this.physGravity(deltaTime);
-    this.physVel();
+    this.physVel(deltaTime);
     this.physDrag(deltaTime);
     this.physFriction(deltaTime);
     this.slideDownLand(deltaTime);
