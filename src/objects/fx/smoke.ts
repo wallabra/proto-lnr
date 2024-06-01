@@ -24,8 +24,8 @@ export class Smoke implements Renderable, Tickable, Physicable {
       from.pos
         .clone()
         .add(
-          new Vec2(from.size * from.lateralCrossSection * 0.75, 0).rotateBy(
-            -from.angle,
+          new Vec2(-from.size * from.lateralCrossSection * 0.75, 0).rotate(
+            from.angle,
           ),
         )
         .add(
