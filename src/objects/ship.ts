@@ -792,7 +792,7 @@ export class Ship {
 
     if (
       this.lastSmoke != null &&
-      this.phys.age < this.lastSmoke + 0.1 + Math.exp(-amount / 4000)
+      this.phys.age < this.lastSmoke + 0.1 + Math.exp(-amount / 12000)
     )
       return;
     if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
