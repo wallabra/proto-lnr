@@ -843,7 +843,7 @@ export class ShipMakeup {
   }
 
   totalRepairCost() {
-    return this.parts.map((p) => p.repairCost()).reduce((a, b) => a + b, 0);
+    return this.hullRepairCost() + this.parts.map((p) => p.repairCost()).reduce((a, b) => a + b, 0);
   }
 
   getReadyEngines(): Array<Engine> {
