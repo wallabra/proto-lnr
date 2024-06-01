@@ -20,6 +20,13 @@ export function commonPaths(
   )
     return { next: "avoidTerrain" };
 
+  if (ship.following != null) {
+    const followDist = ship.pos.clone().subtract(ship.following.pos).length();
+    if (followDist > 700) {
+      return { next: "follow" };
+    }
+  }
+
   // loose terrain avoid
   if (
     play.terrain != null &&

@@ -88,7 +88,7 @@ export class Cannonball {
       return false;
     }
 
-    ship.setInstigator(this.instigator);
+    ship.aggro(this.instigator);
 
     const toward = ship.pos.clone().subtract(this.pos).norm();
     const damageScale = Math.max(

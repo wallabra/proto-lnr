@@ -418,6 +418,70 @@ export class Ship {
   drawer: ShipRenderContext;
   lastWave: number;
   lastSmoke: number;
+  following: Ship = null;
+  alliance: Set<Ship> = new Set([this]);
+  followers: Set<Ship> = new Set();
+
+  follow(other: Ship) {
+    if (this.following != null) unfollow();
+    other.followers.add(this);
+    this.following = other;
+  }
+
+  unfollow() {
+    this.following.followers.delete(this);
+    this.following = null;
+  }
+
+  ally(other: Ship) {
+    this.alliance = other.alliance = new Set([
+      this.following ?? this,
+      ...Array.from(this.alliance),
+      ...Array.from(other.alliance),
+    ]);
+  }
+
+  private purgeFromAlliance(other: Ship) {
+    this.alliance = new Set(this.alliance);
+    this.alliance = new Set(
+      Array.from(this.alliance).filter(
+        (someone) =>
+          someone !== other &&
+          someone.following !== other &&
+          !someone.followers.has(other),
+      ),
+    );
+    if (other === this.following) this.unfollow();
+
+    for (const friend of Array.from(this.alliance)) {
+      friend.purgeFromAlliance(other);
+    }
+  }
+
+  setInstigator(other: Ship) {
+    if (this.following === other) return false;
+    if (this.followers.has(other)) return false;
+
+    if (this.alliance.has(other)) {
+      if (Math.random() < 0.3) {
+        this.purgeFromAlliance(other);
+        other.purgeFromAlliance(this);
+      } else return false;
+    } else {
+      for (const follower of Array.from(this.followers)) {
+        follower.setInstigator(other);
+      }
+      for (const otherFollower of Array.from(other.followers)) {
+        otherFollower.setInstigator(this);
+      }
+    }
+
+    this.lastInstigator =
+      (this.following && this.following.lastInstigator) ?? other;
+    this.lastInstigTime = Date.now();
+
+    return true;
+  }
 
   get play(): PlayState {
     return <PlayState>this.game.state;
@@ -551,7 +615,7 @@ export class Ship {
     return 12;
   }
 
-  setInstigator(instigator: Ship) {
+  aggro(instigator: Ship) {
     const instigTime = Date.now();
 
     // check reinforced aggression
@@ -567,8 +631,8 @@ export class Ship {
     ) {
       return;
     }
-    this.lastInstigator = instigator;
-    this.lastInstigTime = instigTime;
+
+    this.setInstigator(instigator);
   }
 
   damageShip(damage: number) {
@@ -950,8 +1014,8 @@ export class Ship {
       force.clone().multiplyScalar(-ship.phys.restitution),
     );
 
-    ship.setInstigator(this);
-    this.setInstigator(ship);
+    ship.aggro(this);
+    this.aggro(ship);
 
     this.damageShip(
       ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.0001,
@@ -983,8 +1047,12 @@ export class Ship {
 
   pruneDeadInstigator() {
     if (this.lastInstigator != null && this.lastInstigator.dying) {
-      this.lastInstigator = null;
-      this.lastInstigTime = null;
+      this.lastInstigator =
+        (this.following && this.following.lastInstigator) ?? null;
+      this.lastInstigTime =
+        this.lastInstigator != null && !this.lastInstigator.dying
+          ? Date.now()
+          : null;
     }
   }
 

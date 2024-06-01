@@ -116,7 +116,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 export class AIController {
   game: PlayState;
   possessed: Ship;
-  dying: boolean;
+  dying: boolean = false;
   stateMachine: AIStateMachine<unknown & AIStartArgs>;
 
   constructor(
@@ -126,7 +126,6 @@ export class AIController {
   ) {
     this.game = game;
     this.possessed = ship;
-    this.dying = false;
     this.stateMachine = new AIStateMachine(this, stateMapper, null);
   }
 

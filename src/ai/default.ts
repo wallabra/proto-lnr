@@ -4,6 +4,7 @@ import { SeekCrateState } from "./states/seekcrate";
 import { EngageState } from "./states/engage";
 import { BackToLandState } from "./states/backtoland";
 import { AvoidTerrainState } from "./states/avoidterrain";
+import { FollowState } from "./states/follow";
 
 export const DEFAULT_AI_STATES: AIStates = {
   start: "start",
@@ -13,5 +14,6 @@ export const DEFAULT_AI_STATES: AIStates = {
     EngageState,
     BackToLandState,
     AvoidTerrainState,
+    FollowState,
   ],
 };

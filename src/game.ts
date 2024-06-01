@@ -7,6 +7,7 @@ import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
 import randomParts from "./shop/randomparts";
 import random from "random";
+import { Ship } from "./objects/ship";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -122,39 +123,64 @@ export class Game {
     play.resetPlayerShip();
 
     while (toSpawn > 0) {
-      const aiship = play.makeShip(
-        new Vec2(Math.random() * 1500 + 400, 0).rotateBy(
-          Math.random() * Math.PI * 2,
-        ),
-        { angle: Math.random() * Math.PI * 2, make: "random" },
+      let leader: Ship = null;
+      let squadSize = Math.ceil(0.8 + random.exponential(2)());
+      const squadPos = new Vec2(Math.random() * 1500 + 400, 0).rotateBy(
+        Math.random() * Math.PI * 2,
       );
       if (
-        aiship.pos.clone().subtract(play.player.possessed.pos).length() <
-        aiship.size * aiship.lateralCrossSection +
-          play.player.possessed.size *
-            play.player.possessed.lateralCrossSection +
+        squadPos.clone().subtract(play.player.possessed.pos).length() <
+        play.player.possessed.size * play.player.possessed.lateralCrossSection +
           800
       ) {
-        aiship.die();
         continue;
       }
-      if (aiship.floor > play.waterLevel * 0.5) {
-        aiship.die();
-        continue;
+      while (squadSize) {
+        const aiship = play.makeShip(
+          new Vec2(random.uniform(100, 400)(), 0)
+            .rotateBy(Math.random() * Math.PI * 2)
+            .add(squadPos),
+          { angle: Math.random() * Math.PI * 2, make: leader != null ? leader.makeup.make : "random" },
+        );
+        if (
+          aiship.pos.clone().subtract(play.player.possessed.pos).length() <
+          aiship.size * aiship.lateralCrossSection +
+            play.player.possessed.size *
+              play.player.possessed.lateralCrossSection +
+            600
+        ) {
+          aiship.die();
+          continue;
+        }
+        if (aiship.floor > play.waterLevel * 0.5) {
+          aiship.die();
+          continue;
+        }
+        const parts = randomParts(
+          Math.max(2.5, 3.5 + random.exponential(1.5)() * 6) *
+            random.uniform(1, aiship.makeup.make.slots.length)(),
+          aiship.makeup.make,
+        );
+        for (const part of parts) {
+          aiship.makeup.addPart(part);
+          aiship.makeup.inventory.addItem(part);
+          aiship.makeup.addDefaultDependencies(part);
+        }
+        play.makeAIFor(aiship);
+        if (leader == null) {
+          leader = aiship;
+        } else {
+          aiship.follow(leader);
+        }
+        toSpawn--;
+        squadSize--;
+        //-- fun mode 1: instant shower of death
+        //aiship.aggro(play.player.possessed);
+        //-- fun mode 2: everyone loves you & protects you to death
+        //if (Math.random() < 0.3 && aiship.makeup.nextReadyCannon != null) {
+        //  aiship.follow(play.player.possessed);
+        //}
       }
-      const parts = randomParts(
-        Math.max(2.5, 3.5 + random.exponential(1.5)() * 6) *
-          random.uniform(1, aiship.makeup.make.slots.length)(),
-        aiship.makeup.make,
-      );
-      for (const part of parts) {
-        aiship.makeup.addPart(part);
-        aiship.makeup.inventory.addItem(part);
-        aiship.makeup.addDefaultDependencies(part);
-      }
-      play.makeAIFor(aiship);
-      //aiship.setInstigator(playerShip);
-      toSpawn--;
     }
   }
 

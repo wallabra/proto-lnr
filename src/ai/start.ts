@@ -1,9 +1,9 @@
-import { AIHandler, AIStartArgs, AITickArgs, AIJump } from './defs';
-import { Pickup } from '../objects/pickup';
-import { Ship } from '../objects/ship';
-import { EngageStartArgs } from './states/engage';
-import { SeekCrateStartArgs } from './states/seekcrate';
-import { Nullish } from 'utility-types';
+import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "./defs";
+import { Pickup } from "../objects/pickup";
+import { Ship } from "../objects/ship";
+import { EngageStartArgs } from "./states/engage";
+import { SeekCrateStartArgs } from "./states/seekcrate";
+import { Nullish } from "utility-types";
 
 export class StartState implements AIHandler<AIStartArgs> {
   name: string = "start";
@@ -17,7 +17,7 @@ export class StartState implements AIHandler<AIStartArgs> {
       return pickup;
     }
   }
-  
+
   private roam(deltaTime: number, ship: Ship) {
     ship.thrustForward(deltaTime, 0.4);
   }
