@@ -1045,6 +1045,14 @@ class HudCounters {
         moneyString(Math.abs(money - totalSalary));
       label.color = money >= totalSalary ? "#aaf" : "#f98";
     });
+    this.addRow("Installed Parts Value", (label, player) => {
+      const money = player.makeup.partsValue();
+      label.label = moneyString(money);
+    });
+    this.addRow("Inventory Value", (label, player) => {
+      const money = player.makeup.inventoryValue();
+      label.label = moneyString(money);
+    });
     this.addRow("Total Value", (label, player) => {
       const money = player.money + player.makeup.totalValue();
       label.label = moneyString(money);

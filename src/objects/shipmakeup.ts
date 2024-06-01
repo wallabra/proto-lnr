@@ -1,5 +1,11 @@
 import { Optional } from "utility-types";
-import { FoodItem, FuelItem, ShipInventory, ShipItem } from "../inventory";
+import {
+  FoodItem,
+  FuelItem,
+  ShipInventory,
+  ShipItem,
+  computeResellCost,
+} from "../inventory";
 import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
 import Vec2 from "victor";
@@ -843,11 +849,23 @@ export class ShipMakeup {
     return this.crew.map((c) => c.nextSalary()).reduce((a, b) => a + b, 0);
   }
 
-  totalValue() {
-    return this.inventory.items
-      .filter((i) => this.parts.indexOf(i) === -1 && !(i instanceof Crew))
-      .map((i) => i.cost * (i.amount ?? 1))
+  partsValue() {
+    return this.parts
+      .map((i) => computeResellCost(i))
       .reduce((a, b) => a + b, 0);
+  }
+
+  inventoryValue() {
+    return this.inventory.items
+      .filter(
+        (i) => this.parts.indexOf(i as ShipPart) === -1 && !(i instanceof Crew),
+      )
+      .map((i) => computeResellCost(i))
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalValue() {
+    return this.inventoryValue() + this.partsValue();
   }
 
   totalFood() {

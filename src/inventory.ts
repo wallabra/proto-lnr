@@ -1,5 +1,6 @@
 import { ShipMakeup } from "./objects/shipmakeup";
 import { Player } from "./player";
+import { DFAULT_RESELL_FACTOR } from "./superstates/shop";
 
 export interface InventoryItem {
   name: string;
@@ -87,6 +88,26 @@ export interface FuelItemArgs {
   cost: number;
   amount: number;
   weight: number;
+}
+
+export function computeResellCost(
+  item: ShipItem,
+  resellFactor: number = DFAULT_RESELL_FACTOR,
+): number {
+  let repairFactor = 0;
+  const damageableItem = item as ShipItem & {
+    damage?: number;
+    maxDamage: number;
+    repairCostScale: number;
+  };
+  if (damageableItem.damage != null) {
+    repairFactor = Math.min(
+      item.cost * 0.9 /* leaving only the scraps! */,
+      (damageableItem.damage / damageableItem.maxDamage) *
+        damageableItem.repairCostScale,
+    );
+  }
+  return (item.cost - repairFactor) * (item.amount || 1) * resellFactor;
 }
 
 export class FuelItem implements ShipItem {

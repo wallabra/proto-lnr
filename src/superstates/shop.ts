@@ -46,6 +46,8 @@ interface PaneArgs {
   state: IntermissionState;
 }
 
+export const DFAULT_RESELL_FACTOR = 0.6;
+
 function weightInfo(item: ShipItem) {
   const amount = item.amount ?? 1;
   const weight = amount * item.weight;
@@ -1389,7 +1391,7 @@ class PaneDrydock extends Pane {
       parent: this.pane,
       dockX: "center",
       fillX: true,
-      resellFactor: 0.6,
+      resellFactor: DFAULT_RESELL_FACTOR,
       state: this.state,
       childOrdering: "vertical",
       childMargin: 5,
