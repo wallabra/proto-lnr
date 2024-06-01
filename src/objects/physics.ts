@@ -201,7 +201,7 @@ export class PhysicsObject {
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
-    const drag = (inWater ? this.waterDrag() : this.airDrag());
+    const drag = inWater ? this.waterDrag() : this.airDrag();
 
     const dragForce = this.vel.clone().multiplyScalar(-drag);
     this.applyForce(deltaTime, dragForce);
