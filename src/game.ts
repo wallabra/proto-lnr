@@ -140,7 +140,10 @@ export class Game {
           new Vec2(random.uniform(100, 400)(), 0)
             .rotateBy(Math.random() * Math.PI * 2)
             .add(squadPos),
-          { angle: Math.random() * Math.PI * 2, make: leader != null ? leader.makeup.make : "random" },
+          {
+            angle: Math.random() * Math.PI * 2,
+            make: leader != null ? leader.makeup.make : "random",
+          },
         );
         if (
           aiship.pos.clone().subtract(play.player.possessed.pos).length() <
@@ -157,8 +160,10 @@ export class Game {
           continue;
         }
         const parts = randomParts(
-          Math.max(2.5, 3.5 + random.exponential(1.5)() * 6) *
-            random.uniform(1, aiship.makeup.make.slots.length)(),
+          Math.max(
+            2.5,
+            3.5 + random.exponential(1.5)() * (leader == null ? 15 : 6),
+          ) * random.uniform(1, aiship.makeup.make.slots.length)(),
           aiship.makeup.make,
         );
         for (const part of parts) {
