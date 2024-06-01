@@ -26,7 +26,7 @@ export class StartState implements AIHandler<AIStartArgs, AITickArgs> {
 
     if (
       play.terrain != null &&
-      play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.8
+      play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.6
     )
       return { next: "avoidTerrain" };
 
