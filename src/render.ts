@@ -1039,7 +1039,7 @@ class HudCounters {
       const thrust = player.makeup.maxEngineThrust();
       const weight = player.makeup.totalWeight();
       const accel = thrust / weight;
-      label.label = `${(thrust / 1000).toFixed(2)} kN / ${(weight / 1000).toFixed(2)}t => ${accel.toFixed(2)}m/s²`;
+      label.label = `${(thrust / 1000).toFixed(2)} kN  /  ${(weight / 1000).toFixed(2)} t  =>  ${accel.toFixed(2)} m/s²`;
     });
     this.addRow("Repair Cost", (label, player) => {
       const hullRepairCost = player.makeup.hullRepairCost();
@@ -1053,7 +1053,7 @@ class HudCounters {
       const makeup = player.makeup;
       const food = makeup.totalFood();
       const required = makeup.totalFoodIntake();
-      label.label = `${food.toFixed(0)} / ${required.toFixed(0)} = ${Math.floor(food / required)}d`;
+      label.label = `${food.toFixed(0)} / ${required.toFixed(0)} = ${Math.floor(food / required)} d`;
       label.color = food > required ? "#aaf" : "#f98";
     });
     this.addRow("Kills", (label, player) => {
