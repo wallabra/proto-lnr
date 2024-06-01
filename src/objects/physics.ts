@@ -91,7 +91,7 @@ export class PhysicsObject {
         : Math.max(play.waterLevel, this.floor);
     this.vspeed = params.vspeed != null ? params.vspeed : 0;
     this.weight = params.weight != null ? params.weight : 1;
-    this.baseDrag = params.baseDrag != null ? params.baseDrag : 2;
+    this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.5;
     this.baseFriction =
       params.baseFriction != null ? params.baseFriction : 0.01;
     this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
