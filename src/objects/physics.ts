@@ -314,7 +314,7 @@ export class PhysicsObject {
   }
 
   get angNorm() {
-    return Vec2(1, 0).rotateBy(this.angle);
+    return new Vec2(1, 0).rotateBy(this.angle);
   }
 
   tick(deltaTime: number) {
