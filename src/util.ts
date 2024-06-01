@@ -27,7 +27,8 @@ export function moneyString(cash: number) {
 }
 
 export function weightString(weight: number) {
-  if (weight < 10) return `weight: ${Math.ceil(weight * 1000)}g`;
+  if (weight < 10) return `${(weight * 1000).toFixed(0)}g`;
+  if (weight > 1000) return `${(weight / 1000).toFixed(1)}t`;
 
-  return `weight: ${Math.ceil(weight)}kg`;
+  return `${weight.toFixed(1)}kg`;
 }

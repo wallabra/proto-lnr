@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp, moneyString, weightString } from "./util";
+import { rgbString, interpColor, lerp, moneyString } from "./util";
 import {
   CanvasLabel,
   CanvasLabelArgs,
@@ -1215,7 +1215,10 @@ class Hud extends CanvasPanel {
         bgColor: "#0003",
       });
 
-      const addPanel = (callback: (parent: CanvasPanel) => void) => {
+      const addPanel = (
+        callback: (parent: CanvasPanel) => void,
+        options: Partial<CanvasPanelArgs> = {},
+      ) => {
         const panel = new CanvasPanel({
           parent: panelWrapper,
           childOrdering: "horizontal",
@@ -1224,45 +1227,61 @@ class Hud extends CanvasPanel {
           fillY: true,
           paddingY: 3,
           bgColor: "#0002",
+          ...options,
         });
 
         callback(panel);
       };
 
-      addPanel((panel: CanvasUIElement) => {
-        this.cannonList = new HudCannonList({
-          parent: panel,
-          makeup: this.makeup,
-        });
-      });
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.cannonList = new HudCannonList({
+            parent: panel,
+            makeup: this.makeup,
+          });
+        },
+        { childFill: 0.5 },
+      );
 
-      addPanel((panel: CanvasUIElement) => {
-        this.engineList = new HudEngineList({
-          parent: panel,
-          makeup: this.makeup,
-        });
-      });
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.engineList = new HudEngineList({
+            parent: panel,
+            makeup: this.makeup,
+          });
+        },
+        { childFill: 0.5 },
+      );
 
-      addPanel((panel: CanvasUIElement) => {
-        this.fuelList = new HudFuelList({
-          parent: panel,
-          makeup: this.makeup,
-        });
-      });
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.fuelList = new HudFuelList({
+            parent: panel,
+            makeup: this.makeup,
+          });
+        },
+        { childFill: 0.5 },
+      );
 
-      addPanel((panel: CanvasUIElement) => {
-        this.ammoList = new HudAmmoList({
-          parent: panel,
-          makeup: this.makeup,
-        });
-      });
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.ammoList = new HudAmmoList({
+            parent: panel,
+            makeup: this.makeup,
+          });
+        },
+        { childFill: 0.5 },
+      );
 
-      addPanel((panel: CanvasUIElement) => {
-        this.counters = new HudCounters({
-          parent: panel,
-          player: this.player,
-        });
-      });
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.counters = new HudCounters({
+            parent: panel,
+            player: this.player,
+          });
+        },
+        { childFill: 1.2 },
+      );
     };
   }
 
@@ -1323,7 +1342,7 @@ class HudRenderer {
     ctx.textAlign = "center";
     ctx.fillText("paused", game.width / 2, game.height / 4);
     ctx.font = "18px sans-serif";
-    ctx.textBaseline = 'top';
+    ctx.textBaseline = "top";
     ctx.fillText("(Press P to unpause)", game.width / 2, game.height / 4 + 55);
 
     return true;

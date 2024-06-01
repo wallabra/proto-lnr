@@ -49,7 +49,7 @@ function weightInfo(item: ShipItem) {
   const amount = item.amount != null ? item.amount : 1;
   const weight = amount * item.weight;
 
-  return weightString(weight);
+  return "weight: " + weightString(weight);
 }
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
