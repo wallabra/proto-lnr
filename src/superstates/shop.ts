@@ -146,7 +146,7 @@ class DrydockPartWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 0,
       fillX: 1.0,
-      height: 30,
+      height: 15,
     });
 
     this.damageLabel = new CanvasLabel({
