@@ -651,9 +651,9 @@ export class Ship {
   private pickupParams(): Partial<PhysicsParams> {
     return {
       vel: this.vel.add(
-        new Vec2(0.3, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
+        new Vec2(15, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
       ),
-      vspeed: 0.5,
+      vspeed: 0.7,
       height: this.height + 0.1,
     };
   }
