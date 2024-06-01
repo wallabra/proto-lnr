@@ -115,7 +115,7 @@ export class Game {
     terraDef: TerraDef = defPlaceholder,
     numNPCs: number | null = null,
   ) {
-    if (numNPCs == null) numNPCs = random.uniformInt(25, 55)();
+    if (numNPCs == null) numNPCs = random.uniformInt(25, 70)();
 
     const play = this.setState(PlayState, terraDef);
     let toSpawn = numNPCs;
