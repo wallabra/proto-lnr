@@ -162,8 +162,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.childMargin = or(args.childMargin, 5);
     this.childFill = args.childFill || 0;
     this.layer = args.layer || 0;
-    this.cullOutOfBounds =
-      args.cullOutOfBounds ?? false;
+    this.cullOutOfBounds = args.cullOutOfBounds ?? false;
 
     if (this.parent != null) {
       this.parent = this.parent._addChild(this);
@@ -691,10 +690,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     if (wideWidth > this.parent.innerWidth) {
       const factor = this.parent.innerWidth / wideWidth;
       size *= factor;
-      size = Math.max(
-        size,
-        Math.min(10, this.height ?? Infinity),
-      );
+      size = Math.max(size, Math.min(10, this.height ?? Infinity));
       font = this.font.replace("$H", size + "");
       ctx.font = font;
       this.maxHeight =

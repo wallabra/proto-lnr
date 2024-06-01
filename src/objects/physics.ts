@@ -92,8 +92,7 @@ export class PhysicsObject {
     this.vspeed = params.vspeed ?? 0;
     this.weight = params.weight ?? 1;
     this.baseDrag = params.baseDrag ?? 0.5;
-    this.baseFriction =
-      params.baseFriction ?? 0.007;
+    this.baseFriction = params.baseFriction ?? 0.007;
     this.angleDrag = params.angleDrag ?? 0.05;
     this.dying = false;
     this.gravity = params.gravity ?? 1.5;
@@ -224,9 +223,7 @@ export class PhysicsObject {
   }
 
   kineticEnergy(vel?: number): number {
-    return (
-      (1 / 2) * this.weight * Math.pow(vel ?? this.vel.length(), 2)
-    );
+    return (1 / 2) * this.weight * Math.pow(vel ?? this.vel.length(), 2);
   }
 
   kineticEnergyRelativeTo(other: PhysicsObject): number {

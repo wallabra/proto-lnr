@@ -351,10 +351,7 @@ class ShipRenderContext {
     const available = cannon != null && cannon.cooldown <= 0;
 
     const mouseDist = game.mouse.pos.length();
-    const shootDist = Math.min(
-      mouseDist,
-      ship.maxShootRange ?? Infinity,
-    );
+    const shootDist = Math.min(mouseDist, ship.maxShootRange ?? Infinity);
     const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
     const shootRadius =
       cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
@@ -683,8 +680,7 @@ export class Ship {
       this.makeup.inventory.removeItem(item);
       if (
         item.dropChance != null &&
-        Math.random() >
-          item.dropChance * (item.amount ?? 1)
+        Math.random() > item.dropChance * (item.amount ?? 1)
       )
         continue;
       if (item.amount != null)
