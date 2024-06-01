@@ -351,7 +351,7 @@ class ShipRenderContext {
     const shootRadius =
       cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
 
-    const color = available ? "#FFFF000C" : "#88000008";
+    const color = available ? "#FFFF0008" : "#88000018";
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
