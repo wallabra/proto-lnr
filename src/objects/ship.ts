@@ -459,6 +459,9 @@ export class Ship {
   }
 
   setInstigator(other: Ship) {
+    if (this.following != null && this.following.lastInstigator !== other)
+      return false;
+
     if (this.following === other) return false;
     if (this.followers.has(other)) return false;
 
