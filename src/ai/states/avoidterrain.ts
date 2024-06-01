@@ -4,7 +4,7 @@ import { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 export class AvoidTerrainState implements AIHandler<AIStartArgs, AITickArgs> {
   name = "avoidTerrain";
 
-  aiTick(args: AITickArgs): void | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
     const { play, soonPos } = args;
 
     const commonNext = commonPaths(args);

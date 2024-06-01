@@ -1,3 +1,4 @@
+import { Nullish } from "utility-types";
 import { Pickup } from "../../objects/pickup";
 import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
@@ -21,10 +22,9 @@ export class SeekCrateState
     this.crate = null;
   }
 
-  aiTick(args: AITickArgs): void | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
     if (this.crate.dying) {
-      this.crate = null;
-      return { next: "start" };
+      return { next: "start", immediate: true };
     }
 
     const commonNext = commonPaths(args);

@@ -3,15 +3,14 @@ import { Ship } from "../objects/ship";
 import { Game } from "../game";
 import { PlayState } from "../superstates/play";
 import Vec2 from "victor";
+import { Nullish } from "utility-types";
 
-export type UnknownAIHandler = AIHandler<
-  unknown & AIStartArgs,
-  unknown & AITickArgs
->;
+export type UnknownAIHandler = AIHandler<unknown & AIStartArgs>;
 
 export interface AIJump<A extends AIStartArgs = AIStartArgs> {
   next: string;
   args?: Exclude<A, AIStartArgs>;
+  immediate?: boolean;
 }
 
 export interface AIStartArgs {
@@ -30,12 +29,9 @@ export interface AITickArgs {
   deltaTime: number;
 }
 
-export interface AIHandler<
-  StartArgs extends AIStartArgs,
-  TickArgs extends AITickArgs,
-> {
+export interface AIHandler<StartArgs extends AIStartArgs> {
   name: string;
   start?(args: StartArgs);
   free?();
-  aiTick(args: TickArgs): AIJump<unknown & AIStartArgs> | void;
+  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish;
 }

@@ -1,10 +1,11 @@
+import { Nullish } from "utility-types";
 import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 
 export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
   name: string = "backToLand";
 
-  aiTick(args: AITickArgs): void | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);

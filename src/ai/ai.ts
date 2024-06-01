@@ -2,6 +2,7 @@ import { Ship } from "../objects/ship";
 import { PlayState } from "../superstates/play";
 import { DEFAULT_AI_STATES } from "./default";
 import { UnknownAIHandler, AIStartArgs, AIJump } from "./defs";
+import { SeekCrateState } from "./states/seekcrate";
 
 function mapStates(
   states: (new () => UnknownAIHandler)[],
@@ -22,6 +23,8 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   mapper: Map<string, UnknownAIHandler>;
   default: string;
   stateName: string;
+  nextChange: number;
+  pendingChange: AIJump<unknown & AIStartArgs> | null;
 
   constructor(
     ai: AIController,
@@ -31,9 +34,8 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     this.ai = ai;
     this.default = mapper.start;
     this.mapper = mapStates(mapper.states);
-    this.state = this.mapper.get(mapper.start);
-    this.stateName = mapper.start;
-    this.startState(null, args);
+    this.nextChange = null;
+    this.jumpToState(this.default, args);
   }
 
   private startState<S extends AIStartArgs>(
@@ -57,7 +59,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     const dHeight = ship.heightGradient();
     const soonPos = ship.vel.add(ship.pos);
 
-    const res = this.state.aiTick({
+    const thisJump = this.state.aiTick({
       ai,
       ship,
       play,
@@ -66,8 +68,28 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
       soonPos,
       deltaTime,
     });
-    if (res == null) return;
-    const { next, args } = res as AIJump<unknown & AIStartArgs>;
+    const nextJump = thisJump != null ? thisJump : this.pendingChange;
+    if (nextJump == null) return;
+
+    if (
+      this.nextChange != null &&
+      Date.now() < this.nextChange &&
+      !nextJump.immediate
+    ) {
+      this.pendingChange = nextJump != null ? nextJump : null;
+      return;
+    }
+
+    const { next, args } = nextJump;
+    this.jumpToState(next, args);
+  }
+
+  jumpToState<A extends AIStartArgs>(
+    next: string,
+    args?: Exclude<A, AIStartArgs>,
+  ) {
+    const from = this.stateName;
+    if (this.stateName === undefined) this.stateName = next;
 
     if (!this.mapper.has(next)) {
       throw new Error(
@@ -76,10 +98,16 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
       return;
     }
 
-    if (this.state.free != null) this.state.free();
-    this.state = this.mapper.get(next);
-    this.startState(this.stateName, args || null);
+    const newState = this.mapper.get(next);
+    if (newState === this.state) return;
+
+    this.nextChange = Date.now() + 500;
+    if (this.state != null && this.state.free != null) this.state.free();
+
+    this.state = newState;
+    this.startState(from, args != null ? args : null);
     this.stateName = next;
+    this.pendingChange = null;
   }
 }
 
@@ -101,6 +129,11 @@ export class AIController {
   }
 
   tick(deltaTime: number) {
+    if (this.possessed.dying) {
+      this.dying = true;
+      return;
+    }
+
     this.stateMachine.tick(deltaTime);
   }
 }

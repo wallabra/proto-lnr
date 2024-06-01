@@ -2,6 +2,7 @@ import { AIStartArgs, AITickArgs, AIHandler, AIJump } from "../defs";
 import { Ship } from "../../objects/ship";
 import { angDiff } from "../../util";
 import { commonPaths } from "../commonpaths";
+import { Nullish } from "utility-types";
 
 export interface EngageStartArgs extends AIStartArgs {
   target: Ship;
@@ -19,7 +20,7 @@ export class EngageState implements AIHandler<EngageStartArgs, AITickArgs> {
     this.target = null;
   }
 
-  aiTick(args: AITickArgs): void | AIJump<unknown & AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump<unknown & AIStartArgs> {
     const { target } = this;
     const { ship, deltaTime, soonPos } = args;
 
@@ -31,7 +32,7 @@ export class EngageState implements AIHandler<EngageStartArgs, AITickArgs> {
       target.dying ||
       target.makeup.hullDamage > target.makeup.make.maxDamage
     ) {
-      return { next: "start" };
+      return { next: "start", immediate: true };
     }
 
     const dist = target.pos.clone().subtract(ship.pos).length();

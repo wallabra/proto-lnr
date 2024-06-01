@@ -3,6 +3,7 @@ import { Pickup } from "../../objects/pickup";
 import { Ship } from "../../objects/ship";
 import { SeekCrateStartArgs } from "./seekcrate";
 import { commonPaths } from "../commonpaths";
+import { Nullish } from "utility-types";
 
 export class StartState implements AIHandler<AIStartArgs, AITickArgs> {
   name: string = "start";
@@ -19,19 +20,14 @@ export class StartState implements AIHandler<AIStartArgs, AITickArgs> {
 
   private roam(deltaTime: number, ship: Ship) {
     ship.thrustForward(deltaTime, 0.4);
+    ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 
-  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | void {
-    const { play, soonPos, ship, deltaTime } = args;
+  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish {
+    const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);
     if (commonNext != null && commonNext.next != this.name) return commonNext;
-
-    if (
-      play.terrain != null &&
-      play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.6
-    )
-      return { next: "avoidTerrain" };
 
     if (ship.pos.length() > 1500) return { next: "backToLand" };
 
