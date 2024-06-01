@@ -1,4 +1,3 @@
-import Vec2 from "victor";
 import { angDiff } from "./util";
 import { Ship } from "./objects/ship";
 import { PlayState } from "./superstates/play";
@@ -33,12 +32,10 @@ export class AIController {
           .clone()
           .subtract(this.possessed.pos)
           .length();
-        const airtime = this.possessed.shotAirtime(deltaTime, dist);
+        const airtime = this.possessed.shotAirtime(dist);
         const targetSoonPos = this.possessed.lastInstigator.pos
           .clone()
-          .add(
-            this.possessed.lastInstigator.vel.multiply(Vec2(airtime, airtime)),
-          );
+          .add(this.possessed.lastInstigator.vel.multiplyScalar(airtime));
         const targetOffs = targetSoonPos.clone().subtract(this.possessed.pos);
         const steerAngle = targetSoonPos.clone().subtract(soonPos).angle();
         const targetAngle = targetOffs.angle();

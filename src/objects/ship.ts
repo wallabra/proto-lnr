@@ -335,6 +335,83 @@ class ShipRenderContext {
       });
   }
 
+  drawCrosshair(cannon: Cannon) {
+    const { ctx, drawPos, ship, isPlayer, info, game } = this;
+
+    if (!isPlayer) return;
+
+    const available = cannon != null && cannon.cooldown <= 0;
+
+    const mouseDist = game.mouse.pos.length() / info.scale;
+    const shootDist = Math.min(
+      mouseDist,
+      ship.maxShootRange != null ? ship.maxShootRange : Infinity,
+    );
+    const shootTime = cannon == null ? 0 : cannon.airtime(ship, shootDist);
+    const shootPos = new Vec2(shootDist, 0)
+      .rotateBy(ship.angle)
+      .multiplyScalar(info.scale)
+      .add(drawPos)
+      .add(ship.vel.multiplyScalar(shootTime));
+    const shootRadius =
+      cannon == null ? 0 : Math.tan(cannon.spread) * shootDist;
+
+    const color = available ? "#FFFF0010" : "#88000010";
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+
+    // draw circles
+    ctx.beginPath();
+    ctx.ellipse(shootPos.x, shootPos.y, 4, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fill();
+
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(
+      shootPos.x,
+      shootPos.y,
+      shootRadius,
+      shootRadius,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.stroke();
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(
+      shootPos.x,
+      shootPos.y,
+      shootRadius,
+      shootRadius,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(
+      shootPos.x,
+      shootPos.y,
+      shootRadius,
+      shootRadius,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  drawCrosshairs() {
+    const { ship } = this;
+
+    for (const cannon of ship.makeup.getPartsOf("cannon") as Cannon[]) {
+      this.drawCrosshair(cannon);
+    }
+  }
+
   draw(info: ObjectRenderInfo) {
     if (!this.ship.isVisible(info)) return;
 
@@ -342,6 +419,7 @@ class ShipRenderContext {
     this.drawBody();
     this.drawCannons();
     this.drawDamageBar();
+    this.drawCrosshairs();
 
     if (DEBUG_DRAW) {
       this.drawDebug();
@@ -922,10 +1000,10 @@ export class Ship {
       );
   }
 
-  shotAirtime(deltaTime: number, dist: number) {
+  shotAirtime(dist: number) {
     const cannon = this.makeup.nextReadyCannon;
     if (cannon == null) return null;
-    return cannon.airtime(deltaTime, this, dist);
+    return cannon.airtime(this, dist);
   }
 
   computeWeight() {
