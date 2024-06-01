@@ -26,7 +26,7 @@ export class Wave implements Renderable, Tickable, Physicable {
       size: width,
       angle: from.vel.invert().angle(),
       baseDrag: 0,
-      vel: from.vel.invert(),
+      vel: from.vel.invert().multiplyScalar(1.5),
     });
   }
 
