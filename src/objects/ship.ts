@@ -281,7 +281,7 @@ class ShipRenderContext {
 
   drawCannon(cannon: Cannon, offs: Vec2) {
     const { ctx, ship, drawPos, scale } = this;
-    const width = (1.4 * scale * cannon.caliber) / 2;
+    const width = (0.1 + scale * cannon.caliber) / 2;
     const length = (width * (0.4 * Math.PI)) / cannon.spread;
     const maxCooldownOffs = -(length * 0.3);
     const cooldownOffs = (maxCooldownOffs * cannon.cooldown) / cannon.shootRate;
