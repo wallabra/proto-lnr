@@ -36,7 +36,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     lateralCrossSection: 2.5,
     repairCostScale: 1.1,
     weight: 400,
-    rarity: 0.4,
+    rarity: 0.75,
   },
   {
     name: "Patroller",
