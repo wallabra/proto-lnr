@@ -209,12 +209,17 @@ export class Cannonball {
     ctx.arc(drawPos.x, drawPos.y, size, 0, 2 * Math.PI);
     ctx.fill();
 
+    // debug
     const airtime = Math.max(0, this.airtime());
     const drag = this.phys.airDrag() / this.phys.weight;
-    ctx.strokeStyle = "#00F";
+    ctx.strokeStyle = "#00F8";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    const from = this.predictedFall.clone().subtract(info.cam).multiplyScalar(info.scale).add(info.base);
+    const from = this.predictedFall
+      .clone()
+      .subtract(info.cam)
+      .multiplyScalar(info.scale)
+      .add(info.base);
     ctx.moveTo(from.x, from.y);
     const to = drawPos
       .clone()
@@ -224,6 +229,17 @@ export class Cannonball {
         ),
       );
     ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(drawPos.x, drawPos.y, this.size + airtime * 50, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(drawPos.x + this.size + Math.max(0, airtime * 50), drawPos.y);
+    ctx.lineTo(
+      drawPos.x + this.size + Math.max(0, (airtime - 1) * 50),
+      drawPos.y,
+    );
     ctx.stroke();
   }
 }
