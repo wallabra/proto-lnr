@@ -151,7 +151,7 @@ export class Cannonball {
     this.predictFall();
     if (this.predictedFall == null) return;
 
-    const chrad = Math.max(5, this.airtime() * 50);
+    const chrad = Math.max(5, this.airtime() * 50) + this.size;
     const fall = this.predictedFall
       .clone()
       .subtract(info.cam)
