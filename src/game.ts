@@ -116,15 +116,15 @@ export class Game {
     terraDef: TerraDef = defPlaceholder,
     numNPCs: number | null = null,
   ) {
-    if (numNPCs == null) numNPCs = random.uniformInt(25, 70)();
+    if (numNPCs == null) numNPCs = random.uniformInt(25, 90)();
 
     const play = this.setState(PlayState, terraDef);
     let toSpawn = numNPCs;
     play.resetPlayerShip();
 
-    while (toSpawn > 0) {
+    while (toSpawn) {
       let leader: Ship = null;
-      let squadSize = Math.ceil(0.8 + random.exponential(2)());
+      let squadSize = Math.ceil(0.8 + random.exponential(1.7)() * 1.3);
       const squadPos = new Vec2(Math.random() * 1500 + 400, 0).rotateBy(
         Math.random() * Math.PI * 2,
       );
@@ -135,7 +135,7 @@ export class Game {
       ) {
         continue;
       }
-      while (squadSize) {
+      while (squadSize && toSpawn) {
         const aiship = play.makeShip(
           new Vec2(random.uniform(100, 400)(), 0)
             .rotateBy(Math.random() * Math.PI * 2)
