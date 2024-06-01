@@ -4,6 +4,7 @@ import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
 import {
+  Cannon,
   CannonballAmmo,
   Crew,
   Engine,
@@ -1712,6 +1713,23 @@ export default class IntermissionState extends Superstate {
             (quickest == null
               ? ""
               : ` The fuel you'll first run out of is ${quickest.type}, at ${Math.max(quickest.duration)}s.`)
+          );
+        },
+      },
+      {
+        name: "Ammunition",
+        stat: function (this: StatRow) {
+          const cannons = <Cannon[]>this.makeup.getPartsOf("cannon");
+          const loaded = cannons.filter((c) => this.makeup.hasAmmo(c.caliber));
+          const missingCalibers = cannons
+            .filter((c) => !this.makeup.hasAmmo(c.caliber))
+            .reduce((set, can) => (set.add(can.caliber), set), new Set());
+
+          return (
+            `${loaded.length === cannons.length ? "All" : loaded.length === 0 ? "None" : loaded.length} out of your ${cannons.length} cannons have ammo.` +
+            (missingCalibers.size === 0
+              ? ""
+              : ` You need these calibers:  ${Array.from(missingCalibers.keys()).join(", ")}`)
           );
         },
       },
