@@ -1,16 +1,26 @@
 import { AIJump, AIStartArgs, AITickArgs } from "./defs";
 import { EngageStartArgs } from "./states/engage";
+import { FleeStartArgs } from "./states/flee";
 
 export function commonPaths(
   args: AITickArgs,
 ): AIJump<unknown & AIStartArgs> | null {
   const { ship, play, soonPos, stateName } = args;
 
-  if (ship.lastInstigator != null && ship.makeup.nextReadyCannon != null)
-    return {
-      next: "engage",
-      args: { target: ship.lastInstigator },
-    } as AIJump<EngageStartArgs>;
+  if (ship.lastInstigator != null) {
+    const target = ship.lastInstigator;
+
+    if (ship.makeup.nextReadyCannon != null)
+      return {
+        next: "engage",
+        args: { target: target },
+      } as AIJump<EngageStartArgs>;
+    else if (
+      ship.pos.clone().subtract(target.pos).length() <
+      (target.maxShootRange ?? 500) * 2
+    )
+      return { next: "flee", args: { target } } as AIJump<FleeStartArgs>;
+  }
   if (stateName === "engage") return;
 
   // strict terrain avoid
