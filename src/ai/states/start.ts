@@ -19,7 +19,7 @@ export class StartState implements AIHandler<AIStartArgs> {
   }
 
   private roam(deltaTime: number, ship: Ship) {
-    ship.thrustForward(deltaTime, 0.4);
+    ship.thrustForward(deltaTime, 0.15);
     ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 

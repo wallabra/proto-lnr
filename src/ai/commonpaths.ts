@@ -21,8 +21,14 @@ export function commonPaths(
     return { next: "avoidTerrain" };
 
   if (ship.following != null) {
-    const followDist = ship.pos.clone().subtract(ship.following.pos).length();
-    if (followDist > 700) {
+    const following = ship.following;
+    const followDist = ship.pos.clone().subtract(following.pos).length();
+    if (
+      followDist >
+      300 +
+        ship.size * ship.lateralCrossSection +
+        following.size * following.lateralCrossSection
+    ) {
       return { next: "follow" };
     }
   }

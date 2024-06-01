@@ -31,6 +31,6 @@ export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
     const { ship, deltaTime, soonPos } = args;
     const seekAngle = this.crate.phys.pos.clone().subtract(soonPos).angle();
     ship.steer(deltaTime * 0.5, seekAngle);
-    ship.thrustForward(deltaTime, 0.8);
+    ship.thrustForward(deltaTime, 0.6);
   }
 }

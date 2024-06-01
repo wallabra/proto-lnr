@@ -16,6 +16,6 @@ export class BackToLandState implements AIHandler<AIStartArgs> {
     // steer toward 0,0
     const dirvec = ship.pos.clone().invert();
     ship.steer(deltaTime * 0.25, dirvec.angle());
-    ship.thrustForward(deltaTime, ship.angNorm.dot(dirvec.norm()));
+    ship.thrustForward(deltaTime, ship.angNorm.dot(dirvec.norm()) * 0.2);
   }
 }
