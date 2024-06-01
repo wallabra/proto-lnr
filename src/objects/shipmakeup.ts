@@ -407,7 +407,7 @@ export class Cannon extends ShipPart {
     return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
 
-  private shootCannonball(deltaTime: number, ship: Ship, dist: number) {
+  private shootCannonball(ship: Ship, dist: number) {
     dist = Math.min(dist, this.range);
 
     const cball = ship.play.spawnCannonball(ship, {
@@ -424,7 +424,7 @@ export class Cannon extends ShipPart {
       dist -
       ship.pos.clone().subtract(ship.cannonballSpawnSpot()).length() -
       velComp * airtime;
-    const targSpeed = (dist / airtime) * deltaTime;
+    const targSpeed = dist / airtime;
     cball.phys.vel = new Vec2(targSpeed, 0)
       .rotateBy(cball.phys.angle)
       .add(ship.vel);
@@ -432,8 +432,8 @@ export class Cannon extends ShipPart {
     return cball;
   }
 
-  public airtime(deltaTime: number, ship: Ship, dist: number) {
-    const tempCannonball = this.shootCannonball(deltaTime, ship, dist);
+  public airtime(ship: Ship, dist: number) {
+    const tempCannonball = this.shootCannonball(ship, dist);
     const airtime = tempCannonball.airtime();
     tempCannonball.destroy();
     return airtime;
@@ -453,7 +453,7 @@ export class Cannon extends ShipPart {
       return null;
     }
 
-    const cannonball = this.shootCannonball(deltaTime, ship, dist);
+    const cannonball = this.shootCannonball(ship, dist);
     this.afterShot();
     return cannonball;
   }
