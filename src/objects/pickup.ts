@@ -18,6 +18,7 @@ export abstract class Pickup {
     this.play = play;
     this.phys = this.play.makePhysObj(pos || Vec2(0, 0), {
       weight: 100,
+      baseDrag: 8,
       ...params,
     });
     this.dying = false;
