@@ -54,7 +54,7 @@ export class ShipPart implements ShipItem {
     this.manned = args.manned || false;
     this.weight = args.weight;
     this.vulnerability = args.vulnerability;
-    this.repairCostScale = args.repairCostScale || 3;
+    this.repairCostScale = args.repairCostScale || 1.4;
     this.dropChance = args.dropChance != null ? args.dropChance : 0.4;
     this.shopChance = args.shopChance != null ? args.shopChance : 0.5;
     this.dying = false;
