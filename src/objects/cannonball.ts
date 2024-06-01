@@ -3,6 +3,7 @@ import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
+import { lerp } from "../util";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
@@ -212,7 +213,7 @@ export class Cannonball {
     // debug
     const airtime = Math.max(0, this.airtime());
     const drag = this.phys.airDrag() / this.phys.weight;
-    ctx.strokeStyle = "#00F8";
+    ctx.strokeStyle = ctx.fillStyle = "#00F8";
     ctx.lineWidth = 2;
     ctx.beginPath();
     const from = this.predictedFall
@@ -241,5 +242,22 @@ export class Cannonball {
       drawPos.y,
     );
     ctx.stroke();
+
+    ctx.beginPath();
+    const pendulum = this.phys.age % 1;
+    ctx.arc(
+      drawPos.x +
+        this.size +
+        lerp(
+          Math.max(0, airtime * 50),
+          Math.max(0, (airtime - 1) * 50),
+          pendulum,
+        ),
+      drawPos.y,
+      3,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
   }
 }
