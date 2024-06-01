@@ -743,15 +743,38 @@ class ShopItemWidget extends Pane<
     this.pane = new CanvasUIGroup(args);
     this.item = args.item;
 
-    new CanvasLabel({
+    const header = new CanvasUIGroup({
       parent: this.pane,
-      height: 12,
+      height: 14,
+      fillX: true,
+      childOrdering: "vertical",
+      childMargin: 6,
+      paddingX: 0,
+      paddingY: 0,
+    });
+
+    new CanvasLabel({
+      parent: header,
+      height: 13.5,
+      fillY: true,
       label: itemLabel(this.item, null),
-      font: "$Hpx sans-serif",
+      font: "bold $Hpx sans-serif",
       color: "#fff",
       autoFont: true,
-      childOrdering: "vertical",
+      childOrdering: "horizontal",
       childMargin: 5,
+    });
+
+    new CanvasLabel({
+      parent: header,
+      height: 11.25,
+      fillY: true,
+      label: moneyString(this.item.cost),
+      font: "$Hpx sans-serif",
+      color: "#999",
+      autoFont: true,
+      childOrdering: "horizontal",
+      childMargin: 2,
     });
 
     if (this.item.shopInfo)
@@ -1048,7 +1071,7 @@ class ShipMakeWidget extends Pane<
       parent: header,
       autoFont: true,
       font: "bold $Hpx sans-serif",
-      color: "#777",
+      color: "#999",
       label: moneyString(this.make.cost),
       fillY: 0.7,
       height: 11.25,
