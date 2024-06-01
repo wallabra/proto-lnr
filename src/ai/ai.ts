@@ -104,7 +104,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 
     this.nextChange = Date.now() + 500;
     if (this.state != null && this.state.free != null) this.state.free();
-    console.log(from, "->", next, "::", this.ai);
+    //console.log(from, "->", next, "::", this.ai);
 
     this.state = newState;
     this.startState(from, args ?? null);
