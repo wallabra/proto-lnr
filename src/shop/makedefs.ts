@@ -27,6 +27,18 @@ export const DEFAULT_MAKE: ShipMakeDef = {
 
 export const MAKEDEFS: ShipMakeDef[] = [
   {
+    name: "Fisherman",
+    cost: 350,
+    slots: [{ type: "engine" }],
+    maxDamage: 800,
+    drag: 25,
+    size: 8,
+    lateralCrossSection: 2.5,
+    repairCostScale: 1.1,
+    weight: 400,
+    rarity: 0.4,
+  },
+  {
     name: "Patroller",
     cost: 900,
     slots: [{ type: "cannon" }, { type: "engine" }],
