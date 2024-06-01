@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp, moneyString } from "./util";
+import { rgbString, interpColor, lerp, moneyString, weightString } from "./util";
 import {
   CanvasLabel,
   CanvasLabelArgs,
@@ -1035,23 +1035,25 @@ class HudCounters {
       const money = player.money + player.makeup.totalValue();
       label.label = moneyString(money);
     });
-    this.addRow("Hull Repair Cost", (label, player) => {
-      const repairCost = player.makeup.hullRepairCost();
-      const money = player.money;
-      label.label = moneyString(repairCost);
-      label.color = money >= repairCost ? "#aaf" : "#f98";
+    this.addRow("Thrust & Weight", (label, player) => {
+      const thrust = player.makeup.maxEngineThrust();
+      const weight = player.makeup.totalWeight();
+      const accel = thrust / weight;
+      label.label = `${(thrust / 1000).toFixed(2)} kN / ${(weight / 1000).toFixed(2)}t => ${accel.toFixed(2)}m/s²`;
     });
-    this.addRow("Total Repair Cost", (label, player) => {
-      const repairCost = player.makeup.totalRepairCost();
+    this.addRow("Repair Cost", (label, player) => {
+      const hullRepairCost = player.makeup.hullRepairCost();
+      const partRepairCost = player.makeup.partRepairCost();
+      const totalRepairCost = hullRepairCost + partRepairCost;
       const money = player.money;
-      label.label = moneyString(repairCost);
-      label.color = money >= repairCost ? "#aaf" : "#f98";
+      label.label = `${moneyString(hullRepairCost)} + ${moneyString(partRepairCost)} = ${moneyString(totalRepairCost)}`;
+      label.color = money >= totalRepairCost ? "#aaf" : "#f98";
     });
     this.addRow("Food", (label, player) => {
       const makeup = player.makeup;
       const food = makeup.totalFood();
       const required = makeup.totalFoodIntake();
-      label.label = `${food} / ${required}`;
+      label.label = `${food.toFixed(0)} / ${required.toFixed(0)} = ${Math.floor(food / required)}d`;
       label.color = food > required ? "#aaf" : "#f98";
     });
     this.addRow("Kills", (label, player) => {
