@@ -671,7 +671,7 @@ export class Ship {
   }
 
   get steerForce() {
-    return ((0.2 + this.vel.length()) * Math.PI) / 6;
+    return ((0.4 + this.vel.length()) * Math.PI) / 6;
   }
 
   steer(deltaTime: number, angleTarg: number) {
