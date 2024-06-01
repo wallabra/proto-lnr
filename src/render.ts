@@ -78,8 +78,10 @@ export class ObjectRenderer {
       renderer: this,
       width: this.game.width,
       height: this.game.height,
-      toScreen: (worldPos: Vec2) => worldPos.clone().subtract(cam).multiplyScalar(zoom).add(base),
-      toWorld: (screenPos: Vec2) => screenPos.clone().subtract(base).divideScalar(zoom).add(cam),
+      toScreen: (worldPos: Vec2) =>
+        worldPos.clone().subtract(cam).multiplyScalar(zoom).add(base),
+      toWorld: (screenPos: Vec2) =>
+        screenPos.clone().subtract(base).divideScalar(zoom).add(cam),
     };
 
     for (const obj of this.game.renderables) {
