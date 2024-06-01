@@ -1,9 +1,9 @@
-import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
-import { Pickup } from "../../objects/pickup";
-import { Ship } from "../../objects/ship";
-import { SeekCrateStartArgs } from "./seekcrate";
-import { commonPaths } from "../commonpaths";
-import { Nullish } from "utility-types";
+import { AIHandler, AIStartArgs, AITickArgs, AIJump } from './defs';
+import { Pickup } from '../objects/pickup';
+import { Ship } from '../objects/ship';
+import { EngageStartArgs } from './states/engage';
+import { SeekCrateStartArgs } from './states/seekcrate';
+import { Nullish } from 'utility-types';
 
 export class StartState implements AIHandler<AIStartArgs> {
   name: string = "start";
@@ -17,17 +17,25 @@ export class StartState implements AIHandler<AIStartArgs> {
       return pickup;
     }
   }
-
+  
   private roam(deltaTime: number, ship: Ship) {
     ship.thrustForward(deltaTime, 0.4);
-    ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 
   aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish {
-    const { ship, deltaTime } = args;
+    const { play, soonPos, ship, deltaTime } = args;
 
-    const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
+    if (
+      play.terrain != null &&
+      play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.8
+    )
+      return { next: "backToLand" };
+
+    if (ship.lastInstigator != null && ship.makeup.nextReadyCannon != null)
+      return {
+        next: "engage",
+        args: { target: ship.lastInstigator },
+      } as AIJump<EngageStartArgs>;
 
     if (ship.pos.length() > 1500) return { next: "backToLand" };
 

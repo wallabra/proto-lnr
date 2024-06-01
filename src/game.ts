@@ -123,7 +123,7 @@ export class Game {
 
     while (toSpawn > 0) {
       const aiship = play.makeShip(
-        Vec2(Math.random() * 1500 + 400, 0).rotateBy(
+        new Vec2(Math.random() * 1500 + 400, 0).rotateBy(
           Math.random() * Math.PI * 2,
         ),
         { angle: Math.random() * Math.PI * 2, make: "random" },

@@ -938,7 +938,7 @@ class HudAmmo {
     const amount = this.makeup.totalAmmo(this.caliber);
     if (amount > this.maximum) this.maximum = amount;
     this.pane.progress = amount / this.maximum;
-    this.label.label = amount;
+    this.label.label = amount.toFixed(0);
   }
 
   tick(_deltaTime: number) {

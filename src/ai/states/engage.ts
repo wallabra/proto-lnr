@@ -8,7 +8,7 @@ export interface EngageStartArgs extends AIStartArgs {
   target: Ship;
 }
 
-export class EngageState implements AIHandler<EngageStartArgs, AITickArgs> {
+export class EngageState implements AIHandler<EngageStartArgs> {
   name: string = "engage";
   target: Ship | null;
 

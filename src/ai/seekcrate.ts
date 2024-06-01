@@ -1,15 +1,12 @@
 import { Nullish } from "utility-types";
-import { Pickup } from "../../objects/pickup";
-import { commonPaths } from "../commonpaths";
-import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
+import { Pickup } from "../objects/pickup";
+import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "./defs";
 
 export interface SeekCrateStartArgs extends AIStartArgs {
   crate: Pickup;
 }
 
-export class SeekCrateState
-  implements AIHandler<SeekCrateStartArgs>
-{
+export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
   name: string = "seekCrate";
 
   crate: Pickup | null;
@@ -24,11 +21,9 @@ export class SeekCrateState
 
   aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
     if (this.crate.dying) {
-      return { next: "start", immediate: true };
+      this.crate = null;
+      return { next: "start" };
     }
-
-    const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
 
     const { ship, deltaTime, soonPos } = args;
     const seekAngle = this.crate.phys.pos.clone().subtract(soonPos).angle();

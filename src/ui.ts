@@ -892,7 +892,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
       const delta = ev.delta;
       this.scrollTowardPx(
         delta.dot(
-          Vec2(
+          new Vec2(
             +(this.scroller.axis === "horizontal"),
             +(this.scroller.axis === "vertical"),
           ),

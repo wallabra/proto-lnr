@@ -2,7 +2,7 @@ import { Nullish } from "utility-types";
 import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 
-export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
+export class BackToLandState implements AIHandler<AIStartArgs> {
   name: string = "backToLand";
 
   aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
@@ -14,6 +14,8 @@ export class BackToLandState implements AIHandler<AIStartArgs, AITickArgs> {
     if (ship.pos.length() <= 1200) return { next: "start" };
 
     // steer toward 0,0
-    ship.steer(deltaTime * 0.25, ship.pos.clone().invert().angle());
+    const dirvec = ship.pos.clone().invert();
+    ship.steer(deltaTime * 0.25, dirvec.angle());
+    ship.thrustForward(deltaTime, ship.angNorm.dot(dirvec.norm()));
   }
 }

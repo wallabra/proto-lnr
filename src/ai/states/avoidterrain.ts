@@ -1,7 +1,8 @@
+import { Nullish } from "utility-types";
 import { commonPaths } from "../commonpaths";
 import { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 
-export class AvoidTerrainState implements AIHandler<AIStartArgs, AITickArgs> {
+export class AvoidTerrainState implements AIHandler<AIStartArgs> {
   name = "avoidTerrain";
 
   aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
@@ -16,7 +17,9 @@ export class AvoidTerrainState implements AIHandler<AIStartArgs, AITickArgs> {
     )
       return { next: "start" };
 
-    const { ship, deltaTime } = args;
-    ship.steer(deltaTime * 0.25, ship.pos.clone().invert().angle());
+    const { ship, deltaTime, dHeight } = args;
+    const dir = dHeight.clone().invert();
+    ship.steer(deltaTime, dir.angle());
+    ship.thrustForward(deltaTime, ship.angNorm.dot(dir.norm()));
   }
 }

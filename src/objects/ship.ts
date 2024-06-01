@@ -281,7 +281,7 @@ class ShipRenderContext {
         .add(circle.center.clone().subtract(info.cam).multiplyScalar(scale));
       const size = circle.radius * scale;
       ctx.beginPath();
-      ctx.arc(center.x, center.y, size, 0, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, size, 0, Math.PI * 2);
       ctx.stroke();
     }
   }

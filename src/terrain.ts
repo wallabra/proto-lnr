@@ -31,8 +31,8 @@ export class Terrain {
     this.sectors = new Map();
   }
 
-  gradientAt(x: number, y: number) {
-    return Vec2(
+  gradientAt(x: number, y: number): Vec2 {
+    return new Vec2(
       this.heightAt(x + 0.5, y) - this.heightAt(x - 0.5, y),
       this.heightAt(x, y + 0.5) - this.heightAt(x, y - 0.5),
     );

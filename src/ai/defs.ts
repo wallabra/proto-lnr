@@ -25,7 +25,7 @@ export interface AITickArgs {
   game: Game;
   play: PlayState;
   soonPos: Vec2;
-  dHeight: number;
+  dHeight: Vec2;
   deltaTime: number;
   state: UnknownAIHandler;
   stateName: string;
