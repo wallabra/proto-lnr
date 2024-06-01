@@ -96,7 +96,7 @@ export class Cannonball {
       Math.pow(1.5, this.vel.subtract(ship.vel).norm().dot(toward)),
     );
     ship.damageShip(
-      this.damageFactor * this.phys.kineticEnergyRelativeTo(ship) * damageScale,
+      this.damageFactor * this.phys.kineticEnergyRelativeTo(ship) * damageScale * 0.01,
     );
     if (ship.dying) {
       this.instigator.scoreKill();
