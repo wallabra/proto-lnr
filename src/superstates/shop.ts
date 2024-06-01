@@ -1689,7 +1689,7 @@ export default class IntermissionState extends Superstate {
             .reduce((a, b) => a + b, 0);
 
           const message = [
-            `You have ${totalAvailable} food points, and your crew consumes ${totalConsumption} a day.`,
+            `You have ${totalAvailable.toFixed(1)} food points, and your crew consumes ${totalConsumption.toFixed(1)} a day.`,
           ];
 
           if (totalAvailable < totalConsumption) {
@@ -1723,13 +1723,13 @@ export default class IntermissionState extends Superstate {
       {
         name: "Weight",
         stat: function (this: StatRow) {
-          return `Your ship weights ${Math.ceil(this.makeup.totalWeight())}kgs; ${Math.ceil(this.makeup.make.weight)}kgs of that is the hull.`;
+          return `Your ship weights ${weightString(this.makeup.totalWeight())}; ${weightString(this.makeup.make.weight)} of that is the hull.`;
         },
       },
       {
         name: "Engine Capability",
         stat: function (this: StatRow) {
-          return `Your ship, with its current engine arrangement, crew and fuel situation, can output ${Math.round(this.makeup.maxEngineThrust())} kN/s.`;
+          return `Your ship, with its current engine arrangement, crew and fuel situation, can output ${(this.makeup.maxEngineThrust() / 1000).toFixed(2)} kN/s.`;
         },
       },
       {
@@ -1758,7 +1758,7 @@ export default class IntermissionState extends Superstate {
             `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length} out of your ${engines.length} currently installed engines have fuel.` +
             (quickest == null
               ? ""
-              : ` The fuel you'll first run out of is ${quickest.type}, at ${Math.max(quickest.duration)}s.`)
+              : ` The fuel you'll first run out of is ${quickest.type}, at ${quickest.duration.toFixed(1)}s.`)
           );
         },
       },
