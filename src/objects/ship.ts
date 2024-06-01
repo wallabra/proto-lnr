@@ -303,7 +303,7 @@ class ShipRenderContext {
     );
     ctx.fillRect(cooldownOffs, -width, length, width * 2);
     ctx.fillStyle = "#578";
-    ctx.fillRect(cooldownOffs, width * 0.8, length, width * 0.2);
+    ctx.fillRect(cooldownOffs, width * 0.5, length, width * 0.5);
     ctx.restore();
   }
 
