@@ -1058,6 +1058,12 @@ export class Ship {
       this.damageShip(1000 * deltaTime);
     }
   }
+  
+  pruneDeadPointers() {
+    if (this.following != null && this.following.dying) this.following = null;
+    this.alliance = new Set(Array.from(this.alliance).filter((a) => !a.dying));
+    this.followers = new Set(Array.from(this.followers).filter((a) => !a.dying));
+  }
 
   pruneDeadInstigator() {
     if (this.lastInstigator != null && this.lastInstigator.dying) {
@@ -1118,6 +1124,7 @@ export class Ship {
     this.checkShipCollisions(deltaTime);
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
+    this.pruneDeadPointers();
     this.makeup.inventory.pruneItems();
     this.checkSpawnWave();
   }
