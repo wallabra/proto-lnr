@@ -503,6 +503,10 @@ export class Engine extends ShipPart {
     this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
   }
 
+  getThrust(): number {
+    return this.thrust * (1 - (0.5 * this.damage) / this.maxDamage);
+  }
+
   shopInfo(): string[] {
     return [
       this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
@@ -863,7 +867,7 @@ export class ShipMakeup {
       engines.filter((e) => e.available(this)),
       match.fn((a) => a.length === 0, 0),
       match._((engines: Engine[]) =>
-        engines.map((e) => e.thrust).reduce((a, b) => a + b, 0),
+        engines.map((e) => e.getThrust()).reduce((a, b) => a + b, 0),
       ),
     );
   }
