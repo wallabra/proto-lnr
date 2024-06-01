@@ -72,6 +72,7 @@ export class PhysicsObject {
   age: number;
   dying: boolean;
   restitution: number;
+  displacement: number = 0;
 
   constructor(play: PlayState, pos: Vec2, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
@@ -168,14 +169,16 @@ export class PhysicsObject {
   applyForce(deltaTime: number | null, force: Vec2) {
     if (deltaTime == null) deltaTime = 1;
     const factor = -deltaTime / this.weight;
-    const offs = force.clone().multiplyScalar(factor * 3);
+    const offs = force.clone().multiplyScalar(factor * 15);
     this.lastPos.add(offs);
   }
 
   physVel(deltaTime: number) {
-    deltaTime = Math.max(deltaTime, 0.1);
-    const lastPos = this.pos.clone();
-    const offs = this.pos.clone().subtract(this.lastPos).multiplyScalar(deltaTime);
+    const offs = this.pos
+      .clone()
+      .subtract(this.lastPos)
+      .multiplyScalar(deltaTime);
+    this.displacement += offs.length();
     this.pos.add(offs);
     this.lastPos.add(offs);
   }
@@ -198,7 +201,7 @@ export class PhysicsObject {
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
-    const drag = (inWater ? this.waterDrag() : this.airDrag());
+    const drag = inWater ? this.waterDrag() : this.airDrag();
 
     const dragForce = this.vel.clone().multiplyScalar(-drag);
     this.applyForce(deltaTime, dragForce);

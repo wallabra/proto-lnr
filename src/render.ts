@@ -78,7 +78,7 @@ export class ObjectRenderer {
     };
 
     for (const obj of this.game.renderables) {
-      obj.render(info);
+      if (!obj.dying) obj.render(info);
     }
   }
 }
@@ -1034,6 +1034,9 @@ class HudCounters {
     this.addRow("Total Value", (label, player) => {
       const money = player.money + player.makeup.totalValue();
       label.label = moneyString(money);
+    });
+    this.addRow("Velocity", (label, player) => {
+      label.label = `${player.possessed.vel.length().toFixed(2)} m/s`;
     });
     this.addRow("Thrust & Weight", (label, player) => {
       const thrust = player.makeup.maxEngineThrust();

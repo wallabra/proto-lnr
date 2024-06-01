@@ -13,6 +13,7 @@ export class Cannonball {
   instigator: Ship;
   phys: PhysicsObject;
   dying: boolean;
+  predictedFall: Vec2 | null = null;
 
   constructor(
     game: PlayState,
@@ -23,6 +24,14 @@ export class Cannonball {
     this.instigator = shipOwner;
     this.phys = this.game.makePhysObj(shipOwner.cannonballSpawnSpot(), params);
     this.dying = false;
+  }
+
+  predictFall(): Vec2 {
+    const airtime = Math.max(0, this.airtime());
+    const drag = this.phys.airDrag() / this.phys.weight;
+    return (this.predictedFall = this.pos
+      .clone()
+      .add(this.vel.multiplyScalar((1 - Math.exp(-drag * airtime)) / drag)));
   }
 
   // -- phys util getters
@@ -124,19 +133,51 @@ export class Cannonball {
   }
 
   airtime() {
-    const a = this.phys.gravity / 2;
-    const b = this.phys.vspeed;
-    const c = this.phys.height - this.game.waterLevel * 2;
-    const airtime = (a * Math.sqrt(4 * a * c + b * b) + b) / (2 * a);
+    const vspeed = this.phys.vspeed;
+    const altitude = this.phys.height - this.game.waterLevel;
+    const airtime =
+      (vspeed + Math.sqrt(vspeed * vspeed + 2 * altitude * this.phys.gravity)) /
+      this.phys.gravity;
     return airtime;
+  }
+
+  drawCrosshair(info: ObjectRenderInfo) {
+    const { ctx } = info;
+
+    if (this.predictedFall == null) return;
+
+    const chrad = Math.max(5, this.airtime() * 50);
+    const fall = this.predictedFall
+      .clone()
+      .subtract(info.cam)
+      .multiplyScalar(info.scale)
+      .add(info.base);
+
+    if (
+      fall.x + chrad < 0 ||
+      fall.x - chrad > info.width ||
+      fall.y + chrad < 0 ||
+      fall.y - chrad > info.height
+    ) {
+      return;
+    }
+
+    const color = `rgba(0, 140, 240, ${0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * this.airtime())))})`;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.7;
+    ctx.beginPath();
+    ctx.arc(fall.x, fall.y, chrad, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
   render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
-    const drawPos = info.base
+    const drawPos = this.pos
       .clone()
-      .add(this.pos.clone().subtract(info.cam).multiply(info.scaleVec));
+      .subtract(info.cam)
+      .multiplyScalar(info.scale)
+      .add(info.base);
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
@@ -154,6 +195,8 @@ export class Cannonball {
       hoffs - Math.max(this.phys.floor, this.game.waterLevel) * 20,
     );
 
+    this.drawCrosshair(info);
+
     // draw shadow
     ctx.fillStyle = "#0008";
     ctx.beginPath();
@@ -165,5 +208,22 @@ export class Cannonball {
     ctx.beginPath();
     ctx.arc(drawPos.x, drawPos.y, size, 0, 2 * Math.PI);
     ctx.fill();
+
+    const airtime = Math.max(0, this.airtime());
+    const drag = this.phys.airDrag() / this.phys.weight;
+    ctx.strokeStyle = "#00F";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const from = this.predictedFall.clone().subtract(info.cam).multiplyScalar(info.scale).add(info.base);
+    ctx.moveTo(from.x, from.y);
+    const to = drawPos
+      .clone()
+      .add(
+        this.phys.vel.multiplyScalar(
+          info.scale * ((1 - Math.exp(-drag * airtime)) / drag),
+        ),
+      );
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
   }
 }

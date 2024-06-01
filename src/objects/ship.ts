@@ -273,7 +273,7 @@ class ShipRenderContext {
         .add(circle.center.clone().subtract(info.cam).multiplyScalar(scale));
       const size = circle.radius * scale;
       ctx.beginPath();
-      ctx.ellipse(center.x, center.y, size, size, 0, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, size, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
@@ -342,7 +342,7 @@ class ShipRenderContext {
 
     const available = cannon != null && cannon.cooldown <= 0;
 
-    const mouseDist = game.mouse.pos.length() / info.scale;
+    const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(
       mouseDist,
       ship.maxShootRange != null ? ship.maxShootRange : Infinity,
@@ -354,7 +354,7 @@ class ShipRenderContext {
       .add(drawPos)
       .add(ship.vel.multiplyScalar(shootTime));
     const shootRadius =
-      cannon == null ? 0 : Math.tan(cannon.spread) * shootDist;
+      cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
 
     const color = available ? "#FFFF0010" : "#88000010";
     ctx.strokeStyle = color;
@@ -362,44 +362,20 @@ class ShipRenderContext {
 
     // draw circles
     ctx.beginPath();
-    ctx.ellipse(shootPos.x, shootPos.y, 4, 4, 0, 0, Math.PI * 2);
+    ctx.arc(shootPos.x, shootPos.y, 4, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fill();
 
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.ellipse(
-      shootPos.x,
-      shootPos.y,
-      shootRadius,
-      shootRadius,
-      0,
-      0,
-      Math.PI * 2,
-    );
+    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
     ctx.stroke();
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.ellipse(
-      shootPos.x,
-      shootPos.y,
-      shootRadius,
-      shootRadius,
-      0,
-      0,
-      Math.PI * 2,
-    );
+    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
     ctx.stroke();
     ctx.beginPath();
-    ctx.ellipse(
-      shootPos.x,
-      shootPos.y,
-      shootRadius,
-      shootRadius,
-      0,
-      0,
-      Math.PI * 2,
-    );
+    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -614,16 +590,19 @@ export class Ship {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
 
-    return this.nextTick((deltaTime) => {
+    return this.nextTick(() => {
       const cannon = this.makeup.readyCannon;
 
       if (cannon == null) {
         return false;
       }
 
-      const cannonball = cannon.shoot(deltaTime, this, shootDist);
+      const cannonball = cannon.shoot(this, shootDist);
       if (cannonball != null) {
-        this.phys.applyForce(null, cannonball.phys.vecMomentum().invert());
+        this.phys.applyForce(
+          0.1,
+          cannonball.vel.subtract(this.vel).multiplyScalar(cannonball.weight),
+        );
       }
       return true;
     });

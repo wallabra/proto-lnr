@@ -420,15 +420,15 @@ export class Cannon extends ShipPart {
 
     const velComp = ship.angNorm.dot(ship.vel);
 
-    dist =
-      dist -
-      ship.pos.clone().subtract(ship.cannonballSpawnSpot()).length() -
-      velComp * airtime;
-    const targSpeed = dist / airtime;
+    const targSpeed = Math.min(
+      (dist - velComp + cball.phys.airDrag() * Math.pow(airtime, 2)) / airtime,
+      this.range,
+    );
     cball.phys.vel = new Vec2(targSpeed, 0)
       .rotateBy(cball.phys.angle)
       .add(ship.vel);
 
+    cball.predictFall();
     return cball;
   }
 
@@ -447,7 +447,7 @@ export class Cannon extends ShipPart {
     this.cooldown = this.shootRate;
   }
 
-  shoot(deltaTime: number, ship: Ship, dist: number): Cannonball | null {
+  shoot(ship: Ship, dist: number): Cannonball | null {
     // TODO: spawn cannonball
     if (!ship.makeup.spendAmmo(this.caliber)) {
       return null;
