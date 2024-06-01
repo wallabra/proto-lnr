@@ -9,7 +9,7 @@ import { Terrain, TerraDef } from "../terrain";
 import Superstate from "./base";
 
 import Vec2 from "victor";
-import { AIController } from "../ai";
+import { AIController } from "../ai/ai";
 
 import { GameRenderer, Renderable } from "../render";
 import { Game } from "../game";

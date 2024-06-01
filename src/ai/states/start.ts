@@ -28,7 +28,7 @@ export class StartState implements AIHandler<AIStartArgs, AITickArgs> {
       play.terrain != null &&
       play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.8
     )
-      return { next: "backToLand" };
+      return { next: "avoidTerrain" };
 
     if (ship.lastInstigator != null && ship.makeup.nextReadyCannon != null)
       return {
