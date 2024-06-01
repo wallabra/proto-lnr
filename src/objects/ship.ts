@@ -423,7 +423,7 @@ export class Ship {
   followers: Set<Ship> = new Set();
 
   follow(other: Ship) {
-    if (this.following != null) unfollow();
+    if (this.following != null) this.unfollow();
     other.followers.add(this);
     this.following = other;
   }
@@ -470,6 +470,9 @@ export class Ship {
     } else {
       for (const follower of Array.from(this.followers)) {
         follower.setInstigator(other);
+      }
+      if (this.following != null && this.following.lastInstigator == null && Math.random() < 0.3) {
+        this.following.aggro(other);
       }
       for (const otherFollower of Array.from(other.followers)) {
         otherFollower.setInstigator(this);
