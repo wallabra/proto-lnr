@@ -116,7 +116,6 @@ class DrydockPartWidget extends Pane<
   private buttonArgs: Partial<CanvasButtonArgs>;
   private labelArgs: Partial<CanvasLabelArgs>;
   private buttonList: CanvasUIElement;
-  private shouldUpdateDetails: boolean;
 
   protected buildPane(args: DrydockPartWidgetArgs) {
     this.pane = new CanvasPanel(args);
@@ -138,7 +137,6 @@ class DrydockPartWidget extends Pane<
       childMargin: 3,
       fillX: true,
     });
-    this.shouldUpdateDetails = true;
     this.updateDetails();
 
     // TODO: image to represent part
@@ -233,7 +231,6 @@ class DrydockPartWidget extends Pane<
     const success = this.makeup.assignCrewTo(this.part);
 
     if (success) {
-      this.shouldUpdateDetails = true;
       this.updateCrewButtonLabel();
     }
   }
@@ -245,7 +242,6 @@ class DrydockPartWidget extends Pane<
 
     this.part.mannedBy.map((c) => c.unassign()).every((a) => a);
 
-    this.shouldUpdateDetails = true;
     this.updateCrewButtonLabel();
   }
 
@@ -305,7 +301,7 @@ class DrydockPartWidget extends Pane<
         dockMarginX: 4,
         color: "#bbb",
         childOrdering: "vertical",
-        childMargin: 1.5,
+        childMargin: 0.8,
         height: 9.5,
         autoFont: true,
         font: "$Hpx sans-serif",
@@ -316,9 +312,6 @@ class DrydockPartWidget extends Pane<
   }
 
   private updateDetails() {
-    //if (!this.shouldUpdateDetails) return;
-    //this.shouldUpdateDetails = false;
-
     const lines = [
       weightInfo(this.part),
       ...this.part.shopInfo(this.makeup),
@@ -381,7 +374,6 @@ class DrydockInventoryItemWidget extends Pane<
   private resellButton: CanvasButton;
   private details: CanvasUIElement;
   private buttonList: CanvasPanel;
-  private shouldUpdateDetails: boolean;
   private resellHalfButton: CanvasButton;
   private resellHalfLabel: CanvasLabel;
 
@@ -406,7 +398,6 @@ class DrydockInventoryItemWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 3,
     });
-    this.shouldUpdateDetails = true;
     this.updateDetails();
 
     if (isDamageable(this.item)) {
@@ -522,7 +513,7 @@ class DrydockInventoryItemWidget extends Pane<
         dockMarginX: 4,
         color: "#bbb",
         childOrdering: "vertical",
-        childMargin: 1.2,
+        childMargin: 0.6,
         height: 9.5,
         autoFont: true,
         font: "$Hpx sans-serif",
