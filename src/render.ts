@@ -1378,6 +1378,13 @@ class HudRenderer {
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.fillText("rip", game.width / 2, game.height / 2);
+    ctx.font = "18px sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillText(
+      "(Press R to start a new game)",
+      game.width / 2,
+      game.height / 4 + 55,
+    );
 
     return true;
   }

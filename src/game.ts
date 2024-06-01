@@ -25,12 +25,22 @@ export class Game {
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
     this.zoom = 1000;
+    this.restart();
+  }
+
+  restart() {
     const play = (this.state = this.setState(PlayState, defPlaceholder));
+    this.resetPlayer();
+    play.resetPlayerShip();
+  }
+
+  resetPlayer() {
+    if (!(this.state instanceof PlayState)) return;
+
     this.player = new Player(
       this,
-      play.makeShip(new Vec2(0, 0), { makeup: "default" }),
+      (this.state as PlayState).makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
-    play.resetPlayerShip();
   }
 
   togglePaused() {
@@ -72,6 +82,10 @@ export class Game {
   }
 
   inputHandler(name: string, event) {
+    if (name === "RESTART") {
+      this.restart();
+    }
+
     if (this.player == null) {
       return;
     }

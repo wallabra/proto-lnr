@@ -77,6 +77,7 @@ export abstract class KeyHandler {
 
 export class PlayKeyHandler extends KeyHandler {
   register() {
+    this.registerKey("r", this.game.inputHandler.bind(this.game, "RESTART"));
     this.registerKey(" ", this.game.inputHandler.bind(this.game, "shoot"));
     this.registerKey("l", this.game.inputHandler.bind(this.game, "shop"));
     this.registerKey("h", this.game.inputHandler.bind(this.game, "hud"));

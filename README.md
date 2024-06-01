@@ -19,6 +19,7 @@ Your browser must support JavaScript, as well as HTML5 Canvas.
 * Toggle the HUD with **H**.
 * Pause the game with **P**.
 * Leave the island by going far enough from it; when prompted to, press **L**.
+* You can reset the game with **R**.
 
 ## Technical
 
