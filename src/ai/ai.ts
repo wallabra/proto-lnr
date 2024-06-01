@@ -2,7 +2,6 @@ import { Ship } from "../objects/ship";
 import { PlayState } from "../superstates/play";
 import { DEFAULT_AI_STATES } from "./default";
 import { UnknownAIHandler, AIStartArgs, AIJump } from "./defs";
-import { SeekCrateState } from "./states/seekcrate";
 
 function mapStates(
   states: (new () => UnknownAIHandler)[],
