@@ -81,24 +81,24 @@ export class PhysicsObject {
     this.pos = pos;
     this.lastPos = pos.clone();
     if (params.vel) this.vel = params.vel;
-    this.size = params.size != null ? params.size : 1;
-    this.angle = params.angle != null ? params.angle : 0;
-    this.angVel = params.angVel != null ? params.angVel : 0;
+    this.size = params.size ?? 1;
+    this.angle = params.angle ?? 0;
+    this.angVel = params.angVel ?? 0;
     this.age = 0;
     this.height =
       params.height != null
         ? params.height
         : Math.max(play.waterLevel, this.floor);
-    this.vspeed = params.vspeed != null ? params.vspeed : 0;
-    this.weight = params.weight != null ? params.weight : 1;
-    this.baseDrag = params.baseDrag != null ? params.baseDrag : 0.5;
+    this.vspeed = params.vspeed ?? 0;
+    this.weight = params.weight ?? 1;
+    this.baseDrag = params.baseDrag ?? 0.5;
     this.baseFriction =
-      params.baseFriction != null ? params.baseFriction : 0.007;
-    this.angleDrag = params.angleDrag != null ? params.angleDrag : 0.05;
+      params.baseFriction ?? 0.007;
+    this.angleDrag = params.angleDrag ?? 0.05;
     this.dying = false;
-    this.gravity = params.gravity != null ? params.gravity : 1.5;
-    this.buoyancy = params.buoyancy != null ? params.buoyancy : 0.06;
-    this.restitution = params.restitution != null ? params.restitution : 0.5;
+    this.gravity = params.gravity ?? 1.5;
+    this.buoyancy = params.buoyancy ?? 0.06;
+    this.restitution = params.restitution ?? 0.5;
   }
 
   setPos(newPos: Vec2) {
@@ -225,7 +225,7 @@ export class PhysicsObject {
 
   kineticEnergy(vel?: number): number {
     return (
-      (1 / 2) * this.weight * Math.pow(vel != null ? vel : this.vel.length(), 2)
+      (1 / 2) * this.weight * Math.pow(vel ?? this.vel.length(), 2)
     );
   }
 
@@ -234,7 +234,7 @@ export class PhysicsObject {
   }
 
   momentum(vel?: number): number {
-    return this.weight * (vel != null ? vel : this.vel.length());
+    return this.weight * (vel ?? this.vel.length());
   }
 
   vecMomentum(): Vec2 {

@@ -108,7 +108,7 @@ export type CachedInfo = {
 } & { [infoName: string]: unknown };
 
 function or(item, def) {
-  return item != null ? item : def;
+  return item ?? def;
 }
 
 export abstract class CanvasUIElement<ExtraProps = object> {
@@ -163,7 +163,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.childFill = args.childFill || 0;
     this.layer = args.layer || 0;
     this.cullOutOfBounds =
-      args.cullOutOfBounds != null ? args.cullOutOfBounds : false;
+      args.cullOutOfBounds ?? false;
 
     if (this.parent != null) {
       this.parent = this.parent._addChild(this);
@@ -693,7 +693,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       size *= factor;
       size = Math.max(
         size,
-        Math.min(10, this.height != null ? this.height : Infinity),
+        Math.min(10, this.height ?? Infinity),
       );
       font = this.font.replace("$H", size + "");
       ctx.font = font;
@@ -856,7 +856,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
   constructor(args: ScrollbarArgs) {
     super(args);
     this.thickness = args.thickness || 10;
-    this.barPadding = args.barPadding != null ? args.barPadding : 2;
+    this.barPadding = args.barPadding ?? 2;
     this.barSize = 1.0;
   }
 
@@ -1206,7 +1206,7 @@ export class CanvasImage extends CanvasUIElement {
   constructor(args: CanvasImageArgs) {
     super(args);
     this.image = args.image;
-    this.scaled = args.scaled != null ? args.scaled : true;
+    this.scaled = args.scaled ?? true;
   }
 
   preChildrenRender() {}
@@ -1240,7 +1240,7 @@ export class CanvasUIGroup extends CanvasUIElement {
     super({
       paddingY: 2,
       paddingX: 2,
-      bgColor: args.bgColor != null ? args.bgColor : null,
+      bgColor: args.bgColor ?? null,
       ...args,
     });
   }

@@ -353,7 +353,7 @@ class ShipRenderContext {
     const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(
       mouseDist,
-      ship.maxShootRange != null ? ship.maxShootRange : Infinity,
+      ship.maxShootRange ?? Infinity,
     );
     const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
     const shootRadius =
@@ -684,7 +684,7 @@ export class Ship {
       if (
         item.dropChance != null &&
         Math.random() >
-          item.dropChance * (item.amount != null ? item.amount : 1)
+          item.dropChance * (item.amount ?? 1)
       )
         continue;
       if (item.amount != null)

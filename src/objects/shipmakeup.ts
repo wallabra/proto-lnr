@@ -55,8 +55,8 @@ export class ShipPart implements ShipItem {
     this.weight = args.weight;
     this.vulnerability = args.vulnerability;
     this.repairCostScale = args.repairCostScale || 1.4;
-    this.dropChance = args.dropChance != null ? args.dropChance : 0.4;
-    this.shopChance = args.shopChance != null ? args.shopChance : 0.5;
+    this.dropChance = args.dropChance ?? 0.4;
+    this.shopChance = args.shopChance ?? 0.5;
     this.dying = false;
     this.integerAmounts = true;
     this.mannedBy = [];
@@ -196,7 +196,7 @@ export class Crew implements ShipItem {
     this.caloricIntake = args.caloricIntake || 5;
     this.integerAmounts = true;
     this.weight = args.weight || 20;
-    this.shopChance = args.shopChance != null ? args.shopChance : 0.4;
+    this.shopChance = args.shopChance ?? 0.4;
   }
 
   onRemove() {
@@ -846,7 +846,7 @@ export class ShipMakeup {
   totalValue() {
     return this.inventory.items
       .filter((i) => this.parts.indexOf(i) === -1 && !(i instanceof Crew))
-      .map((i) => i.cost * (i.amount != null ? i.amount : 1))
+      .map((i) => i.cost * (i.amount ?? 1))
       .reduce((a, b) => a + b, 0);
   }
 
@@ -878,7 +878,7 @@ export class ShipMakeup {
   }
 
   maxEngineThrust(enginesList?: Engine[]): number {
-    const engines = enginesList != null ? enginesList : this.getReadyEngines();
+    const engines = enginesList ?? this.getReadyEngines();
     if (engines.length === 0) return 0;
     return match(
       engines.filter((e) => e.available(this)),

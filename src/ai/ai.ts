@@ -66,8 +66,10 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
       dHeight,
       soonPos,
       deltaTime,
+      state: this.state,
+      stateName: this.stateName,
     });
-    const nextJump = thisJump != null ? thisJump : this.pendingChange;
+    const nextJump = thisJump ?? this.pendingChange;
     if (nextJump == null) return;
 
     if (
@@ -75,7 +77,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
       Date.now() < this.nextChange &&
       !nextJump.immediate
     ) {
-      this.pendingChange = nextJump != null ? nextJump : null;
+      this.pendingChange = nextJump ?? null;
       return;
     }
 
@@ -104,7 +106,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     if (this.state != null && this.state.free != null) this.state.free();
 
     this.state = newState;
-    this.startState(from, args != null ? args : null);
+    this.startState(from, args ?? null);
     this.stateName = next;
     this.pendingChange = null;
   }

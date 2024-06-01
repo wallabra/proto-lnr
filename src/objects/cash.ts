@@ -14,7 +14,7 @@ export class CashPickup extends Pickup {
   constructor(game: PlayState, pos: Vec2, params?: Partial<CashPickupParams>) {
     if (params == null) params = {};
     super(game, pos, params);
-    this.cash = params.cash != null ? params.cash : 10;
+    this.cash = params.cash ?? 10;
   }
 
   collect(ship: Ship): void {

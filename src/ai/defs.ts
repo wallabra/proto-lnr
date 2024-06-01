@@ -27,6 +27,8 @@ export interface AITickArgs {
   soonPos: Vec2;
   dHeight: number;
   deltaTime: number;
+  state: UnknownAIHandler;
+  stateName: string;
 }
 
 export interface AIHandler<StartArgs extends AIStartArgs> {

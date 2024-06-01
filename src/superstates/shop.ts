@@ -47,7 +47,7 @@ interface PaneArgs {
 }
 
 function weightInfo(item: ShipItem) {
-  const amount = item.amount != null ? item.amount : 1;
+  const amount = item.amount ?? 1;
   const weight = amount * item.weight;
 
   return "weight: " + weightString(weight);
@@ -55,7 +55,7 @@ function weightInfo(item: ShipItem) {
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
   return (
-    `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${item.getInventoryLabel && makeup != null ? item.getInventoryLabel(makeup) : item.getItemLabel()}` +
+    `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${item.getInventoryLabel && makeup ?? item.getItemLabel()}` +
     (priceFactor == null
       ? ""
       : ` (${moneyString(item.cost * priceFactor * (item.amount || 1))})`)
