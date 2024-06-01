@@ -1022,16 +1022,39 @@ class ShipMakeWidget extends Pane<
     this.pane = new CanvasUIGroup(args);
     this.make = args.make;
 
-    new CanvasLabel({
+    const header = new CanvasUIGroup({
       parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 6,
+      height: 20,
+      paddingY: 0,
+      paddingX: 0,
+      fillX: true,
+    });
+
+    new CanvasLabel({
+      parent: header,
       autoFont: true,
       font: "bold $Hpx sans-serif",
       color: "#fff",
       label: this.make.name,
-      x: 5,
-      childOrdering: "vertical",
-      childMargin: 6,
-      height: 15,
+      fillY: true,
+      height: 13.5,
+      childOrdering: "horizontal",
+      childMargin: 4,
+    });
+
+    new CanvasLabel({
+      parent: header,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
+      color: "#777",
+      label: moneyString(this.make.cost),
+      fillY: 0.7,
+      height: 11.25,
+      dockY: "center",
+      childOrdering: "horizontal",
+      childMargin: 4,
     });
 
     const detailGroup = new CanvasUIGroup({
