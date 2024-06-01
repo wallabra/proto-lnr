@@ -471,7 +471,11 @@ export class Ship {
       for (const follower of Array.from(this.followers)) {
         follower.setInstigator(other);
       }
-      if (this.following != null && this.following.lastInstigator == null && Math.random() < 0.3) {
+      if (
+        this.following != null &&
+        this.following.lastInstigator == null &&
+        Math.random() < 0.3
+      ) {
         this.following.aggro(other);
       }
       for (const otherFollower of Array.from(other.followers)) {
