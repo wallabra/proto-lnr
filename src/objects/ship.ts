@@ -5,7 +5,13 @@ import { ObjectRenderInfo } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
 import { PlayState } from "../superstates/play";
 import { Game } from "../game";
-import { Engine, ShipMake, ShipMakeup, Cannon } from "./shipmakeup";
+import {
+  Engine,
+  ShipMake,
+  ShipMakeup,
+  Cannon,
+  SMOKE_COLORS,
+} from "./shipmakeup";
 import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType, DebugPickup } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
@@ -13,6 +19,7 @@ import random from "random";
 import { iter } from "iterator-helper";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
+import { Smoke } from "./fx/smoke";
 
 const DEBUG_DRAW = false;
 const DEBUG_COLL = false;
@@ -413,6 +420,7 @@ export class Ship {
   tickActions: Array<TickAction<unknown>>;
   drawer: ShipRenderContext;
   lastWave: number;
+  lastSmoke: number;
 
   get play(): PlayState {
     return <PlayState>this.game.state;
@@ -764,6 +772,7 @@ export class Ship {
     const engineThrust = this.maxEngineThrust();
 
     engines.forEach((e) => {
+      this.spawnSmokeFor(e);
       if (e.fuelType)
         this.makeup.spendFuel(
           e.fuelType,
@@ -773,6 +782,22 @@ export class Ship {
 
     const thrust = engineThrust * amount;
     this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotateBy(this.angle));
+  }
+
+  spawnSmokeFor(engine: Engine) {
+    const color = SMOKE_COLORS[engine.fuelType] || null;
+
+    if (color == null) return;
+
+    if (
+      this.lastSmoke != null &&
+      this.phys.age < this.lastSmoke + 0.1 + Math.exp(-engine.thrust / 4000)
+    )
+      return;
+    if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
+
+    this.lastSmoke = this.phys.age;
+    this.play.spawnArgs(Smoke, this, color, 0.3);
   }
 
   heightGradient() {

@@ -499,6 +499,11 @@ export const FUEL_PROPS = {
   },
 };
 
+export const SMOKE_COLORS: { [fuelType: string]: number[] } = {
+  diesel: [50, 60, 50],
+  coal: [12, 12, 12],
+};
+
 export class Engine extends ShipPart {
   fuelType: string;
   fuelCost: number;
