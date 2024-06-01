@@ -1,8 +1,8 @@
 import globals from "globals";
-import pluginJs from "@eslint/js";
+import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
-export default [
+export default tseslint.config(
   { languageOptions: { globals: globals.browser },
     rules: {
     "no-unused-vars": "off",
@@ -15,6 +15,6 @@ export default [
       }
     ]
   } },
-  pluginJs.configs.recommended,
+  eslint.configs.recommended,
   ...tseslint.configs.recommended,
-];
+);
