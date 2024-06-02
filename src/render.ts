@@ -1102,9 +1102,9 @@ class HudCounters {
       paddingY: 2,
       bgColor: "#0000",
     });
-    
+
     const i = this.rows.push(row);
-    row.bgColor = `#${i % 2 ? '11' : '22'}08${i % 2 ? '08' : '11'}40`;
+    row.bgColor = `#${i % 2 ? "11" : "22"}08${i % 2 ? "08" : "11"}40`;
 
     const opts: Optional<CanvasLabelArgs, "label"> = {
       parent: row,

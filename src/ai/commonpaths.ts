@@ -10,7 +10,13 @@ export function commonPaths(
   if (ship.lastInstigator != null) {
     const target = ship.lastInstigator;
 
-    if (ship.makeup.nextReadyCannon != null)
+    if (
+      ship.makeup.nextReadyCannon != null &&
+      !(
+        target.makeup.nextReadyCannon != null &&
+        ship.damage > 0.85 * ship.maxDmg
+      )
+    )
       return {
         next: "engage",
         args: { target: target },
