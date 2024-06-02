@@ -140,6 +140,14 @@ export class Player {
     this.actions.forEach((act) => act(deltaTime));
   }
 
+  doMouseShoot(_deltaTime: number) {
+    const mouse = this.mouse as PlayMouseHandler;
+
+    if (!mouse.shooting) return;
+
+    this.possessed.tryShoot(this.mouse.pos.length());
+  }
+
   doSteer(deltaTime: number) {
     if (!(<PlayMouseHandler>this.mouse).steering) {
       return;
@@ -185,6 +193,7 @@ export class Player {
     }
 
     this.doSteer(deltaTime);
+    this.doMouseShoot(deltaTime);
     this.doAction(deltaTime);
   }
 }

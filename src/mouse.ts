@@ -14,6 +14,7 @@ export interface GameMouseInfo {
   pos: Vec2;
   delta: Vec2;
   name: string;
+  rmb: boolean;
   inside: CanvasUIElement | null;
 }
 
@@ -29,13 +30,13 @@ export default abstract class MouseHandler {
 
   constructor(game: Game) {
     this.game = game;
-    this.pos = Vec2(0, 0);
-    this.delta = Vec2(0, 0);
+    this.pos = new Vec2(0, 0);
+    this.delta = new Vec2(0, 0);
     this.registry = [];
   }
 
   onMouseUpdate(e: MouseEvent) {
-    this.delta = Vec2(
+    this.delta = new Vec2(
       (e.clientX - window.innerWidth / 2) / this.game.drawScale,
       (e.clientY - window.innerHeight / 2) / this.game.drawScale,
     ).subtract(this.pos);
@@ -52,6 +53,12 @@ export default abstract class MouseHandler {
       mev.pos = this.pos;
       mev.delta = this.delta;
       mev.name = name;
+      mev.rmb =
+        "which" in ev
+          ? ev.which === 3
+          : "button" in <MouseEvent>ev
+            ? (<MouseEvent>ev).button === 2
+            : false;
       cb(mev);
     };
     document.addEventListener(name, bound, false);
@@ -80,28 +87,26 @@ export default abstract class MouseHandler {
 }
 
 export class PlayMouseHandler extends MouseHandler {
-  steering: boolean;
-
-  constructor(game: Game) {
-    super(game);
-    this.steering = false;
-  }
+  steering: boolean = false;
+  shooting: boolean = false;
 
   onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(
       e.name,
-      match.val("mousedown", () => this.onMouseDown()),
-      match.val("mouseup", () => this.onMouseUp()),
+      match.val("mousedown", () => this.onMouseDown(e)),
+      match.val("mouseup", () => this.onMouseUp(e)),
       match._(() => {}),
     );
   }
 
-  private onMouseDown() {
-    this.steering = true;
+  private onMouseDown(e: MouseEvent & GameMouseInfo) {
+    if (e.rmb) this.shooting = true;
+    else this.steering = true;
   }
 
-  private onMouseUp() {
-    this.steering = false;
+  private onMouseUp(e: MouseEvent & GameMouseInfo) {
+    if (e.rmb) this.shooting = false;
+    else this.steering = false;
   }
 }
 
@@ -117,7 +122,7 @@ export class IntermissionMouseHandler extends MouseHandler {
 
   private onMouseDown(e) {
     this.dragging = true;
-    this.dragStart = Vec2(e.x, e.y);
+    this.dragStart = new Vec2(e.x, e.y);
     const state = <IntermissionState>this.game.state;
     e.name = "canvasdragstart";
     state.mouseEvent(e);
