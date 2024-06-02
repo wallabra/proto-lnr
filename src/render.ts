@@ -1021,6 +1021,7 @@ class HudCounters {
   player: Player;
   pane: CanvasPanel;
   updaters: (() => void)[];
+  rows: CanvasUIGroup[] = [];
 
   constructor(args: HudCountersArgs) {
     this.player = args.player;
@@ -1093,24 +1094,27 @@ class HudCounters {
     const row = new CanvasUIGroup({
       parent: this.pane,
       childOrdering: "vertical",
-      childMargin: 3,
+      childMargin: 1.5,
       height: 15,
       childFill: 1,
       fillX: true,
-      paddingX: 5,
+      paddingX: 8,
       paddingY: 2,
-      bgColor: "#0002",
+      bgColor: "#0000",
     });
+    
+    const i = this.rows.push(row);
+    row.bgColor = `#${i % 2 ? '11' : '22'}08${i % 2 ? '08' : '11'}40`;
 
     const opts: Optional<CanvasLabelArgs, "label"> = {
       parent: row,
       childOrdering: "horizontal",
       childFill: 1,
       childMargin: 2,
-      fillY: true,
+      fillY: 0.95,
       autoFont: true,
       font: "$Hpx sans-serif",
-      height: 13,
+      height: 12,
     };
 
     new CanvasLabel({
