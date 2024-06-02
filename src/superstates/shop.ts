@@ -57,7 +57,7 @@ function weightInfo(item: ShipItem) {
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
   return (
-    `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${(item.getInventoryLabel && makeup) ?? item.getItemLabel()}` +
+    `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${(item.getInventoryLabel && item.getInventoryLabel(makeup)) ?? item.getItemLabel()}` +
     (priceFactor == null
       ? ""
       : ` (${moneyString(item.cost * priceFactor * (item.amount || 1))})`)
@@ -392,6 +392,7 @@ class DrydockInventoryItemWidget extends Pane<
       font: "bold $Hpx sans-serif",
       height: 12.5,
       autoFont: true,
+      x: 15,
       childOrdering: "vertical",
       childMargin: 10,
     });
