@@ -690,7 +690,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     if (wideWidth > this.parent.innerWidth) {
       const factor = this.parent.innerWidth / wideWidth;
       size *= factor;
-      size = Math.max(size, Math.min(10, this.height ?? Infinity));
+      size = Math.max(size, Math.min(9, this.height ?? Infinity));
       font = this.font.replace("$H", size + "");
       ctx.font = font;
       this.maxHeight =
