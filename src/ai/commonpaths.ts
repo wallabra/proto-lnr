@@ -13,8 +13,7 @@ export function commonPaths(
     if (
       ship.makeup.nextReadyCannon != null &&
       !(
-        target.makeup.nextReadyCannon != null &&
-        ship.damage > 0.7 * ship.maxDmg
+        target.makeup.nextReadyCannon != null && ship.damage > 0.7 * ship.maxDmg
       )
     )
       return {
