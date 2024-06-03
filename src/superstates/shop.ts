@@ -1,5 +1,5 @@
 import { Game } from "../game";
-import { FoodItem, FuelItem, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, ShipItem, computeResellCost } from "../inventory";
 import { IntermissionKeyHandler } from "../keyinput";
 import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
@@ -532,23 +532,7 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   private resellCost(factor = 1) {
-    let repairFactor = 0;
-    const damageableItem = <
-      ShipItem & { damage?: number; maxDamage: number; repairCostScale: number }
-    >this.item;
-    if (damageableItem.damage != null) {
-      repairFactor = Math.min(
-        this.item.cost * 0.9 /* leaving only the scraps! */,
-        (damageableItem.damage / damageableItem.maxDamage) *
-          damageableItem.repairCostScale,
-      );
-    }
-    return (
-      factor *
-      (this.item.cost - repairFactor) *
-      (this.item.amount || 1) *
-      this.resellFactor
-    );
+    return computeResellCost(this.item, this.resellFactor) * factor;
   }
 
   private letResellHalf() {

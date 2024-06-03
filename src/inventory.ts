@@ -104,7 +104,8 @@ export function computeResellCost(
     repairFactor = Math.min(
       item.cost * 0.9 /* leaving only the scraps! */,
       (damageableItem.damage / damageableItem.maxDamage) *
-        damageableItem.repairCostScale,
+        damageableItem.repairCostScale *
+        damageableItem.cost,
     );
   }
   return (item.cost - repairFactor) * (item.amount || 1) * resellFactor;
