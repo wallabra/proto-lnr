@@ -16,7 +16,7 @@ export class Wave implements Renderable, Tickable, Physicable {
   constructor(play: PlayState, from: Ship) {
     this.play = play;
     this.ship = from;
-    this.growth = (from.vel.lengthSq() * from.weight) / from.size / 30000;
+    this.growth = from.phys.kineticEnergy() / from.size / 20000;
     const width = lerp(
       from.size * from.lateralCrossSection,
       from.size,
@@ -46,9 +46,13 @@ export class Wave implements Renderable, Tickable, Physicable {
     const drawPos = toScreen(this.phys.pos);
     const color = `rgba(200, 200, 255, ${Math.exp(-this.phys.age) / 65})`;
     ctx.fillStyle = color;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = this.phys.size / 2;
     ctx.beginPath();
     ctx.arc(drawPos.x, drawPos.y, this.phys.size, 0, Math.PI * 2);
     ctx.fill();
+    ctx.beginPath();
+    ctx.arc(drawPos.x, drawPos.y, this.phys.size * 2 / 3, 0, Math.PI * 2);
+    ctx.stroke();
   }
 }

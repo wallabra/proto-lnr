@@ -870,7 +870,7 @@ export class Ship {
     if (
       this.lastSmoke != null &&
       this.phys.age <
-        this.lastSmoke + 0.1 + Math.max(0, Math.exp(-amount / 14000))
+        this.lastSmoke + 0.25 + Math.max(0, Math.exp(-amount / 14000))
     )
       return;
     if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
@@ -1114,10 +1114,10 @@ export class Ship {
       this.lastWave != null &&
       this.phys.age <
         this.lastWave +
-          0.1 +
+          0.25 +
           Math.max(
             0,
-            Math.exp(-(this.vel.length() - this.phys.vspeed) / 40) * 1.6,
+            Math.exp(-(this.vel.lengthSq() - this.phys.vspeed) / 4000) * 1.6,
           )
     )
       return;

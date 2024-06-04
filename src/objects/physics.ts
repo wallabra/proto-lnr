@@ -230,7 +230,7 @@ export class PhysicsObject {
   }
 
   kineticEnergy(vel?: number): number {
-    return (1 / 2) * this.weight * Math.pow(vel ?? this.vel.length(), 2);
+    return (1 / 2) * this.weight * (vel != null ? vel * vel : this.vel.lengthSq());
   }
 
   kineticEnergyRelativeTo(other: PhysicsObject): number {
