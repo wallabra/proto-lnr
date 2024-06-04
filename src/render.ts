@@ -1046,26 +1046,22 @@ class HudCounters {
         moneyString(Math.abs(money - totalSalary));
       label.color = money >= totalSalary ? "#aaf" : "#f98";
     });
-    this.addRow("Installed Parts Value", (label, player) => {
-      const money = player.makeup.partsValue();
-      label.label = moneyString(money);
-    });
     this.addRow("Inventory Value", (label, player) => {
-      const money = player.makeup.inventoryValue();
-      label.label = moneyString(money);
+      label.label = moneyString(player.makeup.inventoryValue());
     });
-    this.addRow("Total Value", (label, player) => {
-      const money = player.money + player.makeup.totalValue();
-      label.label = moneyString(money);
+    let initialAccrued = null;
+    this.addRow("Day Profit", (label, player) => {
+      const accrued = player.money + player.makeup.inventoryValue();
+      if (initialAccrued == null) initialAccrued = accrued;
+      label.label = moneyString(accrued - initialAccrued);
+      label.color = accrued - initialAccrued >= 0 ? '#aaf' : '#f98';
     });
-    this.addRow("Velocity", (label, player) => {
-      label.label = `${player.possessed.vel.length().toFixed(2)} m/s`;
-    });
-    this.addRow("Thrust & Weight", (label, player) => {
-      const thrust = player.makeup.maxEngineThrust();
-      const weight = player.makeup.totalWeight();
-      const accel = thrust / weight;
-      label.label = `${(thrust / 1000).toFixed(2)} kN  /  ${(weight / 1000).toFixed(2)} t  =>  ${accel.toFixed(2)} m/s²`;
+    let initialTotal = null;
+    this.addRow("Day Profit - Repairs", (label, player) => {
+      const total = player.money + player.makeup.inventoryValue() - player.makeup.totalRepairCost();
+      if (initialTotal == null) initialTotal = total;
+      label.label = moneyString(total - initialTotal);
+      label.color = total - initialTotal >= 0 ? '#aaf' : '#f98';
     });
     this.addRow("Repair Cost", (label, player) => {
       const hullRepairCost = player.makeup.hullRepairCost();
@@ -1074,6 +1070,16 @@ class HudCounters {
       const money = player.money;
       label.label = `${moneyString(hullRepairCost)} + ${moneyString(partRepairCost)} = ${moneyString(totalRepairCost)}`;
       label.color = money >= totalRepairCost ? "#aaf" : "#f98";
+    });
+    this.addRow('---');
+    this.addRow("Velocity", (label, player) => {
+      label.label = `${player.possessed.vel.length().toFixed(2)} m/s`;
+    });
+    this.addRow("Thrust & Weight", (label, player) => {
+      const thrust = player.makeup.maxEngineThrust();
+      const weight = player.makeup.totalWeight();
+      const accel = thrust / weight;
+      label.label = `${(thrust / 1000).toFixed(2)} kN  /  ${(weight / 1000).toFixed(2)} t  =>  ${accel.toFixed(2)} m/s²`;
     });
     this.addRow("Food", (label, player) => {
       const makeup = player.makeup;
