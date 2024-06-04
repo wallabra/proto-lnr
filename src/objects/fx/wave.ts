@@ -16,7 +16,7 @@ export class Wave implements Renderable, Tickable, Physicable {
   constructor(play: PlayState, from: Ship) {
     this.play = play;
     this.ship = from;
-    this.growth = from.vel.lengthSq() * from.weight / from.size / 30000;
+    this.growth = (from.vel.lengthSq() * from.weight) / from.size / 30000;
     const width = lerp(
       from.size * from.lateralCrossSection,
       from.size,
