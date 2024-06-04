@@ -578,8 +578,12 @@ export class Ship {
       const alpha = Math.abs(
         new Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
       );
-      return new Vec2(1 - alpha, alpha * this.lateralCrossSection).rotate(
+      const res = new Vec2(1 - alpha, alpha * this.lateralCrossSection).rotate(
         this.angle,
+      );
+      return new Vec2(
+        Math.abs(res.x),
+        Math.abs(res.y)
       );
     }.bind(this);
   }
