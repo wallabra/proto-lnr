@@ -136,8 +136,8 @@ export class PhysicsObject {
     this.applyForce(
       deltaTime,
       new Vec2(
-        -dHeight.x * this.gravity * this.weight * 500,
-        -dHeight.y * this.gravity * this.weight * 500,
+        -dHeight.x * this.gravity * this.weight * 1000,
+        -dHeight.y * this.gravity * this.weight * 1000,
       ),
     );
   }
@@ -273,8 +273,9 @@ export class PhysicsObject {
       return;
     }
 
+    const steepness = 1 / (1 + this.heightGradient().length());
     const friction = this.baseFriction * this.weight * this.weight;
-    const fricForce = this.vel.clone().norm().multiplyScalar(-friction);
+    const fricForce = this.vel.clone().norm().multiplyScalar(-friction * steepness);
 
     if ((fricForce.length() * deltaTime) / this.weight > this.vel.length()) {
       this.vel = new Vec2(0, 0);
