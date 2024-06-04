@@ -2,6 +2,7 @@ import {
   CannonArgs,
   EngineArgs,
   ShipPartArgsSuper,
+  VacuumArgs,
 } from "../objects/shipmakeup";
 
 export type PartRarity = number | "always";
@@ -46,6 +47,19 @@ export const DEFAULT_CANNON = {
   shopChance: 0.3,
 };
 
+export const DEFAULT_VACUUM: PartDef<VacuumArgs> = {
+  name: "Slurpman",
+  cost: 120,
+  suckRadius: 90,
+  suckStrength: 20000000,
+  weight: 40,
+  shopChance: 0.4,
+  shopRepeat: 2,
+  rarity: 1,
+  maxDamage: 10,
+  vulnerability: 0.0012,
+};
+
 export interface BasePartDef {
   shopRepeat?: number;
   rarity: PartRarity;
@@ -60,6 +74,7 @@ export type PartDef<PType extends ShipPartArgsSuper> = PType & BasePartDef;
 export const PARTDEFS: {
   ["engine"]: PartDef<EngineDef>[];
   ["cannon"]: PartDef<CannonDef>[];
+  ["vacuum"]: PartDef<VacuumArgs>[];
 } = {
   engine: [
     OARS,
@@ -257,6 +272,32 @@ export const PARTDEFS: {
       manned: 18,
       weight: 150,
       shopChance: 0.06,
+    },
+  ],
+  vacuum: [
+    DEFAULT_VACUUM,
+    {
+      name: "Courier",
+      cost: 200,
+      suckRadius: 130,
+      suckStrength: 50000000,
+      weight: 110,
+      shopChance: 0.2,
+      shopRepeat: 2,
+      rarity: 2,
+      maxDamage: 15,
+      vulnerability: 0.0012,
+    },
+    {
+      name: "Toblerone",
+      cost: 320,
+      suckRadius: 200,
+      suckStrength: 80000000,
+      weight: 90,
+      shopChance: 0.2,
+      rarity: 4.5,
+      maxDamage: 20,
+      vulnerability: 0.0014,
     },
   ],
 };

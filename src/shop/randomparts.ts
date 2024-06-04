@@ -7,6 +7,7 @@ import {
   ShipMake,
   ShipPart,
   ShipPartArgsSuper,
+  Vacuum,
   slots,
 } from "../objects/shipmakeup";
 import { PARTDEFS, PartDef } from "./partdefs";
@@ -18,6 +19,7 @@ export function instantiatePart(def, type) {
     type,
     match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
     match.val("engine", new Engine(<PartDef<EngineArgs>>def)),
+    match.val("vacuum", new Vacuum(<PartDef<VacuumArgs>>def)),
     match._(() => {
       throw new Error("Can't handle unknown part type: " + type);
     }),

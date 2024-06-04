@@ -1061,8 +1061,10 @@ export class Ship {
 
   pruneDeadPointers() {
     if (this.following != null && this.following.dying) this.following = null;
-    for (const friend of Array.from(this.alliance).filter((a) => a.dying)) this.alliance.delete(friend);
-    for (const follower of Array.from(this.followers).filter((a) => a.dying)) this.followers.delete(follower);
+    for (const friend of Array.from(this.alliance).filter((a) => a.dying))
+      this.alliance.delete(friend);
+    for (const follower of Array.from(this.followers).filter((a) => a.dying))
+      this.followers.delete(follower);
   }
 
   pruneDeadInstigator() {
@@ -1120,7 +1122,7 @@ export class Ship {
   tick(deltaTime: number) {
     this.updateWeight();
     this.processTickActions(deltaTime);
-    this.makeup.tick(deltaTime);
+    this.makeup.tick(deltaTime, this);
     this.checkShipCollisions(deltaTime);
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();

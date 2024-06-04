@@ -1600,6 +1600,13 @@ export default class IntermissionState extends Superstate {
             .map(() => instantiatePart(d, "cannon")),
         )
         .reduce((a, b) => a.concat(b), []),
+      ...PARTDEFS.vacuum
+        .map((d) =>
+          Array(d.shopRepeat)
+            .fill(0)
+            .map(() => instantiatePart(d, "cannon")),
+        )
+        .reduce((a, b) => a.concat(b), []),
       ...this.fuelItems()
         .map((p) => {
           const item = {

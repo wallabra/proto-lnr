@@ -275,7 +275,10 @@ export class PhysicsObject {
 
     const steepness = 1 / (1 + this.heightGradient().length());
     const friction = this.baseFriction * this.weight * this.weight;
-    const fricForce = this.vel.clone().norm().multiplyScalar(-friction * steepness);
+    const fricForce = this.vel
+      .clone()
+      .norm()
+      .multiplyScalar(-friction * steepness);
 
     if ((fricForce.length() * deltaTime) / this.weight > this.vel.length()) {
       this.vel = new Vec2(0, 0);

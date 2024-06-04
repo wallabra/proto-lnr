@@ -10,12 +10,19 @@ import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
 import Vec2 from "victor";
 import { Player } from "../player";
-import { DEFAULT_CANNON, DEFAULT_ENGINE, OARS } from "../shop/partdefs";
+import {
+  DEFAULT_CANNON,
+  DEFAULT_ENGINE,
+  DEFAULT_VACUUM,
+  OARS,
+} from "../shop/partdefs";
 import arrayCounter from "array-counter";
 import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
+import type { Pickup } from "./pickup";
+import type { PlayState } from "../superstates/play";
 
 export interface ShipPartArgs {
   type: string;
@@ -140,7 +147,7 @@ export class ShipPart implements ShipItem {
     shipMakeup.addPart(this);
   }
 
-  tick(_deltaTime: number) {}
+  tick(_deltaTime: number, _owner: Ship) {}
 
   getInventoryLabel(_makeup: ShipMakeup): string {
     return this.getItemLabel();
@@ -485,6 +492,78 @@ export class Cannon extends ShipPart {
   }
 }
 
+export interface VacuumArgs
+  extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+  suckRadius: number;
+  suckStrength: number;
+}
+
+export class Vacuum extends ShipPart implements VacuumArgs {
+  suckRadius: number;
+  suckStrength: number;
+
+  constructor(args: VacuumArgs) {
+    super({ type: "vacuum", ...args });
+    this.suckRadius = args.suckRadius;
+    this.suckStrength = args.suckStrength;
+  }
+
+  shopInfo(): string[] {
+    return [
+      "suck radius: " + this.suckRadius,
+      "suck strength: " + this.suckStrength,
+    ];
+  }
+
+  findCrates(ship: Ship): Pickup[] {
+    const res = [];
+
+    for (const item of (ship.game.state as PlayState).tickables) {
+      if ((item as Pickup).bob == null) continue;
+      const crate = item as Pickup;
+
+      const dist = crate.phys.pos.distance(ship.pos);
+      if (dist > ship.size * ship.lateralCrossSection + this.suckRadius)
+        continue;
+
+      res.push(item);
+    }
+
+    return res;
+  }
+
+  static default() {
+    return new Vacuum(DEFAULT_VACUUM);
+  }
+
+  suckCrate(deltaTime: number, ship: Ship, crate: Pickup) {
+    crate.phys.applyForce(
+      deltaTime,
+      ship.pos
+        .clone()
+        .subtract(crate.phys.pos)
+        .norm()
+        .multiplyScalar(this.suckStrength)
+        .divideScalar(
+          Math.max(
+            0,
+            ship.pos.distanceSq(crate.phys.pos) -
+              ship.lateralCrossSection * ship.size,
+          ) + 1,
+        ),
+    );
+  }
+
+  suckCrates(deltaTime: number, ship: Ship) {
+    for (const crate of this.findCrates(ship))
+      this.suckCrate(deltaTime, ship, crate);
+  }
+
+  tick(deltaTime: number, owner: Ship): void {
+    this.suckCrates(deltaTime, owner);
+  }
+}
+
 export interface EngineArgs
   extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
   fuel?: {
@@ -654,6 +733,10 @@ export class ShipMakeup {
           weight: FUEL_PROPS[engine.fuelType].weight,
         });
       }),
+      match.val("vacuum", () => {
+        // TODO: add fuel required by vacuum, if any
+        return null;
+      }),
       match._(() => {
         throw new Error(
           "Cannot add default item for part of type: " + part.type,
@@ -698,7 +781,9 @@ export class ShipMakeup {
 
   defaultLoadout() {
     const engines = [Engine.default(), Engine.default()];
-    const cannons = Array(2).fill(0).map(Cannon.default);
+    const cannons = [Cannon.default(), Cannon.default()];
+    const vacuums = [Vacuum.default()];
+
     for (const engine of engines) {
       this.inventory.addItem(this.addPart(engine));
       this.addDefaultDependencies(engine);
@@ -707,6 +792,11 @@ export class ShipMakeup {
       this.inventory.addItem(this.addPart(cannon));
       this.addDefaultDependencies(cannon);
     }
+    for (const vacuum of vacuums) {
+      this.inventory.addItem(this.addPart(vacuum));
+      this.addDefaultDependencies(vacuum);
+    }
+
     return this;
   }
 
@@ -953,8 +1043,8 @@ export class ShipMakeup {
     );
   }
 
-  tick(deltaTime: number) {
-    this.parts.forEach((p) => p.tick(deltaTime));
+  tick(deltaTime: number, owner: Ship) {
+    this.parts.forEach((p) => p.tick(deltaTime, owner));
   }
 
   endLevelUpdate(player: Player) {
