@@ -213,12 +213,19 @@ export class PhysicsObject {
     );
   }
 
+  dragVector() {
+    return new Vec2(1, 1);
+  }
+
   physDrag(deltaTime: number) {
     const inWater = this.inWater();
 
     const drag = inWater ? this.waterDrag() : this.airDrag();
 
-    const dragForce = this.vel.clone().multiplyScalar(-drag);
+    const dragForce = this.vel
+      .clone()
+      .multiplyScalar(-drag)
+      .multiply(this.dragVector());
     this.applyForce(deltaTime, dragForce);
   }
 
