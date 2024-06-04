@@ -1604,7 +1604,7 @@ export default class IntermissionState extends Superstate {
         .map((d) =>
           Array(d.shopRepeat)
             .fill(0)
-            .map(() => instantiatePart(d, "cannon")),
+            .map(() => instantiatePart(d, "vacuum")),
         )
         .reduce((a, b) => a.concat(b), []),
       ...this.fuelItems()
