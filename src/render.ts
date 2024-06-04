@@ -1069,7 +1069,7 @@ class HudCounters {
 
     this.addRow(
       "Financial",
-      "Base",
+      "Current",
       "- Salary",
       "- Hull Repair",
       "- Other Repair",
