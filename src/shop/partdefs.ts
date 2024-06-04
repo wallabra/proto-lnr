@@ -245,7 +245,7 @@ export const PARTDEFS: {
       manned: 12,
       weight: 70,
       shopChance: 0.3,
-      shopRepeat: 2
+      shopRepeat: 2,
     },
     {
       name: "Viper-II",
@@ -258,7 +258,7 @@ export const PARTDEFS: {
       spread: Math.PI / 11,
       manned: 12,
       weight: 70,
-      shopChance: 0.3
+      shopChance: 0.3,
     },
     {
       name: "Viper-III",
@@ -271,7 +271,7 @@ export const PARTDEFS: {
       spread: Math.PI / 11,
       manned: 13,
       weight: 80,
-      shopChance: 0.2
+      shopChance: 0.2,
     },
     {
       name: "Titanium Ted",

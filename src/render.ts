@@ -1034,44 +1034,58 @@ class HudCounters {
       bgColor: "#0001",
     });
 
-    this.addRow("Cash", (label, player) => {
-      const money = player.money;
-      label.label = moneyString(money);
-    });
-    this.addRow("(After Salary)", (label, player) => {
-      const totalSalary = player.makeup.totalSalary();
-      const money = player.money;
-      label.label =
-        (money > totalSalary ? "+" : "-") +
-        moneyString(Math.abs(money - totalSalary));
-      label.color = money >= totalSalary ? "#aaf" : "#f98";
-    });
-    this.addRow("Inventory Value", (label, player) => {
-      label.label = moneyString(player.makeup.inventoryValue());
-    });
+    const statValue = (value: (player: Player) => number) => {
+      return (label: CanvasLabel, player: Player) => {
+        const money = value(player);
+        label.label = money == 0 ? "-" : moneyString(money);
+        label.color = money >= 0 ? "#aaf" : "#f98";
+      };
+    };
+
+    const financialStatRow = (value: (player: Player) => number) => {
+      return [
+        statValue((player: Player) => value(player)),
+        statValue(
+          (player: Player) => value(player) - player.makeup.totalSalary(),
+        ),
+        statValue(
+          (player: Player) =>
+            value(player) -
+            player.makeup.totalSalary() -
+            player.makeup.hullRepairCost(),
+        ),
+        statValue(
+          (player: Player) =>
+            value(player) -
+            player.makeup.totalSalary() -
+            player.makeup.totalRepairCost(),
+        ),
+      ];
+    };
+
+    const addStat = (name: string, value: (player: Player) => number) => {
+      this.addRow(name, ...financialStatRow(value));
+    };
+
+    this.addRow(
+      "Financial",
+      "Base",
+      "- Salary",
+      "- Hull Repair",
+      "- Other Repair",
+    );
+    addStat("Cash", (player) => player.money);
+    addStat("Inventory Value", (player) => player.makeup.inventoryValue());
+
     let initialAccrued = null;
-    this.addRow("Day Profit", (label, player) => {
+    addStat("Day Profit", (player) => {
       const accrued = player.money + player.makeup.inventoryValue();
       if (initialAccrued == null) initialAccrued = accrued;
-      label.label = moneyString(accrued - initialAccrued);
-      label.color = accrued - initialAccrued >= 0 ? '#aaf' : '#f98';
+      return accrued - initialAccrued;
     });
-    let initialTotal = null;
-    this.addRow("Day Profit - Repairs", (label, player) => {
-      const total = player.money + player.makeup.inventoryValue() - player.makeup.totalRepairCost();
-      if (initialTotal == null) initialTotal = total;
-      label.label = moneyString(total - initialTotal);
-      label.color = total - initialTotal >= 0 ? '#aaf' : '#f98';
-    });
-    this.addRow("Repair Cost", (label, player) => {
-      const hullRepairCost = player.makeup.hullRepairCost();
-      const partRepairCost = player.makeup.partRepairCost();
-      const totalRepairCost = hullRepairCost + partRepairCost;
-      const money = player.money;
-      label.label = `${moneyString(hullRepairCost)} + ${moneyString(partRepairCost)} = ${moneyString(totalRepairCost)}`;
-      label.color = money >= totalRepairCost ? "#aaf" : "#f98";
-    });
-    this.addRow('---');
+    addStat("Expenditures", () => 0);
+
+    this.addRow("---");
     this.addRow("Velocity", (label, player) => {
       label.label = `${player.possessed.vel.length().toFixed(2)} m/s`;
     });
@@ -1095,8 +1109,8 @@ class HudCounters {
 
   private addRow(
     name: string,
-    updater?: (label: CanvasLabel, player: Player) => void,
-  ): CanvasLabel {
+    ...values: (string | ((label: CanvasLabel, player: Player) => void))[]
+  ): CanvasLabel[] {
     const row = new CanvasUIGroup({
       parent: this.pane,
       childOrdering: "vertical",
@@ -1111,6 +1125,8 @@ class HudCounters {
 
     const i = this.rows.push(row);
     row.bgColor = `#${i % 2 ? "11" : "22"}08${i % 2 ? "08" : "11"}40`;
+
+    const labels = [];
 
     const opts: Optional<CanvasLabelArgs, "label"> = {
       parent: row,
@@ -1130,19 +1146,25 @@ class HudCounters {
       label: name,
     });
 
-    const label = new CanvasLabel({
-      ...opts,
-      color: "#aaf",
-      label: "",
-    });
+    for (const value of values) {
+      const label = new CanvasLabel({
+        ...opts,
+        color: "#aaf",
+        label: "",
+      });
 
-    if (updater != null) {
-      const appliedUpdater = updater.bind(this, label, this.player);
-      this.updaters.push(appliedUpdater);
-      appliedUpdater();
+      if (typeof value === "string") {
+        label.label = value;
+      } else {
+        const appliedUpdater = value.bind(this, label, this.player);
+        this.updaters.push(appliedUpdater);
+        appliedUpdater();
+      }
+
+      labels.push(label);
     }
 
-    return label;
+    return labels;
   }
 
   update() {
