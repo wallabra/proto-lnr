@@ -1061,10 +1061,8 @@ export class Ship {
 
   pruneDeadPointers() {
     if (this.following != null && this.following.dying) this.following = null;
-    this.alliance = new Set(Array.from(this.alliance).filter((a) => !a.dying));
-    this.followers = new Set(
-      Array.from(this.followers).filter((a) => !a.dying),
-    );
+    Array.from(this.alliance).filter((a) => a.dying).forEach(this.alliance.delete);
+    Array.from(this.followers).filter((a) => a.dying).forEach(this.followers.delete);
   }
 
   pruneDeadInstigator() {
