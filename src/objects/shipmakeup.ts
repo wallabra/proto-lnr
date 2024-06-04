@@ -228,7 +228,7 @@ export class Crew implements ShipItem {
 
   private consumeFood(makeup: ShipMakeup) {
     this.hunger += this.caloricIntake;
-    this.hunger -= makeup.subtractFood(this.hunger);
+    this.hunger = makeup.subtractFood(this.hunger);
   }
 
   nextSalary(): number {
