@@ -1316,18 +1316,12 @@ class Hud extends CanvasPanel {
             parent: panel,
             makeup: this.makeup,
           });
-        },
-        { childFill: 0.5 },
-      );
-
-      addPanel(
-        (panel: CanvasUIElement) => {
           this.ammoList = new HudAmmoList({
             parent: panel,
             makeup: this.makeup,
           });
         },
-        { childFill: 0.5 },
+        { childFill: 0.3 },
       );
 
       addPanel(
