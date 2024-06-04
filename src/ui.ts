@@ -704,7 +704,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       this.updateCache();
     }
 
-    ctx.fillText(this.label, pos.x, pos.y);
+    ctx.fillText(this.label, pos.x, pos.y, this.realWidth);
   }
 
   event() {}
