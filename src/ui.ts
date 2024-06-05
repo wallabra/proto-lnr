@@ -473,25 +473,27 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     if (e.inside == null || e.inside === this.parent) e.inside = this;
     if (!e.consumed) {
       this.dispatchEvent(e);
+    }
+    if (!e.consumed) {
       this.event(e);
     }
-    if (e.name === "click" && e.inside === this)
-      console.log(e.name, "on", this);
+    if (e.name === "click" && e.inside === this) console.log(e.name, e);
     return true;
   }
 
   private dispatchEvent<E extends UIEvent>(e: E) {
     for (const child of this.children) {
+      if (child.hidden) continue;
       child.handleEvent(e);
       if (e.consumed) break;
     }
   }
 
-  abstract event<E extends UIEvent>(e: E);
-  abstract _render(ctx: UIDrawContext);
+  abstract event<E extends UIEvent>(e: E): void;
+  abstract _render(ctx: UIDrawContext): void;
 
-  abstract preChildrenRender(ctx: UIDrawContext);
-  abstract postChildrenRender(ctx: UIDrawContext);
+  abstract preChildrenRender(ctx: UIDrawContext): void;
+  abstract postChildrenRender(ctx: UIDrawContext): void;
 
   childIsVisible(element: CanvasUIElement) {
     if (this.parent != null && !this.parent.childIsVisible(this)) return false;
@@ -1242,7 +1244,7 @@ export class CanvasUIGroup extends CanvasUIElement {
   }
 
   isInside(x: number, y: number): boolean {
-    return this.children.some((c) => c.isInside(x, y));
+    return super.isInside(x, y) || this.children.some((c) => c.isInside(x, y));
   }
 
   get contentDims() {
@@ -1321,7 +1323,7 @@ export class CanvasUIGroup extends CanvasUIElement {
 
 export interface Widget {
   pane: CanvasUIElement;
-  update(): void;
+  update?(): void;
 }
 
 export interface CanvasTabArgs extends CanvasUIGroupArgs {
@@ -1338,6 +1340,7 @@ export class CanvasTab extends CanvasUIGroup {
   protected active: boolean;
   colors: { inactive: string; active: string };
   parent: CanvasTabRow;
+  tabName: string;
 
   constructor(args: CanvasTabArgs) {
     if (args.colors == null)
@@ -1351,11 +1354,15 @@ export class CanvasTab extends CanvasUIGroup {
       ...args,
     });
     this.content = args.content;
+    this.content.pane.hidden = true;
+    this.tabName = args.label;
     this.label = new CanvasLabel({
       parent: this,
       dockX: "center",
       dockY: "center",
-      width: 20,
+      height: 20,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
       label: args.label,
       ...(args.labelArgs || {}),
     });
@@ -1369,19 +1376,20 @@ export class CanvasTab extends CanvasUIGroup {
   activate() {
     for (const tab of this.parent.tabs) {
       tab.active = tab === this;
+      tab.content.pane.hidden = tab !== this;
+      tab.updateColor();
     }
-    this.updateColor();
-    this.parent.parent.contentPane.clearChildren();
-    this.parent.parent.contentPane.addChild(this.content.pane);
+    this.content.update();
+    this.parent.parent.updateCache();
   }
 
-  protected handleClick() {
+  protected onClick() {
     this.activate();
   }
 
   event<E extends UIEvent>(e: E) {
     if (e.name === "click") {
-      this.handleClick();
+      this.onClick();
       e.consumed = true;
     }
   }
@@ -1396,19 +1404,28 @@ export interface CanvasTabRowArgs extends CanvasUIGroupArgs {
 export class CanvasTabRow extends CanvasUIGroup {
   tabs: CanvasTab[];
   parent: CanvasTabPanel;
+  tabOptions?: Optional<CanvasTabArgs, "label" | "parent" | "content">;
 
   constructor(args: CanvasTabRowArgs) {
     super({ paddingX: 2, paddingY: 2, ...args });
     for (const tab of args.tabs) {
-      const opts: CanvasTabArgs = {
-        parent: this,
-        ...(args.tabOptions || {}),
-        ...tab,
-      };
-
-      const tabEl = new CanvasTab(opts);
-      this.tabs.push(tabEl);
+      this.addTab(tab);
     }
+  }
+
+  addTab(tab: { label: string; content: Widget }) {
+    const opts: CanvasTabArgs = {
+      parent: this,
+      ...(this.tabOptions || {}),
+      ...tab,
+    };
+
+    const tabEl = new CanvasTab(opts);
+    if (this.tabs.push(tabEl) === 1) tabEl.activate();
+  }
+
+  activeTab() {
+    return this.tabs.find((t) => !t.content.pane.hidden);
   }
 }
 
@@ -1429,6 +1446,7 @@ export class CanvasTabPanel extends CanvasPanel {
       parent: this,
       childOrdering: "vertical",
       childMargin: 2,
+      height: 50,
       fillX: true,
       tabOptions: args.tabOptions,
       tabs: args.tabs,
@@ -1443,6 +1461,14 @@ export class CanvasTabPanel extends CanvasPanel {
     if (this.tabs.tabs.length > 0) {
       this.contentPane.addChild(this.tabs.tabs[0].content.pane);
     }
+  }
+
+  addTab(tab: { label: string; content: Widget }) {
+    this.tabs.addTab(tab);
+  }
+
+  activeTab() {
+    return this.tabs.activeTab();
   }
 }
 

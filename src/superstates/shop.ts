@@ -32,6 +32,7 @@ import {
   CanvasLabelArgs,
   CanvasUIElement,
   CanvasUIArgs,
+  CanvasTabPanel,
 } from "../ui";
 import { moneyString, weightString } from "../util";
 import Superstate from "./base";
@@ -69,7 +70,7 @@ abstract class Pane<
   P extends CanvasUIElement = CanvasPanel,
   PA extends CanvasUIArgs = CanvasPanelArgs,
 > {
-  protected pane: P;
+  pane: P;
   protected state: IntermissionState;
   protected game: Game;
   protected player: Player;
@@ -677,7 +678,8 @@ class DrydockInventoryWidget extends Pane<
         resellFactor: this.resellFactor,
         state: this.state,
         bgColor: "#fff2",
-        fillX: 0.4,
+        fillX: 0.1,
+        width: 250,
         fillY: true,
         childOrdering: "horizontal",
         childMargin: 6,
@@ -924,13 +926,13 @@ class StatRow {
     this.pane = new CanvasPanel({
       parent: args.parent,
       bgColor: "#eeffff10",
-      fillX: 0.9,
       dockX: "center",
       childOrdering: "vertical",
       childFill: 1,
       childMargin: 6,
       paddingY: 4,
       paddingX: 7,
+      fillX: 0.9,
     });
 
     new CanvasLabel({
@@ -1392,7 +1394,8 @@ class PaneDrydock extends Pane {
         parent: this.partsScroller.contentPane,
         bgColor: "#101014d8",
         fillY: 1.0,
-        fillX: 0.4,
+        fillX: 0.1,
+        width: 250,
         part: part,
         childOrdering: "horizontal",
         childMargin: 8,
@@ -1521,22 +1524,27 @@ export default class IntermissionState extends Superstate {
   >[];
   private paneDrydock: PaneDrydock;
   private changed: boolean;
-  private paneScroller: CanvasScroller;
+  private paneTabs: CanvasTabPanel;
 
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
     this.game.setKeyboardHandler(IntermissionKeyHandler);
     this.panes = [];
     this.ui = new CanvasRoot(this.game, "#040404");
-    this.paneScroller = new CanvasScroller({
+    this.paneTabs = new CanvasTabPanel({
       parent: this.ui,
       fillX: 1,
       fillY: 1,
       paddingX: 2,
       paddingY: 2,
-      axis: "horizontal",
-      scrollbarOpts: {
-        thickness: 10,
+      tabs: [],
+      bgColor: "#0000",
+      tabOptions: {
+        childMargin: 6,
+        labelArgs: {
+          color: "#fff",
+          height: 16,
+        },
       },
     });
     this.game.player.makeup.inventory.consolidateInventory();
@@ -1549,17 +1557,20 @@ export default class IntermissionState extends Superstate {
     P extends CanvasUIElement = CanvasPanel,
     PA extends CanvasUIArgs = CanvasPanelArgs,
     PT extends Class<PO> = Class<PO>,
-  >(paneType: PT, args: Optional<A & PA, "state" | "parent">): PO {
+  >(
+    paneName: string,
+    paneType: PT,
+    args: Optional<A & PA, "state" | "parent">,
+  ): PO {
     args = {
       state: this,
-      parent: this.paneScroller.contentPane,
-      fillX: 0.4,
+      parent: this.paneTabs.contentPane,
+      fillX: true,
       fillY: true,
-      childOrdering: "horizontal",
-      childMargin: 20,
       ...args,
     };
     const res = new paneType(args);
+    this.paneTabs.addTab({ label: paneName, content: res });
     this.panes.push(res);
     return res;
   }
@@ -1791,26 +1802,26 @@ export default class IntermissionState extends Superstate {
   }
 
   buildUI() {
-    this.paneDrydock = this.addPane(PaneDrydock, {
+    this.paneDrydock = this.addPane("Drydock", PaneDrydock, {
       paddingX: 20,
       bgColor: "#2222",
     });
-    this.addPane<PaneShop, PaneShopArgs>(PaneShop, {
+    this.addPane<PaneShop, PaneShopArgs>("Shop", PaneShop, {
       paddingX: 20,
       bgColor: "#2222",
       shopItems: this.generateShopItems(),
     });
-    this.addPane<PaneHarbour, PaneHarbourArgs>(PaneHarbour, {
+    this.addPane<PaneHarbour, PaneHarbourArgs>("Harbour", PaneHarbour, {
       paddingX: 20,
       bgColor: "#2222",
       makes: MAKEDEFS,
     });
-    this.addPane<PaneStats, PaneStatsArgs>(PaneStats, {
+    this.addPane<PaneStats, PaneStatsArgs>("Stats", PaneStats, {
       paddingX: 20,
       bgColor: "#2222",
       stats: this.statsRows(),
     });
-    this.addPane(PaneCartography, {
+    this.addPane("Cartography", PaneCartography, {
       paddingX: 20,
       bgColor: "#2222",
     });

@@ -52,7 +52,7 @@ export class Wave implements Renderable, Tickable, Physicable {
     ctx.arc(drawPos.x, drawPos.y, this.phys.size, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(drawPos.x, drawPos.y, this.phys.size * 2 / 3, 0, Math.PI * 2);
+    ctx.arc(drawPos.x, drawPos.y, (this.phys.size * 2) / 3, 0, Math.PI * 2);
     ctx.stroke();
   }
 }
