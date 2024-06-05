@@ -817,7 +817,12 @@ export class Ship {
     let angOffs = angDiff(this.angle, angleTarg);
     const steerForce = this.steerForce;
     const steerCompensate = angDiff(
-      umod(this.angle + this.phys.angVel, Math.PI * 2),
+      umod(
+        this.angle +
+          (this.phys.angVel * (1 - Math.exp(-this.phys.angleDrag * 2))) /
+            this.phys.angleDrag,
+        Math.PI * 2,
+      ),
       angleTarg,
     );
     angOffs += steerCompensate;
