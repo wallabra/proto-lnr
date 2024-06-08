@@ -213,6 +213,23 @@ class ShipRenderContext {
     ctx.stroke();
   }
 
+  drawName() {
+    const { ctx, drawPos, ship } = this;
+    const namePos = drawPos.clone().addScalarY(ship.size * ship.lateralCrossSection + 15);
+    const name = ship.makeup.name;
+
+    ctx.font = 'bold 12px sans-serif';
+    const { width } = ctx.measureText(name);
+
+    ctx.fillStyle = '#0004';
+    ctx.fillRect(namePos.x - width/2 - 7, namePos.y - 9, width + 14, 18);
+
+    ctx.fillStyle = '#ffdc';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, namePos.x, namePos.y);
+  }
+
   drawDamageBar() {
     const { ctx, drawPos, ship, drawScale } = this;
 
@@ -397,6 +414,7 @@ class ShipRenderContext {
     this.drawBody();
     this.drawCannons();
     this.drawDamageBar();
+    this.drawName();
     this.drawCrosshairs();
 
     if (DEBUG_DRAW) {
@@ -511,11 +529,9 @@ export class Ship {
     if (params.size == null) params.size = 14;
 
     const make: ShipMake =
-      params.make != null
-        ? params.make === "random"
-          ? pickByRarity(MAKEDEFS)
-          : params.make
-        : DEFAULT_MAKE;
+      (params.make &&
+        (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make)) ??
+      DEFAULT_MAKE;
 
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(
