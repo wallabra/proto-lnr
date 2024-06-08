@@ -4,10 +4,15 @@ import { PlayMouseHandler } from "./mouse";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
 import { PlayState } from "./superstates/play";
-import { ShipMakeup } from "./objects/shipmakeup";
+import { Crew, ShipMakeup } from "./objects/shipmakeup";
 import { lerp } from "./util";
 
 export type PlayerAction = (deltaTime: number) => void;
+
+export interface FleetMember {
+  captain: Crew | null;
+  makeup: ShipMakeup;
+}
 
 export class Player {
   possessed: Ship;
@@ -16,6 +21,7 @@ export class Player {
   game: Game;
   money: number;
   makeup: ShipMakeup;
+  fleet: FleetMember[];
   kills: number = 0;
 
   constructor(game: Game, ship: Ship, money: number = 0) {
@@ -39,6 +45,12 @@ export class Player {
 
   get mouse() {
     return this.game.mouse;
+  }
+
+  *members(): Generator<FleetMember> {
+    //return [this.makeup, ...this.fleet.map((m) => m.makeup)];
+    yield { makeup: this.makeup, captain: null };
+    for (const member of this.fleet) yield member;
   }
 
   steer(offs: Vec2, deltaTime: number) {
