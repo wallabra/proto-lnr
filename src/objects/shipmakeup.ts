@@ -656,7 +656,7 @@ const shipNameAdjectives = [
   "Perennial",
   "Indubitable",
   "Infallible",
-  "Invictous",
+  "Invincible",
   "Indestructible",
   "Beautiful",
   "Excellent",
