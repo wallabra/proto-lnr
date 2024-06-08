@@ -653,7 +653,7 @@ const DEFAULT_FUEL_FACTOR = 800;
 const shipNameAdjectives = [
   "Venerable",
   "Ancient",
-  "Longiquous",
+  "Perennial",
   "Indubitable",
   "Infallible",
   "Invictous",
@@ -668,6 +668,10 @@ const shipNameAdjectives = [
   "Sweet",
   "Royal",
   "Perfect",
+  "Immaculate",
+  "Proud",
+  "Pink",
+  "Long",
 ];
 const shipNameTitles = [
   "Monarch",
@@ -695,6 +699,11 @@ const shipNameCores = [
   "William",
   "Pyotr",
   "Nestor",
+  "Phillipp",
+  "Geraldius",
+  "Johnson",
+  "Becker",
+  "Packard",
 ];
 const shipNameSuffixes = [
   "II",
