@@ -650,11 +650,94 @@ export interface ShipMake {
 
 const DEFAULT_FUEL_FACTOR = 800;
 
+const shipNameAdjectives = [
+  "Venerable",
+  "Ancient",
+  "Longiquous",
+  "Indubitable",
+  "Infallible",
+  "Invictous",
+  "Indestructible",
+  "Beautiful",
+  "Excellent",
+  "Brilliant",
+  "Shining",
+  "Gleaming",
+  "Powerful",
+  "Forward",
+  "Sweet",
+  "Royal",
+  "Perfect",
+];
+const shipNameTitles = [
+  "Monarch",
+  "Senator",
+  "Ruler",
+  "Divine",
+  "Leader",
+  "Excellence",
+  "Doctor",
+  "Golden",
+];
+const shipNameCores = [
+  "Mary",
+  "James",
+  "Marius",
+  "Philius",
+  "Edgar",
+  "Ruth",
+  "Vicky",
+  "Lennard",
+  "Sarutobian",
+  "Julian",
+  "Asparginensis",
+  "Grum",
+  "William",
+  "Pyotr",
+  "Nestor",
+];
+const shipNameSuffixes = [
+  "II",
+  "III",
+  "IV",
+  "V",
+  "VI",
+  "VII",
+  "VIII",
+  "IX",
+  "Maximus",
+  "the Pure",
+  "the Vicious",
+  "the Loving",
+  "the Only",
+  "the Unique",
+  "the Last",
+  "of the Court",
+];
+
+function generateShipName() {
+  const parts: string[] = [];
+
+  parts.push(random.choice(shipNameAdjectives));
+  if (Math.random() < 0.4) parts.push(random.choice(shipNameTitles));
+  parts.push(random.choice(shipNameCores));
+  if (Math.random() < 0.25) parts.push(random.choice(shipNameSuffixes));
+
+  return parts.join(" ");
+}
+
+export interface ShipMakeupArgs {
+  make: ShipMake;
+  hullDamage?: number;
+  name?: string;
+}
+
 export class ShipMakeup {
   make: ShipMake;
   parts: Array<ShipPart>;
   hullDamage: number;
   inventory: ShipInventory;
+  name: string;
 
   subtractFood(hunger: number): number {
     if (hunger <= 0) return 0;
@@ -705,11 +788,12 @@ export class ShipMakeup {
     return res;
   }
 
-  constructor(make, hullDamage = 0) {
+  constructor(args: ShipMakeupArgs) {
     this.parts = [];
-    this.make = make;
-    this.hullDamage = hullDamage;
+    this.make = args.make;
+    this.hullDamage = args.hullDamage ?? 0;
     this.inventory = new ShipInventory();
+    this.name = args.name ?? generateShipName();
   }
 
   setMake(make: ShipMake) {

@@ -29,6 +29,7 @@ export interface ShipParams extends PhysicsParams {
   damage: number;
   makeup: ShipMakeup | "default";
   make?: ShipMake | "random";
+  name?: string;
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -521,12 +522,11 @@ export class Ship {
       pos || new Vec2(0, 0),
       params,
     );
+    const name = params.name ?? (params.makeup && params.makeup.name) ?? null;
     this.setMakeup(
       params.makeup === "default"
-        ? new ShipMakeup(make).defaultLoadout()
-        : params.makeup != null
-          ? params.makeup
-          : new ShipMakeup(make),
+        ? new ShipMakeup({ name: name, make: make }).defaultLoadout()
+        : params.makeup ?? new ShipMakeup({ name: name, make: make }),
     );
     this.dying = false;
     this.lastInstigator = null;
