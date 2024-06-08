@@ -670,7 +670,6 @@ const shipNameAdjectives = [
   "Perfect",
   "Immaculate",
   "Proud",
-  "Pink",
   "Long",
 ];
 const shipNameTitles = [
@@ -682,6 +681,12 @@ const shipNameTitles = [
   "Excellence",
   "Doctor",
   "Golden",
+  "Pink",
+  "Red",
+  "Black",
+  "White",
+  "Gray",
+  "Silver",
 ];
 const shipNameCores = [
   "Mary",
