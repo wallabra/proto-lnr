@@ -1089,13 +1089,6 @@ class HudCounters {
       const accel = thrust / weight;
       label.label = `${(thrust / 1000).toFixed(2)} kN  /  ${(weight / 1000).toFixed(2)} t  =>  ${accel.toFixed(2)} m/s²`;
     });
-    this.addRow("Food", (label, player) => {
-      const makeup = player.makeup;
-      const food = makeup.totalFood();
-      const required = makeup.totalFoodIntake();
-      label.label = `${food.toFixed(0)} / ${required.toFixed(0)} = ${Math.floor(food / required)} d`;
-      label.color = food > required ? "#aaf" : "#f98";
-    });
     this.addRow("Kills", (label, player) => {
       label.label = player.kills.toString();
     });
