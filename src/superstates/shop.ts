@@ -383,6 +383,7 @@ class DrydockInventoryItemWidget extends Pane<
   private buttonList: CanvasPanel;
   private resellHalfButton: CanvasButton;
   private resellHalfLabel: CanvasLabel;
+  private moveButton: CanvasButton;
   private moveHalfButton: CanvasButton;
   private dropdown: CanvasScroller | null;
   private setCaptainButton: CanvasButton;
@@ -493,7 +494,7 @@ class DrydockInventoryItemWidget extends Pane<
     this.resellLabel = this.resellButton.label("-", labelArgs);
     this.updateResellAction();
 
-    const moveButton = new CanvasButton({
+    this.moveButton = new CanvasButton({
       parent: this.buttonList,
       bgColor: "#11113380",
       childOrdering: "vertical",
@@ -501,9 +502,10 @@ class DrydockInventoryItemWidget extends Pane<
       childFill: 1,
       fillX: true,
       height: 13,
+      hidden: !this.canMove(),
       callback: this.openMoveDropdown.bind(this),
     });
-    moveButton.label("Move to Ship...", labelArgs);
+    this.moveButton.label("Move to Ship...", labelArgs);
 
     this.moveHalfButton = new CanvasButton({
       parent: this.buttonList,
@@ -513,7 +515,7 @@ class DrydockInventoryItemWidget extends Pane<
       childFill: 1,
       fillX: true,
       height: 13,
-      hidden: !this.letResellHalf(),
+      hidden: !(this.canMove() && this.letResellHalf()),
       callback: this.openMoveDropdown.bind(this, true),
     });
     this.moveHalfButton.label("Move Half to Ship...", labelArgs);
@@ -680,6 +682,10 @@ class DrydockInventoryItemWidget extends Pane<
     return computeResellCost(this.item, this.resellFactor) * factor;
   }
 
+  private canMove() {
+    return this.player.fleet.length > 1;
+  }
+
   private letResellHalf() {
     return this.item.amount != null && this.item.amount > 1;
   }
@@ -738,7 +744,8 @@ class DrydockInventoryItemWidget extends Pane<
     this.resellHalfLabel.label = `Resell Half (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
     this.updateDetails();
-    this.moveHalfButton.hidden = !this.letResellHalf();
+    this.moveHalfButton.hidden = !(this.canMove() && this.letResellHalf());
+    this.moveButton.hidden = !this.canMove();
     this.setCaptainButton.hidden = !this.canCaptain();
   }
 }
