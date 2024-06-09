@@ -1449,7 +1449,6 @@ class PaneDrydockShip extends Pane<
   PaneDrydockShipArgs,
   CanvasPanel & { member: FleetMember }
 > {
-  private cashCounter: CanvasLabel;
   private repairHullButtonLabel: CanvasLabel;
   private partsScroller: CanvasScroller;
   private partsWidgets: DrydockPartWidget[];
@@ -1530,19 +1529,6 @@ class PaneDrydockShip extends Pane<
       childOrdering: "vertical",
       childMargin: 4,
       x: 8,
-    });
-
-    this.cashCounter = new CanvasLabel({
-      parent: shipManager,
-      label: "-",
-      color: "#e8e8ff",
-      font: "$Hpx sans-serif",
-      height: 18,
-      autoFont: true,
-      dockX: "end",
-      dockMarginX: 50,
-      dockY: "start",
-      dockMarginY: 25,
     });
 
     this.buildPartsPane(shipManager);
@@ -1751,7 +1737,6 @@ class PaneDrydockShip extends Pane<
   }
 
   public update() {
-    this.updateCashCounter();
     this.updateRepairLabel();
     this.updatePartsList();
     this.updateSlotsLabel();
@@ -1784,10 +1769,6 @@ class PaneDrydockShip extends Pane<
     this.hullDamageMeter.setProgress(
       this.makeup.hullDamage / this.makeup.make.maxDamage,
     );
-  }
-
-  private updateCashCounter() {
-    this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
   }
 
   doRepairHull() {
@@ -1956,16 +1937,32 @@ export default class IntermissionState extends Superstate {
   paneDrydock: PaneDrydock;
   private changed: boolean;
   private paneTabs: CanvasTabPanel;
+  private cashCounter: CanvasLabel;
 
   public init() {
     this.game.setMouseHandler(IntermissionMouseHandler);
     this.game.setKeyboardHandler(IntermissionKeyHandler);
     this.panes = [];
     this.ui = new CanvasRoot(this.game, "#040404");
+    this.cashCounter = new CanvasLabel({
+      parent: this.ui,
+      childOrdering: "vertical",
+      childMargin: 5,
+      label: "-",
+      color: "#e8e8ff",
+      font: "$Hpx sans-serif",
+      height: 18,
+      autoFont: true,
+      dockX: "center",
+      dockMarginX: 50,
+    });
+    this.updateCashCounter();
     this.paneTabs = new CanvasTabPanel({
       parent: this.ui,
+      childOrdering: "vertical",
+      childFill: 1,
+      childMargin: 1.5,
       fillX: 1,
-      fillY: 1,
       paddingX: 2,
       paddingY: 2,
       tabs: [],
@@ -2282,12 +2279,17 @@ export default class IntermissionState extends Superstate {
     // no-op
   }
 
+  private updateCashCounter() {
+    this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
+  }
+
   mouseEvent(event: MouseEvent & GameMouseInfo) {
     const uiEvent: UIEvent = Object.assign(event, { consumed: false });
 
     if (event.inside) event.inside.handleEvent(uiEvent);
     else this.ui.handleEvent(uiEvent);
 
+    this.updateCashCounter();
     for (const pane of this.panes) {
       if (pane.pane != null && !pane.pane.hidden && pane.update) pane.update();
     }
