@@ -31,6 +31,7 @@ export class Player {
     this.actions = [];
     this.money = money;
     this.makeup = ship.makeup;
+    this.fleet = [{ makeup: ship.makeup, captain: null }];
     this.registerActions();
     console.log(this.makeup);
   }

@@ -118,6 +118,7 @@ class ShipRenderContext {
   scale: number;
   size: number;
   isPlayer: boolean;
+  isPlayerFleet: boolean;
   drawScale: number;
   game: Game;
 
@@ -143,6 +144,7 @@ class ShipRenderContext {
     const scale = proximityScale * info.scale;
     const size = ship.size * scale;
     const isPlayer = ship.isPlayer;
+    const isPlayerFleet = ship.following && ship.following.isPlayer;
 
     if (hdist < 0.1) {
       return;
@@ -154,11 +156,20 @@ class ShipRenderContext {
       hoffs - Math.max(ship.phys.floor, ship.play.waterLevel) * 20,
     );
 
-    Object.assign(this, { isPlayer, scale, size, drawPos, hoffs, shoffs });
+    Object.assign(this, {
+      isPlayer,
+      isPlayerFleet,
+      scale,
+      size,
+      drawPos,
+      hoffs,
+      shoffs,
+    });
   }
 
   drawBody() {
-    const { ctx, drawPos, ship, isPlayer, scale, size, shoffs } = this;
+    const { ctx, drawPos, ship, isPlayer, isPlayerFleet, scale, size, shoffs } =
+      this;
 
     // Draw shadow
     ctx.fillStyle = "#0008";
@@ -175,7 +186,11 @@ class ShipRenderContext {
     ctx.fill();
 
     // Draw body
-    ctx.fillStyle = isPlayer ? "#227766" : "#4a1800";
+    ctx.fillStyle = isPlayer
+      ? "#227766"
+      : isPlayerFleet
+        ? "#224410"
+        : "#4a1800";
     ctx.beginPath();
     ctx.ellipse(
       drawPos.x,
@@ -188,7 +203,11 @@ class ShipRenderContext {
     );
     ctx.fill();
 
-    ctx.fillStyle = isPlayer ? "#115533" : "#331100";
+    ctx.fillStyle = isPlayer
+      ? "#115533"
+      : isPlayerFleet
+        ? "#113300"
+        : "#331100";
     ctx.beginPath();
     ctx.ellipse(
       drawPos.x,
@@ -215,18 +234,20 @@ class ShipRenderContext {
 
   drawName() {
     const { ctx, drawPos, ship } = this;
-    const namePos = drawPos.clone().addScalarY(ship.size * ship.lateralCrossSection + 15);
+    const namePos = drawPos
+      .clone()
+      .addScalarY(ship.size * ship.lateralCrossSection + 15);
     const name = ship.makeup.name;
 
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = "bold 12px sans-serif";
     const { width } = ctx.measureText(name);
 
-    ctx.fillStyle = '#0004';
-    ctx.fillRect(namePos.x - width/2 - 7, namePos.y - 9, width + 14, 18);
+    ctx.fillStyle = "#0004";
+    ctx.fillRect(namePos.x - width / 2 - 7, namePos.y - 9, width + 14, 18);
 
-    ctx.fillStyle = '#ffdc';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.fillStyle = "#ffdc";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillText(name, namePos.x, namePos.y);
   }
 

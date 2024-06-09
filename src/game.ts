@@ -5,9 +5,10 @@ import { TerraDef, defPlaceholder } from "./terrain";
 import { PlayState } from "./superstates/play";
 import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
-import randomParts from "./shop/randomparts";
 import random from "random";
 import { Ship } from "./objects/ship";
+import { Crew, ShipMakeup } from "./objects/shipmakeup";
+import { MAKEDEFS } from "./shop/makedefs";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -21,6 +22,7 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+    this.player = null;
     const ctx = canvas.getContext("2d");
     if (ctx == null)
       throw new Error("Couldn't get a drawing context from the game canvas!");
@@ -29,20 +31,36 @@ export class Game {
     this.restart();
   }
 
-  restart() {
-    const play = (this.state = this.setState(PlayState, defPlaceholder));
+  restart(terradef: TerraDef | null) {
+    this.setPlayState(terradef);
     this.resetPlayer();
-    play.resetPlayerShip();
-    this.nextLevel();
+    this.setupPlayerFleet();
+    this.setupNPCs();
+  }
+
+  nextLevel(terradef: TerraDef | null) {
+    this.setPlayState(terradef);
+    this.setupPlayerFleet();
+    this.setupNPCs();
   }
 
   resetPlayer() {
-    if (!(this.state instanceof PlayState)) return;
-
     this.player = new Player(
       this,
       (this.state as PlayState).makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
+    console.log(this.player);
+
+    // DEBUG: test fleet
+    for (let i = 0; i < 3; i++) {
+      const captain = Crew.random();
+      const makeup = new ShipMakeup({ make: MAKEDEFS[1] });
+      makeup.inventory.addItem(captain);
+      this.player.fleet.push({
+        makeup,
+        captain,
+      });
+    }
   }
 
   togglePaused() {
@@ -112,15 +130,22 @@ export class Game {
     return smallEdge / this.zoom;
   }
 
-  nextLevel(
-    terraDef: TerraDef = defPlaceholder,
-    numNPCs: number | null = null,
-  ) {
+  setPlayState(terraDef: TerraDef = defPlaceholder) {
+    const play = this.setState(PlayState, terraDef);
+    return play;
+  }
+
+  setupPlayerFleet() {
+    const play = this.state as PlayState;
+    play.spawnPlayerFleet();
+  }
+
+  setupNPCs(numNPCs: number | null = null) {
+    const play = this.state as PlayState;
+
     if (numNPCs == null) numNPCs = random.uniformInt(25, 90)();
 
-    const play = this.setState(PlayState, terraDef);
     let toSpawn = numNPCs;
-    play.resetPlayerShip();
 
     while (toSpawn) {
       let leader: Ship = null;
@@ -159,18 +184,7 @@ export class Game {
           aiship.die();
           continue;
         }
-        const parts = randomParts(
-          Math.max(
-            2.5,
-            3.5 + random.exponential(1.5)() * (leader == null ? 15 : 6),
-          ) * random.uniform(1, aiship.makeup.make.slots.length)(),
-          aiship.makeup.make,
-        );
-        for (const part of parts) {
-          aiship.makeup.addPart(part);
-          aiship.makeup.inventory.addItem(part);
-          aiship.makeup.addDefaultDependencies(part);
-        }
+        aiship.makeup.giveRandomParts(+(leader == null) * 9);
         play.makeAIFor(aiship);
         if (leader == null) {
           leader = aiship;

@@ -4,6 +4,7 @@ import { Game } from "./game";
 import { GameMouseInfo } from "./mouse";
 import { lerp } from "./util";
 import Vec2 from "victor";
+import { Nullish } from "../node_modules/utility-types/dist/aliases-and-guards";
 
 export interface UIEvent {
   name: string;
@@ -107,12 +108,8 @@ export type CachedInfo = {
   innerPos: { x: number; y: number };
 } & { [infoName: string]: unknown };
 
-function or(item, def) {
-  return item ?? def;
-}
-
 export abstract class CanvasUIElement<ExtraProps = object> {
-  parent: CanvasUIElement | undefined;
+  parent: CanvasUIElement | Nullish;
   children: Array<CanvasUIElement>;
   x: number;
   y: number;
@@ -138,38 +135,42 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   modified: boolean;
 
   constructor(args: CanvasUIArgs & ExtraProps) {
-    this.parent = args.parent;
+    this.parent = args.parent ?? null;
     this.children = [];
 
     Object.assign(this, args);
 
-    this.x = args.x || 0;
-    this.y = args.y || 0;
-    this.width = or(args.width, 1);
-    this.height = or(args.height, 1);
-    this.hidden = args.hidden || false;
-    this.alignX = args.alignX || "start";
-    this.alignY = args.alignY || "start";
-    this.dockX = args.dockX || "start";
-    this.dockY = args.dockY || "start";
-    this.dockMarginX = args.dockMarginX || 0;
-    this.dockMarginY = args.dockMarginY || 0;
-    this.fillX = args.fillX || false;
-    this.fillY = args.fillY || false;
-    this.paddingX = or(args.paddingX, 2);
-    this.paddingY = or(args.paddingY, 2);
-    this.childOrdering = args.childOrdering || null;
-    this.childMargin = or(args.childMargin, 5);
-    this.childFill = args.childFill || 0;
-    this.layer = args.layer || 0;
+    this.x = args.x ?? 0;
+    this.y = args.y ?? 0;
+    this.width = args.width ?? 1;
+    this.height = args.height ?? 1;
+    this.hidden = args.hidden ?? false;
+    this.alignX = args.alignX ?? "start";
+    this.alignY = args.alignY ?? "start";
+    this.dockX = args.dockX ?? "start";
+    this.dockY = args.dockY ?? "start";
+    this.dockMarginX = args.dockMarginX ?? 0;
+    this.dockMarginY = args.dockMarginY ?? 0;
+    this.fillX = args.fillX ?? false;
+    this.fillY = args.fillY ?? false;
+    this.paddingX = args.paddingX ?? 2;
+    this.paddingY = args.paddingY ?? 2;
+    this.childOrdering = args.childOrdering ?? null;
+    this.childMargin = args.childMargin ?? 5;
+    this.childFill = args.childFill ?? 0;
+    this.layer = args.layer ?? 0;
     this.cullOutOfBounds = args.cullOutOfBounds ?? false;
 
     if (this.parent != null) {
       this.parent = this.parent._addChild(this);
+      this.parent.updateCache();
+      this.modified = false;
     }
+  }
 
-    this.updateCache();
-    this.modified = false;
+  setParent(parent: CanvasUIElement | null) {
+    this.parent = parent;
+    if (parent != null) this.parent.updateCache();
   }
 
   checkUpdateCache() {
@@ -1354,6 +1355,7 @@ export class CanvasTab extends CanvasUIGroup {
       ...args,
     });
     this.content = args.content;
+    this.content.pane.setParent(this.parent.parent.contentPane);
     this.content.pane.hidden = true;
     this.tabName = args.label;
     this.label = new CanvasLabel({

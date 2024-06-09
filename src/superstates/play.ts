@@ -15,6 +15,8 @@ import { GameRenderer, Renderable } from "../render";
 import { Game } from "../game";
 import { PlayMouseHandler } from "../mouse";
 import { PlayKeyHandler } from "../keyinput";
+import random from "random";
+import { ShipMakeup } from "../objects/shipmakeup";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -46,25 +48,60 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
-  resetPlayerShip(args?: Partial<ShipParams>) {
-    if (args == null) args = {};
+  spawnPlayerFleet() {
+    const player = this.game.player;
 
-    if (this.game.player.possessed !== null) {
-      this.removeObj(this.game.player.possessed);
+    if (player.possessed !== null) {
+      this.removeObj(this.player.possessed);
     }
 
     const pos = new Vec2(1600, 0).rotateBy(Math.PI * 2 * Math.random());
-    const ship = (this.game.player.possessed = this.makeShip(pos, {
-      money: this.game.player.money,
-      makeup: this.game.player.makeup,
-      angle: pos.clone().invert().angle(),
-      ...args,
-    }));
-    ship.vel = new Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
-      ship.angle,
-    );
 
-    return ship;
+    let playerShip = null;
+
+    const addShip = (
+      money: number,
+      makeup: ShipMakeup,
+      offs: Vec2 = null,
+    ): Ship => {
+      let spawnPos = pos;
+      if (offs != null) spawnPos = spawnPos.clone().add(offs);
+
+      const ship = this.makeShip(spawnPos, {
+        money: money,
+        makeup: makeup,
+        angle: pos.clone().invert().angle(),
+      });
+      ship.vel = new Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
+        ship.angle,
+      );
+
+      if (playerShip != null) {
+        ship.following = playerShip;
+        ship.makeup.giveRandomParts(3);
+        this.makeAIFor(ship);
+      }
+
+      return ship;
+    };
+
+    let money = player.money;
+    playerShip = player.possessed = addShip(money / 2, player.makeup);
+    money /= 2;
+    const ships = [playerShip];
+    const moneyPart = money / player.fleet.length;
+
+    for (const member of player.fleet) {
+      if (member.captain == null) continue;
+      const offs = new Vec2(
+        playerShip.size * playerShip.lateralCrossSection * 2 +
+          random.uniform(30, 200)(),
+        0,
+      ).rotateBy(Math.PI * Math.random() * 2);
+      ships.push(addShip(moneyPart, member.makeup, offs));
+    }
+
+    return ships;
   }
 
   removeObj<T extends Tickable | Renderable | { phys: PhysicsObject }>(

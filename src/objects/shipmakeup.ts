@@ -23,6 +23,7 @@ import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
 import type { Pickup } from "./pickup";
 import type { PlayState } from "../superstates/play";
+import randomParts from "../shop/randomparts";
 
 export interface ShipPartArgs {
   type: string;
@@ -896,6 +897,20 @@ export class ShipMakeup {
     }
 
     return this;
+  }
+
+  giveRandomParts(bonus: number = 0) {
+    const parts = randomParts(
+      Math.max(2.5, 3.5 + random.exponential(1.5)() * (10 + bonus)) *
+        random.uniform(0.5, 1)() *
+        this.make.slots.length,
+      this.make,
+    );
+    for (const part of parts) {
+      this.addPart(part);
+      this.inventory.addItem(part);
+      this.addDefaultDependencies(part);
+    }
   }
 
   numSlotsOf(type) {
