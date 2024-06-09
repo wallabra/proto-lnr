@@ -11,7 +11,7 @@ export type PlayerAction = (deltaTime: number) => void;
 
 export interface FleetMember {
   makeup: ShipMakeup;
-  ship: Ship;
+  ship?: Ship;
 }
 
 export class Player {
@@ -114,7 +114,9 @@ export class Player {
         return;
       }
 
-      this.makeup.endLevelUpdate(this);
+      for (const member of this.fleet) {
+        member.makeup.endLevelUpdate(this);
+      }
       this.game.setState(IntermissionState);
     }
 
