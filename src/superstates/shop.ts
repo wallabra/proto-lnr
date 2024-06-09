@@ -1179,6 +1179,7 @@ class ShipMakeWidget extends Pane<
   private detail: CanvasUIGroup;
   private detail2: CanvasUIGroup;
   private switchLabel: CanvasLabel;
+  private buyLabel: CanvasLabel;
   private statusLabel: CanvasLabel;
 
   protected buildPane(args: PaneArgs & ShipMakeWidgetArgs & CanvasUIGroupArgs) {
@@ -1254,7 +1255,22 @@ class ShipMakeWidget extends Pane<
       bgColor: "#0082",
       height: 22,
       callback: this.trySwitch.bind(this),
-    }).label(this.constructLabel(), {
+    }).label(this.constructSwitchLabel(), {
+      color: "#fee",
+      height: 14,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
+    });
+
+    this.buyLabel = new CanvasButton({
+      parent: this.pane,
+      childOrdering: "vertical",
+      childMargin: 10,
+      fillX: true,
+      bgColor: "#0082",
+      height: 22,
+      callback: this.tryBuy.bind(this),
+    }).label(this.constructBuyLabel(), {
       color: "#fee",
       height: 14,
       autoFont: true,
@@ -1282,9 +1298,14 @@ class ShipMakeWidget extends Pane<
     return this.make.cost - this.makeup.hullResellCost();
   }
 
-  private constructLabel() {
-    const cost = this.getCost();
+  private constructSwitchLabel() {
+    const cost = this.getSwitchCost();
     return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}${moneyString(Math.abs(cost))}))`;
+  }
+  
+  private constructBuyLabel() {
+    const cost = this.getCost();
+    return `Buy Make & Add to Fleet (${moneyString(Math.abs(cost))}))`;
   }
 
   private tryBuy() {
@@ -1298,6 +1319,7 @@ class ShipMakeWidget extends Pane<
     }
 
     this.buy();
+    this.destroy();
   }
 
   private trySwitch() {
@@ -1316,6 +1338,7 @@ class ShipMakeWidget extends Pane<
     }
 
     this.switch();
+    this.destroy();
   }
 
   private buy() {
