@@ -61,10 +61,6 @@ function weightInfo(item: ShipItem) {
 }
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
-  if (typeof item.getItemLabel !== "function") {
-    console.log(item);
-    debugger;
-  }
   return (
     `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${(makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ?? item.getItemLabel()}` +
     (priceFactor == null
@@ -507,7 +503,7 @@ class DrydockInventoryItemWidget extends Pane<
       fillX: true,
       height: 13,
       hidden: !this.canMove(),
-      callback: this.openMoveDropdown.bind(this),
+      callback: this.openMoveDropdown.bind(this, false),
     });
     this.moveButton.label("Move to Ship...", labelArgs);
 
@@ -604,40 +600,43 @@ class DrydockInventoryItemWidget extends Pane<
         childOrdering: "vertical",
         childMargin: 2,
         bgColor: "#aac3",
-        callback: () => {
-          const targMakeup = member.makeup;
-          this.drydockTabPanel.tabs.children
-            .find(
-              (tab) =>
-                (tab.content.pane as CanvasPanel & { makeup: ShipMakeup })
-                  .makeup === targMakeup,
-            )
-            .activate();
-
-          if (half) {
-            let moveAmount = this.item.amount / 2;
-            if (this.item.integerAmounts) moveAmount = Math.floor(moveAmount);
-            this.item.amount -= moveAmount;
-            const newItem = Object.assign(
-              Object.create(Object.getPrototypeOf(this.item)),
-              this.item,
-            );
-            newItem.amount = moveAmount;
-            targMakeup.inventory.addItem(newItem);
-          } else {
-            this.makeup.inventory.removeItem(this.item);
-            targMakeup.inventory.addItem(this.item);
-          }
-
-          this.killDropdown();
-          this.destroy();
-        },
+        callback: this.moveCallback.bind(this, member, half),
       });
       moveButton.label("to " + member.makeup.name, {
         color: "#fff",
         height: 12,
       });
     }
+  }
+
+  private moveCallback(member: FleetMember, half: boolean = false) {
+    const fromMakeup = this.makeup;
+    const targMakeup = member.makeup;
+    this.drydockTabPanel.tabs.children
+      .find(
+        (tab) =>
+          (tab.content.pane as CanvasPanel & { makeup: ShipMakeup }).makeup ===
+          targMakeup,
+      )
+      .activate();
+
+    if (half) {
+      let moveAmount = this.item.amount / 2;
+      if (this.item.integerAmounts) moveAmount = Math.floor(moveAmount);
+      this.item.amount -= moveAmount;
+      const newItem = Object.assign(
+        Object.create(Object.getPrototypeOf(this.item)),
+        this.item,
+      );
+      newItem.amount = moveAmount;
+      targMakeup.inventory.addItem(newItem);
+    } else {
+      fromMakeup.inventory.removeItem(this.item);
+      targMakeup.inventory.addItem(this.item);
+    }
+
+    this.killDropdown();
+    this.destroy();
   }
 
   private damageFactor(): number {
@@ -690,6 +689,12 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   private canMove() {
+    if (
+      this.item instanceof Crew &&
+      (this.item.manningPart != null || this.makeup.captain === this.item)
+    ) {
+      return false;
+    }
     return this.player.fleet.length > 1;
   }
 
@@ -1502,6 +1507,9 @@ class PaneDrydockShip extends Pane<
   private captainStatus: CanvasLabel;
   private unsetCaptainButton: CanvasButton;
   private disbandShipButton: CanvasButton;
+  private disbandShipHullButton: CanvasButton;
+  private disbandShipLabel: CanvasLabel;
+  private disbandShipHullLabel: CanvasLabel;
 
   buildPane(args: PaneDrydockShipArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -1548,6 +1556,23 @@ class PaneDrydockShip extends Pane<
       },
     });
     this.unsetCaptainButton.label("Unset Captain", { color: "#fff" });
+
+    this.disbandShipHullButton = new CanvasButton({
+      parent: shipActions,
+      height: 20,
+      width: 120,
+      x: 10,
+      childOrdering: "horizontal",
+      childMargin: 3,
+      childFill: 1,
+      hidden: !this.canDisbandShip(),
+      callback: this.disbandShip.bind(this, false),
+    });
+    this.disbandShipHullLabel = this.disbandShipHullButton.label(
+      "Disband Ship & Sell Hull",
+      { color: "#fff" },
+    );
+
     this.disbandShipButton = new CanvasButton({
       parent: shipActions,
       height: 20,
@@ -1557,9 +1582,12 @@ class PaneDrydockShip extends Pane<
       childMargin: 3,
       childFill: 1,
       hidden: !this.canDisbandShip(),
-      callback: this.disbandShip.bind(this),
+      callback: this.disbandShip.bind(this, true),
     });
-    this.disbandShipButton.label("Disband Ship", { color: "#fff" });
+    this.disbandShipLabel = this.disbandShipButton.label(
+      "Disband Ship & Sell All",
+      { color: "#fff" },
+    );
 
     this.captainStatus = new CanvasLabel({
       parent: shipManager,
@@ -1724,14 +1752,22 @@ class PaneDrydockShip extends Pane<
   private disbandResellValue() {
     return this.makeup.totalValue() + this.makeup.hullResellCost();
   }
+  private disbandHullResellValue() {
+    return this.makeup.hullResellCost();
+  }
 
   private updateDisbandButton() {
     const canDisband = this.canDisbandShip();
     this.disbandShipButton.hidden = !canDisband;
+    this.disbandShipHullButton.hidden = !canDisband;
     if (!canDisband) return;
 
     this.disbandShipButton.label(
       `Disband & Resell Ship (+${moneyString(this.disbandResellValue())})`,
+      { color: "#fff" },
+    );
+    this.disbandShipHullButton.label(
+      `Disband & Resell Ship (+${moneyString(this.disbandHullResellValue())})`,
       { color: "#fff" },
     );
   }
@@ -1740,18 +1776,30 @@ class PaneDrydockShip extends Pane<
     return this.state.paneDrydock.tabPanel;
   }
 
-  private disbandShip() {
+  private disbandShip(sellAll: boolean = false) {
     if (!this.canDisbandShip()) return;
     const idx = this.player.fleet.indexOf(this.member);
     if (idx === -1) return;
 
     this.player.fleet.splice(idx, 1);
 
-    this.player.money += this.disbandResellValue();
+    this.player.money += sellAll
+      ? this.disbandResellValue()
+      : this.disbandHullResellValue();
 
     if (this.player.makeup === this.makeup) {
       this.player.makeup = this.player.fleet[0].makeup;
       this.player.possessed = this.player.fleet[0].ship;
+    }
+
+    if (!sellAll) {
+      const from = this.makeup;
+      const to = this.player.makeup;
+
+      for (const item of from.inventory.items) {
+        from.inventory.removeItem(item);
+        to.inventory.addItem(item);
+      }
     }
 
     const nextTab = this.drydockTabPanel.tabs.children[0];
