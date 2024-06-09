@@ -1913,6 +1913,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
               ? "#622a"
               : "#2256",
       };
+      tab.updateColor();
     }
   }
 
