@@ -766,6 +766,9 @@ function updateList<
   const remaining = items.slice();
 
   for (const widget of widgets) {
+    if (widget.pane == null) {
+      continue;
+    }
     const idx = index(remaining, widget);
     if (idx === -1 || (shouldSkip != null && shouldSkip(remaining[idx]))) {
       widget.destroy();
@@ -1398,7 +1401,8 @@ class ShipMakeWidget extends Pane<
   }
 
   public update() {
-    this.pane.hidden = this.make === this.player.makeup.make;
+    this.switchLabel.label = this.constructSwitchLabel();
+    this.buyLabel.label = this.constructBuyLabel();
   }
 }
 

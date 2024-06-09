@@ -29,14 +29,14 @@ export class Game {
     this.restart();
   }
 
-  restart(terradef: TerraDef | null) {
+  restart(terradef?: TerraDef | null) {
     this.setPlayState(terradef);
     this.resetPlayer();
     this.setupPlayerFleet();
     this.setupNPCs();
   }
 
-  nextLevel(terradef: TerraDef | null) {
+  nextLevel(terradef?: TerraDef | null) {
     this.setPlayState(terradef);
     this.setupPlayerFleet();
     this.setupNPCs();
@@ -47,6 +47,7 @@ export class Game {
       this,
       (this.state as PlayState).makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
+    this.player.money = 20000;
     console.log(this.player);
   }
 
