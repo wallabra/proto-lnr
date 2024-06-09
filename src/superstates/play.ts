@@ -91,7 +91,7 @@ export class PlayState extends Superstate {
     const moneyPart = money / player.fleet.length;
 
     for (const member of player.fleet) {
-      if (member.captain == null) continue;
+      if (member.makeup.captain == null) continue;
       const offs = new Vec2(
         playerShip.size * playerShip.lateralCrossSection * 2 +
           random.uniform(30, 200)(),

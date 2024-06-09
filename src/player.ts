@@ -4,13 +4,12 @@ import { PlayMouseHandler } from "./mouse";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
 import { PlayState } from "./superstates/play";
-import { Crew, ShipMakeup } from "./objects/shipmakeup";
+import { ShipMakeup } from "./objects/shipmakeup";
 import { lerp } from "./util";
 
 export type PlayerAction = (deltaTime: number) => void;
 
 export interface FleetMember {
-  captain: Crew | null;
   makeup: ShipMakeup;
   ship: Ship;
 }
@@ -32,7 +31,7 @@ export class Player {
     this.actions = [];
     this.money = money;
     this.makeup = ship.makeup;
-    this.fleet = [{ makeup: ship.makeup, captain: null, ship: this.possessed }];
+    this.fleet = [{ makeup: ship.makeup, ship: this.possessed }];
     this.registerActions();
     console.log(this.makeup);
   }

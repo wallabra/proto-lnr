@@ -250,9 +250,11 @@ export class Crew implements ShipItem {
       ...(makeup == null
         ? []
         : [
-            this.manningPart == null
-              ? "idle"
-              : "manning a " + this.manningPart.getItemLabel(),
+            this.manningPart != null
+              ? "manning a " + this.manningPart.getItemLabel()
+              : makeup.captain === this
+                ? "captaining this ship"
+                : "idle",
           ]),
     ];
   }
@@ -297,6 +299,14 @@ export class Crew implements ShipItem {
 
     this.manningPart = part;
     part.mannedBy.push(this);
+    return true;
+  }
+
+  setAsCaptain(makeup: ShipMakeup): boolean {
+    if (this.manningPart != null) return false;
+    if (makeup.captain != null) return false;
+
+    makeup.captain = this;
     return true;
   }
 
@@ -753,6 +763,7 @@ export class ShipMakeup {
   hullDamage: number;
   inventory: ShipInventory;
   name: string;
+  captain: Crew | null;
 
   subtractFood(hunger: number): number {
     if (hunger <= 0) return 0;

@@ -57,9 +57,9 @@ export class Game {
       const makeup = new ShipMakeup({ make: DEFAULT_MAKE });
       makeup.inventory.addItem(captain);
       makeup.defaultLoadout();
+      makeup.captain = captain;
       this.player.fleet.push({
         makeup,
-        captain,
         ship: null,
       });
     }
