@@ -47,7 +47,6 @@ export class Game {
       this,
       (this.state as PlayState).makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
-    this.player.money = 20000;
     console.log(this.player);
   }
 
