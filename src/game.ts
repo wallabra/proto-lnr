@@ -50,19 +50,6 @@ export class Game {
       (this.state as PlayState).makeShip(new Vec2(0, 0), { makeup: "default" }),
     );
     console.log(this.player);
-
-    // DEBUG: test fleet
-    for (let i = 0; i < 2; i++) {
-      const captain = Crew.random();
-      const makeup = new ShipMakeup({ make: DEFAULT_MAKE });
-      makeup.inventory.addItem(captain);
-      makeup.defaultLoadout();
-      makeup.captain = captain;
-      this.player.fleet.push({
-        makeup,
-        ship: null,
-      });
-    }
   }
 
   togglePaused() {
