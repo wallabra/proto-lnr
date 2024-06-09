@@ -16,16 +16,16 @@ export class FollowState implements AIHandler<AIStartArgs> {
     const following = ship.following;
     const offs = following.pos.clone().subtract(ship.pos);
     const dist = offs.length();
+    const baseRadii = ship.size * ship.lateralCrossSection +
+        following.size * following.lateralCrossSection;
     if (
       dist <=
-      130 +
-        ship.size * ship.lateralCrossSection +
-        following.size * following.lateralCrossSection
+      130 + baseRadii
     )
       return { next: "start" };
 
     // follow
     ship.steer(deltaTime, offs.angle());
-    ship.thrustForward(deltaTime, ship.angNorm.dot(offs.norm()) * 0.3);
+    ship.thrustForward(deltaTime, ship.angNorm.dot(offs.norm()) * dist > 300 + baseRadii ? 1 : 0.3);
   }
 }

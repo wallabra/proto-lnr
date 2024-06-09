@@ -40,7 +40,7 @@ export function commonPaths(
     const followDist = ship.pos.clone().subtract(following.pos).length();
     if (
       followDist >
-      300 +
+      200 +
         ship.size * ship.lateralCrossSection +
         following.size * following.lateralCrossSection
     ) {
