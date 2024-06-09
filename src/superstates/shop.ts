@@ -1302,7 +1302,7 @@ class ShipMakeWidget extends Pane<
     const cost = this.getSwitchCost();
     return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}${moneyString(Math.abs(cost))}))`;
   }
-  
+
   private constructBuyLabel() {
     const cost = this.getCost();
     return `Buy Make & Add to Fleet (${moneyString(Math.abs(cost))}))`;
@@ -2267,7 +2267,9 @@ export default class IntermissionState extends Superstate {
     this.addPane<PaneHarbor, PaneHarborArgs>("Harbor", PaneHarbor, {
       paddingX: 20,
       bgColor: "#2222",
-      makes: MAKEDEFS,
+      makes: MAKEDEFS.filter(
+        (make) => make.shopChance == null || Math.random() < make.shopChance,
+      ),
     });
     this.addPane("Cartography", PaneCartography, {
       paddingX: 20,

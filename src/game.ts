@@ -7,8 +7,6 @@ import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
 import random from "random";
 import { Ship } from "./objects/ship";
-import { Crew, ShipMakeup } from "./objects/shipmakeup";
-import { DEFAULT_MAKE } from "./shop/makedefs";
 
 export class Game {
   canvas: HTMLCanvasElement;

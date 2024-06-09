@@ -2,6 +2,7 @@ import { ShipMake } from "../objects/shipmakeup";
 
 export interface ShipMakeDef extends ShipMake {
   rarity: number;
+  shopChance?: number | null;
 }
 
 export function pickRandomDef() {}
@@ -10,6 +11,7 @@ export const DEFAULT_MAKE: ShipMakeDef = {
   name: "Dependable Dave",
   cost: 2600,
   rarity: 5,
+  shopChance: 0.4,
   slots: [
     { type: "cannon" },
     { type: "cannon" },
@@ -38,6 +40,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.1,
     weight: 400,
     rarity: 0.75,
+    shopChance: 0.8,
   },
   {
     name: "Patroller",
@@ -50,6 +53,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.1,
     weight: 1000,
     rarity: 1,
+    shopChance: 0.6,
   },
   {
     name: "Queen Bee",
@@ -68,6 +72,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.3,
     weight: 2000,
     rarity: 2,
+    shopChance: 0.5,
   },
   {
     name: "Hubris",
@@ -86,6 +91,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.3,
     weight: 1800,
     rarity: 2.5,
+    shopChance: 0.5,
   },
   DEFAULT_MAKE,
   {
@@ -107,6 +113,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.6,
     weight: 7000,
     rarity: 7,
+    shopChance: 0.3,
   },
   {
     name: "High Harpooner",
@@ -128,6 +135,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 2,
     weight: 8500,
     rarity: 11,
+    shopChance: 0.25,
   },
   {
     name: "High Seas Roberts",
@@ -150,6 +158,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 2.3,
     weight: 9900,
     rarity: 13,
+    shopChance: 0.2,
   },
   {
     name: "Jasper",
@@ -174,6 +183,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 1.9,
     weight: 11000,
     rarity: 16,
+    shopChance: 0.15,
   },
   {
     name: "Marie Antoniette",
@@ -202,6 +212,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 2.5,
     weight: 16000,
     rarity: 26,
+    shopChance: 0.115,
   },
   {
     name: "Vicky Victorious",
@@ -231,5 +242,6 @@ export const MAKEDEFS: ShipMakeDef[] = [
     repairCostScale: 2.7,
     weight: 17000,
     rarity: 33,
+    shopChance: 0.08,
   },
 ];
