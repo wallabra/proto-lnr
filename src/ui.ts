@@ -1,4 +1,4 @@
-/// UI utilities for the canvas.
+// UI utilities for the canvas.
 import { Optional } from "utility-types";
 import { Game } from "./game";
 import { GameMouseInfo } from "./mouse";
@@ -166,14 +166,21 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     if (this.parent != null) {
       this.parent = this.parent._addChild(this);
       this.parent.updateCache();
-    } else {
     }
     this.modified = false;
   }
 
-  setParent(parent: CanvasUIElement | null) {
-    this.parent = parent;
-    if (parent != null) this.parent.updateCache();
+  setParent(parent?: CanvasUIElement | null) {
+    if (this.parent != null) {
+      this.parent.removeChild(this);
+      this.parent.updateCache();
+    }
+    if (parent == null) {
+      this.parent = null;
+      return;
+    }
+    this.parent = parent._addChild(this);
+    this.parent.updateCache();
   }
 
   checkUpdateCache() {
@@ -240,6 +247,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   remove() {
     this.parent.removeChild(this);
+    this.parent = null;
     this.hidden = true;
   }
 
@@ -375,13 +383,6 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     return this.realHeight - this.paddingY * 2;
   }
 
-  destroy() {
-    const idx = this.parent.children.indexOf(this);
-    if (this.parent != null && idx != -1) {
-      this.parent.children.splice(idx, 1);
-    }
-  }
-
   checkChangeDimensions(width, height) {
     let changed = false;
 
@@ -470,6 +471,10 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   public handleEvent<E extends UIEvent>(e: E) {
+    if (this.hidden) {
+      return false;
+    }
+
     if (this !== e.inside && !this.isInside(e.x, e.y)) {
       return false;
     }
@@ -486,8 +491,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   private dispatchEvent<E extends UIEvent>(e: E) {
-    for (const child of this.children) {
-      if (child.hidden) continue;
+    for (const child of this.children.sort((a, b) => b.layer - a.layer)) {
       child.handleEvent(e);
       if (e.consumed) break;
     }
@@ -537,7 +541,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this._render(ctx);
 
     this.preChildrenRender(ctx);
-    for (const child of this.children.sort((a, b) => b.layer - a.layer)) {
+    for (const child of this.children.sort((a, b) => a.layer - b.layer)) {
       if (this.childIsVisible(child)) child.render(ctx);
     }
     this.postChildrenRender(ctx);
@@ -710,7 +714,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       this.updateCache();
     }
 
-    ctx.fillText(this.label, pos.x, pos.y, this.parent.innerWidth);
+    ctx.fillText(this.label, pos.x, pos.y);
   }
 
   event() {}
@@ -1326,7 +1330,7 @@ export class CanvasUIGroup extends CanvasUIElement {
 }
 
 export interface Widget {
-  pane: CanvasUIElement;
+  pane: unknown & CanvasUIElement;
   update?(): void;
 }
 
@@ -1418,7 +1422,11 @@ export class CanvasTabRow extends CanvasUIGroup {
     }
   }
 
-  addTab(tab: { label: string; content: Widget }) {
+  addTab(
+    tab: { label: string; content: Widget } & Partial<
+      Exclude<CanvasTabArgs, "label" | "parent" | "content">
+    >,
+  ) {
     const opts: CanvasTabArgs = {
       parent: this,
       ...(this.tabOptions || {}),
@@ -1468,7 +1476,11 @@ export class CanvasTabPanel extends CanvasPanel {
     }
   }
 
-  addTab(tab: { label: string; content: Widget }) {
+  addTab(
+    tab: { label: string; content: Widget } & Partial<
+      Exclude<CanvasTabArgs, "label" | "parent" | "content">
+    >,
+  ) {
     this.tabs.addTab(tab);
   }
 

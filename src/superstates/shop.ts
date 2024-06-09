@@ -382,11 +382,18 @@ class DrydockInventoryItemWidget extends Pane<
   private buttonList: CanvasPanel;
   private resellHalfButton: CanvasButton;
   private resellHalfLabel: CanvasLabel;
+  private moveHalfButton: CanvasButton;
+  private dropdown: CanvasScroller | null;
+
+  private get drydockTabPanel() {
+    return this.state.paneDrydock.tabPanel;
+  }
 
   protected buildPane(args: DrydockInventoryItemWidgetArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
     this.item = args.item;
     this.resellFactor = args.resellFactor;
+    this.dropdown = null;
 
     this.itemLabel = new CanvasLabel({
       parent: this.pane,
@@ -475,6 +482,31 @@ class DrydockInventoryItemWidget extends Pane<
     this.resellLabel = this.resellButton.label("-", labelArgs);
     this.updateResellAction();
 
+    const moveButton = new CanvasButton({
+      parent: this.buttonList,
+      bgColor: "#11113380",
+      childOrdering: "vertical",
+      childMargin: 1,
+      childFill: 1,
+      fillX: true,
+      height: 13,
+      callback: this.openMoveDropdown.bind(this),
+    });
+    moveButton.label("Move to Ship...", labelArgs);
+
+    this.moveHalfButton = new CanvasButton({
+      parent: this.buttonList,
+      bgColor: "#11113380",
+      childOrdering: "vertical",
+      childMargin: 1,
+      childFill: 1,
+      fillX: true,
+      height: 13,
+      hidden: !this.letResellHalf(),
+      callback: this.openMoveDropdown.bind(this, true),
+    });
+    this.moveHalfButton.label("Move Half to Ship...", labelArgs);
+
     if (this.item instanceof ShipPart) {
       new CanvasButton({
         parent: this.buttonList,
@@ -486,6 +518,87 @@ class DrydockInventoryItemWidget extends Pane<
         height: 13,
         callback: this.installPart.bind(this),
       }).label("Install Part", labelArgs);
+    }
+  }
+
+  private killDropdown() {
+    if (this.dropdown != null) {
+      this.dropdown.remove();
+      this.dropdown = null;
+    }
+  }
+
+  private openMoveDropdown(half: boolean = false) {
+    this.killDropdown();
+    this.dropdown = new CanvasScroller({
+      parent: this.pane,
+      layer: 1,
+      bgColor: "#008b",
+      dockX: "end",
+      dockY: "end",
+      dockMarginX: 10,
+      dockMarginY: 10,
+      fillX: 0.5,
+      fillY: true,
+      axis: "vertical",
+      paddingX: 3,
+    });
+
+    const nevermindButton = new CanvasButton({
+      parent: this.dropdown.contentPane,
+      height: 50,
+      fillX: true,
+      paddingY: 5,
+      childOrdering: "vertical",
+      childMargin: 5,
+      bgColor: "#b8aacc33",
+      callback: () => {
+        this.killDropdown();
+      },
+    });
+    nevermindButton.label("Cancel move", { color: "#ffa", height: 12 });
+
+    for (const member of this.player.fleet) {
+      if (member.makeup === this.makeup) continue;
+
+      const moveButton = new CanvasButton({
+        parent: this.dropdown.contentPane,
+        height: 50,
+        fillX: true,
+        paddingY: 5,
+        childOrdering: "vertical",
+        childMargin: 2,
+        bgColor: "#aac3",
+        callback: () => {
+          const targMakeup = member.makeup;
+          this.drydockTabPanel.tabs.tabs
+            .find(
+              (tab) =>
+                (tab.content.pane as CanvasPanel & { makeup: ShipMakeup })
+                  .makeup === targMakeup,
+            )
+            .activate();
+            
+          if (half) {
+            let moveAmount = this.item.amount / 2;
+            if (this.item.integerAmounts) moveAmount = Math.floor(moveAmount);
+            this.item.amount -= moveAmount;
+            const newItem = structuredClone(this.item);
+            newItem.amount = moveAmount;
+            targMakeup.inventory.addItem(newItem);
+          } else {
+            targMakeup.inventory.addItem(this.item);
+            this.makeup.inventory.removeItem(this.item);
+          }
+          
+          this.killDropdown();
+          this.destroy();
+        },
+      });
+      moveButton.label("to " + member.makeup.name, {
+        color: "#fff",
+        height: 12,
+      });
     }
   }
 
@@ -596,6 +709,7 @@ class DrydockInventoryItemWidget extends Pane<
     this.resellHalfLabel.label = `Resell Half (${moneyString(this.resellCost(0.5))})`;
     this.updateResellAction();
     this.updateDetails();
+    this.moveHalfButton.hidden = !this.letResellHalf();
   }
 }
 
@@ -619,7 +733,7 @@ function updateList<
     if (idx === -1 || (shouldSkip != null && shouldSkip(remaining[idx]))) {
       widget.destroy();
     } else {
-      widget.update();
+      if (widget.pane.isVisible()) widget.update();
       remaining.splice(idx, 1);
     }
   }
@@ -673,9 +787,11 @@ class DrydockInventoryWidget extends Pane<
   }
 
   private addItem(shipItem) {
+    console.log(this.state.panes);
     this.itemWidgets.push(
       new DrydockInventoryItemWidget({
         parent: this.itemList.contentPane,
+        makeup: this.makeup,
         item: shipItem,
         resellFactor: this.resellFactor,
         state: this.state,
@@ -903,6 +1019,7 @@ interface StatRowOptions {
 interface StatRowArgs extends StatRowOptions {
   state: IntermissionState;
   parent: CanvasUIElement;
+  makeup: ShipMakeup;
 }
 
 class StatRow {
@@ -917,7 +1034,6 @@ class StatRow {
   constructor(args: StatRowArgs) {
     Object.assign(this, args);
     this.player = this.state.player;
-    this.makeup = this.player.makeup;
     this.name = args.name;
     this.stat = args.stat.bind(this);
 
@@ -994,6 +1110,7 @@ class PaneStats extends Pane<PaneStatsArgs> {
       new StatRow({
         parent: this.pane,
         state: this.state,
+        makeup: this.makeup,
         ...options,
       }),
     );
@@ -1175,7 +1292,7 @@ class ShipMakeWidget extends Pane<
     const cost = this.getCost();
     const makeup = new ShipMakeup({ make: this.make });
     this.player.money -= cost;
-    this.player.fleet.push({ makeup: makeup, captain: null });
+    this.player.fleet.push({ makeup: makeup, captain: null, ship: null });
     this.destroy();
   }
 
@@ -1295,6 +1412,7 @@ interface PaneDrydockShipArgs extends PaneArgs {
   hullRepairCostScale?: number;
   member: FleetMember;
   stats: StatRowOptions[];
+  tabPanel: CanvasTabPanel;
 }
 
 class PaneDrydockShip extends Pane<PaneDrydockShipArgs> {
@@ -1307,33 +1425,28 @@ class PaneDrydockShip extends Pane<PaneDrydockShipArgs> {
   private hullDamageMeter: CanvasProgressBar;
   member: FleetMember;
   private statsPane: PaneStats;
+  private tabPanel: CanvasTabPanel;
 
   buildPane(args: PaneDrydockShipArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
     this.partsWidgets = [];
     this.makeup = this.member.makeup;
 
-    new CanvasLabel({
-      parent: this.pane,
-      label: "Drydock",
-      color: "#e8e8ff",
-      dockX: "center",
-      height: 30,
-      childOrdering: "vertical",
-      childMargin: 10,
-    });
-
-    const mainArea = new CanvasUIGroup({
+    const mainArea = new CanvasPanel({
       parent: this.pane,
       childOrdering: "vertical",
+      fillX: true,
       childFill: 1,
       childMargin: 5.5,
+      bgColor: "#0000",
     });
 
-    const shipManager = new CanvasUIGroup({
+    const shipManager = new CanvasPanel({
       parent: mainArea,
+      fillY: true,
       childOrdering: "horizontal",
       childFill: 2,
+      bgColor: "#0000",
     });
 
     this.cashCounter = new CanvasLabel({
@@ -1378,6 +1491,7 @@ class PaneDrydockShip extends Pane<PaneDrydockShipArgs> {
 
     this.statsPane = new PaneStats({
       parent: mainArea,
+      fillY: true,
       makeup: this.makeup,
       state: this.state,
       stats: args.stats,
@@ -1390,9 +1504,9 @@ class PaneDrydockShip extends Pane<PaneDrydockShipArgs> {
     });
   }
 
-  buildPartsPane() {
+  buildPartsPane(parent: CanvasUIElement) {
     const partsPane = new CanvasPanel({
-      parent: this.pane,
+      parent: parent,
       fillX: true,
       dockX: "center",
       childOrdering: "vertical",
@@ -1437,13 +1551,14 @@ class PaneDrydockShip extends Pane<PaneDrydockShipArgs> {
     this.updatePartsList();
   }
 
-  private buildInventoryPane() {
+  private buildInventoryPane(parent: CanvasUIElement) {
     this.inventoryWidget = new DrydockInventoryWidget({
-      parent: this.pane,
+      parent: parent,
       dockX: "center",
       fillX: true,
       resellFactor: DFAULT_RESELL_FACTOR,
       state: this.state,
+      makeup: this.makeup,
       childOrdering: "vertical",
       childMargin: 5,
       childFill: 2,
@@ -1580,35 +1695,39 @@ class PaneCartography extends Pane {
   public update = undefined;
 }
 
-interface PaneDrydockArgs {
+interface PaneDrydockArgs extends PaneArgs {
   stats: StatRowOptions[];
 }
 
 class PaneDrydock extends Pane<PaneDrydockArgs> {
   private members: PaneDrydockShip[];
-  private tabPanel: CanvasTabPanel;
+  tabPanel: CanvasTabPanel;
   private stats: StatRowOptions[];
 
   protected buildPane(args: PaneArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
-
     this.members = [];
-    for (const member of this.player.fleet) this.addMember(member);
 
-    this.pane = new CanvasPanel(args);
+    new CanvasLabel({
+      parent: this.pane,
+      label: "Drydock",
+      color: "#e8e8ff",
+      dockX: "center",
+      height: 30,
+      childOrdering: "vertical",
+      childMargin: 10,
+    });
 
     this.tabPanel = new CanvasTabPanel({
       parent: this.pane,
       paddingX: 8,
       paddingY: 8,
-      fillY: true,
-      childOrdering: "horizontal",
-      childFill: 2,
+      fillX: true,
+      childFill: 1,
+      childOrdering: "vertical",
+      childMargin: 3,
       bgColor: "#AAA2",
-      tabs: this.members.map((member) => ({
-        content: member,
-        label: member.member.makeup.name,
-      })),
+      tabs: [],
       tabOptions: {
         childMargin: 6,
         labelArgs: {
@@ -1617,6 +1736,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
         },
       },
     });
+    this.update();
   }
 
   private addMember(member: FleetMember) {
@@ -1624,14 +1744,33 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
       state: this.state,
       member,
       makeup: member.makeup,
+      fillX: true,
+      fillY: true,
       bgColor: "#0001",
-      parent: null,
+      parent: this.tabPanel.contentPane,
       stats: this.stats,
+      tabPanel: this.tabPanel,
     });
     this.members.push(widget);
-    if (this.tabPanel != null)
-      this.tabPanel.addTab({ label: member.makeup.name, content: widget });
-    return pane;
+    this.tabPanel.addTab({
+      label: member.makeup.name,
+      content: widget,
+      colors: {
+        inactive:
+          member.makeup === this.player.makeup
+            ? "#040a"
+            : member.captain == null
+              ? "#400a"
+              : "#0014",
+        active:
+          member.makeup === this.player.makeup
+            ? "#262a"
+            : member.captain == null
+              ? "#622a"
+              : "#2256",
+      },
+    });
+    return widget;
   }
 
   public update() {
@@ -1651,7 +1790,7 @@ export default class IntermissionState extends Superstate {
     unknown & CanvasUIElement,
     unknown & CanvasUIArgs
   >[];
-  private paneDrydock: PaneDrydockShip;
+  paneDrydock: PaneDrydock;
   private changed: boolean;
   private paneTabs: CanvasTabPanel;
 
@@ -1976,10 +2115,6 @@ export default class IntermissionState extends Superstate {
     this.ui.render(ctx);
   }
 
-  public doHullRepair() {
-    this.paneDrydock.doRepairHull();
-  }
-
   public tick() {
     // no-op
   }
@@ -1991,7 +2126,7 @@ export default class IntermissionState extends Superstate {
     else this.ui.handleEvent(uiEvent);
 
     for (const pane of this.panes) {
-      if (pane.update) pane.update();
+      if (!pane.pane.hidden && pane.update) pane.update();
     }
   }
 }
