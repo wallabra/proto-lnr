@@ -1763,11 +1763,11 @@ class PaneDrydockShip extends Pane<
     if (!canDisband) return;
 
     this.disbandShipButton.label(
-      `Disband & Resell Ship (+${moneyString(this.disbandResellValue())})`,
+      `Disband & Resell Ship w/Contents (+${moneyString(this.disbandResellValue())})`,
       { color: "#fff" },
     );
     this.disbandShipHullButton.label(
-      `Disband & Resell Ship (+${moneyString(this.disbandHullResellValue())})`,
+      `Disband & Resell Ship Only (+${moneyString(this.disbandHullResellValue())})`,
       { color: "#fff" },
     );
   }
