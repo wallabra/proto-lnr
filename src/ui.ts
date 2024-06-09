@@ -253,7 +253,8 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   removeChild(item) {
     const idx = this.children.indexOf(item);
-    if (idx != -1) this.children.splice(idx, 1);
+    if (idx === -1) return;
+    this.children.splice(idx, 1);
     this.modified = true;
   }
 
@@ -1336,14 +1337,14 @@ export interface Widget {
 
 export interface CanvasTabArgs extends CanvasUIGroupArgs {
   label: string;
-  content: Widget;
+  content: unknown & Widget;
   labelArgs?: CanvasLabelArgs;
   colors?: { inactive: string; active: string };
   parent: CanvasTabRow;
 }
 
 export class CanvasTab extends CanvasUIGroup {
-  content: Widget;
+  content: unknown & Widget;
   label: CanvasLabel;
   protected active: boolean;
   colors: { inactive: string; active: string };
@@ -1383,7 +1384,7 @@ export class CanvasTab extends CanvasUIGroup {
   }
 
   activate() {
-    for (const tab of this.parent.tabs) {
+    for (const tab of this.parent.children) {
       tab.active = tab === this;
       tab.content.pane.hidden = tab !== this;
       tab.updateColor();
@@ -1411,7 +1412,7 @@ export interface CanvasTabRowArgs extends CanvasUIGroupArgs {
 }
 
 export class CanvasTabRow extends CanvasUIGroup {
-  tabs: CanvasTab[];
+  children: CanvasTab[];
   parent: CanvasTabPanel;
   tabOptions?: Optional<CanvasTabArgs, "label" | "parent" | "content">;
 
@@ -1434,11 +1435,11 @@ export class CanvasTabRow extends CanvasUIGroup {
     };
 
     const tabEl = new CanvasTab(opts);
-    if (this.tabs.push(tabEl) === 1) tabEl.activate();
+    if (this.children.length === 1) tabEl.activate();
   }
 
   activeTab() {
-    return this.tabs.find((t) => !t.content.pane.hidden);
+    return this.children.find((t) => !t.content.pane.hidden);
   }
 }
 
@@ -1471,8 +1472,8 @@ export class CanvasTabPanel extends CanvasPanel {
       fillX: true,
     });
 
-    if (this.tabs.tabs.length > 0) {
-      this.contentPane.addChild(this.tabs.tabs[0].content.pane);
+    if (this.tabs.children.length > 0) {
+      this.contentPane.addChild(this.tabs.children[0].content.pane);
     }
   }
 

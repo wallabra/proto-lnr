@@ -851,6 +851,13 @@ export class Ship {
     this.spawnDrops();
     this.dying = true;
     this.phys.dying = true;
+
+    const playerFleetIndex = this.play.player.fleet.findIndex(
+      (member) => member.makeup === this.makeup,
+    );
+    if (playerFleetIndex !== -1) {
+      this.play.player.fleet.splice(playerFleetIndex, 1);
+    }
   }
 
   get maxShootRange() {

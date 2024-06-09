@@ -1082,6 +1082,17 @@ export class ShipMakeup {
     return this.inventoryValue() + this.partsValue();
   }
 
+  hullResellCost() {
+    return (
+      this.make.cost *
+      (1 -
+        Math.min(
+          0.9,
+          (this.hullDamage * this.make.repairCostScale) / this.make.maxDamage,
+        ))
+    );
+  }
+
   totalFood() {
     return this.inventory
       .getItemsOf("food")

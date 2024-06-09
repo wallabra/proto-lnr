@@ -600,7 +600,7 @@ class DrydockInventoryItemWidget extends Pane<
         bgColor: "#aac3",
         callback: () => {
           const targMakeup = member.makeup;
-          this.drydockTabPanel.tabs.tabs
+          this.drydockTabPanel.tabs.children
             .find(
               (tab) =>
                 (tab.content.pane as CanvasPanel & { makeup: ShipMakeup })
@@ -1272,13 +1272,7 @@ class ShipMakeWidget extends Pane<
   }
 
   private getSwitchCost() {
-    return (
-      this.make.cost -
-      this.makeup.make.cost *
-        (1 -
-          (this.makeup.hullDamage * this.makeup.make.repairCostScale) /
-            this.makeup.make.maxDamage)
-    );
+    return this.make.cost - this.makeup.hullResellCost();
   }
 
   private constructLabel() {
@@ -1460,6 +1454,7 @@ class PaneDrydockShip extends Pane<
   private tabPanel: CanvasTabPanel;
   private captainStatus: CanvasLabel;
   private unsetCaptainButton: CanvasButton;
+  private disbandShipButton: CanvasButton;
 
   buildPane(args: PaneDrydockShipArgs & CanvasPanelArgs) {
     this.pane = new CanvasPanel(args);
@@ -1506,6 +1501,18 @@ class PaneDrydockShip extends Pane<
       },
     });
     this.unsetCaptainButton.label("Unset Captain", { color: "#fff" });
+    this.disbandShipButton = new CanvasButton({
+      parent: shipActions,
+      height: 20,
+      width: 120,
+      x: 10,
+      childOrdering: "horizontal",
+      childMargin: 3,
+      childFill: 1,
+      hidden: !this.canDisbandShip(),
+      callback: this.disbandShip.bind(this),
+    });
+    this.disbandShipButton.label("Disband Ship", { color: "#fff" });
 
     this.captainStatus = new CanvasLabel({
       parent: shipManager,
@@ -1675,6 +1682,54 @@ class PaneDrydockShip extends Pane<
     );
   }
 
+  private canDisbandShip() {
+    return this.player.fleet.length > 1;
+  }
+
+  private disbandResellValue() {
+    return this.makeup.totalValue() + this.makeup.hullResellCost();
+  }
+
+  private updateDisbandButton() {
+    const canDisband = this.canDisbandShip();
+    this.disbandShipButton.hidden = !canDisband;
+    if (!canDisband) return;
+
+    this.disbandShipButton.label(
+      `Disband & Resell Ship (+${moneyString(this.disbandResellValue())})`,
+      { color: "#fff" },
+    );
+  }
+
+  private get drydockTabPanel() {
+    return this.state.paneDrydock.tabPanel;
+  }
+
+  private disbandShip() {
+    if (!this.canDisbandShip()) return;
+    const idx = this.player.fleet.indexOf(this.member);
+    if (idx === -1) return;
+
+    this.player.fleet.splice(idx, 1);
+
+    this.player.money += this.disbandResellValue();
+
+    if (this.player.makeup === this.makeup) {
+      this.player.makeup = this.player.fleet[0].makeup;
+      this.player.possessed = this.player.fleet[0].ship;
+    }
+
+    const nextTab = this.drydockTabPanel.tabs.children[0];
+    nextTab.activate();
+    nextTab.content.update();
+
+    const tab = this.drydockTabPanel.tabs.children.find(
+      (tab) => tab.content.pane === this.pane,
+    );
+    tab.remove();
+    this.destroy();
+  }
+
   private updateSlotsLabel() {
     const makeSlots = slots(this.makeup.make);
     const partTypes = arrayCounter(this.makeup.parts.map((p) => p.type));
@@ -1696,6 +1751,7 @@ class PaneDrydockShip extends Pane<
     this.statsPane.update();
     this.inventoryWidget.update();
     this.updateCaptainStatus();
+    this.updateDisbandButton();
   }
 
   private updateCaptainStatus() {
@@ -1850,8 +1906,11 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
   }
 
   private updateTabColors() {
-    this.tabPanel.tabs.children.forEach((tab: CanvasTab) => {
+    for (const tab of this.tabPanel.tabs.children as CanvasTab[]) {
+      if (tab.content.pane == null) continue;
+
       const member = (tab.content.pane as PaneDrydockShip["pane"]).member;
+
       tab.colors = {
         inactive:
           member.makeup === this.player.makeup
@@ -1866,7 +1925,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
               ? "#622a"
               : "#2256",
       };
-    });
+    }
   }
 
   public update() {
