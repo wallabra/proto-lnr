@@ -292,8 +292,9 @@ export class Crew implements ShipItem {
     return `crewmate ${this.name}`;
   }
 
-  assignToPart(part: ShipPart): boolean {
+  assignToPart(makeup: ShipMakeup, part: ShipPart): boolean {
     if (!this.isHappy()) return false;
+    if (makeup.captain === this) return false;
     if (this.manningPart != null) return false;
     if (part.alreadyManned()) return false;
 
@@ -808,7 +809,8 @@ export class ShipMakeup {
     if (crew.length === 0) return null;
 
     const res =
-      crew.find((c) => c.assignToPart(part) && part.alreadyManned()) || null;
+      crew.find((c) => c.assignToPart(this, part) && part.alreadyManned()) ||
+      null;
 
     if (!res) part.unassignCrew();
     return res;
@@ -876,7 +878,7 @@ export class ShipMakeup {
       if (crew == null) {
         return false;
       }
-      crew.assignToPart(part);
+      crew.assignToPart(this, part);
       this.addDefaultFood(crew);
       this.inventory.addItem(crew);
       neededStrength -= crew.strength;

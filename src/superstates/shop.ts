@@ -61,7 +61,10 @@ function weightInfo(item: ShipItem) {
 }
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
-  if (typeof item.getItemLabel !== 'function') { console.log(item); debugger; }
+  if (typeof item.getItemLabel !== "function") {
+    console.log(item);
+    debugger;
+  }
   return (
     `${item.amount && item.amount > 1 ? "x" + Math.round(10 * item.amount) / 10 + " " : ""}${(makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ?? item.getItemLabel()}` +
     (priceFactor == null
@@ -615,7 +618,10 @@ class DrydockInventoryItemWidget extends Pane<
             let moveAmount = this.item.amount / 2;
             if (this.item.integerAmounts) moveAmount = Math.floor(moveAmount);
             this.item.amount -= moveAmount;
-            const newItem = Object.assign(Object.create(Object.getPrototypeOf(this.item)), this.item);
+            const newItem = Object.assign(
+              Object.create(Object.getPrototypeOf(this.item)),
+              this.item,
+            );
             newItem.amount = moveAmount;
             targMakeup.inventory.addItem(newItem);
           } else {
@@ -737,7 +743,10 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   public update() {
-    if (this.item == null || this.makeup.inventory.items.indexOf(this.item) === -1) {
+    if (
+      this.item == null ||
+      this.makeup.inventory.items.indexOf(this.item) === -1
+    ) {
       this.destroy();
       return;
     }
