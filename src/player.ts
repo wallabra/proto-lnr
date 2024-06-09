@@ -38,19 +38,31 @@ export class Player {
   }
 
   public totalSalary() {
-    return this.fleet.reduce((accum, member) => accum + member.makeup.totalSalary(), 0);
+    return this.fleet.reduce(
+      (accum, member) => accum + member.makeup.totalSalary(),
+      0,
+    );
   }
-  
+
   public totalHullRepairCost() {
-    return this.fleet.reduce((accum, member) => accum + member.makeup.hullRepairCost(), 0);
+    return this.fleet.reduce(
+      (accum, member) => accum + member.makeup.hullRepairCost(),
+      0,
+    );
   }
 
   public totalRepairCost() {
-    return this.fleet.reduce((accum, member) => accum + member.makeup.totalRepairCost(), 0);
+    return this.fleet.reduce(
+      (accum, member) => accum + member.makeup.totalRepairCost(),
+      0,
+    );
   }
-  
+
   public totalInventoryValue() {
-    return this.fleet.reduce((accum, member) => accum + member.makeup.inventoryValue(), 0);
+    return this.fleet.reduce(
+      (accum, member) => accum + member.makeup.inventoryValue(),
+      0,
+    );
   }
 
   get damage() {

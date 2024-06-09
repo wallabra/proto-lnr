@@ -506,6 +506,13 @@ export class Ship {
     )
       return false;
 
+    if (
+      this.following != null &&
+      this.following === other.following &&
+      this.following.isPlayer
+    )
+      return false;
+
     if (this.following === other) return false;
     if (this.followers.has(other)) return false;
 
@@ -514,20 +521,22 @@ export class Ship {
         this.purgeFromAlliance(other);
         other.purgeFromAlliance(this);
       } else return false;
-    } else {
-      for (const follower of Array.from(this.followers)) {
-        follower.setInstigator(other);
-      }
-      if (
-        this.following != null &&
-        this.following.lastInstigator == null &&
-        Math.random() < 0.3
-      ) {
-        this.following.aggro(other);
-      }
-      for (const otherFollower of Array.from(other.followers)) {
-        otherFollower.setInstigator(this);
-      }
+    }
+
+    for (const follower of Array.from(this.followers)) {
+      follower.setInstigator(other);
+    }
+
+    if (
+      this.following != null &&
+      this.following.lastInstigator == null &&
+      Math.random() < 0.3
+    ) {
+      this.following.aggro(other);
+    }
+
+    for (const otherFollower of Array.from(other.followers)) {
+      otherFollower.setInstigator(this);
     }
 
     this.lastInstigator =
@@ -680,6 +689,7 @@ export class Ship {
 
     // check infight timer
     if (
+      !this.isPlayer &&
       this.lastInstigTime != null &&
       instigTime - this.lastInstigTime < 1000 * this.instigMemory
     ) {
@@ -752,8 +762,13 @@ export class Ship {
 
   setMoney(money: number) {
     this.money = money;
-    if (this.game.player != null && [this, this.following].indexOf(this.game.player.possessed) != -1) {
-      this.game.player.money = this.game.player.possessed.money + this.game.player.fleet.reduce((a, b) => a + b.money, 0);
+    if (
+      this.game.player != null &&
+      [this, this.following].indexOf(this.game.player.possessed) != -1
+    ) {
+      this.game.player.money = this.game.player.fleet
+        .filter((m) => m.ship != null)
+        .reduce((a, b) => a + b.ship.money, 0);
     }
   }
 

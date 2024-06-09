@@ -77,8 +77,7 @@ export class PlayState extends Superstate {
       );
 
       if (playerShip != null) {
-        ship.following = playerShip;
-        ship.makeup.giveRandomParts(3);
+        ship.follow(playerShip);
         this.makeAIFor(ship);
       }
 

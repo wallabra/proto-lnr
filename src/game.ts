@@ -8,7 +8,7 @@ import { KeyHandler } from "./keyinput";
 import random from "random";
 import { Ship } from "./objects/ship";
 import { Crew, ShipMakeup } from "./objects/shipmakeup";
-import { MAKEDEFS } from "./shop/makedefs";
+import { DEFAULT_MAKE } from "./shop/makedefs";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -52,14 +52,15 @@ export class Game {
     console.log(this.player);
 
     // DEBUG: test fleet
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       const captain = Crew.random();
-      const makeup = new ShipMakeup({ make: MAKEDEFS[1] });
+      const makeup = new ShipMakeup({ make: DEFAULT_MAKE });
       makeup.inventory.addItem(captain);
+      makeup.defaultLoadout();
       this.player.fleet.push({
         makeup,
         captain,
-        ship: null
+        ship: null,
       });
     }
   }

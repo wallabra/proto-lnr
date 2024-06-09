@@ -1045,20 +1045,14 @@ class HudCounters {
     const financialStatRow = (value: (player: Player) => number) => {
       return [
         statValue((player: Player) => value(player)),
+        statValue((player: Player) => value(player) - player.totalSalary()),
         statValue(
-          (player: Player) => value(player) - player.totalSalary(),
+          (player: Player) =>
+            value(player) - player.totalSalary() - player.totalHullRepairCost(),
         ),
         statValue(
           (player: Player) =>
-            value(player) -
-            player.totalSalary() -
-            player.totalHullRepairCost(),
-        ),
-        statValue(
-          (player: Player) =>
-            value(player) -
-            player.totalSalary() -
-            player.totalRepairCost(),
+            value(player) - player.totalSalary() - player.totalRepairCost(),
         ),
       ];
     };
