@@ -161,11 +161,14 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.layer = args.layer ?? 0;
     this.cullOutOfBounds = args.cullOutOfBounds ?? false;
 
+    this.modified = true;
+    this.updateCache();
     if (this.parent != null) {
       this.parent = this.parent._addChild(this);
       this.parent.updateCache();
-      this.modified = false;
+    } else {
     }
+    this.modified = false;
   }
 
   setParent(parent: CanvasUIElement | null) {
