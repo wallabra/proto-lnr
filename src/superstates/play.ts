@@ -98,7 +98,10 @@ export class PlayState extends Superstate {
           random.uniform(30, 200)(),
         0,
       ).rotateBy(Math.PI * Math.random() * 2);
-      ships.push(addShip(moneyPart, member.makeup, offs));
+
+      const ship = addShip(moneyPart, member.makeup, offs);
+      ships.push(ship);
+      member.ship = ship;
     }
 
     return ships;

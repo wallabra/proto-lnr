@@ -1593,7 +1593,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
     this.pane = new CanvasPanel(args);
 
     this.members = [];
-    for (const member of this.player.members()) this.addMember(member);
+    for (const member of this.player.fleet) this.addMember(member);
 
     this.pane = new CanvasPanel(args);
 
@@ -1636,7 +1636,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
 
   public update() {
     this.members = updateList(
-      Array.from(this.player.members()),
+      Array.from(this.player.fleet),
       this.members,
       (remaining, widget) => remaining.indexOf(widget.member),
       (item) => this.addMember(item),

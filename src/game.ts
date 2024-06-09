@@ -59,6 +59,7 @@ export class Game {
       this.player.fleet.push({
         makeup,
         captain,
+        ship: null
       });
     }
   }

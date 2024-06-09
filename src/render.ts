@@ -1046,19 +1046,19 @@ class HudCounters {
       return [
         statValue((player: Player) => value(player)),
         statValue(
-          (player: Player) => value(player) - player.makeup.totalSalary(),
+          (player: Player) => value(player) - player.totalSalary(),
         ),
         statValue(
           (player: Player) =>
             value(player) -
-            player.makeup.totalSalary() -
-            player.makeup.hullRepairCost(),
+            player.totalSalary() -
+            player.totalHullRepairCost(),
         ),
         statValue(
           (player: Player) =>
             value(player) -
-            player.makeup.totalSalary() -
-            player.makeup.totalRepairCost(),
+            player.totalSalary() -
+            player.totalRepairCost(),
         ),
       ];
     };
@@ -1075,11 +1075,11 @@ class HudCounters {
       "- Other Repair",
     );
     addStat("Cash", (player) => player.money);
-    addStat("Inventory Value", (player) => player.makeup.inventoryValue());
+    addStat("Inventory Value", (player) => player.totalInventoryValue());
 
     let initialAccrued = null;
     addStat("Day Profit", (player) => {
-      const accrued = player.money + player.makeup.inventoryValue();
+      const accrued = player.money + player.totalInventoryValue();
       if (initialAccrued == null) initialAccrued = accrued;
       return accrued - initialAccrued;
     });

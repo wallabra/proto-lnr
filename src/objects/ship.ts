@@ -752,8 +752,8 @@ export class Ship {
 
   setMoney(money: number) {
     this.money = money;
-    if (this.game.player != null && this.game.player.possessed === this) {
-      this.game.player.money = this.money;
+    if (this.game.player != null && [this, this.following].indexOf(this.game.player.possessed) != -1) {
+      this.game.player.money = this.game.player.possessed.money + this.game.player.fleet.reduce((a, b) => a + b.money, 0);
     }
   }
 

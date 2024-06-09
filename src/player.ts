@@ -12,6 +12,7 @@ export type PlayerAction = (deltaTime: number) => void;
 export interface FleetMember {
   captain: Crew | null;
   makeup: ShipMakeup;
+  ship: Ship;
 }
 
 export class Player {
@@ -31,9 +32,25 @@ export class Player {
     this.actions = [];
     this.money = money;
     this.makeup = ship.makeup;
-    this.fleet = [{ makeup: ship.makeup, captain: null }];
+    this.fleet = [{ makeup: ship.makeup, captain: null, ship: this.possessed }];
     this.registerActions();
     console.log(this.makeup);
+  }
+
+  public totalSalary() {
+    return this.fleet.reduce((accum, member) => accum + member.makeup.totalSalary(), 0);
+  }
+  
+  public totalHullRepairCost() {
+    return this.fleet.reduce((accum, member) => accum + member.makeup.hullRepairCost(), 0);
+  }
+
+  public totalRepairCost() {
+    return this.fleet.reduce((accum, member) => accum + member.makeup.totalRepairCost(), 0);
+  }
+  
+  public totalInventoryValue() {
+    return this.fleet.reduce((accum, member) => accum + member.makeup.inventoryValue(), 0);
   }
 
   get damage() {
@@ -46,12 +63,6 @@ export class Player {
 
   get mouse() {
     return this.game.mouse;
-  }
-
-  *members(): Generator<FleetMember> {
-    //return [this.makeup, ...this.fleet.map((m) => m.makeup)];
-    yield { makeup: this.makeup, captain: null };
-    for (const member of this.fleet) yield member;
   }
 
   steer(offs: Vec2, deltaTime: number) {
