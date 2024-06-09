@@ -69,6 +69,16 @@ function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
   );
 }
 
+function manningRequirements(part: ShipPart) {
+    if (!part.manned) return [];
+
+    if (typeof part.manned !== "number") {
+      return ["Needs to be manned"];
+    } else {
+      return [`Needs min. ${part.manned} total manning strength`];
+    }
+  }
+
 abstract class Pane<
   A extends PaneArgs = PaneArgs,
   P extends CanvasUIElement = CanvasPanel,
@@ -274,16 +284,6 @@ class DrydockPartWidget extends Pane<
     if (this.makeup.removePart(this.part)) this.destroy();
   }
 
-  private manningRequirements() {
-    if (!this.part.manned) return [];
-
-    if (typeof this.part.manned !== "number") {
-      return ["Needs to be manned"];
-    } else {
-      return [`Needs min. ${this.part.manned} total manning strength`];
-    }
-  }
-
   private manningStatus() {
     if (!this.part.manned) return [];
 
@@ -322,7 +322,7 @@ class DrydockPartWidget extends Pane<
     const lines = [
       weightInfo(this.part),
       ...this.part.shopInfo(this.makeup),
-      ...this.manningRequirements(),
+      ...manningRequirements(this.part),
       ...this.manningStatus(),
     ];
 
@@ -651,6 +651,7 @@ class DrydockInventoryItemWidget extends Pane<
     const lines = [
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
+      this.item instanceof ShipPart ? [manningRequirements(this.item)] : []
     ];
 
     if (lines.length < this.details.children.length) {
@@ -942,23 +943,28 @@ class ShopItemWidget extends Pane<
       childMargin: 2,
     });
 
-    if (this.item.shopInfo)
-      for (const line of this.item.shopInfo()) {
-        const infoLabel = new CanvasLabel({
-          parent: this.pane,
-          height: 11,
-          label: "* " + line,
-          font: "$Hpx sans-serif",
-          autoFont: true,
-          color: "#d0d0d8",
-          childOrdering: "vertical",
-          childMargin: 2,
-        });
-        const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
-        this.pane.height += addedHeight;
-        if (typeof this.pane.fillY === "number")
-          this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
-      }
+    const detailLines = [
+      ...((this.item.shopInfo && this.item.shopInfo()) ?? []),
+      ...(this.item instanceof ShipPart ? [manningRequirements(this.item)] : [])
+    ];
+    
+
+    for (const line of detailLines) {
+      const infoLabel = new CanvasLabel({
+        parent: this.pane,
+        height: 11,
+        label: "* " + line,
+        font: "$Hpx sans-serif",
+        autoFont: true,
+        color: "#d0d0d8",
+        childOrdering: "vertical",
+        childMargin: 2,
+      });
+      const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
+      this.pane.height += addedHeight;
+      if (typeof this.pane.fillY === "number")
+        this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
+    }
 
     new CanvasButton({
       parent: this.pane,
