@@ -32,7 +32,7 @@ function landfill(def: LandfillDef) {
     const ox = (x - cx) / radius;
     const oy = (y - cy) / radius;
     const distSq = (ox * ox) + (oy * oy);
-    return height - Math.sqrt(distSq) * height;
+    return height - distSq * height;
   }
 }
 
