@@ -1,5 +1,6 @@
 import Vec2 from "victor";
 import random from "random";
+import { lerp } from "./util";
 
 export const SECTOR_SIZE = 32;
 export const SECTOR_RES = 8;
@@ -79,10 +80,20 @@ export function landfillGenerator(distFactor: number = 1): TerraDef {
 export class Terrain {
   definition: TerraDef;
   sectors: Map<string, TerraSector>;
+  cached: Map<string, number[]>;
+  cacheSize: number;
+  cacheRes: number;
 
-  constructor(definition: TerraDef) {
+  constructor(definition: TerraDef, cacheSize: number = 256, cacheRes: number = 4) {
     this.definition = definition;
     this.sectors = new Map();
+    this.cached = new Map();
+    this.cacheSize = cacheSize;
+    this.cacheRes = cacheRes;
+  }
+
+  get cacheRowLen() {
+    return this.cacheSize / this.cacheRes;
   }
 
   gradientAt(x: number, y: number): Vec2 {
@@ -92,8 +103,55 @@ export class Terrain {
     );
   }
 
-  heightAt(x: number, y: number) {
+  realHeightAt(x: number, y: number) {
     return this.definition(x, y);
+  }
+
+  private genCache(cx: number, cy: number): number[] {
+    const bx = cx * this.cacheSize + this.cacheRes / 2;
+    const by = cy * this.cacheSize + this.cacheRes / 2;
+    const len = this.cacheRowLen;
+    const area = len * len;
+    return new Array(area).fill(0).map((_, idx) => {
+      const ix = idx % len;
+      const iy = (idx - ix) / len;
+      return this.realHeightAt(bx + ix * this.cacheRes, by + iy * this.cacheRes);
+    });
+  }
+
+  getCache(cx: number, cy: number) {
+    const key = "" + cx + "," + cy;
+    if (this.cached.has(key)) {
+      return this.cached.get(key);
+    }
+    const vals = this.genCache(cx, cy);
+    this.cached.set(key, vals);
+    return vals;
+  }
+
+  cacheCoords(x: number, y: number) {
+    return { x: Math.floor(x / this.cacheSize), y: Math.floor(y / this.cacheSize) };
+  }
+
+  heightAt(x: number, y: number) {
+    const csize = this.cacheSize;
+    const cres = this.cacheRes;
+    const clen = this.cacheRowLen;
+    const ccoord = this.cacheCoords(x, y);
+    const cached = this.getCache(ccoord.x, ccoord.y);
+    const cx = x - ccoord.x * csize;
+    const cy = y - ccoord.y * csize;
+    const ix = Math.floor(cx / cres);
+    const iy = Math.floor(cy / cres);
+
+    // bilinear interpolation
+    const alpha_x = ix % 1;
+    const alpha_y = iy % 1;
+    const ix2 = Math.min(ix + 1, clen - 1);
+    const iy2 = Math.min(iy + 1, clen - 1);
+    const ltop = lerp(cached[iy * clen + ix], cached[iy * clen + ix2], alpha_x);
+    const lbottom = lerp(cached[iy2 * clen + ix], cached[iy2 * clen + ix2], alpha_x);
+    return lerp(ltop, lbottom, alpha_y);
   }
 
   getSector(x: number, y: number): TerraSector {
