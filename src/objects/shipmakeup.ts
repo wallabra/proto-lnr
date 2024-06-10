@@ -744,7 +744,7 @@ const shipNameSuffixes = [
 function generateShipName() {
   const parts: string[] = [];
 
-  parts.push(random.choice(shipNameAdjectives));
+  if (Math.random() < 0.5) parts.push(random.choice(shipNameAdjectives));
   if (Math.random() < 0.4) parts.push(random.choice(shipNameTitles));
   parts.push(random.choice(shipNameCores));
   if (Math.random() < 0.25) parts.push(random.choice(shipNameSuffixes));
