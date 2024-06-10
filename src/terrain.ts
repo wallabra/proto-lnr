@@ -1,6 +1,5 @@
 import Vec2 from "victor";
 import random from "random";
-import { getReturnOfExpression } from "../node_modules/utility-types/dist/functional-helpers";
 
 export const SECTOR_SIZE = 32;
 export const SECTOR_RES = 8;
@@ -49,16 +48,13 @@ function randomLandfills(scale: number = 1): LandfillDef[] {
   return new Array(random.uniformInt(5, 20)()).fill(null).map(() => randomLandfill(scale));
 }
 
-function landfills(landfills: LandfillDef[] = randomLandfills()) {
+function landfills(landfills: LandfillDef[] = randomLandfills(), roughness: number = 20) {
   const funcs = landfills.map((def) => landfill(def));
   const len = funcs.length;
 
   return (x: number, y: number) => {
     const vals = funcs.map((f) => f(x, y));
-    const base = Math.max(0, ...vals);
-    const avg = vals.reduce((a, b) => a + b, 0) / len;
-    const offs = Math.max(0, avg - base);
-    return base + offs / 2;
+    return Math.max(0, Math.log(Math.max(0.000001, vals.map((v) => Math.exp(v * roughness)).reduce((a, b) => a + b, 0))) / roughness);
   };
 }
 
