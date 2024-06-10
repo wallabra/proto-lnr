@@ -84,7 +84,11 @@ export class Terrain {
   cacheSize: number;
   cacheRes: number;
 
-  constructor(definition: TerraDef, cacheSize: number = 256, cacheRes: number = 4) {
+  constructor(
+    definition: TerraDef,
+    cacheSize: number = 256,
+    cacheRes: number = 4,
+  ) {
     this.definition = definition;
     this.sectors = new Map();
     this.cached = new Map();
@@ -115,7 +119,10 @@ export class Terrain {
     return new Array(area).fill(0).map((_, idx) => {
       const ix = idx % len;
       const iy = (idx - ix) / len;
-      return this.realHeightAt(bx + ix * this.cacheRes, by + iy * this.cacheRes);
+      return this.realHeightAt(
+        bx + ix * this.cacheRes,
+        by + iy * this.cacheRes,
+      );
     });
   }
 
@@ -130,7 +137,10 @@ export class Terrain {
   }
 
   cacheCoords(x: number, y: number) {
-    return { x: Math.floor(x / this.cacheSize), y: Math.floor(y / this.cacheSize) };
+    return {
+      x: Math.floor(x / this.cacheSize),
+      y: Math.floor(y / this.cacheSize),
+    };
   }
 
   heightAt(x: number, y: number) {
@@ -150,7 +160,11 @@ export class Terrain {
     const ix2 = Math.min(ix + 1, clen - 1);
     const iy2 = Math.min(iy + 1, clen - 1);
     const ltop = lerp(cached[iy * clen + ix], cached[iy * clen + ix2], alpha_x);
-    const lbottom = lerp(cached[iy2 * clen + ix], cached[iy2 * clen + ix2], alpha_x);
+    const lbottom = lerp(
+      cached[iy2 * clen + ix],
+      cached[iy2 * clen + ix2],
+      alpha_x,
+    );
     return lerp(ltop, lbottom, alpha_y);
   }
 
