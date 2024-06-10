@@ -1,6 +1,5 @@
 import { tickLoop } from "./tick";
 import { Game } from "./game";
-import { defPlaceholder } from "./terrain";
 
 function main() {
   const canvas = <HTMLCanvasElement | undefined>(
@@ -11,7 +10,7 @@ function main() {
   }
 
   const game = new Game(canvas);
-  game.nextLevel(defPlaceholder);
+  game.nextLevel();
 
   requestAnimationFrame(tickLoop.bind(null, game));
 }

@@ -1,7 +1,9 @@
 import Vec2 from "victor";
+import random from "random";
+import { getReturnOfExpression } from "../node_modules/utility-types/dist/functional-helpers";
 
 export const SECTOR_SIZE = 32;
-export const SECTOR_RES = 16;
+export const SECTOR_RES = 8;
 export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
@@ -13,14 +15,56 @@ export class TerraSector {
   }
 }
 
-export function defPlaceholder(x: number, y: number): number {
-  return Math.pow(
-    Math.min(1, Math.max(0, 1 - Math.sqrt(x * x + y * y) / 900)),
-    5,
-  );
+export interface TerraDef {
+  (x: number, y: number): number;
 }
 
-export type TerraDef = (x: number, y: number) => number;
+interface LandfillDef {
+  center: Vec2,
+  radius: number,
+  height: number
+}
+
+function landfill(def: LandfillDef) {
+  const cx = def.center.x;
+  const cy = def.center.y;
+  const { radius, height } = def;
+  return function(x: number, y: number): number {
+    const ox = (x - cx) / radius;
+    const oy = (y - cy) / radius;
+    const distSq = (ox * ox) + (oy * oy);
+    return height - Math.sqrt(distSq) * height;
+  }
+}
+
+function randomLandfill(scale: number = 1): LandfillDef {
+  return {
+    center: new Vec2(random.uniform(0, 800 * scale)(), 0).rotateBy(Math.PI * Math.random() * 2),
+    radius: random.uniform(100, 400 * scale)(),
+    height: random.uniform(0.4, 1.0)()
+  };
+}
+
+function randomLandfills(scale: number = 1): LandfillDef[] {
+  return new Array(random.uniformInt(5, 20)()).fill(null).map(() => randomLandfill(scale));
+}
+
+function landfills(landfills: LandfillDef[] = randomLandfills()) {
+  const funcs = landfills.map((def) => landfill(def));
+  const len = funcs.length;
+
+  return (x: number, y: number) => {
+    const vals = funcs.map((f) => f(x, y));
+    const base = Math.max(0, ...vals);
+    const avg = vals.reduce((a, b) => a + b, 0) / len;
+    const offs = Math.max(0, avg - base);
+    return base + offs / 2;
+  };
+}
+
+export function landfillGenerator(distFactor: number = 1): TerraDef {
+  return landfills(randomLandfills(distFactor));
+}
 
 export class Terrain {
   definition: TerraDef;

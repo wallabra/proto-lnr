@@ -1,7 +1,7 @@
 import Vec2 from "victor";
 import Superstate from "./superstates/base";
 import { Player } from "./player";
-import { TerraDef, defPlaceholder } from "./terrain";
+import { TerraDef, landfillGenerator } from "./terrain";
 import { PlayState } from "./superstates/play";
 import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
@@ -29,14 +29,14 @@ export class Game {
     this.restart();
   }
 
-  restart(terradef?: TerraDef | null) {
+  restart(terradef: TerraDef = landfillGenerator()) {
     this.setPlayState(terradef);
     this.resetPlayer();
     this.setupPlayerFleet();
     this.setupNPCs();
   }
 
-  nextLevel(terradef?: TerraDef | null) {
+  nextLevel(terradef: TerraDef = landfillGenerator()) {
     this.setPlayState(terradef);
     this.setupPlayerFleet();
     this.setupNPCs();
@@ -117,7 +117,7 @@ export class Game {
     return smallEdge / this.zoom;
   }
 
-  setPlayState(terraDef: TerraDef = defPlaceholder) {
+  setPlayState(terraDef: TerraDef) {
     const play = this.setState(PlayState, terraDef);
     return play;
   }
