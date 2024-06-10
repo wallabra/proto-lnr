@@ -8,7 +8,7 @@ import {
   Terrain,
 } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp, moneyString } from "./util";
+import { rgbString, interpColor, lerp, moneyString, unlerp } from "./util";
 import {
   CanvasLabel,
   CanvasLabelArgs,
@@ -143,10 +143,14 @@ export class TerrainRenderer {
     cx: number,
     cy: number,
     sector: TerraSector,
+    zoom: number
   ) {
     if (this.terrain == null) {
       return;
     }
+
+    const gcx = cx / zoom;
+    const gcy = cy / zoom;
 
     for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
       const tx = tileIdx % SECTOR_SIZE;
@@ -157,13 +161,12 @@ export class TerrainRenderer {
       const drawY = ty * SECTOR_RES;
 
       const gradient = this.terrain.gradientAt(
-        cx + tx * SECTOR_RES,
-        cy + ty * SECTOR_RES,
+        gcx + tx * SECTOR_RES,
+        gcy + ty * SECTOR_RES,
       );
+      const shadowEffect = unlerp(this.game.waterLevel * 0.98, this.game.waterLevel * 1.05, height);
       const shadowness =
-        height < this.game.waterLevel
-          ? 0
-          : Math.max(0, 30 * gradient.dot(new Vec2(0, -1)));
+        lerp(0, Math.max(0, gradient.dot(new Vec2(0, -80))), shadowEffect);
 
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(
@@ -188,7 +191,7 @@ export class TerrainRenderer {
 
     if (image == null) {
       const x = sx * sectorSize;
-      const y = sx * sectorSize;
+      const y = sy * sectorSize;
 
       const renderCanvas = document.createElement("canvas");
       renderCanvas.width = SECTOR_REAL_SIZE;
@@ -203,7 +206,7 @@ export class TerrainRenderer {
 
       renderCtx.imageSmoothingEnabled = false;
 
-      this.renderTerrainSector(renderCtx, x, y, sector);
+      this.renderTerrainSector(renderCtx, x, y, sector, zoom);
 
       const imgData = renderCanvas.toDataURL("image/png", "image/octet-scream");
       const imgEl = document.createElement("img");
