@@ -70,14 +70,14 @@ function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
 }
 
 function manningRequirements(part: ShipPart) {
-    if (!part.manned) return [];
+  if (!part.manned) return [];
 
-    if (typeof part.manned !== "number") {
-      return ["Needs to be manned"];
-    } else {
-      return [`Needs min. ${part.manned} total manning strength`];
-    }
+  if (typeof part.manned !== "number") {
+    return ["Needs to be manned"];
+  } else {
+    return [`Needs min. ${part.manned} total manning strength`];
   }
+}
 
 abstract class Pane<
   A extends PaneArgs = PaneArgs,
@@ -651,7 +651,7 @@ class DrydockInventoryItemWidget extends Pane<
     const lines = [
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
-      this.item instanceof ShipPart ? [manningRequirements(this.item)] : []
+      this.item instanceof ShipPart ? [manningRequirements(this.item)] : [],
     ];
 
     if (lines.length < this.details.children.length) {
@@ -945,9 +945,10 @@ class ShopItemWidget extends Pane<
 
     const detailLines = [
       ...((this.item.shopInfo && this.item.shopInfo()) ?? []),
-      ...(this.item instanceof ShipPart ? [manningRequirements(this.item)] : [])
+      ...(this.item instanceof ShipPart
+        ? [manningRequirements(this.item)]
+        : []),
     ];
-    
 
     for (const line of detailLines) {
       const infoLabel = new CanvasLabel({
@@ -2061,7 +2062,6 @@ export default class IntermissionState extends Superstate {
       childMargin: 1.5,
       fillX: 1,
       paddingX: 2,
-      paddingY: 2,
       tabs: [],
       bgColor: "#0000",
       tabOptions: {

@@ -19,42 +19,56 @@ export interface TerraDef {
 }
 
 interface LandfillDef {
-  center: Vec2,
-  radius: number,
-  height: number
+  center: Vec2;
+  radius: number;
+  height: number;
 }
 
 function landfill(def: LandfillDef) {
   const cx = def.center.x;
   const cy = def.center.y;
   const { radius, height } = def;
-  return function(x: number, y: number): number {
+  return function (x: number, y: number): number {
     const ox = (x - cx) / radius;
     const oy = (y - cy) / radius;
-    const distSq = (ox * ox) + (oy * oy);
+    const distSq = ox * ox + oy * oy;
     return height - distSq * height;
-  }
+  };
 }
 
 function randomLandfill(scale: number = 1): LandfillDef {
   return {
-    center: new Vec2(random.uniform(0, 800 * scale)(), 0).rotateBy(Math.PI * Math.random() * 2),
+    center: new Vec2(random.uniform(0, 800 * scale)(), 0).rotateBy(
+      Math.PI * Math.random() * 2,
+    ),
     radius: random.uniform(100, 400 * scale)(),
-    height: random.uniform(0.4, 1.0)()
+    height: random.uniform(0.4, 1.0)(),
   };
 }
 
 function randomLandfills(scale: number = 1): LandfillDef[] {
-  return new Array(random.uniformInt(5, 20)()).fill(null).map(() => randomLandfill(scale));
+  return new Array(random.uniformInt(5, 20)())
+    .fill(null)
+    .map(() => randomLandfill(scale));
 }
 
-function landfills(landfills: LandfillDef[] = randomLandfills(), roughness: number = 20) {
+function landfills(
+  landfills: LandfillDef[] = randomLandfills(),
+  roughness: number = 20,
+) {
   const funcs = landfills.map((def) => landfill(def));
-  const len = funcs.length;
 
   return (x: number, y: number) => {
     const vals = funcs.map((f) => f(x, y));
-    return Math.max(0, Math.log(Math.max(0.000001, vals.map((v) => Math.exp(v * roughness)).reduce((a, b) => a + b, 0))) / roughness);
+    return Math.max(
+      0,
+      Math.log(
+        Math.max(
+          0.000001,
+          vals.map((v) => Math.exp(v * roughness)).reduce((a, b) => a + b, 0),
+        ),
+      ) / roughness,
+    );
   };
 }
 

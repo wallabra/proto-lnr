@@ -143,7 +143,7 @@ export class TerrainRenderer {
     cx: number,
     cy: number,
     sector: TerraSector,
-    zoom: number
+    zoom: number,
   ) {
     if (this.terrain == null) {
       return;
@@ -164,9 +164,16 @@ export class TerrainRenderer {
         gcx + tx * SECTOR_RES,
         gcy + ty * SECTOR_RES,
       );
-      const shadowEffect = unlerp(this.game.waterLevel * 0.98, this.game.waterLevel * 1.05, height);
-      const shadowness =
-        lerp(0, Math.max(0, gradient.dot(new Vec2(0, -80))), shadowEffect);
+      const shadowEffect = unlerp(
+        this.game.waterLevel * 0.98,
+        this.game.waterLevel * 1.05,
+        height,
+      );
+      const shadowness = lerp(
+        0,
+        Math.max(0, gradient.dot(new Vec2(0, -80))),
+        shadowEffect,
+      );
 
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(

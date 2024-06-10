@@ -9,7 +9,7 @@ export const lerp = (a: number, b: number, alpha: number): number =>
 export const unlerp = (a: number, b: number, val: number): number => {
   const clamped = Math.max(a, Math.min(b, val));
   return (clamped - a) / (b - a);
-}
+};
 
 export function rgbString(rgb: [number, number, number]): string {
   return `rgb(${rgb.join(", ")})`;
