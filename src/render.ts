@@ -115,8 +115,8 @@ export class TerrainRenderer {
     const rgb1: RGB = [0, 10, 45];
     const rgb2: RGB = [30, 60, 70];
     // above waterLevel
-    const rgb3: RGB = [50, 90, 30];
-    const rgb4: RGB = [180, 182, 197];
+    const rgb3: RGB = [110, 100, 72];
+    const rgb4: RGB = [90, 197, 80];
 
     let from: RGB;
     let to: RGB;
