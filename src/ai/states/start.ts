@@ -8,14 +8,20 @@ import { Nullish } from "utility-types";
 export class StartState implements AIHandler<AIStartArgs> {
   name: string = "start";
 
-  private findPickupCrate(args: AITickArgs) {
+  private findPickupCrate(args: AITickArgs): Pickup | null {
     const { ship, play } = args;
     const pos = ship.pos;
-    for (const pickup of play.tickables) {
-      if (!(pickup instanceof Pickup)) continue;
-      if (pickup.phys.pos.clone().subtract(pos).length() > 300) continue;
-      return pickup;
-    }
+    const maxDist = 300 + ship.size * ship.lateralCrossSection * 1.5;
+    let lastDist = Infinity;
+
+    return play.tickables.reduce((a, b) => {
+      if (!(b instanceof Pickup)) return a;
+      if (a == null) return b;
+      const dist = b.phys.pos.distance(pos);
+      if (dist > Math.min(maxDist, lastDist - 10)) return a;
+      lastDist = dist;
+      return b as Pickup;
+    }, null) as Pickup | null;
   }
 
   private roam(deltaTime: number, ship: Ship) {
