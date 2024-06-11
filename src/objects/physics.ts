@@ -57,6 +57,7 @@ export class PhysicsSimulation {
 
 export class PhysicsObject {
   play: PlayState;
+  lastFloor: { pos: { x: number, y: number }, floor: number } | null;
   size: number;
   angle: number;
   pos: Vec2;
@@ -122,9 +123,22 @@ export class PhysicsObject {
     return collision == null ? 0 : -collision.dist;
   }
 
-  get floor() {
+  private computeFloor() {
     if (this.play.terrain == null) return 0;
-    return this.play.terrain.heightAt(this.pos.x, this.pos.y);
+    return this.play.terrain.heightAt(this.pos.x, this.pos.y);    
+  }
+
+  private regenLastFloor() {
+    const floor = this.computeFloor();
+    this.lastFloor = {
+      pos: { x: this.pos.x, y: this.pos.y },
+      floor: floor
+    }
+  }
+
+  get floor() {
+    if (this.lastFloor == null || this.lastFloor.pos.x !== this.pos.x || this.lastFloor.pos.y !== this.pos.y) this.regenLastFloor();
+    return this.lastFloor.floor;
   }
 
   slideDownLand(deltaTime: number) {

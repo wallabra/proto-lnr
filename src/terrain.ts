@@ -178,7 +178,7 @@ export class Terrain {
   }
 
   getCache(cx: number, cy: number) {
-    const key = "" + cx + "," + cy;
+    const key = cx + "," + cy;
     if (this.cached.has(key)) {
       return this.cached.get(key);
     }
