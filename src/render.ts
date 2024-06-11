@@ -166,12 +166,12 @@ export class TerrainRenderer {
       );
       const shadowEffect = unlerp(
         this.game.waterLevel * 0.3,
-        this.game.waterLevel * 1.05,
+        this.game.waterLevel * 1.1,
         height,
       );
       const shadowness = lerp(
         0,
-        Math.max(0, gradient.dot(new Vec2(0, -1))),
+        gradient.dot(new Vec2(0, -10)),
         shadowEffect,
       );
 
