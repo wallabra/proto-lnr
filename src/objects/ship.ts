@@ -1174,7 +1174,7 @@ export class Ship {
     if (this.dying) return;
     if (!this.phys.inWater()) return;
 
-    const cappedSpeed = Math.min(30000, this.vel.lengthSq());
+    const cappedSpeed = Math.min(8000, this.vel.lengthSq());
 
     if (
       this.lastWave != null &&
