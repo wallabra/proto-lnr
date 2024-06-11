@@ -112,6 +112,7 @@ export abstract class Pickup {
   }
 
   tick(deltaTime: number) {
+    if (this.phys.age > 300) return this.destroy();
     this.bob(deltaTime);
     this.checkShipCollisions(deltaTime);
   }

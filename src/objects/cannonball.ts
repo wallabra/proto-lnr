@@ -132,7 +132,8 @@ export class Cannonball {
     }
   }
 
-  tick(deltaTime) {
+  tick(deltaTime: number) {
+    if (this.phys.age > 50) return this.destroy();
     this.checkTerrainCollision();
     this.checkShipCollisions(deltaTime);
   }
