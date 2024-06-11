@@ -17,6 +17,7 @@ export class TerraSector {
 
 export interface TerraDef {
   (x: number, y: number): number;
+  boundingBox: BoundingBox;
 }
 
 interface LandfillDef {
@@ -73,8 +74,57 @@ function landfills(
   };
 }
 
+interface BoundingBox {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+interface AnyPoint {
+  x: number;
+  y: number;
+}
+
+function isInBoundingBox(point: AnyPoint, box: BoundingBox): boolean {
+  return (
+    point.x >= box.left &&
+    point.x <= box.right &&
+    point.y >= box.top &&
+    point.y <= box.bottom
+  );
+}
+
+function boxUnion(...boxes: BoundingBox[]): BoundingBox {
+  return boxes.reduce(
+    (bounds, box) => ({
+      left: Math.min(box.left, box.right, bounds.left),
+      right: Math.max(box.left, box.right, bounds.right),
+      top: Math.min(box.top, box.bottom, bounds.top),
+      bottom: Math.max(box.top, box.bottom, bounds.bottom),
+    }),
+    { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity },
+  );
+}
+
+function landfillBoundingBox(landfill: LandfillDef): BoundingBox {
+  return {
+    left: landfill.center.x - landfill.radius,
+    right: landfill.center.x + landfill.radius,
+    top: landfill.center.y - landfill.radius,
+    bottom: landfill.center.y + landfill.radius,
+  };
+}
+
+function multiLandfillBoundingBox(...landfills: LandfillDef[]): BoundingBox {
+  return boxUnion(...landfills.map((l) => landfillBoundingBox(l)));
+}
+
 export function landfillGenerator(distFactor: number = 1): TerraDef {
-  return landfills(randomLandfills(distFactor));
+  const ldefs = randomLandfills(distFactor);
+  return Object.assign(landfills(ldefs), {
+    boundingBox: multiLandfillBoundingBox(...ldefs),
+  });
 }
 
 export class Terrain {
@@ -108,6 +158,7 @@ export class Terrain {
   }
 
   realHeightAt(x: number, y: number) {
+    if (!isInBoundingBox({ x, y }, this.definition.boundingBox)) return 0;
     return this.definition(x, y);
   }
 

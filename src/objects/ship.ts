@@ -1179,12 +1179,7 @@ export class Ship {
     if (
       this.lastWave != null &&
       this.phys.age <
-        this.lastWave +
-          0.25 +
-          Math.max(
-            0,
-            Math.exp(-cappedSpeed / 4000) * 1.6,
-          )
+        this.lastWave + 0.25 + Math.max(0, Math.exp(-cappedSpeed / 4000) * 1.6)
     )
       return;
 
