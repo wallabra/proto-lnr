@@ -1174,6 +1174,8 @@ export class Ship {
     if (this.dying) return;
     if (!this.phys.inWater()) return;
 
+    const cappedSpeed = Math.min(30000, this.vel.lengthSq());
+
     if (
       this.lastWave != null &&
       this.phys.age <
@@ -1181,7 +1183,7 @@ export class Ship {
           0.25 +
           Math.max(
             0,
-            Math.exp(-(this.vel.lengthSq() - this.phys.vspeed) / 4000) * 1.6,
+            Math.exp(-cappedSpeed / 4000) * 1.6,
           )
     )
       return;
