@@ -133,11 +133,17 @@ export class Game {
     if (numNPCs == null) numNPCs = random.uniformInt(25, 90)();
 
     let toSpawn = numNPCs;
+    let radiusBonus = 0;
+    let attempts = 0;
 
     while (toSpawn) {
+      if (attempts >= 50) {
+        attempts = 0;
+        radiusBonus += 50;
+      }
       let leader: Ship = null;
       let squadSize = Math.ceil(0.8 + random.exponential(1.7)() * 1.3);
-      const squadPos = new Vec2(Math.random() * 1500 + 400, 0).rotateBy(
+      const squadPos = new Vec2(Math.random() * 1500 + 400 + radiusBonus, 0).rotateBy(
         Math.random() * Math.PI * 2,
       );
       if (
@@ -145,6 +151,7 @@ export class Game {
         play.player.possessed.size * play.player.possessed.lateralCrossSection +
           800
       ) {
+        attempts++;
         continue;
       }
       while (squadSize && toSpawn) {
@@ -165,10 +172,12 @@ export class Game {
             600
         ) {
           aiship.die();
+          attempts++;
           continue;
         }
         if (aiship.floor > play.waterLevel * 0.5) {
           aiship.die();
+          attempts++;
           continue;
         }
         aiship.makeup.giveRandomParts(+(leader == null) * 9);
