@@ -143,9 +143,10 @@ export class Game {
       }
       let leader: Ship = null;
       let squadSize = Math.ceil(0.8 + random.exponential(1.7)() * 1.3);
-      const squadPos = new Vec2(Math.random() * 1500 + 400 + radiusBonus, 0).rotateBy(
-        Math.random() * Math.PI * 2,
-      );
+      const squadPos = new Vec2(
+        Math.random() * 1500 + 400 + radiusBonus,
+        0,
+      ).rotateBy(Math.random() * Math.PI * 2);
       if (
         squadPos.clone().subtract(play.player.possessed.pos).length() <
         play.player.possessed.size * play.player.possessed.lateralCrossSection +

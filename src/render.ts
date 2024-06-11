@@ -169,11 +169,7 @@ export class TerrainRenderer {
         this.game.waterLevel * 1.1,
         height,
       );
-      const shadowness = lerp(
-        0,
-        gradient.dot(new Vec2(0, -10)),
-        shadowEffect,
-      );
+      const shadowness = lerp(0, gradient.dot(new Vec2(0, -10)), shadowEffect);
 
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(

@@ -1577,7 +1577,7 @@ class PaneDrydockShip extends Pane<
     });
     this.disbandShipHullLabel = this.disbandShipHullButton.label(
       "Disband Ship & Sell Hull",
-      { color: "#fff" },
+      { color: "#fff", height: 12 },
     );
 
     this.disbandShipButton = new CanvasButton({
@@ -1593,7 +1593,7 @@ class PaneDrydockShip extends Pane<
     });
     this.disbandShipLabel = this.disbandShipButton.label(
       "Disband Ship & Sell All",
-      { color: "#fff" },
+      { color: "#fff", height: 12 },
     );
 
     this.captainStatus = new CanvasLabel({
@@ -1769,14 +1769,8 @@ class PaneDrydockShip extends Pane<
     this.disbandShipHullButton.hidden = !canDisband;
     if (!canDisband) return;
 
-    this.disbandShipButton.label(
-      `Disband & Resell Ship w/Contents (+${moneyString(this.disbandResellValue())})`,
-      { color: "#fff" },
-    );
-    this.disbandShipHullButton.label(
-      `Disband & Resell Ship Only (+${moneyString(this.disbandHullResellValue())})`,
-      { color: "#fff" },
-    );
+    this.disbandShipLabel.label = `Disband & Resell Ship w/Contents (+${moneyString(this.disbandResellValue())})`;
+    this.disbandShipHullLabel.label = `Disband & Resell Ship Only (+${moneyString(this.disbandHullResellValue())})`;
   }
 
   private get drydockTabPanel() {
@@ -1812,7 +1806,9 @@ class PaneDrydockShip extends Pane<
     const tab = this.drydockTabPanel.tabs.children.find(
       (tab) => tab.content.pane === this.pane,
     );
-    const nextTab = this.drydockTabPanel.tabs.children.find((otherTab) => otherTab !== tab);
+    const nextTab = this.drydockTabPanel.tabs.children.find(
+      (otherTab) => otherTab !== tab,
+    );
     nextTab.activate();
     nextTab.content.update();
     tab.remove();
