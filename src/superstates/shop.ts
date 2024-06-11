@@ -1809,13 +1809,12 @@ class PaneDrydockShip extends Pane<
       }
     }
 
-    const nextTab = this.drydockTabPanel.tabs.children[0];
-    nextTab.activate();
-    nextTab.content.update();
-
     const tab = this.drydockTabPanel.tabs.children.find(
       (tab) => tab.content.pane === this.pane,
     );
+    const nextTab = this.drydockTabPanel.tabs.children.find((otherTab) => otherTab !== tab);
+    nextTab.activate();
+    nextTab.content.update();
     tab.remove();
     this.destroy();
   }
