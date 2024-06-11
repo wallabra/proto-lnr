@@ -356,29 +356,28 @@ class ShipRenderContext {
   drawCannons() {
     const cannons = this.ship.makeup.getPartsOf("cannon") as Cannon[];
 
-    cannons
-      .forEach((cannon, idx) => {
-        this.drawCannon(
-          cannon,
-          new Vec2(
-            lerp(
-              0.3,
-              1.0,
-              cannons.length <= 1
-                ? 1.0
-                : 1.0 -
-                    Math.abs(idx - (cannons.length - 1) / 2) /
-                      (cannons.length - 1) /
-                      2,
-            ),
-            lerp(
-              -0.6,
-              0.6,
-              cannons.length <= 1 ? 0.5 : idx / (cannons.length - 1),
-            ),
+    cannons.forEach((cannon, idx) => {
+      this.drawCannon(
+        cannon,
+        new Vec2(
+          lerp(
+            0.3,
+            1.0,
+            cannons.length <= 1
+              ? 1.0
+              : 1.0 -
+                  Math.abs(idx - (cannons.length - 1) / 2) /
+                    (cannons.length - 1) /
+                    2,
           ),
-        );
-      });
+          lerp(
+            -0.6,
+            0.6,
+            cannons.length <= 1 ? 0.5 : idx / (cannons.length - 1),
+          ),
+        ),
+      );
+    });
   }
 
   drawCrosshair(cannon: Cannon) {
@@ -1028,7 +1027,8 @@ export class Ship {
     const edge = this.size * 0.5;
     const maxOff = this.size * this.lateralCrossSection - edge;
 
-    return [...Array(numCircles * 2 - 1).keys()].map(i => i + 1 - numCircles)
+    return [...Array(numCircles * 2 - 1).keys()]
+      .map((i) => i + 1 - numCircles)
       .map((num: number): CollisionCircle => {
         const alpha = num / Math.max(1, numCircles - 1);
         const off = maxOff * alpha;
