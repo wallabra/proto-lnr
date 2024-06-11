@@ -16,7 +16,6 @@ import { ShipItem } from "../inventory";
 import { ItemPickup, ItemPickupParamType, DebugPickup } from "./pickup";
 import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
 import random from "random";
-import { iter } from "iterator-helper";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
@@ -98,13 +97,14 @@ export function closestCircle(
   soup: CollisionCircle[],
   target: CollisionCircle,
 ): { circle: CollisionCircle; dist: number } {
-  return iter(soup)
+  return soup
     .map<{ circle: CollisionCircle; dist: number }>((c) => ({
       circle: c,
       dist: circleCentreDist(c, target),
     }))
-    .reduce<{ circle: CollisionCircle; dist: number }>((a, b) =>
-      a.dist < b.dist ? a : b,
+    .reduce<{ circle: CollisionCircle; dist: number }>(
+      (a, b) => (a.dist < b.dist ? a : b),
+      { circle: null, dist: Infinity },
     );
 }
 
@@ -356,9 +356,8 @@ class ShipRenderContext {
   drawCannons() {
     const cannons = this.ship.makeup.getPartsOf("cannon") as Cannon[];
 
-    iter(cannons)
-      .asIndexedPairs()
-      .forEach(([idx, cannon]) => {
+    cannons
+      .forEach((cannon, idx) => {
         this.drawCannon(
           cannon,
           new Vec2(
@@ -983,14 +982,15 @@ export class Ship {
     }
     const circles1 = this.collisionCircles();
 
-    const closest = iter(circles1)
-      .flatMap<CircleColInfo>((c1) =>
-        iter(circles2).map<CircleColInfo>((c2) => ({
+    const closest = circles1
+      .map((c1) =>
+        circles2.map<CircleColInfo>((c2) => ({
           circle1: c1,
           circle2: c2,
           dist: circleDist(c1, c2),
         })),
       )
+      .reduce((a, b) => [...a, ...b], [])
       .reduce((a: CircleColInfo, b: CircleColInfo) =>
         a.dist < b.dist ? a : b,
       );
@@ -1028,8 +1028,7 @@ export class Ship {
     const edge = this.size * 0.5;
     const maxOff = this.size * this.lateralCrossSection - edge;
 
-    return iter
-      .range(-numCircles + 1, numCircles)
+    return [...Array(numCircles * 2 - 1).keys()].map(i => i + 1 - numCircles)
       .map((num: number): CollisionCircle => {
         const alpha = num / Math.max(1, numCircles - 1);
         const off = maxOff * alpha;
@@ -1037,8 +1036,7 @@ export class Ship {
           center: new Vec2(off, 0).rotate(this.angle).add(this.pos),
           radius: lerp(this.size, edge, Math.abs(alpha)),
         };
-      })
-      .toArray();
+      });
   }
 
   checkShipCollision(deltaTime: number, ship: Ship) {

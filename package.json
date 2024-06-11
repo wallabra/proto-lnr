@@ -26,7 +26,6 @@
   "dependencies": {
     "@types/victor": "^1.1.5",
     "array-counter": "^1.0.0",
-    "iterator-helper": "^1.3.4",
     "random": "^4.1.0",
     "random-weighted-choice": "^0.1.4",
     "rustmatchjs": "^0.0.4",
