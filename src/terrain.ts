@@ -205,6 +205,9 @@ export class Terrain {
     const ix = Math.floor(cx / cres);
     const iy = Math.floor(cy / cres);
 
+    // no longer use bilinear
+    return cached[iy * clen + ix];
+
     // bilinear interpolation
     const alpha_x = ix % 1;
     const alpha_y = iy % 1;
