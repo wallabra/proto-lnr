@@ -242,9 +242,7 @@ export class Terrain {
   }
 
   getSector(x: number, y: number): TerraSector {
-    let sector = this.sectors.get(x, y);
-    
-    return sector ?? this.renderSector(x, y);
+    return this.sectors.get(x, y) ?? this.renderSector(x, y);
   }
 
   setSector(x: number, y: number, sector: TerraSector) {
