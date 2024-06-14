@@ -1876,6 +1876,7 @@ class PaneDrydockShip extends Pane<
       player.money -= cost;
       this.makeup.hullDamage = 0;
     }
+    this.updateRepairLabel();
   }
 
   repairCost() {
