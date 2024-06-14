@@ -136,7 +136,7 @@ export class Terrain {
 
   constructor(
     definition: TerraDef,
-    cacheSize: number = 256,
+    cacheSize: number = 2048,
     cacheRes: number = 4,
   ) {
     this.definition = definition;
