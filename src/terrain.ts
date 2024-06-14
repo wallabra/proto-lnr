@@ -7,6 +7,25 @@ export const SECTOR_RES = 8;
 export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
+class Map2D<T> {
+  private o: { [x: number]: { [y: number]: T } };
+
+  constructor() {
+    this.o = {};
+  }
+
+  set(x: number, y: number, val: T) {
+    this.o[x] ??= {};
+    this.o[x][y] = val;
+  }
+
+  get(x: number, y: number): T | null {
+    const row = this.o[x];
+    if (row == null) return null;
+    return row[y] ?? null;
+  }
+}
+
 export class TerraSector {
   heights: Array<number>;
 
@@ -129,8 +148,8 @@ export function landfillGenerator(distFactor: number = 1): TerraDef {
 
 export class Terrain {
   definition: TerraDef;
-  sectors: Map<string, TerraSector>;
-  cached: Map<string, number[]>;
+  sectors: Map2D<TerraSector>;
+  cached: Map2D<number[]>;
   cacheSize: number;
   cacheRes: number;
 
@@ -140,8 +159,8 @@ export class Terrain {
     cacheRes: number = 4,
   ) {
     this.definition = definition;
-    this.sectors = new Map();
-    this.cached = new Map();
+    this.sectors = new Map2D();
+    this.cached = new Map2D();
     this.cacheSize = cacheSize;
     this.cacheRes = cacheRes;
   }
@@ -178,13 +197,13 @@ export class Terrain {
   }
 
   getCache(cx: number, cy: number) {
-    const key = cx + "," + cy;
-    if (this.cached.has(key)) {
-      return this.cached.get(key);
+    let res = this.cached.get(cx, cy);
+    if (res != null) {
+      return res;
     }
-    const vals = this.genCache(cx, cy);
-    this.cached.set(key, vals);
-    return vals;
+    res = this.genCache(cx, cy);
+    this.cached.set(cx, cy, res);
+    return res;
   }
 
   cacheCoords(x: number, y: number) {
@@ -223,18 +242,16 @@ export class Terrain {
   }
 
   getSector(x: number, y: number): TerraSector {
-    if (!this.sectors.has("" + x + "," + y)) {
-      this.renderSector(x, y);
-    }
-
-    return <TerraSector>this.sectors.get("" + x + "," + y);
+    let sector = this.sectors.get(x, y);
+    
+    return sector ?? this.renderSector(x, y);
   }
 
   setSector(x: number, y: number, sector: TerraSector) {
-    this.sectors.set("" + x + "," + y, sector);
+    this.sectors.set(x, y, sector);
   }
 
-  renderSector(x: number, y: number) {
+  renderSector(x: number, y: number): TerraSector {
     const sector = new TerraSector();
     const baseX = x * SECTOR_REAL_SIZE;
     const baseY = y * SECTOR_REAL_SIZE;
@@ -247,5 +264,6 @@ export class Terrain {
       );
     }
     this.setSector(x, y, sector);
+    return sector;
   }
 }
