@@ -7,19 +7,53 @@ export const SECTOR_RES = 8;
 export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
-class Map2D<T> {
-  private o: { [x: number]: { [y: number]: T } };
+interface LRUItem2D<T> {
+  x: number,
+  y: number,
+  item: T,
+}
 
-  constructor() {
-    this.o = {};
+class LRUMap2D<T> {
+  private cache: LRUItem2D<T>[];
+  private index: { [x: number]: { [y: number]: number } };
+  private dirs: Uint8Array[];
+  private maxLen: number;
+
+  constructor(produce: (x: number, y: number) => T, maxLen: number = 100) {
+    this.cache = [];
+    this.index = {};
+    this.dirs = new Uint8Array();
+    this.maxLen = maxLen;
   }
 
-  set(x: number, y: number, val: T) {
-    this.o[x] ??= {};
-    this.o[x][y] = val;
+  private setLatestDir(latestIdx: number) {
+    let curr = 0;
+    let halfpoint = 1;
+    while (curr != latestIdx) {
+      const bigger = latestIdx > halfpoint;
+      const offs = ;
+      this.dirs[curr] = bigger;
+      curr = halfpoint ;
+      halfpoint *= 2;
+    }
   }
 
-  get(x: number, y: number): T | null {
+  private setItem(item: LRUItem2D<T>) {
+    if (this.cache.length > this.maxLen) {
+      
+    } else {
+      this.cache.push(item);
+      if (this.cache.length > 1)
+      this.setLatestDir(this.cache.length - 1);
+    }
+    return this;
+  }
+
+  private set(x: number, y: number, val: T) {
+
+  }
+
+  public get(x: number, y: number): T | null {
     const row = this.o[x];
     if (row == null) return null;
     return row[y] ?? null;
