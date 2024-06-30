@@ -17,9 +17,9 @@ class LRUMap2D<T> {
   private cache: LRUItem2D<T>[];
   private index: { [x: number]: { [y: number]: number } };
   private order: number[];
-  private maxLen: number;
+  private maxLen: number | null;
 
-  constructor(maxLen: number = 2000) {
+  constructor(maxLen: number | null = null) {
     this.clear();
     this.maxLen = maxLen;
   }
@@ -42,7 +42,7 @@ class LRUMap2D<T> {
   }
 
   private setItem(item: LRUItem2D<T>) {
-    if (this.cache.length > this.maxLen) {
+    if (this.maxLen != null && this.cache.length > this.maxLen) {
       const idx = this.order.shift();
       this._delete(idx);
     }
@@ -192,7 +192,7 @@ export class Terrain {
 
   constructor(
     definition: TerraDef,
-    cacheSize: number = 512,
+    cacheSize: number = 64,
     cacheRes: number = 4,
   ) {
     this.definition = definition;
