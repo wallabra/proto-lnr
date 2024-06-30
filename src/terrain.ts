@@ -19,7 +19,7 @@ class LRUMap2D<T> {
   private order: number[];
   private maxLen: number;
 
-  constructor(maxLen: number = 100) {
+  constructor(maxLen: number = 500) {
     this.cache = [];
     this.index = {};
     this.order = [];
