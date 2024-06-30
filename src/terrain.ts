@@ -1,6 +1,6 @@
 import Vec2 from "victor";
 import random from "random";
-import { lerp } from "./util";
+//import { lerp } from "./util";
 
 export const SECTOR_SIZE = 32;
 export const SECTOR_RES = 8;
@@ -70,6 +70,10 @@ class LRUMap2D<T> {
       this.order[0] = this.order.splice(orderIdx, 1, this.order[0])[0];
 
     return row[y] != null ? this.cache[row[y]].item : null;
+  }
+
+  public size() {
+    return this.cache.length;
   }
 }
 
@@ -192,7 +196,7 @@ export class Terrain {
 
   constructor(
     definition: TerraDef,
-    cacheSize: number = 64,
+    cacheSize: number = 512,
     cacheRes: number = 4,
   ) {
     this.definition = definition;
@@ -257,6 +261,7 @@ export class Terrain {
     const cres = this.cacheRes;
     const clen = this.cacheRowLen;
     const ccoord = this.cacheCoords(x, y);
+    //console.debug('terrain cache size:', this.cached.size());
     const cached = this.getCache(ccoord.x, ccoord.y);
     const cx = x - ccoord.x * csize;
     const cy = y - ccoord.y * csize;
@@ -267,6 +272,7 @@ export class Terrain {
     return cached[iy * clen + ix];
 
     // bilinear interpolation
+    /*
     const alpha_x = ix % 1;
     const alpha_y = iy % 1;
     const ix2 = Math.min(ix + 1, clen - 1);
@@ -278,6 +284,7 @@ export class Terrain {
       alpha_x,
     );
     return lerp(ltop, lbottom, alpha_y);
+    */
   }
 
   getSector(x: number, y: number): TerraSector {
