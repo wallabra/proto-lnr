@@ -144,7 +144,7 @@ export class Game {
       let leader: Ship = null;
       let squadSize = Math.ceil(0.8 + random.exponential(1.7)() * 1.3);
       const squadPos = new Vec2(
-        Math.random() * 1500 + 400 + radiusBonus,
+        Math.sqrt(Math.random()) * 1500 + 400 + radiusBonus,
         0,
       ).rotateBy(Math.random() * Math.PI * 2);
       if (
@@ -157,7 +157,7 @@ export class Game {
       }
       while (squadSize && toSpawn) {
         const aiship = play.makeShip(
-          new Vec2(random.uniform(100, 400)(), 0)
+          new Vec2(100 + 300 * Math.sqrt(Math.random()), 0)
             .rotateBy(Math.random() * Math.PI * 2)
             .add(squadPos),
           {
