@@ -1425,7 +1425,7 @@ class HudRenderer {
 
   tick(deltaTime: number) {
     this.fpsCounter.tick(deltaTime);
-    this.hud.tick(deltaTime);
+    if (!this.game.game.paused) this.hud.tick(deltaTime);
   }
 
   renderUI(ctx: UIDrawContext) {

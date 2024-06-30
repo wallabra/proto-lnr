@@ -180,9 +180,11 @@ export class PlayState extends Superstate {
 
   /// Order of tick operations
   tick(deltaTime: number) {
-    this.physics.tick(deltaTime);
-    this.tickTickables(deltaTime);
-    this.pruneDestroyedTickables();
+    if (!this.game.paused) {
+      this.physics.tick(deltaTime);
+      this.tickTickables(deltaTime);
+      this.pruneDestroyedTickables();
+    }
     this.renderer.tick(deltaTime);
   }
 

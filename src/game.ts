@@ -208,9 +208,10 @@ export class Game {
 
   /// Order of tick operations
   tick(deltaTime: number) {
-    if (this.paused) return;
-    this.tickPlayer(deltaTime);
-    this.keyboard.tick();
+    if (!this.paused) {
+      this.tickPlayer(deltaTime);
+      this.keyboard.tick();
+    }
     this.state.tick(deltaTime);
   }
 
