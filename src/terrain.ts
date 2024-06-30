@@ -147,18 +147,8 @@ interface BoundingBox {
   bottom: number;
 }
 
-interface AnyPoint {
-  x: number;
-  y: number;
-}
-
-function isInBoundingBox(point: AnyPoint, box: BoundingBox): boolean {
-  return (
-    point.x >= box.left &&
-    point.x <= box.right &&
-    point.y >= box.top &&
-    point.y <= box.bottom
-  );
+function isInBoundingBox(x: number, y: number, box: BoundingBox): boolean {
+  return x >= box.left && x <= box.right && y >= box.top && y <= box.bottom;
 }
 
 function boxUnion(...boxes: BoundingBox[]): BoundingBox {
@@ -224,7 +214,7 @@ export class Terrain {
   }
 
   realHeightAt(x: number, y: number) {
-    if (!isInBoundingBox({ x, y }, this.definition.boundingBox)) return 0;
+    if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
     return this.definition(x, y);
   }
 
@@ -261,7 +251,7 @@ export class Terrain {
   }
 
   heightAt(x: number, y: number) {
-    if (!isInBoundingBox({ x, y }, this.definition.boundingBox)) return 0;
+    if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
 
     const csize = this.cacheSize;
     const cres = this.cacheRes;
