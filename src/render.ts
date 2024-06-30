@@ -31,7 +31,7 @@ export type ObjectRenderInfo = {
   ctx: CanvasRenderingContext2D;
   base: Vec2;
   cam: Vec2;
-  smallEdge: number;
+  largeEdge: number;
   renderer: ObjectRenderer;
   width: number;
   height: number;
@@ -67,7 +67,7 @@ export class ObjectRenderer {
     const baseX = this.game.width / 2;
     const baseY = this.game.height / 2;
 
-    const smallEdge = Math.min(this.game.width, this.game.height);
+    const largeEdge = Math.max(this.game.width, this.game.height);
     const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
@@ -79,7 +79,7 @@ export class ObjectRenderer {
       ctx: ctx,
       base: base,
       cam: cam,
-      smallEdge: smallEdge,
+      largeEdge: largeEdge,
       renderer: this,
       width: this.game.width,
       height: this.game.height,

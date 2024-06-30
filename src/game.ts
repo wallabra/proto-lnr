@@ -25,7 +25,7 @@ export class Game {
     if (ctx == null)
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
-    this.zoom = 1000;
+    this.zoom = 2000;
     this.restart();
   }
 
@@ -113,8 +113,8 @@ export class Game {
   }
 
   get drawScale() {
-    const smallEdge = Math.min(this.width, this.height);
-    return smallEdge / this.zoom;
+    const largeEdge = Math.max(this.width, this.height);
+    return largeEdge / this.zoom;
   }
 
   setPlayState(terraDef: TerraDef) {
