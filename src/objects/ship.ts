@@ -1186,6 +1186,12 @@ export class Ship {
   }
 
   tick(deltaTime: number) {
+    if (this.pos.length() > 15000 && !this.isPlayer) {
+      // Despawn NPC ships too far from land
+      this.dying = true;
+      this.phys.dying = true;
+      return;
+    }
     this.updateWeight();
     this.processTickActions(deltaTime);
     this.makeup.tick(deltaTime, this);
