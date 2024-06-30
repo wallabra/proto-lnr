@@ -102,10 +102,10 @@ function landfill(def: LandfillDef) {
 
 function randomLandfill(scale: number = 1): LandfillDef {
   return {
-    center: new Vec2(random.uniform(0, 800 * scale)(), 0).rotateBy(
+    center: new Vec2(random.uniform(0, 500 * scale)(), 0).rotateBy(
       Math.PI * Math.random() * 2,
     ),
-    radius: random.uniform(100, 400 * scale)(),
+    radius: random.uniform(100, 250 * scale)(),
     height: random.uniform(0.4, 1.0)(),
   };
 }
