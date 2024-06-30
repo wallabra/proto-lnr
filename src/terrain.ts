@@ -261,6 +261,8 @@ export class Terrain {
   }
 
   heightAt(x: number, y: number) {
+    if (!isInBoundingBox({ x, y }, this.definition.boundingBox)) return 0;
+
     const csize = this.cacheSize;
     const cres = this.cacheRes;
     const clen = this.cacheRowLen;
