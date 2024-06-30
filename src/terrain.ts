@@ -20,10 +20,14 @@ class LRUMap2D<T> {
   private maxLen: number;
 
   constructor(maxLen: number = 2000) {
+    this.clear();
+    this.maxLen = maxLen;
+  }
+
+  public clear() {
     this.cache = [];
     this.index = {};
     this.order = [];
-    this.maxLen = maxLen;
   }
 
   private _delete(idx: number) {
