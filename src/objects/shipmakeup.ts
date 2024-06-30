@@ -721,6 +721,8 @@ const shipNameCores = [
   "Johnson",
   "Becker",
   "Packard",
+  "Zucarius",
+  "Yiro",
 ];
 const shipNameSuffixes = [
   "II",
