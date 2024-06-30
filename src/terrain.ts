@@ -8,55 +8,64 @@ export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
 interface LRUItem2D<T> {
-  x: number,
-  y: number,
-  item: T,
+  x: number;
+  y: number;
+  item: T;
 }
 
 class LRUMap2D<T> {
   private cache: LRUItem2D<T>[];
   private index: { [x: number]: { [y: number]: number } };
-  private dirs: Uint8Array[];
+  private order: number[];
   private maxLen: number;
 
-  constructor(produce: (x: number, y: number) => T, maxLen: number = 100) {
+  constructor(maxLen: number = 100) {
     this.cache = [];
     this.index = {};
-    this.dirs = new Uint8Array();
+    this.order = [];
     this.maxLen = maxLen;
   }
 
-  private setLatestDir(latestIdx: number) {
-    let curr = 0;
-    let halfpoint = 1;
-    while (curr != latestIdx) {
-      const bigger = latestIdx > halfpoint;
-      const offs = ;
-      this.dirs[curr] = bigger;
-      curr = halfpoint ;
-      halfpoint *= 2;
-    }
+  private _delete(idx: number) {
+    const item = this.cache[idx];
+    delete this.index[item.x][item.y];
+    this.cache.splice(idx, 1);
+  }
+
+  private _setItem(item: LRUItem2D<T>, idx: number) {
+    (this.index[item.x] ??= {})[item.y] = idx;
+    this.order.push(idx);
   }
 
   private setItem(item: LRUItem2D<T>) {
     if (this.cache.length > this.maxLen) {
-      
-    } else {
-      this.cache.push(item);
-      if (this.cache.length > 1)
-      this.setLatestDir(this.cache.length - 1);
+      const idx = this.order.shift();
+      this._delete(idx);
     }
+    const newIdx = this.cache.push(item) - 1;
+    this._setItem(item, newIdx);
     return this;
   }
 
-  private set(x: number, y: number, val: T) {
-
+  public set(x: number, y: number, item: T) {
+    this.setItem({
+      x,
+      y,
+      item,
+    });
   }
 
   public get(x: number, y: number): T | null {
-    const row = this.o[x];
+    const row = this.index[x];
     if (row == null) return null;
-    return row[y] ?? null;
+    const idx = row[y];
+    if (idx == null) return null;
+
+    const orderIdx = this.order.indexOf(idx);
+    if (orderIdx > 0)
+      this.order[0] = this.order.splice(orderIdx, 1, this.order[0])[0];
+
+    return row[y] != null ? this.cache[row[y]].item : null;
   }
 }
 
@@ -182,8 +191,8 @@ export function landfillGenerator(distFactor: number = 1): TerraDef {
 
 export class Terrain {
   definition: TerraDef;
-  sectors: Map2D<TerraSector>;
-  cached: Map2D<number[]>;
+  sectors: LRUMap2D<TerraSector>;
+  cached: LRUMap2D<number[]>;
   cacheSize: number;
   cacheRes: number;
 
@@ -193,8 +202,8 @@ export class Terrain {
     cacheRes: number = 4,
   ) {
     this.definition = definition;
-    this.sectors = new Map2D();
-    this.cached = new Map2D();
+    this.sectors = new LRUMap2D();
+    this.cached = new LRUMap2D();
     this.cacheSize = cacheSize;
     this.cacheRes = cacheRes;
   }
