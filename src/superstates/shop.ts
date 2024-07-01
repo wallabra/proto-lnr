@@ -1600,10 +1600,10 @@ class PaneDrydockShip extends Pane<
       parent: shipManager,
       label: "-",
       font: "$Hpx sans-serif",
-      height: 16,
+      height: 17,
       autoFont: true,
       childOrdering: "vertical",
-      childMargin: 4,
+      childMargin: 5,
       x: 8,
     });
 

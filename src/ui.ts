@@ -1456,14 +1456,14 @@ export class CanvasTabPanel extends CanvasPanel {
   constructor(args: CanvasTabPanelArgs) {
     super(args);
     this.tabs = new CanvasTabRow({
-      ...(args.rowOptions || {}),
-      parent: this,
-      childOrdering: "vertical",
       childMargin: 2,
-      height: 50,
+      height: 10,
       fillX: true,
       tabOptions: args.tabOptions,
       tabs: args.tabs,
+      ...(args.rowOptions || {}),
+      parent: this,
+      childOrdering: "vertical",
     });
     this.contentPane = new CanvasUIGroup({
       parent: this,
