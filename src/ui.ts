@@ -271,7 +271,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         ? this.parent.innerWidth
         : this.parent.innerHeight) -
       this.parent.children
-        .filter((c) => c.childOrdering === order && !c.hidden)
+        .filter((c) => c.childOrdering === order && !c.isHidden())
         .reduce(
           (sum, child) =>
             sum +
@@ -292,7 +292,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         (c) =>
           c.childOrdering === this.childOrdering &&
           c.childFill > 0 &&
-          !c.hidden,
+          !c.isHidden(),
       )
       .reduce((sum, child) => sum + child.childFill, 0);
   }
@@ -340,6 +340,10 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   get realHeight() {
     return this.cached.dims.height;
+  }
+
+  isHidden() {
+    return this.hidden;
   }
 
   outerPos() {
@@ -415,7 +419,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         this.childMargin / 2 +
         this.parent.children
           .slice(0, this.childIndex())
-          .filter((e) => e.childOrdering === "horizontal" && !e.hidden)
+          .filter((e) => e.childOrdering === "horizontal" && !e.isHidden())
           .map((e) => e.realWidth + e.childMargin)
           .reduce((a, b) => a + b, 0);
     else if (this.childOrdering === "vertical")
@@ -423,7 +427,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
         this.childMargin / 2 +
         this.parent.children
           .slice(0, this.childIndex())
-          .filter((e) => e.childOrdering === "vertical" && !e.hidden)
+          .filter((e) => e.childOrdering === "vertical" && !e.isHidden())
           .map((e) => e.realHeight + e.childMargin)
           .reduce((a, b) => a + b, 0);
 
@@ -462,7 +466,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   isInside(x, y) {
-    if (this.hidden) return false;
+    if (this.isHidden()) return false;
 
     const pos = this.pos();
     x -= pos.x;
@@ -472,7 +476,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   public handleEvent<E extends UIEvent>(e: E) {
-    if (this.hidden) {
+    if (this.isHidden()) {
       return false;
     }
 
@@ -507,7 +511,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   childIsVisible(element: CanvasUIElement) {
     if (this.parent != null && !this.parent.childIsVisible(this)) return false;
 
-    if (this.hidden || element.hidden) return false;
+    if (this.isHidden() || element.isHidden()) return false;
 
     if (!this.cullOutOfBounds) return true;
 
@@ -535,7 +539,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   }
 
   render(ctx: UIDrawContext) {
-    if (this.hidden) {
+    if (this.isHidden()) {
       return;
     }
 
@@ -1132,7 +1136,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
 
   get scrollLength() {
     return this.contentPane.children
-      .filter((child) => child.childOrdering === this.axis && !child.hidden)
+      .filter((child) => child.childOrdering === this.axis && !child.isHidden())
       .reduce(
         (sum, child) =>
           sum +
@@ -1254,6 +1258,10 @@ export class CanvasUIGroup extends CanvasUIElement {
 
   isInside(x: number, y: number): boolean {
     return super.isInside(x, y) || this.children.some((c) => c.isInside(x, y));
+  }
+  
+  isHidden() {
+    return this.hidden || this.children.every((e) => e.isHidden());
   }
 
   get contentDims() {

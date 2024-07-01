@@ -1540,6 +1540,17 @@ class PaneDrydockShip extends Pane<
       bgColor: "#0000",
     });
 
+    this.captainStatus = new CanvasLabel({
+      parent: shipManager,
+      label: "-",
+      font: "$Hpx sans-serif",
+      height: 17,
+      autoFont: true,
+      childOrdering: "vertical",
+      childMargin: 5,
+      x: 8,
+    });
+
     const shipActions = new CanvasUIGroup({
       parent: shipManager,
       fillX: true,
@@ -1595,17 +1606,6 @@ class PaneDrydockShip extends Pane<
       "Disband Ship & Sell All",
       { color: "#fff", height: 12 },
     );
-
-    this.captainStatus = new CanvasLabel({
-      parent: shipManager,
-      label: "-",
-      font: "$Hpx sans-serif",
-      height: 17,
-      autoFont: true,
-      childOrdering: "vertical",
-      childMargin: 5,
-      x: 8,
-    });
 
     this.buildPartsPane(shipManager);
     this.buildInventoryPane(shipManager);
