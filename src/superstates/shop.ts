@@ -144,7 +144,7 @@ class DrydockPartWidget extends Pane<
       color: "#fff",
       childOrdering: "vertical",
       childMargin: 7.5,
-      height: 13,
+      height: 12,
       font: "bold 13px sans-serif",
     });
 
@@ -163,7 +163,7 @@ class DrydockPartWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 0,
       fillX: 1.0,
-      height: 15,
+      height: 12,
     });
 
     this.damageLabel = new CanvasLabel({
@@ -412,7 +412,7 @@ class DrydockInventoryItemWidget extends Pane<
       label: "-",
       color: "#fff",
       font: "bold $Hpx sans-serif",
-      height: 12.5,
+      height: 12,
       autoFont: true,
       x: 15,
       childOrdering: "vertical",
@@ -456,7 +456,7 @@ class DrydockInventoryItemWidget extends Pane<
       fillX: true,
       childOrdering: "vertical",
       childFill: 1,
-      childMargin: 7,
+      childMargin: 5,
       bgColor: "#00000008",
     });
 
@@ -475,7 +475,7 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 13,
+      height: 12,
       hidden: !this.letResellHalf(),
       callback: this.resellHalf.bind(this),
     });
@@ -488,7 +488,7 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 13,
+      height: 12,
       callback: () => {},
     });
     this.resellLabel = this.resellButton.label("-", labelArgs);
@@ -501,7 +501,7 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 13,
+      height: 12,
       hidden: !this.canMove(),
       callback: this.openMoveDropdown.bind(this, false),
     });
@@ -514,7 +514,7 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 13,
+      height: 12,
       hidden: !(this.canMove() && this.letResellHalf()),
       callback: this.openMoveDropdown.bind(this, true),
     });
@@ -527,7 +527,7 @@ class DrydockInventoryItemWidget extends Pane<
       childMargin: 1,
       childFill: 1,
       fillX: true,
-      height: 13,
+      height: 12,
       hidden: !this.canCaptain(),
       callback: this.setCaptain.bind(this),
     });
@@ -541,7 +541,7 @@ class DrydockInventoryItemWidget extends Pane<
         childMargin: 1,
         childFill: 1,
         fillX: true,
-        height: 13,
+        height: 12,
         callback: this.installPart.bind(this),
       }).label("Install Part", labelArgs);
     }
@@ -577,7 +577,7 @@ class DrydockInventoryItemWidget extends Pane<
 
     const nevermindButton = new CanvasButton({
       parent: this.dropdown.contentPane,
-      height: 50,
+      height: 20,
       fillX: true,
       paddingY: 5,
       childOrdering: "vertical",
@@ -594,7 +594,7 @@ class DrydockInventoryItemWidget extends Pane<
 
       const moveButton = new CanvasButton({
         parent: this.dropdown.contentPane,
-        height: 50,
+        height: 20,
         fillX: true,
         paddingY: 5,
         childOrdering: "vertical",
@@ -651,7 +651,7 @@ class DrydockInventoryItemWidget extends Pane<
     const lines = [
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
-      this.item instanceof ShipPart ? [manningRequirements(this.item)] : [],
+      ...(this.item instanceof ShipPart ? [manningRequirements(this.item)] : []),
     ];
 
     if (lines.length < this.details.children.length) {
@@ -671,8 +671,8 @@ class DrydockInventoryItemWidget extends Pane<
         dockMarginX: 4,
         color: "#bbb",
         childOrdering: "vertical",
-        childMargin: 0.6,
-        height: 9.5,
+        childMargin: 1.5,
+        height: 9.6,
         autoFont: true,
         font: "$Hpx sans-serif",
       });
@@ -680,7 +680,7 @@ class DrydockInventoryItemWidget extends Pane<
 
     let idx = 0;
     for (const line of lines) {
-      (<CanvasLabel>this.details.children[idx]).label = line;
+      (this.details.children[idx] as CanvasLabel).label = line;
       idx++;
     }
   }
@@ -832,7 +832,7 @@ class DrydockInventoryWidget extends Pane<
       color: "#fddc",
       font: "$Hpx sans-serif",
       childOrdering: "vertical",
-      childMargin: 15,
+      childMargin: 10,
     });
 
     this.itemList = new CanvasScroller({
@@ -933,7 +933,7 @@ class ShopItemWidget extends Pane<
 
     new CanvasLabel({
       parent: header,
-      height: 11.25,
+      height: 11.5,
       fillY: true,
       label: moneyString(this.item.cost),
       font: "$Hpx sans-serif",
@@ -953,7 +953,7 @@ class ShopItemWidget extends Pane<
     for (const line of detailLines) {
       const infoLabel = new CanvasLabel({
         parent: this.pane,
-        height: 11,
+        height: 11.25,
         label: "* " + line,
         font: "$Hpx sans-serif",
         autoFont: true,
@@ -1017,14 +1017,14 @@ class PaneShop extends Pane<PaneShopArgs> {
       dockX: "center",
       height: 30,
       childOrdering: "vertical",
-      childMargin: 20,
+      childMargin: 12,
     });
 
     this.itemList = new CanvasScroller({
       parent: this.pane,
       bgColor: "#0006",
       childOrdering: "vertical",
-      childMargin: 30,
+      childMargin: 15,
       fillX: 1.0,
       childFill: 1,
       axis: "vertical",
@@ -1043,7 +1043,7 @@ class PaneShop extends Pane<PaneShopArgs> {
         fillX: 0.9,
         dockX: "center",
         childOrdering: "vertical",
-        childMargin: 10,
+        childMargin: 6,
         paddingX: 12,
         paddingY: 6,
       }),
@@ -1528,7 +1528,7 @@ class PaneDrydockShip extends Pane<
       childOrdering: "vertical",
       fillX: true,
       childFill: 1,
-      childMargin: 5.5,
+      childMargin: 0,
       bgColor: "#0000",
     });
 
@@ -2045,7 +2045,7 @@ export default class IntermissionState extends Superstate {
       label: "-",
       color: "#e8e8ff",
       font: "$Hpx sans-serif",
-      height: 18,
+      height: 14.5,
       autoFont: true,
       dockX: "center",
       dockMarginX: 50,
@@ -2055,13 +2055,13 @@ export default class IntermissionState extends Superstate {
       parent: this.ui,
       childOrdering: "vertical",
       childFill: 1,
-      childMargin: 1.5,
+      childMargin: 1,
       fillX: 1,
       paddingX: 2,
       tabs: [],
       bgColor: "#0000",
       tabOptions: {
-        childMargin: 6,
+        childMargin: 3,
         labelArgs: {
           color: "#fff",
           height: 16,
