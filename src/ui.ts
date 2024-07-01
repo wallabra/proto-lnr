@@ -280,7 +280,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
                 ? child.realWidth
                 : child.realHeight
               : 0) +
-            child.childMargin * 2,
+            child.childMargin,
           0,
         )
     );
@@ -361,7 +361,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   outerMarginY() {
     if (this.childOrdering === "vertical") {
-      return this.childMargin;
+      return this.childMargin / 2;
     } else if (this.dockY === "start" || this.dockY === "end") {
       return this.dockMarginY;
     }
@@ -412,19 +412,19 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
     if (this.childOrdering === "horizontal")
       x +=
-        this.childMargin +
+        this.childMargin / 2 +
         this.parent.children
           .slice(0, this.childIndex())
           .filter((e) => e.childOrdering === "horizontal" && !e.hidden)
-          .map((e) => e.realWidth + e.childMargin * 2)
+          .map((e) => e.realWidth + e.childMargin)
           .reduce((a, b) => a + b, 0);
     else if (this.childOrdering === "vertical")
       y +=
-        this.childMargin +
+        this.childMargin / 2 +
         this.parent.children
           .slice(0, this.childIndex())
           .filter((e) => e.childOrdering === "vertical" && !e.hidden)
-          .map((e) => e.realHeight + e.childMargin * 2)
+          .map((e) => e.realHeight + e.childMargin)
           .reduce((a, b) => a + b, 0);
 
     if (this.parent != null) {
@@ -693,7 +693,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       this.textWidth +
       this.paddingX * 2 +
       (this.childOrdering === "horizontal"
-        ? this.childMargin * 2
+        ? this.childMargin
         : this.dockX === "start" || this.dockX === "end"
           ? this.dockMarginX
           : 0);
@@ -1136,7 +1136,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
       .reduce(
         (sum, child) =>
           sum +
-          child.childMargin * 2 +
+          child.childMargin +
           (this.axis === "horizontal" ? child.realWidth : child.realHeight),
         0,
       );
