@@ -4,12 +4,12 @@ import { Howl, Howler } from "howler";
 const audioCache: { [name: string]: Howl } = {};
 
 import s_engine_coal from "data-url:./sound/engine_coal.opus";
-import s_engine_diesel from "data-url:./sound/engine_coal.opus";
-import s_impactblast from "data-url:./sound/engine_coal.opus";
-import s_pickup from "data-url:./sound/engine_coal.opus";
-import s_shotbase from "data-url:./sound/engine_coal.opus";
-import s_shotbigness from "data-url:./sound/engine_coal.opus";
-import s_waterimpact from "data-url:./sound/engine_coal.opus";
+import s_engine_diesel from "data-url:./sound/engine_diesel.opus";
+import s_impactblast from "data-url:./sound/impactblase.opus";
+import s_pickup from "data-url:./sound/pickup.opus";
+import s_shotbase from "data-url:./sound/shotbase.opus";
+import s_shotbigness from "data-url:./sound/shotbigness.opus";
+import s_waterimpact from "data-url:./sound/waterimpact.opus";
 
 export const ALL_EFFECTS: { [name: string]: string } = {
   engine_coal: s_engine_coal,
