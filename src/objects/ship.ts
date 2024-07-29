@@ -570,7 +570,7 @@ export class Ship {
     this.setMakeup(
       params.makeup === "default"
         ? new ShipMakeup({ name: name, make: make }).defaultLoadout()
-        : params.makeup ?? new ShipMakeup({ name: name, make: make }),
+        : (params.makeup ?? new ShipMakeup({ name: name, make: make })),
     );
     this.dying = false;
     this.lastInstigator = null;

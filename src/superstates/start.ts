@@ -56,6 +56,26 @@ export default class MainMenuState extends Superstate {
       color: "#fff",
     };
 
+    const addBackButton = (holder: CanvasUIGroup) => {
+      new CanvasButton({
+        parent: holder,
+        dockX: "start",
+        dockY: "center",
+        dockMarginX: 16,
+        dockMarginY: 10,
+        height: 40,
+        width: 40,
+        bgColor: "#0000",
+        callback: () => {
+          this.switchState("top");
+        },
+      }).label("\u2190", {
+        color: "#FFF",
+        font: "$Hpx bold sans-serif",
+        fillY: 0.9,
+      });
+    };
+
     this.buildState("top", (holder: CanvasUIGroup) => {
       new CanvasLabel({
         // title
@@ -99,6 +119,8 @@ export default class MainMenuState extends Superstate {
     });
 
     this.buildState("new game", (holder: CanvasUIGroup) => {
+      addBackButton(holder);
+
       new CanvasLabel({
         // new game menu label
         parent: holder,
@@ -187,19 +209,49 @@ export default class MainMenuState extends Superstate {
     const pctx = patternCanvas.getContext("2d");
     pctx.fillStyle = "#AA11C860";
     pctx.beginPath();
-    pctx.arc(50, 50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      50,
+      50 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(50, -50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      50,
+      -50 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, -100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      -100 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, 0 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      0 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, 100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      100 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
 
     const patternFill = dctx.createPattern(patternCanvas, "repeat");
