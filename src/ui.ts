@@ -241,6 +241,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   _addChild(item: CanvasUIElement): CanvasUIElement {
     this.children.push(item);
+    item.parent = this;
     this.modified = true;
     return this;
   }

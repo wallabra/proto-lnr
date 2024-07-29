@@ -15,7 +15,7 @@ import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guard
 
 export default class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: { [stateName: string]: CanvasUIElement } = {};
+  states: { [stateName: string]: CanvasUIElement };
 
   private switchState(stateName: keyof MainMenuState["states"]) {
     this.ui.clearChildren();
@@ -51,7 +51,6 @@ export default class MainMenuState extends Superstate {
 
     const buttonLabelArgs = {
       fillY: 0.5,
-      fillX: 0.8,
       autoFont: true,
       font: "%Hpx bold sans-serif",
       color: "#fff",
@@ -61,29 +60,32 @@ export default class MainMenuState extends Superstate {
       new CanvasLabel({
         // title
         parent: holder,
-        fillX: 0.6,
         dockX: "center",
+        alignX: "center",
         childMargin: 50,
         childOrdering: "vertical",
         childFill: 0.15,
+        maxHeight: 80,
         label: "Loot & Roam",
-        color: "#AAF",
         autoFont: true,
         font: "$Hpx bold serif",
+        color: "#fed", // ong fed! :v
       });
 
       new CanvasLabel({
         // subtitle
         parent: holder,
-        fillX: 0.5,
         dockX: "center",
+        alignX: "center",
         childMargin: 25,
         childOrdering: "vertical",
         childFill: 0.08,
+        maxHeight: 50,
         label: "Prototype v" + GAME_VERSION,
         color: "#77A",
         autoFont: true,
         font: "$Hpx bold serif",
+        color: "#ddd",
       });
 
       const newGameButton = new CanvasButton({
@@ -100,27 +102,31 @@ export default class MainMenuState extends Superstate {
       new CanvasLabel({
         // new game menu label
         parent: holder,
-        fillX: 0.5,
         dockX: "center",
+        alignX: "center",
         childMargin: 50,
         childOrdering: "vertical",
         childFill: 0.1,
+        maxHeight: 65,
         label: "New Game",
         autoFont: true,
         font: "$Hpx bold serif",
+        color: "#fff",
       });
 
       new CanvasLabel({
-        // new game menu label
+        // 'Select a Game Mode'
         parent: holder,
-        fillX: 0.7,
         dockX: "center",
+        alignX: "center",
         childMargin: 30,
         childOrdering: "vertical",
         childFill: 0.04,
+        maxHeight: 35,
         label: "Select a Game Mode",
         autoFont: true,
-        font: "$Hpx serif",
+        font: "$Hpx sans-serif",
+        color: "#ddd",
       });
 
       new CanvasButton({
@@ -134,8 +140,8 @@ export default class MainMenuState extends Superstate {
 
       new CanvasLabel({
         parent: holder,
-        fillX: true,
         dockX: "center",
+        alignX: "center",
         childMargin: 20,
         childOrdering: "vertical",
         childFill: 0.02,
@@ -143,6 +149,7 @@ export default class MainMenuState extends Superstate {
         autoFont: true,
         font: "$Hpx serif",
         maxHeight: 16,
+        color: "#aaa",
       });
     });
   }
@@ -155,7 +162,9 @@ export default class MainMenuState extends Superstate {
   public init() {
     this.game.setMouseHandler(GUIMouseHandler);
     this.game.setKeyboardHandler(GUIKeyHandler);
+
     this.ui = new CanvasRoot(this.game, "#00000000");
+    this.states = {};
     this.buildStates();
     this.switchState("top");
   }
@@ -164,8 +173,44 @@ export default class MainMenuState extends Superstate {
     this.ui.checkChangeDimensions(this.game.width, this.game.height);
   }
 
-  private renderBackground(_ctx: UIDrawContext) {
-    // WIP
+  private backgroundCounter: number = 0;
+
+  private renderBackground(ctx: UIDrawContext) {
+    const dctx = ctx.ctx;
+    dctx.fillStyle = "#441878";
+    dctx.fillRect(0, 0, this.game.width, this.game.height);
+
+    // Draw balls pattern (hehe balls)
+    const patternCanvas = document.createElement("canvas");
+    patternCanvas.width = 200;
+    patternCanvas.height = 100;
+    const pctx = patternCanvas.getContext("2d");
+    pctx.fillStyle = "#AA11C860";
+    pctx.beginPath();
+    pctx.arc(50, 50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.fill();
+    pctx.beginPath();
+    pctx.arc(50, -50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.fill();
+    pctx.beginPath();
+    pctx.arc(150, -100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.fill();
+    pctx.beginPath();
+    pctx.arc(150, 0 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.fill();
+    pctx.beginPath();
+    pctx.arc(150, 100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.fill();
+
+    const patternFill = dctx.createPattern(patternCanvas, "repeat");
+    dctx.save();
+    dctx.fillStyle = patternFill;
+    dctx.fillRect(0, 0, this.game.width, this.game.height);
+    dctx.restore();
+  }
+
+  private tickBackground(deltaTime: number) {
+    this.backgroundCounter += deltaTime;
   }
 
   public render() {
@@ -181,8 +226,8 @@ export default class MainMenuState extends Superstate {
     this.ui.render(ctx);
   }
 
-  public tick() {
-    // no-op
+  public tick(deltaTime: number) {
+    this.tickBackground(deltaTime);
   }
 
   mouseEvent(event: MouseEvent & GameMouseInfo) {

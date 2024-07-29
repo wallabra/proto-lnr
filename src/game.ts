@@ -28,7 +28,6 @@ export class Game {
     this.drawCtx = ctx;
     this.zoom = 2000;
     this.setState(MainMenuState);
-    this.resetPlayer();
   }
 
   restart(terradef: TerraDef = landfillGenerator()) {
