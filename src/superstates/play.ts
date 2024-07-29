@@ -46,7 +46,7 @@ export class PlayState extends Superstate {
     this.reloadSoundEngine();
   }
 
-  private reloadSoundEngine() {
+  reloadSoundEngine() {
     if (this.player == null || this.player.possessed == null) {
       this.sfx = null;
       return false;
@@ -125,6 +125,8 @@ export class PlayState extends Superstate {
       ships.push(ship);
       member.ship = ship;
     }
+
+    this.reloadSoundEngine();
 
     return ships;
   }

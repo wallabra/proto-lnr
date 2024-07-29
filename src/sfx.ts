@@ -3,29 +3,36 @@ import { Howl, Howler } from "howler";
 
 const audioCache: { [name: string]: Howl } = {};
 
-export const ALL_EFFECTS = [
-  "engine_coal",
-  "engine_diesel",
-  "impactblast",
-  "pickup",
-  "shotbase",
-  "shotbigness",
-  "waterimpact",
-];
+import s_engine_coal from "data-url:./sound/engine_coal.opus";
+import s_engine_diesel from "data-url:./sound/engine_coal.opus";
+import s_impactblast from "data-url:./sound/engine_coal.opus";
+import s_pickup from "data-url:./sound/engine_coal.opus";
+import s_shotbase from "data-url:./sound/engine_coal.opus";
+import s_shotbigness from "data-url:./sound/engine_coal.opus";
+import s_waterimpact from "data-url:./sound/engine_coal.opus";
 
-function loadAudio(name: string): Howl {
+export const ALL_EFFECTS: { [name: string]: string } = {
+  engine_coal: s_engine_coal,
+  engine_diesel: s_engine_diesel,
+  impactblast: s_impactblast,
+  pickup: s_pickup,
+  shotbase: s_shotbase,
+  shotbigness: s_shotbigness,
+  waterimpact: s_waterimpact,
+};
+
+function loadAudio(name: string, data: string = null): Howl {
   if (audioCache[name] != null) {
     return audioCache[name];
   }
-  const href = `sound/${name}.opus`;
-  const audio = new Howl({ src: [href] });
+  const audio = new Howl({ src: [data] });
   audioCache[name] = audio;
   return audio;
 }
 
 // preload SFX
-for (const effect of ALL_EFFECTS) {
-  loadAudio(effect);
+for (const effect in Object.keys(ALL_EFFECTS)) {
+  loadAudio(effect, ALL_EFFECTS[effect]);
 }
 
 export interface SoundObject {
