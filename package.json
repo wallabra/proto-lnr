@@ -1,6 +1,6 @@
 {
   "name": "proto-lnr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Prototype version of Loot & Roam",
   "scripts": {
     "preinstall": "npx only-allow pnpm",

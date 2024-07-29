@@ -10,7 +10,6 @@ function main() {
   }
 
   const game = new Game(canvas);
-  game.nextLevel();
 
   requestAnimationFrame(tickLoop.bind(null, game));
 }
