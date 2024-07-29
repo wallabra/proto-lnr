@@ -21,19 +21,26 @@ export const ALL_EFFECTS: { [name: string]: string } = {
   waterimpact: s_waterimpact,
 };
 
-function loadAudio(name: string, data: string = null): Howl {
+function loadAudio(name: string): Howl {
   if (audioCache[name] != null) {
     return audioCache[name];
   }
-  const audio = new Howl({ src: [data] });
+  const audio = new Howl({ src: [decodeURIComponent(ALL_EFFECTS[name])] });
+  audio.load();
   audioCache[name] = audio;
   return audio;
 }
 
 // preload SFX
-for (const effect in Object.keys(ALL_EFFECTS)) {
-  loadAudio(effect, ALL_EFFECTS[effect]);
+function preloader() {
+  for (const effect in Object.keys(ALL_EFFECTS)) {
+    loadAudio(effect);
+  }
+  console.log("Audio preloaded");
+  document.removeEventListener("click", preloader);
 }
+// (use click event to mitigate browser warning about user interaction)
+document.addEventListener("click", preloader);
 
 export interface SoundObject {
   pos: Vec2;
@@ -51,21 +58,21 @@ class SoundSource {
     this.from = from;
     this.soundSrc = src;
     const soundId = (this.soundId = src.play());
-    src.once(
-      "play",
-      () => {
-        src.volume(volume, soundId);
-        this.update();
-        src.pannerAttr(
-          {
-            panningModel: "HRTF",
-          },
-          soundId,
-        );
+    src.volume(volume, soundId);
+    this.update();
+    src.pannerAttr(
+      {
+        panningModel: "HRTF",
+        rolloffFactor: 0.004,
       },
       soundId,
     );
-    src.on("end", () => (this.finished = true), soundId);
+    src.once("play", () => {}, soundId);
+    src.on(
+      "end",
+      () => (this.finished = WritableStreamDefaultController),
+      soundId,
+    );
   }
 
   public update() {
@@ -74,8 +81,7 @@ class SoundSource {
   }
 
   public isDone() {
-    // WIP: return true when sound is finished playing
-    return false;
+    return this.finished;
   }
 }
 
@@ -99,7 +105,7 @@ export class SoundEngine {
     const dx = Math.cos(persp.angle);
     const dy = Math.sin(persp.angle);
     Howler.orientation(dx, 0, dy);
-    Howler.pos(persp.pos.x, persp.pos.y, 0);
+    Howler.pos(persp.pos.x, 0, persp.pos.y);
   }
 
   private cullSources() {

@@ -211,6 +211,9 @@ export class PlayState extends Superstate {
       this.pruneDestroyedTickables();
     }
     this.renderer.tick(deltaTime);
+    if (this.sfx != null) {
+      this.sfx.update();
+    }
   }
 
   spawnCannonball(ship: Ship, params?: Partial<CannonballParams>) {

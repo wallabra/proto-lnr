@@ -461,6 +461,7 @@ export class Ship {
   drawer: ShipRenderContext;
   lastWave: number;
   lastSmoke: number;
+  lastEngineSound: number;
   following: Ship = null;
   alliance: Set<Ship> = new Set([this]);
   followers: Set<Ship> = new Set();
@@ -923,6 +924,7 @@ export class Ship {
 
     engines.forEach((e) => {
       this.spawnSmokeFor(e, amount);
+      this.playEngineSound(e, amount);
       if (e.fuelType)
         this.makeup.spendFuel(
           e.fuelType,
@@ -936,7 +938,7 @@ export class Ship {
 
   spawnSmokeFor(engine: Engine, factor: number = 1.0) {
     const color = SMOKE_COLORS[engine.fuelType] || null;
-    const amount = factor * engine.thrust;
+    const amount = Math.abs(factor * engine.thrust);
 
     if (color == null) return;
 
@@ -950,13 +952,29 @@ export class Ship {
 
     this.lastSmoke = this.phys.age;
     this.play.spawnArgs(Smoke, this, color, 0.3);
-    if (engine.fuelType in ENGINE_SFX_BY_TYPE) {
-      // sigmoidal
-      this.phys.playSound(
-        ENGINE_SFX_BY_TYPE[engine.fuelType],
-        0.3 + 0.4 / (1 + Math.exp(1 - 7 * factor)),
-      );
+  }
+  
+  playEngineSound(engine: Engine, factor: number = 1.0) {
+    if (!(engine.fuelType in ENGINE_SFX_BY_TYPE)) {
+      return;
     }
+
+    const amount = Math.abs(factor * engine.thrust);
+
+    if (
+      this.lastEngineSound != null &&
+      this.phys.age <
+        this.lastEngineSound + 0.12 + Math.max(0, Math.exp(-amount / 9000))
+    )
+      return;
+    if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
+
+    // sigmoidal volume
+    this.lastEngineSound = this.phys.age;
+    this.phys.playSound(
+      ENGINE_SFX_BY_TYPE[engine.fuelType],
+      0.1 + 0.3 / (1 + Math.exp(1 - 7 * factor)),
+    );
   }
 
   heightGradient() {
