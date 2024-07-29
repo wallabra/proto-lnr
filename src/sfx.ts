@@ -114,7 +114,7 @@ export class SoundEngine {
     const persp = this.perspective;
     const dx = Math.cos(persp.angle);
     const dy = Math.sin(persp.angle);
-    Howler.orientation(dx, 0, dy);
+    Howler.orientation(dx, 0, dy, 0, 1, 0);
     Howler.pos(persp.pos.x, 0, persp.pos.y);
   }
 
