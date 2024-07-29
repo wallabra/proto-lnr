@@ -15,11 +15,20 @@ import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guard
 
 export default class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: { [stateName: string]: CanvasUIElement };
+  states: { [stateName: string]: CanvasUIElement } = {};
+  stateStack: string[] = [];
 
-  private switchState(stateName: keyof MainMenuState["states"]) {
+  private switchState(stateName: string) {
     this.ui.clearChildren();
     this.ui.addChild(this.states[stateName]);
+    this.stateStack.unshift(stateName);
+  }
+
+  private goBackState() {
+    this.stateStack.shift();
+    const target = this.stateStack[0];
+    this.ui.clearChildren();
+    this.ui.addChild(this.states[target]);
   }
 
   private addState(stateName: string, state: CanvasUIElement) {
@@ -60,14 +69,14 @@ export default class MainMenuState extends Superstate {
       new CanvasButton({
         parent: holder,
         dockX: "start",
-        dockY: "center",
+        dockY: "start",
         dockMarginX: 16,
         dockMarginY: 10,
         height: 40,
         width: 40,
         bgColor: "#0000",
         callback: () => {
-          this.switchState("top");
+          this.goBackState();
         },
       }).label("\u2190", {
         color: "#FFF",
@@ -186,7 +195,6 @@ export default class MainMenuState extends Superstate {
     this.game.setKeyboardHandler(GUIKeyHandler);
 
     this.ui = new CanvasRoot(this.game, "#00000000");
-    this.states = {};
     this.buildStates();
     this.switchState("top");
   }
