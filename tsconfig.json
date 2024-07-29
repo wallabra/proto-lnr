@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "lib": ["ES2015", "DOM"],
     "target": "es2015"

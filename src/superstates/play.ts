@@ -17,6 +17,7 @@ import { PlayMouseHandler } from "../mouse";
 import { PlayKeyHandler } from "../keyinput";
 import random from "random";
 import { ShipMakeup } from "../objects/shipmakeup";
+import { SoundEngine } from "../sfx";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -33,6 +34,7 @@ export class PlayState extends Superstate {
   renderables: Array<Renderable>;
   renderer: GameRenderer;
   physics: PhysicsSimulation;
+  public sfx: SoundEngine | null;
 
   constructor(game: Game, terraDef: TerraDef) {
     super(game);
@@ -41,6 +43,29 @@ export class PlayState extends Superstate {
     this.tickables = [];
     this.renderables = [];
     this.renderer = new GameRenderer(this);
+    this.reloadSoundEngine();
+  }
+
+  private reloadSoundEngine() {
+    if (this.player == null || this.player.possessed == null) {
+      this.sfx = null;
+      return false;
+    }
+
+    const ship = this.player.possessed;
+    
+    if (this.sfx != null) {
+      if (this.sfx.perspective !== ship.phys) {
+        this.sfx.perspective = ship.phys;
+        this.sfx.update();
+      }
+    }
+
+    else {
+      this.sfx = new SoundEngine(ship.phys);
+    }
+    
+    return true;
   }
 
   addShip(ship: Ship) {
