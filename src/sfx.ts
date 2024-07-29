@@ -5,7 +5,7 @@ const audioCache: { [name: string]: Howl } = {};
 
 import s_engine_coal from "data-url:./sound/engine_coal.opus";
 import s_engine_diesel from "data-url:./sound/engine_diesel.opus";
-import s_impactblast from "data-url:./sound/impactblase.opus";
+import s_impactblast from "data-url:./sound/impactblast.opus";
 import s_pickup from "data-url:./sound/pickup.opus";
 import s_shotbase from "data-url:./sound/shotbase.opus";
 import s_shotbigness from "data-url:./sound/shotbigness.opus";
