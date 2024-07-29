@@ -1,7 +1,7 @@
 import { Game } from "../game";
 import { FoodItem, FuelItem, ShipItem, computeResellCost } from "../inventory";
-import { IntermissionKeyHandler } from "../keyinput";
-import { GameMouseInfo, IntermissionMouseHandler } from "../mouse";
+import { GUIKeyHandler } from "../keyinput";
+import { GameMouseInfo, GUIMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
 import {
   Cannon,
@@ -651,7 +651,9 @@ class DrydockInventoryItemWidget extends Pane<
     const lines = [
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
-      ...(this.item instanceof ShipPart ? [manningRequirements(this.item)] : []),
+      ...(this.item instanceof ShipPart
+        ? [manningRequirements(this.item)]
+        : []),
     ];
 
     if (lines.length < this.details.children.length) {
@@ -2034,8 +2036,8 @@ export default class IntermissionState extends Superstate {
   private cashCounter: CanvasLabel;
 
   public init() {
-    this.game.setMouseHandler(IntermissionMouseHandler);
-    this.game.setKeyboardHandler(IntermissionKeyHandler);
+    this.game.setMouseHandler(GUIMouseHandler);
+    this.game.setKeyboardHandler(GUIKeyHandler);
     this.panes = [];
     this.ui = new CanvasRoot(this.game, "#040404");
     this.cashCounter = new CanvasLabel({

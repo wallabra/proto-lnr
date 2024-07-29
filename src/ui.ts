@@ -241,6 +241,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
   _addChild(item: CanvasUIElement): CanvasUIElement {
     this.children.push(item);
+    item.parent = this;
     this.modified = true;
     return this;
   }
@@ -248,6 +249,10 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   remove() {
     this.parent.removeChild(this);
     this.parent = null;
+  }
+
+  destroy() {
+    this.remove();
     this.hidden = true;
   }
 
@@ -1259,7 +1264,7 @@ export class CanvasUIGroup extends CanvasUIElement {
   isInside(x: number, y: number): boolean {
     return super.isInside(x, y) || this.children.some((c) => c.isInside(x, y));
   }
-  
+
   isHidden() {
     return this.hidden || this.children.every((e) => e.isHidden());
   }

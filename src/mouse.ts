@@ -110,7 +110,7 @@ export class PlayMouseHandler extends MouseHandler {
   }
 }
 
-export class IntermissionMouseHandler extends MouseHandler {
+export class GUIMouseHandler extends MouseHandler {
   dragging: boolean;
   dragStart?: Vec2;
   dragStartElement?: CanvasUIElement;

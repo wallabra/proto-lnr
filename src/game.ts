@@ -7,6 +7,7 @@ import MouseHandler from "./mouse";
 import { KeyHandler } from "./keyinput";
 import random from "random";
 import { Ship } from "./objects/ship";
+import MainMenuState from "./superstates/start";
 
 export class Game {
   canvas: HTMLCanvasElement;
@@ -26,7 +27,7 @@ export class Game {
       throw new Error("Couldn't get a drawing context from the game canvas!");
     this.drawCtx = ctx;
     this.zoom = 2000;
-    this.restart();
+    this.setState(MainMenuState);
   }
 
   restart(terradef: TerraDef = landfillGenerator()) {
