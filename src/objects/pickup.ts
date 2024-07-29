@@ -5,18 +5,18 @@ import { Ship } from "./ship";
 import { PlayState } from "../superstates/play";
 import { ShipItem } from "../inventory";
 
-export abstract class Pickup {
+export abstract class Pickup<P extends Partial<PhysicsParams>> {
   play: PlayState;
   dying: boolean;
   phys: PhysicsObject;
 
-  constructor(play, pos, params) {
-    if (params == null) params = {};
+  constructor(play: PlayState, pos: Vec2, params: P) {
+    if (params == null) params = {} as P;
     if (params.size == null) params.size = 4;
     if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
 
     this.play = play;
-    this.phys = this.play.makePhysObj(pos || Vec2(0, 0), {
+    this.phys = this.play.makePhysObj(pos || new Vec2(0, 0), {
       weight: 100,
       baseDrag: 8,
       ...params,
@@ -27,7 +27,12 @@ export abstract class Pickup {
   /// Callback for when this crate item is collected.
   abstract collect(ship: Ship): void;
 
-  drawBox(ctx, drawPos, size, offs) {
+  drawBox(
+    ctx: CanvasRenderingContext2D,
+    drawPos: Vec2,
+    size: number,
+    offs: number,
+  ) {
     ctx.beginPath();
     ctx.translate(drawPos.x, drawPos.y + offs);
     ctx.rotate(this.phys.angle);
@@ -77,18 +82,19 @@ export abstract class Pickup {
     this.phys.dying = true;
   }
 
-  checkShipCollision(deltaTime, ship) {
+  checkShipCollision(deltaTime: number, ship: Ship) {
     const closeness = this.phys.touchingShip(ship);
     if (closeness <= 0) {
       return false;
     }
 
+    this.phys.playSound("pickup", 0.2);
     this.collect(ship);
     this.destroy();
     return true;
   }
 
-  checkShipCollisions(deltaTime) {
+  checkShipCollisions(deltaTime: number) {
     for (const ship of this.play.tickables) {
       if (!(ship instanceof Ship)) {
         continue;
@@ -102,12 +108,14 @@ export abstract class Pickup {
 
   bob(deltaTime: number) {
     if (!this.phys.inWater()) return;
+
     this.phys.applyForce(
       deltaTime,
-      Vec2(Math.random() * 1, 0)
+      new Vec2(Math.random() * 1, 0)
         .rotateBy(Math.random() * Math.PI * 2)
-        .add(this.phys.vel.multiply(Vec2(0.6, 0.6))),
+        .add(this.phys.vel.multiplyScalar(0.6)),
     );
+
     this.phys.angVel += ((Math.random() * Math.PI) / 4) * deltaTime;
   }
 
@@ -118,7 +126,7 @@ export abstract class Pickup {
   }
 }
 
-export class DebugPickup extends Pickup {
+export class DebugPickup extends Pickup<PhysicsParams> {
   checkShipCollisions() {}
   collect(): void {}
 }
@@ -130,7 +138,9 @@ export type ItemPickupParamType<I extends ShipItem> = PhysicsParams & {
   item: I;
 };
 
-export class ItemPickup<I extends ShipItem> extends Pickup {
+export class ItemPickup<I extends ShipItem> extends Pickup<
+  ItemPickupParams<I>
+> {
   item: I;
 
   constructor(game: PlayState, pos: Vec2, params: ItemPickupParams<I>) {

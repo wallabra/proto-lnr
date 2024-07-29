@@ -96,6 +96,9 @@ export class Cannonball {
       0.6,
       Math.pow(1.5, this.vel.subtract(ship.vel).norm().dot(toward)),
     );
+
+    this.phys.playSound("impactblast");
+
     ship.damageShip(
       this.damageFactor *
         this.phys.kineticEnergyRelativeTo(ship) *
@@ -105,6 +108,7 @@ export class Cannonball {
     if (ship.dying) {
       this.instigator.scoreKill();
     }
+
     this.destroy();
 
     return true;
@@ -128,6 +132,7 @@ export class Cannonball {
 
   checkTerrainCollision() {
     if (this.height < this.game.waterLevel) {
+      this.phys.playSound("waterimpact", 0.7);
       this.destroy();
     }
   }

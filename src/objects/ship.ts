@@ -23,6 +23,11 @@ import { Smoke } from "./fx/smoke";
 const DEBUG_DRAW = false;
 const DEBUG_COLL = false;
 
+const ENGINE_SFX_BY_TYPE = {
+  coal: "engine_coal",
+  diesel: "engine_diesel",
+};
+
 export interface ShipParams extends PhysicsParams {
   money: number;
   damage: number;
@@ -731,6 +736,12 @@ export class Ship {
           0.1,
           cannonball.vel.subtract(this.vel).multiplyScalar(cannonball.weight),
         );
+        this.phys.playSound("shotbase", 1.0);
+        // sigmoidal
+        this.phys.playSound(
+          "shotbigness",
+          0.1 + 0.9 * (1 / Math.exp(1 - cannonball.size / 5)),
+        );
       }
       return true;
     });
@@ -939,6 +950,13 @@ export class Ship {
 
     this.lastSmoke = this.phys.age;
     this.play.spawnArgs(Smoke, this, color, 0.3);
+    if (engine.fuelType in ENGINE_SFX_BY_TYPE) {
+      // sigmoidal
+      this.phys.playSound(
+        ENGINE_SFX_BY_TYPE[engine.fuelType],
+        0.3 + 0.4 / (1 + Math.exp(1 - 7 * factor)),
+      );
+    }
   }
 
   heightGradient() {
@@ -1183,6 +1201,8 @@ export class Ship {
 
     this.lastWave = this.phys.age;
     this.play.spawnArgs(Wave, this);
+
+    if (Math.random() < 0.3) this.phys.playSound("waterimpact", 0.1);
   }
 
   tick(deltaTime: number) {

@@ -53,18 +53,16 @@ export class PlayState extends Superstate {
     }
 
     const ship = this.player.possessed;
-    
+
     if (this.sfx != null) {
       if (this.sfx.perspective !== ship.phys) {
         this.sfx.perspective = ship.phys;
         this.sfx.update();
       }
-    }
-
-    else {
+    } else {
       this.sfx = new SoundEngine(ship.phys);
     }
-    
+
     return true;
   }
 

@@ -112,6 +112,10 @@ export class PhysicsObject {
     this.lastPos.add(offset);
   }
 
+  playSound(name: string, volume: number = 1.0) {
+    this.play.sfx.play(this, name, volume);
+  }
+
   touchingShip(ship: Ship) {
     if (Math.abs(this.height - ship.height) > 0.6) {
       return 0;
