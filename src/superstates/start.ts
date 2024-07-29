@@ -15,11 +15,20 @@ import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guard
 
 export default class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: { [stateName: string]: CanvasUIElement };
+  states: { [stateName: string]: CanvasUIElement } = {};
+  stateStack: string[] = [];
 
-  private switchState(stateName: keyof MainMenuState["states"]) {
+  private switchState(stateName: string) {
     this.ui.clearChildren();
     this.ui.addChild(this.states[stateName]);
+    this.stateStack.unshift(stateName);
+  }
+
+  private goBackState() {
+    this.stateStack.shift();
+    const target = this.stateStack[0];
+    this.ui.clearChildren();
+    this.ui.addChild(this.states[target]);
   }
 
   private addState(stateName: string, state: CanvasUIElement) {
@@ -54,6 +63,26 @@ export default class MainMenuState extends Superstate {
       autoFont: true,
       font: "%Hpx bold sans-serif",
       color: "#fff",
+    };
+
+    const addBackButton = (holder: CanvasUIGroup) => {
+      new CanvasButton({
+        parent: holder,
+        dockX: "start",
+        dockY: "start",
+        dockMarginX: 16,
+        dockMarginY: 10,
+        height: 40,
+        width: 40,
+        bgColor: "#0000",
+        callback: () => {
+          this.goBackState();
+        },
+      }).label("\u2190", {
+        color: "#FFF",
+        font: "$Hpx bold sans-serif",
+        fillY: 0.9,
+      });
     };
 
     this.buildState("top", (holder: CanvasUIGroup) => {
@@ -99,6 +128,8 @@ export default class MainMenuState extends Superstate {
     });
 
     this.buildState("new game", (holder: CanvasUIGroup) => {
+      addBackButton(holder);
+
       new CanvasLabel({
         // new game menu label
         parent: holder,
@@ -164,7 +195,6 @@ export default class MainMenuState extends Superstate {
     this.game.setKeyboardHandler(GUIKeyHandler);
 
     this.ui = new CanvasRoot(this.game, "#00000000");
-    this.states = {};
     this.buildStates();
     this.switchState("top");
   }
@@ -187,19 +217,49 @@ export default class MainMenuState extends Superstate {
     const pctx = patternCanvas.getContext("2d");
     pctx.fillStyle = "#AA11C860";
     pctx.beginPath();
-    pctx.arc(50, 50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      50,
+      50 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(50, -50 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      50,
+      -50 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, -100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      -100 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, 0 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      0 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
     pctx.beginPath();
-    pctx.arc(150, 100 + (this.backgroundCounter * 50) % 100, 30, 0, Math.PI * 2);
+    pctx.arc(
+      150,
+      100 + ((this.backgroundCounter * 50) % 100),
+      30,
+      0,
+      Math.PI * 2,
+    );
     pctx.fill();
 
     const patternFill = dctx.createPattern(patternCanvas, "repeat");
