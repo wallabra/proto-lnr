@@ -959,22 +959,23 @@ export class Ship {
       return;
     }
 
-    const amount = Math.abs(factor * engine.thrust);
+    const amount = Math.abs(this.phys.vel.length() / 2);
 
     if (
       this.lastEngineSound != null &&
       this.phys.age <
-        this.lastEngineSound + 0.12 + Math.max(0, Math.exp(-amount / 9000))
+        this.lastEngineSound + 0.06 + 0.15 / (1 + Math.exp(-amount))
     )
       return;
     if (Math.random() * this.makeup.getPartsOf("engine").length > 1) return;
 
     // sigmoidal volume
     this.lastEngineSound = this.phys.age;
-    this.phys.playSound(
+    const ssrc = this.phys.playSound(      
       ENGINE_SFX_BY_TYPE[engine.fuelType],
-      0.1 + 0.3 / (1 + Math.exp(1 - 7 * factor)),
+      0.02 + 0.1 / (1 + Math.exp(1 - 7 * factor)),
     );
+    ssrc.rate(0.6 + 2.2 / (1 + Math.exp(-amount / 2.5)));
   }
 
   heightGradient() {

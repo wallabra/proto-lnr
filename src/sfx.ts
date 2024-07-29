@@ -63,7 +63,7 @@ class SoundSource {
     src.pannerAttr(
       {
         panningModel: "HRTF",
-        rolloffFactor: 0.004,
+        rolloffFactor: 0.012,
       },
       soundId,
     );
@@ -83,6 +83,14 @@ class SoundSource {
   public isDone() {
     return this.finished;
   }
+
+  public stop() {
+    this.soundSrc.stop(this.soundId);
+  }
+
+  public rate(vel: number) {
+    this.soundSrc.rate(vel, this.soundId);
+  }
 }
 
 export class SoundEngine {
@@ -96,8 +104,10 @@ export class SoundEngine {
   }
 
   play(from: SoundObject, name: string, volume: number = 1.0) {
-    const src = loadAudio(name);
-    this.sources.push(new SoundSource(from, src, volume));
+    const asrc = loadAudio(name);
+    const source = new SoundSource(from, asrc, volume);
+    this.sources.push(source);
+    return source;
   }
 
   private updatePerspective() {

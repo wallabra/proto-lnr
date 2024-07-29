@@ -113,8 +113,8 @@ export class PhysicsObject {
   }
 
   playSound(name: string, volume: number = 1.0) {
-    if (this.play.sfx == null) return;
-    this.play.sfx.play(this, name, volume);
+    if (this.play.sfx == null) return null;
+    return this.play.sfx.play(this, name, volume);
   }
 
   touchingShip(ship: Ship) {
