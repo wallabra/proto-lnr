@@ -86,8 +86,12 @@ export class Player {
     this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }
 
+  inShopRange() {
+    return this.possessed.pos.length() >= 2500;
+  }
+
   canShop() {
-    return this.possessed.pos.length() >= 2500 && !this.possessed.inDanger();
+    return this.inShopRange() && !this.possessed.inDanger();
   }
 
   inputEvent(name: string, _event: KeyboardEvent) {
