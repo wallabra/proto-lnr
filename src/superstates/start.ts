@@ -114,7 +114,6 @@ export default class MainMenuState extends Superstate {
         color: "#77A",
         autoFont: true,
         font: "$Hpx bold serif",
-        color: "#ddd",
       });
 
       const newGameButton = new CanvasButton({
