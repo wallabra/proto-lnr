@@ -36,5 +36,6 @@
     "utility-types": "^3.11.0",
     "victor": "^1.1.0"
   },
-  "browserslist": "> 0.25%, not dead"
+  "browserslist": "> 0.25%, not dead",
+  "type": "module"
 }
