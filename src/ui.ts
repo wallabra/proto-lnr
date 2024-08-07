@@ -1351,7 +1351,7 @@ export interface Widget {
 export interface CanvasTabArgs extends CanvasUIGroupArgs {
   label: string;
   content: unknown & Widget;
-  labelArgs?: CanvasLabelArgs;
+  labelArgs?: Optional<CanvasLabelArgs, "parent" | "label">;
   colors?: { inactive: string; active: string };
   parent: CanvasTabRow;
 }

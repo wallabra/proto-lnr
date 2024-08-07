@@ -103,6 +103,6 @@ export class PlayKeyHandler extends KeyHandler {
 
 export class GUIKeyHandler extends KeyHandler {
   register() {
-    this.registerKey("r", this.game.inputHandler.bind(this.game, "tryRepair"));
+    //this.registerKey("r", this.game.inputHandler.bind(this.game, "tryRepair"));
   }
 }

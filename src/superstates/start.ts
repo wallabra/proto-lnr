@@ -1,7 +1,9 @@
 import Superstate from "./base";
 import {
   CanvasButton,
+  CanvasButtonArgs,
   CanvasLabel,
+  CanvasLabelArgs,
   CanvasRoot,
   CanvasUIElement,
   CanvasUIGroup,
@@ -48,7 +50,7 @@ export default class MainMenuState extends Superstate {
   }
 
   private buildStates() {
-    const buttonArgs = {
+    const buttonArgs: Partial<CanvasButtonArgs> = {
       fillX: 0.5,
       dockX: "center",
       childMargin: 10,
@@ -58,7 +60,7 @@ export default class MainMenuState extends Superstate {
       height: 80,
     };
 
-    const buttonLabelArgs = {
+    const buttonLabelArgs: Partial<CanvasLabelArgs> = {
       fillY: 0.5,
       autoFont: true,
       font: "%Hpx bold sans-serif",
@@ -111,10 +113,9 @@ export default class MainMenuState extends Superstate {
         childFill: 0.08,
         maxHeight: 50,
         label: "Prototype v" + GAME_VERSION,
-        color: "#77A",
+        color: "#AAD",
         autoFont: true,
         font: "$Hpx bold serif",
-        color: "#ddd",
       });
 
       const newGameButton = new CanvasButton({

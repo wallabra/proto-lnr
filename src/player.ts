@@ -149,13 +149,6 @@ export class Player {
         this.possessed.thrustForward(deltaTime, -1.0),
       );
     }
-
-    if (name == "repair") {
-      const state = this.game.state;
-      if (state instanceof IntermissionState) {
-        state.doHullRepair();
-      }
-    }
   }
 
   registerAction(name: string, callback: (deltaTime: number) => void) {

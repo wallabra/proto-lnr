@@ -8,7 +8,7 @@ import { Nullish } from "utility-types";
 export class StartState implements AIHandler<AIStartArgs> {
   name: string = "start";
 
-  private findPickupCrate(args: AITickArgs): Pickup | null {
+  private findPickupCrate(args: AITickArgs): Pickup<any> | null {
     const { ship, play } = args;
     const pos = ship.pos;
     const maxDist = 300 + ship.size * ship.lateralCrossSection * 1.5;
@@ -20,8 +20,8 @@ export class StartState implements AIHandler<AIStartArgs> {
       const dist = b.phys.pos.distance(pos);
       if (dist > Math.min(maxDist, lastDist - 10)) return a;
       lastDist = dist;
-      return b as Pickup;
-    }, null) as Pickup | null;
+      return b as Pickup<any>;
+    }, null) as Pickup<any> | null;
   }
 
   private roam(deltaTime: number, ship: Ship) {
