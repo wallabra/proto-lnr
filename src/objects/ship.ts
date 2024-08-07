@@ -588,7 +588,7 @@ export class Ship {
       pos || new Vec2(0, 0),
       params,
     );
-    const name = params.name ?? (params.makeup && params.makeup !== "default" && params.makeup.name) ?? null;
+    const name = (params.name ?? (params.makeup && params.makeup !== "default" && params.makeup.name)) || null;
     this.setMakeup(
       params.makeup === "default"
         ? new ShipMakeup({ name: name, make: make }).defaultLoadout()
