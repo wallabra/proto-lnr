@@ -87,7 +87,7 @@ export class Player {
   }
 
   inShopRange() {
-    return this.possessed.pos.length() >= 2500;
+    return !this.possessed.dying && this.possessed.pos.length() >= 2500;
   }
 
   canShop() {
