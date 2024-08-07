@@ -452,7 +452,7 @@ export class Ship {
   phys: PhysicsObject;
   dying: boolean;
   lastInstigator: Ship | null;
-  chasers: number = 0;
+  chasers: Set<Ship> = new Set();
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
@@ -547,13 +547,13 @@ export class Ship {
     }
     
     if (this.lastInstigator != null) {
-      this.lastInstigator.chasers--;
+      this.lastInstigator.chasers.delete(this);
     }
     
     this.lastInstigator = other;
 
     if (other != null) {
-      this.lastInstigator.chasers++;
+      this.lastInstigator.chasers.add(this);
       this.lastInstigTime = Date.now();
     }
 
