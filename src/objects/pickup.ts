@@ -10,7 +10,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   dying: boolean;
   phys: PhysicsObject;
 
-  constructor(play: PlayState, pos: Vec2, params: P) {
+  constructor(play: PlayState, pos: Vec2, params: Partial<P>) {
     if (params == null) params = {} as P;
     if (params.size == null) params.size = 4;
     if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
@@ -50,7 +50,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
       .add(this.phys.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
-      (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
+      (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - this.phys.height / 2;
     const proximityScale = camheight / new Vec2(hdist, cdist).length();
     const size =

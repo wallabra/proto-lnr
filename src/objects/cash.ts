@@ -8,7 +8,7 @@ export interface CashPickupParams extends PhysicsParams {
   cash: number;
 }
 
-export class CashPickup extends Pickup {
+export class CashPickup extends Pickup<CashPickupParams> {
   cash: number;
 
   constructor(game: PlayState, pos: Vec2, params?: Partial<CashPickupParams>) {

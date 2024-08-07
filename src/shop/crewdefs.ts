@@ -43,7 +43,7 @@ export const CREWDEFS: CrewArgs[] = [
     strength: 18,
     caloricIntake: 8,
     weight: 98,
-    shopchance: 0.22,
+    shopChance: 0.22,
   },
   {
     name: "Guterrez",

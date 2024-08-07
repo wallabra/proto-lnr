@@ -70,6 +70,7 @@ export type EngineDef = BasePartDef & EngineArgs;
 export type CannonDef = BasePartDef & CannonArgs;
 
 export type PartDef<PType extends ShipPartArgsSuper> = PType & BasePartDef;
+export type AnyPartDef = typeof PARTDEFS[keyof typeof PARTDEFS][number];
 
 export const PARTDEFS: {
   ["engine"]: PartDef<EngineDef>[];

@@ -6,15 +6,15 @@ import {
   EngineArgs,
   ShipMake,
   ShipPart,
-  ShipPartArgsSuper,
   Vacuum,
+  VacuumArgs,
   slots,
 } from "../objects/shipmakeup";
-import { PARTDEFS, PartDef } from "./partdefs";
+import { AnyPartDef, PARTDEFS, PartDef } from "./partdefs";
 import random from "random";
 import { pickByRarity } from "./rarity";
 
-export function instantiatePart(def, type) {
+export function instantiatePart(def: AnyPartDef, type: string) {
   const part = match<string, ShipPart>(
     type,
     match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
@@ -48,9 +48,9 @@ export default function randomParts(
     (a, b) =>
       Object.assign(a, {
         [b]: Math.min(
-          ...PARTDEFS[b]
+          ...(PARTDEFS[b] as AnyPartDef[])
             .filter((d) => d.rarity !== "always")
-            .map((d) => d.rarity),
+            .map((d) => d.rarity as number),
         ),
       }),
     {},
@@ -61,8 +61,8 @@ export default function randomParts(
     (a, b) =>
       a.concat(
         PARTDEFS[b]
-          .filter((p) => p.rarity === "always")
-          .map((d) => {
+          .filter((p: AnyPartDef) => p.rarity === "always")
+          .map((d: AnyPartDef) => {
             makeSlots[b]--;
             if (makeSlots[b] === 0) delete makeSlots[b];
             availableSlots--;
@@ -80,7 +80,7 @@ export default function randomParts(
     const type = random.choice(Object.keys(makeSlots));
     if (available < smallestRarity[type]) continue;
 
-    const def: PartDef<unknown & ShipPartArgsSuper> = pickByRarity(
+    const def = pickByRarity<AnyPartDef>(
       PARTDEFS[type],
       available,
       temperature,

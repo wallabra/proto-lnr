@@ -192,7 +192,7 @@ export class Cannonball {
       .add(info.base);
     const camheight = 4;
     const cdist =
-      (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
+      (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - this.height / 2;
     const proximityScale = camheight / new Vec2(hdist, cdist).length();
     const size = this.size * proximityScale * info.scale;

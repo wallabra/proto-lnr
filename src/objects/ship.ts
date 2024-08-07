@@ -143,7 +143,7 @@ class ShipRenderContext {
       .add(ship.pos.clone().subtract(info.cam).multiply(info.scaleVec));
     const camheight = 4;
     const cdist =
-      (drawPos.clone().subtract(info.base).length() / info.smallEdge) * 0.5;
+      (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - ship.height / 2;
     const proximityScale = camheight / new Vec2(hdist, cdist).length();
     const scale = proximityScale * info.scale;
@@ -572,7 +572,7 @@ export class Ship {
       pos || new Vec2(0, 0),
       params,
     );
-    const name = params.name ?? (params.makeup && params.makeup.name) ?? null;
+    const name = params.name ?? (params.makeup && params.makeup !== "default" && params.makeup.name) ?? null;
     this.setMakeup(
       params.makeup === "default"
         ? new ShipMakeup({ name: name, make: make }).defaultLoadout()

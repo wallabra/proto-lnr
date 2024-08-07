@@ -48,7 +48,6 @@ export interface SoundObject {
 }
 
 class SoundSource {
-  private engine: SoundEngine;
   private from: SoundObject;
   private soundSrc: Howl;
   private soundId: number;
@@ -70,7 +69,7 @@ class SoundSource {
     src.once("play", () => {}, soundId);
     src.on(
       "end",
-      () => (this.finished = WritableStreamDefaultController),
+      () => (this.finished = true),
       soundId,
     );
   }

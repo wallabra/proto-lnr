@@ -4,13 +4,13 @@ import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 
 export interface SeekCrateStartArgs extends AIStartArgs {
-  crate: Pickup;
+  crate: Pickup<any>;
 }
 
 export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
   name: string = "seekCrate";
 
-  crate: Pickup | null;
+  crate: Pickup<any> | null;
 
   start(args: SeekCrateStartArgs) {
     this.crate = args.crate;

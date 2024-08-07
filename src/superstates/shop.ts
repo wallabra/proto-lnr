@@ -101,8 +101,8 @@ abstract class Pane<
     if (this.update) this.update();
   }
 
-  protected abstract buildPane(args: PaneArgs & PA);
-  public abstract update?();
+  protected abstract buildPane(args: PaneArgs & PA): void;
+  public abstract update?(): void;
 
   public destroy() {
     if (this.pane != null) {
@@ -460,7 +460,7 @@ class DrydockInventoryItemWidget extends Pane<
       bgColor: "#00000008",
     });
 
-    const labelArgs = {
+    const labelArgs: Partial<CanvasLabelArgs> = {
       color: "#fff",
       height: 12,
       fillY: 0.15,
@@ -652,7 +652,7 @@ class DrydockInventoryItemWidget extends Pane<
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
       ...(this.item instanceof ShipPart
-        ? [manningRequirements(this.item)]
+        ? manningRequirements(this.item)
         : []),
     ];
 
@@ -848,7 +848,7 @@ class DrydockInventoryWidget extends Pane<
     });
   }
 
-  private addItem(shipItem) {
+  private addItem(shipItem: ShipItem) {
     this.itemWidgets.push(
       new DrydockInventoryItemWidget({
         parent: this.itemList.contentPane,
@@ -1512,7 +1512,6 @@ class PaneDrydockShip extends Pane<
   private hullDamageMeter: CanvasProgressBar;
   member: FleetMember;
   private statsPane: PaneStats;
-  private tabPanel: CanvasTabPanel;
   private captainStatus: CanvasLabel;
   private unsetCaptainButton: CanvasButton;
   private disbandShipButton: CanvasButton;
@@ -1521,7 +1520,9 @@ class PaneDrydockShip extends Pane<
   private disbandShipHullLabel: CanvasLabel;
 
   buildPane(args: PaneDrydockShipArgs & CanvasPanelArgs) {
-    this.pane = new CanvasPanel(args);
+    const member = args.member;
+    this.pane = new CanvasPanel(args) as CanvasPanel & { member: FleetMember };
+    this.pane.member = member;
     this.partsWidgets = [];
     this.makeup = this.member.makeup;
 
@@ -2031,7 +2032,6 @@ export default class IntermissionState extends Superstate {
     unknown & CanvasUIArgs
   >[];
   paneDrydock: PaneDrydock;
-  private changed: boolean;
   private paneTabs: CanvasTabPanel;
   private cashCounter: CanvasLabel;
 
@@ -2325,7 +2325,7 @@ export default class IntermissionState extends Superstate {
   }
 
   buildUI() {
-    this.paneDrydock = this.addPane("Drydock", PaneDrydock, {
+    this.paneDrydock = this.addPane<PaneDrydock, PaneDrydockArgs>("Drydock", PaneDrydock, {
       paddingX: 20,
       bgColor: "#2222",
       stats: this.statsRows(),
