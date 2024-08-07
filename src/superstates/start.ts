@@ -113,7 +113,7 @@ export default class MainMenuState extends Superstate {
         childFill: 0.08,
         maxHeight: 50,
         label: "Prototype v" + GAME_VERSION,
-        color: "#77A",
+        color: "#AAD",
         autoFont: true,
         font: "$Hpx bold serif",
       });
