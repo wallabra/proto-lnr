@@ -87,7 +87,7 @@ export class Player {
   }
 
   canShop() {
-    return this.possessed.pos.length() >= 2500;
+    return this.possessed.pos.length() >= 2500 && !this.possessed.inDanger();
   }
 
   inputEvent(name: string, _event: KeyboardEvent) {

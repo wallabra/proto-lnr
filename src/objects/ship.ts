@@ -447,6 +447,8 @@ class ShipRenderContext {
   }
 }
 
+const CHASE_LOCK_RANGE = Math.pow(1200, 2);
+
 export class Ship {
   game: Game;
   phys: PhysicsObject;
@@ -558,6 +560,10 @@ export class Ship {
     }
 
     return true;
+  }
+
+  inDanger(): boolean {
+    return Array.from(this.chasers).some((chaser) => chaser.phys.pos.distanceSq(this.phys.pos) > CHASE_LOCK_RANGE);
   }
 
   get play(): PlayState {
