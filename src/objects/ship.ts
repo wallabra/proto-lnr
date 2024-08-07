@@ -452,6 +452,7 @@ export class Ship {
   phys: PhysicsObject;
   dying: boolean;
   lastInstigator: Ship | null;
+  chasers: number = 0;
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
@@ -503,49 +504,58 @@ export class Ship {
   }
 
   setInstigator(other: Ship) {
-    if (
-      this.following != null &&
-      this.following.lastInstigator != null &&
-      this.following.lastInstigator !== other
-    )
-      return false;
+    if (!this.dying) {
+      if (
+        this.following != null &&
+        this.following.lastInstigator != null &&
+        this.following.lastInstigator !== other
+      )
+        return false;
 
-    if (
-      this.following != null &&
-      this.following === other.following &&
-      this.following.isPlayer
-    )
-      return false;
+      if (
+        this.following != null &&
+        this.following === other.following &&
+        this.following.isPlayer
+      )
+        return false;
 
-    if (this.following === other) return false;
-    if (this.followers.has(other)) return false;
+      if (this.following === other) return false;
+      if (this.followers.has(other)) return false;
 
-    if (this.alliance.has(other)) {
-      if (Math.random() < 0.3) {
-        this.purgeFromAlliance(other);
-        other.purgeFromAlliance(this);
-      } else return false;
+      if (this.alliance.has(other)) {
+        if (Math.random() < 0.3) {
+          this.purgeFromAlliance(other);
+          other.purgeFromAlliance(this);
+        } else return false;
+      }
+
+      for (const follower of Array.from(this.followers)) {
+        follower.setInstigator(other);
+      }
+
+      if (
+        this.following != null &&
+        this.following.lastInstigator == null &&
+        Math.random() < 0.3
+      ) {
+        this.following.aggro(other);
+      }
+
+      for (const otherFollower of Array.from(other.followers)) {
+        otherFollower.setInstigator(this);
+      }
     }
-
-    for (const follower of Array.from(this.followers)) {
-      follower.setInstigator(other);
+    
+    if (this.lastInstigator != null) {
+      this.lastInstigator.chasers--;
     }
+    
+    this.lastInstigator = other;
 
-    if (
-      this.following != null &&
-      this.following.lastInstigator == null &&
-      Math.random() < 0.3
-    ) {
-      this.following.aggro(other);
+    if (other != null) {
+      this.lastInstigator.chasers++;
+      this.lastInstigTime = Date.now();
     }
-
-    for (const otherFollower of Array.from(other.followers)) {
-      otherFollower.setInstigator(this);
-    }
-
-    this.lastInstigator =
-      (this.following && this.following.lastInstigator) ?? other;
-    this.lastInstigTime = Date.now();
 
     return true;
   }
@@ -861,6 +871,7 @@ export class Ship {
     this.spawnDrops();
     this.dying = true;
     this.phys.dying = true;
+    this.setInstigator(null);
 
     const playerFleetIndex = this.play.player.fleet.findIndex(
       (member) => member.makeup === this.makeup,
