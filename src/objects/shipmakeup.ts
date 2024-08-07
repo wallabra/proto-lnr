@@ -527,12 +527,12 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     ];
   }
 
-  findCrates(ship: Ship): Pickup<any>[] {
+  findCrates(ship: Ship): Pickup<unknown & ShipItem>[] {
     const res = [];
 
     for (const item of (ship.game.state as PlayState).tickables) {
-      if ((item as Pickup<any>).bob == null) continue;
-      const crate = item as Pickup<any>;
+      if ((item as Pickup<unknown & ShipItem>).bob == null) continue;
+      const crate = item as Pickup<unknown & ShipItem>;
 
       const dist = crate.phys.pos.distance(ship.pos);
       if (dist > ship.size * ship.lateralCrossSection + this.suckRadius)
@@ -548,7 +548,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     return new Vacuum(DEFAULT_VACUUM);
   }
 
-  suckCrate(deltaTime: number, ship: Ship, crate: Pickup<any>) {
+  suckCrate(deltaTime: number, ship: Ship, crate: Pickup<unknown & ShipItem>) {
     crate.phys.applyForce(
       deltaTime,
       ship.pos

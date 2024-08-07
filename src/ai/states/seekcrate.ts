@@ -2,15 +2,16 @@ import { Nullish } from "utility-types";
 import { Pickup } from "../../objects/pickup";
 import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
+import { ShipItem } from "../../inventory";
 
 export interface SeekCrateStartArgs extends AIStartArgs {
-  crate: Pickup<any>;
+  crate: Pickup<unknown & ShipItem>;
 }
 
 export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
   name: string = "seekCrate";
 
-  crate: Pickup<any> | null;
+  crate: Pickup<unknown & ShipItem> | null;
 
   start(args: SeekCrateStartArgs) {
     this.crate = args.crate;

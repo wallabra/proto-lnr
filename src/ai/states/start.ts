@@ -4,11 +4,12 @@ import { Ship } from "../../objects/ship";
 import { SeekCrateStartArgs } from "./seekcrate";
 import { commonPaths } from "../commonpaths";
 import { Nullish } from "utility-types";
+import { ShipItem } from "../../inventory";
 
 export class StartState implements AIHandler<AIStartArgs> {
   name: string = "start";
 
-  private findPickupCrate(args: AITickArgs): Pickup<any> | null {
+  private findPickupCrate(args: AITickArgs): Pickup<unknown & ShipItem> | null {
     const { ship, play } = args;
     const pos = ship.pos;
     const maxDist = 300 + ship.size * ship.lateralCrossSection * 1.5;
@@ -20,8 +21,8 @@ export class StartState implements AIHandler<AIStartArgs> {
       const dist = b.phys.pos.distance(pos);
       if (dist > Math.min(maxDist, lastDist - 10)) return a;
       lastDist = dist;
-      return b as Pickup<any>;
-    }, null) as Pickup<any> | null;
+      return b as Pickup<unknown & ShipItem>;
+    }, null) as Pickup<unknown & ShipItem> | null;
   }
 
   private roam(deltaTime: number, ship: Ship) {
