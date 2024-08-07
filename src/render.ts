@@ -1346,7 +1346,10 @@ class Hud extends CanvasPanel {
       this.delayedInit = null;
     }
 
-    this.leaveIslandLabel.hidden = !this.player.canShop();
+    this.leaveIslandLabel.hidden = !this.player.inShopRange();
+    this.leaveIslandLabel.label = this.player.possessed.inDanger() ? "You cannot leave the island; someone's chasing you!" : "Press L to leave island.";
+    this.leaveIslandLabel.color = this.player.possessed.inDanger() ? '#f82d' : '#fecb';
+    
     this.damageBar.tick(deltaTime);
     this.cannonList.tick(deltaTime);
     this.engineList.tick(deltaTime);
