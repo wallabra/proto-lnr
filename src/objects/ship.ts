@@ -563,7 +563,7 @@ export class Ship {
   }
 
   inDanger(): boolean {
-    return Array.from(this.chasers).some((chaser) => chaser.phys.pos.distanceSq(this.phys.pos) > CHASE_LOCK_RANGE);
+    return Array.from(this.chasers).some((chaser) => chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE);
   }
 
   get play(): PlayState {
