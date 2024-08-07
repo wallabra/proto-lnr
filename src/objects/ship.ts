@@ -878,6 +878,7 @@ export class Ship {
     this.dying = true;
     this.phys.dying = true;
     this.setInstigator(null);
+    this.phys.playSound("shipdeath", 1.0);
 
     const playerFleetIndex = this.play.player.fleet.findIndex(
       (member) => member.makeup === this.makeup,
