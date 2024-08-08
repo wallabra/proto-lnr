@@ -71,6 +71,82 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
+  setupNPCs(numNPCs: number) {
+    let toSpawn = numNPCs;
+    let radiusBonus = 0;
+    let attempts = 0;
+
+    while (toSpawn) {
+      if (attempts >= 50) {
+        attempts = 0;
+        radiusBonus += 50;
+      }
+      let leader: Ship = null;
+      let squadSize = Math.max(
+        1,
+        Math.ceil(0.3 + random.exponential(1.7)() * 1.3) *
+          (1 + this.game.difficulty / 3),
+      );
+      const squadPos = new Vec2(
+        Math.sqrt(Math.random()) * 1500 + 400 + radiusBonus,
+        0,
+      ).rotateBy(Math.random() * Math.PI * 2);
+      if (
+        squadPos.clone().subtract(this.player.possessed.pos).length() <
+        this.player.possessed.size * this.player.possessed.lateralCrossSection +
+          800
+      ) {
+        attempts++;
+        continue;
+      }
+      while (squadSize && toSpawn) {
+        const aiship = this.makeShip(
+          new Vec2(100 + 300 * Math.sqrt(Math.random()), 0)
+            .rotateBy(Math.random() * Math.PI * 2)
+            .add(squadPos),
+          {
+            angle: Math.random() * Math.PI * 2,
+            make: leader != null ? leader.makeup.make : "random",
+          },
+        );
+        if (
+          aiship.pos.clone().subtract(this.player.possessed.pos).length() <
+          aiship.size * aiship.lateralCrossSection +
+            this.player.possessed.size *
+              this.player.possessed.lateralCrossSection +
+            600
+        ) {
+          aiship.die();
+          attempts++;
+          continue;
+        }
+        if (aiship.floor > this.waterLevel * 0.5) {
+          aiship.die();
+          attempts++;
+          continue;
+        }
+        aiship.makeup.giveRandomParts(
+          +(leader == null) * (9 + this.game.difficulty * 3) +
+            this.game.difficulty * 2,
+        );
+        this.makeAIFor(aiship);
+        if (leader == null) {
+          leader = aiship;
+        } else {
+          aiship.follow(leader);
+        }
+        toSpawn--;
+        squadSize--;
+        //-- fun mode 1: instant shower of death
+        //aiship.aggro(this.player.possessed);
+        //-- fun mode 2: everyone loves you & protects you to death
+        //if (Math.random() < 0.3 && aiship.makeup.nextReadyCannon != null) {
+        //  aiship.follow(this.player.possessed);
+        //}
+      }
+    }
+  }
+
   spawnPlayerFleet() {
     const player = this.game.player;
 
