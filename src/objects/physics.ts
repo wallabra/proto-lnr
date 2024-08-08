@@ -58,6 +58,7 @@ export class PhysicsSimulation {
 export class PhysicsObject {
   play: PlayState;
   lastFloor: { age: number; floor: number } | null;
+  frozen: boolean = false;
   size: number;
   angle: number;
   pos: Vec2;
@@ -361,6 +362,8 @@ export class PhysicsObject {
   }
 
   tick(deltaTime: number) {
+    if (this.frozen) return;
+
     this.age += deltaTime;
 
     this.physAngle(deltaTime);

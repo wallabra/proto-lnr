@@ -18,6 +18,7 @@ import { PlayKeyHandler } from "../keyinput";
 import random from "random";
 import { ShipMakeup } from "../objects/shipmakeup";
 import { SoundEngine } from "../sfx";
+import { Decor } from "../objects/props/decor";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -69,6 +70,28 @@ export class PlayState extends Superstate {
   addShip(ship: Ship) {
     this.tickables.push(ship);
     this.renderables.push(ship);
+  }
+
+  spawnDecor() {
+    // WIP: better num. decor to spawn
+    for (let _ = 0; _ < 10000; _++) {
+      const terrainWidth = 8000; // WIP: better max decor spawn radius
+
+      const dpos = new Vec2(
+        Math.sqrt(Math.random() * terrainWidth * terrainWidth),
+        0,
+      ).rotateBy(Math.random() * Math.PI * 2);
+
+      if (this.terrain.heightAt(dpos.x, dpos.y) < this.waterLevel) {
+        continue;
+      }
+
+      this.makeNewDecor(dpos);
+    }
+  }
+
+  makeNewDecor(pos: Vec2) {
+    this.spawn(Decor, pos, {});
   }
 
   spawnPlayerFleet() {
