@@ -67,11 +67,7 @@ class SoundSource {
       soundId,
     );
     src.once("play", () => {}, soundId);
-    src.on(
-      "end",
-      () => (this.finished = true),
-      soundId,
-    );
+    src.on("end", () => (this.finished = true), soundId);
   }
 
   public update() {

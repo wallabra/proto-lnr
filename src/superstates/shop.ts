@@ -651,9 +651,7 @@ class DrydockInventoryItemWidget extends Pane<
     const lines = [
       weightInfo(this.item),
       ...(this.item.shopInfo == null ? [] : this.item.shopInfo(this.makeup)),
-      ...(this.item instanceof ShipPart
-        ? manningRequirements(this.item)
-        : []),
+      ...(this.item instanceof ShipPart ? manningRequirements(this.item) : []),
     ];
 
     if (lines.length < this.details.children.length) {
@@ -2325,11 +2323,15 @@ export default class IntermissionState extends Superstate {
   }
 
   buildUI() {
-    this.paneDrydock = this.addPane<PaneDrydock, PaneDrydockArgs>("Drydock", PaneDrydock, {
-      paddingX: 20,
-      bgColor: "#2222",
-      stats: this.statsRows(),
-    });
+    this.paneDrydock = this.addPane<PaneDrydock, PaneDrydockArgs>(
+      "Drydock",
+      PaneDrydock,
+      {
+        paddingX: 20,
+        bgColor: "#2222",
+        stats: this.statsRows(),
+      },
+    );
     this.addPane<PaneShop, PaneShopArgs>("Shop", PaneShop, {
       paddingX: 20,
       bgColor: "#2222",
