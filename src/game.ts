@@ -49,6 +49,7 @@ export class Game {
     this.resetPlayer();
     this.setupPlayerFleet();
     this.setupNPCs();
+    this.spawnDecor();
   }
 
   nextLevel(terradef: TerraDef = landfillGenerator()) {
@@ -56,6 +57,7 @@ export class Game {
     this.setPlayState(terradef);
     this.setupPlayerFleet();
     this.setupNPCs();
+    this.spawnDecor();
   }
 
   resetPlayer() {
@@ -142,6 +144,10 @@ export class Game {
   setupPlayerFleet() {
     const play = this.state as PlayState;
     play.spawnPlayerFleet();
+  }
+
+  spawnDecor() {
+    (this.state as PlayState).spawnDecor();
   }
 
   setupNPCs(numNPCs: number | null = null) {
