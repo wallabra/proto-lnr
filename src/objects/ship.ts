@@ -547,11 +547,11 @@ export class Ship {
         otherFollower.setInstigator(this);
       }
     }
-    
+
     if (this.lastInstigator != null) {
       this.lastInstigator.chasers.delete(this);
     }
-    
+
     this.lastInstigator = other;
 
     if (other != null) {
@@ -563,7 +563,9 @@ export class Ship {
   }
 
   inDanger(): boolean {
-    return Array.from(this.chasers).some((chaser) => chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE);
+    return Array.from(this.chasers).some(
+      (chaser) => chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE,
+    );
   }
 
   get play(): PlayState {
@@ -588,7 +590,10 @@ export class Ship {
       pos || new Vec2(0, 0),
       params,
     );
-    const name = (params.name ?? (params.makeup && params.makeup !== "default" && params.makeup.name)) || null;
+    const name =
+      (params.name ??
+        (params.makeup && params.makeup !== "default" && params.makeup.name)) ||
+      null;
     this.setMakeup(
       params.makeup === "default"
         ? new ShipMakeup({ name: name, make: make }).defaultLoadout()
@@ -971,7 +976,7 @@ export class Ship {
     this.lastSmoke = this.phys.age;
     this.play.spawnArgs(Smoke, this, color, 0.3);
   }
-  
+
   playEngineSound(engine: Engine, factor: number = 1.0) {
     if (!(engine.fuelType in ENGINE_SFX_BY_TYPE)) {
       return;
@@ -989,7 +994,7 @@ export class Ship {
 
     // sigmoidal volume
     this.lastEngineSound = this.phys.age;
-    const ssrc = this.phys.playSound(      
+    const ssrc = this.phys.playSound(
       ENGINE_SFX_BY_TYPE[engine.fuelType],
       0.02 + 0.1 / (1 + Math.exp(1 - 7 * factor)),
     );
