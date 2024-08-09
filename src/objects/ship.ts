@@ -998,7 +998,7 @@ export class Ship {
       ENGINE_SFX_BY_TYPE[engine.fuelType],
       0.02 + 0.1 / (1 + Math.exp(1 - 7 * factor)),
     );
-    ssrc.rate(0.6 + 2.2 / (1 + Math.exp(-amount / 2.5)));
+    ssrc.rate(0.6 + 2.2 / (1 + Math.exp(-amount / 30)));
   }
 
   heightGradient() {
