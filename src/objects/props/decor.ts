@@ -64,7 +64,7 @@ export class Decor implements Renderable, Tickable {
     const def = SPRITES[spritePath];
     sprite.src = def.src;
     if (def.angleRandom) this.args.angle ??= Math.random() * Math.PI * 2;
-    console.log(sprite.src);
+    //console.log(sprite.src);
     SPRITE_CACHE.set(spritePath, sprite);
     this.sprite = sprite;
   }
