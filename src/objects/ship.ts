@@ -811,6 +811,12 @@ export class Ship {
       );
       return;
     }
+    if (money < 0.01) {
+      console.warn(
+        `Tried to give sub-cent money (${money}) to ship ${this.makeup.name}; rounding up to the cent`,
+      );
+      money = 0.01;
+    }
     this.setMoney(money + this.money);
   }
 
