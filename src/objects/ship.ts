@@ -833,6 +833,9 @@ export class Ship {
   }
 
   dropCash() {
+    if (this.money <= 0) {
+      return;
+    }
     this.play.spawn<CashPickup, CashPickupParams>(
       CashPickup,
       this.pickupSpawnPos(),
