@@ -604,10 +604,11 @@ export class Ship {
     this.lastInstigTime = null;
     this.killScore = 0;
     this.tickActions = [];
+    this.money = 0;
     this.setMoney(
       params.money != null
         ? params.money
-        : random.uniform(5, 15)() +
+        : random.uniform(5, 35)() +
             this.makeup.make.cost * random.uniform(0.008, 0.08)(),
     );
 
