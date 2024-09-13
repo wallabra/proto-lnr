@@ -42,7 +42,6 @@ export class Decor implements Renderable, Tickable {
 
   constructor(play: PlayState, pos: Vec2, args: DecorArgs) {
     this.play = play;
-    this.phys.frozen = true;
     this.drawScale = args.drawScale ??= 0.5;
     this.spritePath = args.sprite ??= randomDecor();
     this.args = args;
@@ -50,6 +49,7 @@ export class Decor implements Renderable, Tickable {
     this.preloadSprite();
     delete this.args;
     this.phys = play.makePhysObj(pos, args);
+    this.phys.frozen = true;
   }
 
   private preloadSprite() {
