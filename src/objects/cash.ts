@@ -19,6 +19,7 @@ export class CashPickup extends Pickup<CashPickupParams> {
   }
 
   collect(ship: Ship): void {
+    console.log(`${ship.makeup.name} is collecting cash: $${this.cash}`);
     ship.giveMoney(this.cash);
   }
 }

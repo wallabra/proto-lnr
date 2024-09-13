@@ -30,7 +30,7 @@
     "@types/victor": "^1.1.5",
     "array-counter": "^1.0.0",
     "howler": "^2.2.4",
-    "random": "^4.1.0",
+    "random": "^5.1.0",
     "random-weighted-choice": "^0.1.4",
     "rustmatchjs": "^0.0.4",
     "svgo": "^3.3.2",
