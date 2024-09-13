@@ -805,6 +805,10 @@ export class Ship {
   }
 
   giveMoney(money: number) {
+    if (money < 0) {
+      console.warn(`Tried to give negative money (${money}) to ship ${this.makeup.name}!`);
+      return;
+    }
     this.setMoney(money + this.money);
   }
 
