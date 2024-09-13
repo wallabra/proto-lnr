@@ -14,9 +14,9 @@ import SPRITE_ROCK from "data-url:../../sprites/rock.png";
 import SPRITE_FLAG from "data-url:../../sprites/flag.png";
 
 const SPRITES = {
-  "grass.png": SPRITE_GRASS,
-  "rock.png": SPRITE_ROCK,
-  "flag.png": SPRITE_FLAG,
+  "grass.png": { src: SPRITE_GRASS, angleRandom: true },
+  "rock.png": { src: SPRITE_ROCK, angleRandom: true },
+  "flag.png": { src: SPRITE_FLAG, angleRandom: true },
 };
 
 const SPRITE_CACHE: Map<string, HTMLImageElement> = new Map();
@@ -38,15 +38,18 @@ export class Decor implements Renderable, Tickable {
   drawScale: number;
   spritePath: string;
   sprite: HTMLImageElement;
+  args: DecorArgs | undefined;
 
   constructor(play: PlayState, pos: Vec2, args: DecorArgs) {
-    if (args.angle == null) args.angle = Math.random() * Math.PI * 2;
     this.play = play;
-    this.phys = play.makePhysObj(pos, args);
     this.phys.frozen = true;
     this.drawScale = args.drawScale ??= 0.5;
     this.spritePath = args.sprite ??= randomDecor();
+    this.args = args;
+    if (args.angle == null) args.angle = Math.random() * Math.PI * 2;
     this.preloadSprite();
+    delete this.args;
+    this.phys = play.makePhysObj(pos, args);
   }
 
   private preloadSprite() {
@@ -58,7 +61,9 @@ export class Decor implements Renderable, Tickable {
     }
 
     const sprite = document.createElement("img") as HTMLImageElement;
-    sprite.src = SPRITES[spritePath];
+    const def = SPRITES[spritePath];
+    sprite.src = def.src;
+    if (def.angleRandom) this.args.angle ??= Math.random() * Math.PI * 2;
     console.log(sprite.src);
     SPRITE_CACHE.set(spritePath, sprite);
     this.sprite = sprite;
