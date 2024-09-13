@@ -10,6 +10,7 @@ export interface CashPickupParams extends PhysicsParams {
 
 export class CashPickup extends Pickup<CashPickupParams> {
   cash: number;
+  mainColor: string = "#406220";
 
   constructor(game: PlayState, pos: Vec2, params?: Partial<CashPickupParams>) {
     if (params == null) params = {};

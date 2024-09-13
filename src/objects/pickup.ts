@@ -9,6 +9,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   play: PlayState;
   dying: boolean;
   phys: PhysicsObject;
+  mainColor: string = "#6a4000";
 
   constructor(play: PlayState, pos: Vec2, params: Partial<P>) {
     if (params == null) params = {} as P;
@@ -71,7 +72,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.drawBox(ctx, drawPos, size, shoffs);
 
     // Draw body
-    ctx.fillStyle = "#6a4000";
+    ctx.fillStyle = this.mainColor;
     this.drawBox(ctx, drawPos, size, 0);
     ctx.fillStyle = "#00000048";
     this.drawBox(ctx, drawPos, size - 4, 0);
