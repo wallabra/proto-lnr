@@ -27,7 +27,6 @@
     "typescript-eslint": "^8.5.0"
   },
   "dependencies": {
-    "@types/random": "^3.0.1",
     "@types/victor": "^1.1.5",
     "array-counter": "^1.0.0",
     "howler": "^2.2.4",
