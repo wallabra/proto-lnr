@@ -36,8 +36,8 @@ export type ObjectRenderInfo = {
   renderer: ObjectRenderer;
   width: number;
   height: number;
-  toScreen: (worldPos: Victor) => Vec2;
-  toWorld: (screenPos: Victor) => Vec2;
+  toScreen: (worldPos: Victor) => Victor;
+  toWorld: (screenPos: Victor) => Victor;
 };
 
 export interface Renderable {
@@ -172,7 +172,11 @@ export class TerrainRenderer {
         this.game.waterLevel * 1.1,
         height,
       );
-      const shadowness = lerp(0, gradient.dot(new Victor(0, -10)), shadowEffect);
+      const shadowness = lerp(
+        0,
+        gradient.dot(new Victor(0, -10)),
+        shadowEffect,
+      );
 
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(

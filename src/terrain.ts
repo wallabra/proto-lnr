@@ -194,11 +194,7 @@ export class Terrain {
   cacheSize: number;
   cacheRes: number;
 
-  constructor(
-    definition: TerraDef,
-    cacheSize = 512,
-    cacheRes = 4,
-  ) {
+  constructor(definition: TerraDef, cacheSize = 512, cacheRes = 4) {
     this.definition = definition;
     this.sectors = new LRUMap2D();
     this.cached = new LRUMap2D();

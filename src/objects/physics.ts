@@ -192,7 +192,7 @@ export class PhysicsObject {
     this.angVel += offs;
   }
 
-  applyTorqueAt(deltaTime: number | null, pos: Victor, force: Vec2) {
+  applyTorqueAt(deltaTime: number | null, pos: Victor, force: Victor) {
     const arm = pos.clone().subtract(this.pos);
     const torque =
       arm
@@ -268,7 +268,7 @@ export class PhysicsObject {
     return this.vel.multiplyScalar(this.weight);
   }
 
-  orbitalVelocityAt(pos: Victor): Vec2 {
+  orbitalVelocityAt(pos: Victor): Victor {
     const rel = pos.clone().subtract(this.pos);
     return rel.rotate(Math.PI / 2).multiplyScalar(this.angVel);
   }
@@ -282,7 +282,7 @@ export class PhysicsObject {
     return this.weight / pos.clone().subtract(this.pos).length();
   }
 
-  orbitalMomentumAt(pos: Victor): Vec2 {
+  orbitalMomentumAt(pos: Victor): Victor {
     return this.orbitalVelocityAt(pos).multiplyScalar(
       this.angularInertiaAt(pos),
     );

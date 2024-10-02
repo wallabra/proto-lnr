@@ -12,7 +12,11 @@ export class CashPickup extends Pickup<CashPickupParams> {
   cash: number;
   mainColor = "#406220";
 
-  constructor(game: PlayState, pos: Victor, params?: Partial<CashPickupParams>) {
+  constructor(
+    game: PlayState,
+    pos: Victor,
+    params?: Partial<CashPickupParams>,
+  ) {
     if (params == null) params = {};
     super(game, pos, params);
     this.cash = params.cash ?? 10;

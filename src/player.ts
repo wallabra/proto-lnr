@@ -88,7 +88,9 @@ export class Player {
   }
 
   approach(offs: Victor, deltaTime: number, throttle = 1.0) {
-    const dot = new Victor(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
+    const dot = new Victor(1, 0)
+      .rotateBy(this.possessed.angle)
+      .dot(offs.norm());
     this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }
 

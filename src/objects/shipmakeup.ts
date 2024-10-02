@@ -432,11 +432,7 @@ export class Cannon extends ShipPart {
     return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
 
-  private shootCannonball(
-    ship: Ship,
-    dist: number,
-    spread = this.spread,
-  ) {
+  private shootCannonball(ship: Ship, dist: number, spread = this.spread) {
     dist = Math.min(dist, this.range);
 
     const cball = ship.play.spawnCannonball(ship, {

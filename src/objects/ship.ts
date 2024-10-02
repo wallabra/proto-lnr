@@ -292,7 +292,9 @@ class ShipRenderContext {
     const from = ship.pos
       .clone()
       .add(
-        new Victor(ship.size * ship.lateralCrossSection, 0).rotateBy(ship.angle),
+        new Victor(ship.size * ship.lateralCrossSection, 0).rotateBy(
+          ship.angle,
+        ),
       );
     const fromDraw = info.base
       .clone()
@@ -650,9 +652,10 @@ export class Ship {
       const alpha = Math.abs(
         new Victor(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
       );
-      const res = new Victor(1 - alpha, alpha * this.lateralCrossSection).rotate(
-        this.angle,
-      );
+      const res = new Victor(
+        1 - alpha,
+        alpha * this.lateralCrossSection,
+      ).rotate(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
     }.bind(this);
   }

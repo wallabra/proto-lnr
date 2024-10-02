@@ -63,7 +63,9 @@ export class Game {
   resetPlayer() {
     this.player = new Player(
       this,
-      (this.state as PlayState).makeShip(new Victor(0, 0), { makeup: "default" }),
+      (this.state as PlayState).makeShip(new Victor(0, 0), {
+        makeup: "default",
+      }),
     );
     if (this.state instanceof PlayState) this.state.reloadSoundEngine();
     console.log(this.player);
