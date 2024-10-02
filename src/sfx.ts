@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { Howl, Howler } from "howler";
 
 const audioCache: { [name: string]: Howl } = {};
@@ -43,7 +43,7 @@ function preloader() {
 document.addEventListener("click", preloader);
 
 export interface SoundObject {
-  pos: Vec2;
+  pos: Victor;
   angle: number;
 }
 

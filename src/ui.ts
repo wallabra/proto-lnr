@@ -3,7 +3,7 @@ import { Optional } from "utility-types";
 import { Game } from "./game";
 import { GameMouseInfo } from "./mouse";
 import { lerp } from "./util";
-import Vec2 from "victor";
+import Victor from "victor";
 import { Nullish } from "../node_modules/utility-types/dist/aliases-and-guards";
 
 export interface UIEvent {
@@ -903,7 +903,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
   }
 
   event<E extends UIEvent>(e: E) {
-    const ev = <E & { dragStart: Vec2 }>e;
+    const ev = <E & { dragStart: Victor }>e;
     if (
       e.name == "canvasdrag" &&
       this.isInside(ev.dragStart.x, ev.dragStart.y)
@@ -912,7 +912,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
       const delta = ev.delta;
       this.scrollTowardPx(
         delta.dot(
-          new Vec2(
+          new Victor(
             +(this.scroller.axis === "horizontal"),
             +(this.scroller.axis === "vertical"),
           ),

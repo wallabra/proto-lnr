@@ -1,6 +1,6 @@
 import { ObjectRenderInfo, Renderable } from "../../render";
 import { Physicable, PlayState, Tickable } from "../../superstates/play";
-import Vec2 from "victor";
+import Victor from "victor";
 import { PhysicsObject } from "../physics";
 import { Ship } from "../ship";
 
@@ -24,12 +24,12 @@ export class Smoke implements Renderable, Tickable, Physicable {
       from.pos
         .clone()
         .add(
-          new Vec2(-from.size * from.lateralCrossSection * 0.75, 0).rotate(
+          new Victor(-from.size * from.lateralCrossSection * 0.75, 0).rotate(
             from.angle,
           ),
         )
         .add(
-          new Vec2(from.size * 0.5 * Math.random(), 0).rotateBy(
+          new Victor(from.size * 0.5 * Math.random(), 0).rotateBy(
             Math.random() * Math.PI * 2,
           ),
         ),
@@ -37,7 +37,7 @@ export class Smoke implements Renderable, Tickable, Physicable {
         size: 3,
         angle: from.vel.invert().angle(),
         baseDrag: 0,
-        vel: new Vec2(15, 0).rotateBy(Math.random() * Math.PI * 2),
+        vel: new Victor(15, 0).rotateBy(Math.random() * Math.PI * 2),
       },
     );
   }

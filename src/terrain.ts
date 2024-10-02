@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import random from "random";
 //import { lerp } from "./util";
 
@@ -91,7 +91,7 @@ export interface TerraDef {
 }
 
 interface LandfillDef {
-  center: Vec2;
+  center: Victor;
   radius: number;
   height: number;
 }
@@ -110,7 +110,7 @@ function landfill(def: LandfillDef) {
 
 function randomLandfill(scale: number = 1): LandfillDef {
   return {
-    center: new Vec2(random.uniform(0, 500 * scale)(), 0).rotateBy(
+    center: new Victor(random.uniform(0, 500 * scale)(), 0).rotateBy(
       Math.PI * Math.random() * 2,
     ),
     radius: random.uniform(100, 250 * scale)(),
@@ -210,8 +210,8 @@ export class Terrain {
     return this.cacheSize / this.cacheRes;
   }
 
-  gradientAt(x: number, y: number): Vec2 {
-    return new Vec2(
+  gradientAt(x: number, y: number): Victor {
+    return new Victor(
       this.heightAt(x + 0.5, y) - this.heightAt(x - 0.5, y),
       this.heightAt(x, y + 0.5) - this.heightAt(x, y - 0.5),
     );

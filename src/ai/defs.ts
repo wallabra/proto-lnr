@@ -2,7 +2,7 @@ import { AIController } from "./ai";
 import { Ship } from "../objects/ship";
 import { Game } from "../game";
 import { PlayState } from "../superstates/play";
-import Vec2 from "victor";
+import Victor from "victor";
 import { Nullish } from "utility-types";
 
 export type UnknownAIHandler = AIHandler<unknown & AIStartArgs>;
@@ -24,8 +24,8 @@ export interface AITickArgs {
   ship: Ship;
   game: Game;
   play: PlayState;
-  soonPos: Vec2;
-  dHeight: Vec2;
+  soonPos: Victor;
+  dHeight: Victor;
   deltaTime: number;
   state: UnknownAIHandler;
   stateName: string;

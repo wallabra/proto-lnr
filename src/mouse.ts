@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { Game } from "./game";
 import IntermissionState from "./superstates/shop";
 import match from "rustmatchjs";
@@ -11,32 +11,32 @@ interface MouseCallback {
 }
 
 export interface GameMouseInfo {
-  pos: Vec2;
-  delta: Vec2;
+  pos: Victor;
+  delta: Victor;
   name: string;
   rmb: boolean;
   inside: CanvasUIElement | null;
 }
 
 export interface GameMouseDragInfo extends GameMouseInfo {
-  dragStart: Vec2;
+  dragStart: Victor;
 }
 
 export default abstract class MouseHandler {
   game: Game;
-  pos: Vec2;
-  delta: Vec2;
+  pos: Victor;
+  delta: Victor;
   registry: Array<MouseCallback>;
 
   constructor(game: Game) {
     this.game = game;
-    this.pos = new Vec2(0, 0);
-    this.delta = new Vec2(0, 0);
+    this.pos = new Victor(0, 0);
+    this.delta = new Victor(0, 0);
     this.registry = [];
   }
 
   onMouseUpdate(e: MouseEvent) {
-    this.delta = new Vec2(
+    this.delta = new Victor(
       (e.clientX - window.innerWidth / 2) / this.game.drawScale,
       (e.clientY - window.innerHeight / 2) / this.game.drawScale,
     ).subtract(this.pos);
@@ -112,7 +112,7 @@ export class PlayMouseHandler extends MouseHandler {
 
 export class GUIMouseHandler extends MouseHandler {
   dragging: boolean;
-  dragStart?: Vec2;
+  dragStart?: Victor;
   dragStartElement?: CanvasUIElement;
 
   constructor(game: Game) {
@@ -122,7 +122,7 @@ export class GUIMouseHandler extends MouseHandler {
 
   private onMouseDown(e) {
     this.dragging = true;
-    this.dragStart = new Vec2(e.x, e.y);
+    this.dragStart = new Victor(e.x, e.y);
     const state = <IntermissionState>this.game.state;
     e.name = "canvasdragstart";
     state.mouseEvent(e);

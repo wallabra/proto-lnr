@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { PlayState } from "../superstates/play";
 import { Ship } from "./ship";
 import { ObjectRenderInfo } from "../render";
@@ -6,7 +6,7 @@ import { ObjectRenderInfo } from "../render";
 export interface PhysicsParams {
   size: number;
   angle: number;
-  vel: Vec2;
+  vel: Victor;
   height: number;
   vspeed: number;
   weight: number;
@@ -40,7 +40,7 @@ export class PhysicsSimulation {
     this.objects.push(obj);
   }
 
-  makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
+  makePhysObj(pos: Victor, params?: Partial<PhysicsParams>) {
     const res = new PhysicsObject(this.play, pos, params);
     this.addPhysObj(res);
     return res;
@@ -61,8 +61,8 @@ export class PhysicsObject {
   frozen: boolean = false;
   size: number;
   angle: number;
-  pos: Vec2;
-  lastPos: Vec2;
+  pos: Victor;
+  lastPos: Victor;
   height: number;
   vspeed: number;
   weight: number;
@@ -77,7 +77,7 @@ export class PhysicsObject {
   restitution: number;
   displacement: number = 0;
 
-  constructor(play: PlayState, pos: Vec2, params?: Partial<PhysicsParams>) {
+  constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.play = play;
     this.pos = pos;
@@ -102,13 +102,13 @@ export class PhysicsObject {
     this.restitution = params.restitution ?? 0.5;
   }
 
-  setPos(newPos: Vec2) {
+  setPos(newPos: Victor) {
     const vel = this.vel;
     this.pos = newPos.clone();
     this.vel = vel;
   }
 
-  shift(offset: Vec2) {
+  shift(offset: Victor) {
     this.pos.add(offset);
     this.lastPos.add(offset);
   }
@@ -156,7 +156,7 @@ export class PhysicsObject {
     const dHeight = this.heightGradient();
     this.applyForce(
       deltaTime,
-      new Vec2(
+      new Victor(
         -dHeight.x * this.gravity * this.weight * 1000,
         -dHeight.y * this.gravity * this.weight * 1000,
       ),
@@ -181,7 +181,7 @@ export class PhysicsObject {
     return this.pos.clone().subtract(this.lastPos);
   }
 
-  set vel(vel: Vec2) {
+  set vel(vel: Victor) {
     this.lastPos = this.pos.clone().subtract(vel);
   }
 
@@ -192,7 +192,7 @@ export class PhysicsObject {
     this.angVel += offs;
   }
 
-  applyTorqueAt(deltaTime: number | null, pos: Vec2, force: Vec2) {
+  applyTorqueAt(deltaTime: number | null, pos: Victor, force: Vec2) {
     const arm = pos.clone().subtract(this.pos);
     const torque =
       arm
@@ -202,7 +202,7 @@ export class PhysicsObject {
     this.applyTorque(deltaTime, torque);
   }
 
-  applyForce(deltaTime: number | null, force: Vec2) {
+  applyForce(deltaTime: number | null, force: Victor) {
     if (deltaTime == null) deltaTime = 1;
     const factor = -deltaTime / this.weight;
     const offs = force.clone().multiplyScalar(factor);
@@ -235,7 +235,7 @@ export class PhysicsObject {
   }
 
   dragVector() {
-    return new Vec2(1, 1);
+    return new Victor(1, 1);
   }
 
   physDrag(deltaTime: number) {
@@ -264,11 +264,11 @@ export class PhysicsObject {
     return this.weight * (vel ?? this.vel.length());
   }
 
-  vecMomentum(): Vec2 {
+  vecMomentum(): Victor {
     return this.vel.multiplyScalar(this.weight);
   }
 
-  orbitalVelocityAt(pos: Vec2): Vec2 {
+  orbitalVelocityAt(pos: Victor): Vec2 {
     const rel = pos.clone().subtract(this.pos);
     return rel.rotate(Math.PI / 2).multiplyScalar(this.angVel);
   }
@@ -278,11 +278,11 @@ export class PhysicsObject {
     return this.weight;
   }
 
-  angularInertiaAt(pos: Vec2): number {
+  angularInertiaAt(pos: Victor): number {
     return this.weight / pos.clone().subtract(this.pos).length();
   }
 
-  orbitalMomentumAt(pos: Vec2): Vec2 {
+  orbitalMomentumAt(pos: Victor): Vec2 {
     return this.orbitalVelocityAt(pos).multiplyScalar(
       this.angularInertiaAt(pos),
     );
@@ -311,7 +311,7 @@ export class PhysicsObject {
       .multiplyScalar(-friction * steepness);
 
     if ((fricForce.length() * deltaTime) / this.weight > this.vel.length()) {
-      this.vel = new Vec2(0, 0);
+      this.vel = new Victor(0, 0);
     } else {
       this.applyForce(deltaTime, fricForce);
     }
@@ -319,7 +319,7 @@ export class PhysicsObject {
 
   heightGradient() {
     const terrain = this.play.terrain;
-    if (terrain == null) return new Vec2(0, 0);
+    if (terrain == null) return new Victor(0, 0);
     return terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
@@ -358,7 +358,7 @@ export class PhysicsObject {
   }
 
   get angNorm() {
-    return new Vec2(1, 0).rotateBy(this.angle);
+    return new Victor(1, 0).rotateBy(this.angle);
   }
 
   tick(deltaTime: number) {

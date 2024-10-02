@@ -8,7 +8,7 @@ import {
 import { Terrain, TerraDef } from "../terrain";
 import Superstate from "./base";
 
-import Vec2 from "victor";
+import Victor from "victor";
 import { AIController } from "../ai/ai";
 
 import { GameRenderer, Renderable } from "../render";
@@ -88,7 +88,7 @@ export class PlayState extends Superstate {
         Math.ceil(0.3 + random.exponential(1.7)() * 1.3) *
           (1 + this.game.difficulty / 3),
       );
-      const squadPos = new Vec2(
+      const squadPos = new Victor(
         Math.sqrt(Math.random()) * 1500 + 400 + radiusBonus,
         0,
       ).rotateBy(Math.random() * Math.PI * 2);
@@ -102,7 +102,7 @@ export class PlayState extends Superstate {
       }
       while (squadSize && toSpawn) {
         const aiship = this.makeShip(
-          new Vec2(100 + 300 * Math.sqrt(Math.random()), 0)
+          new Victor(100 + 300 * Math.sqrt(Math.random()), 0)
             .rotateBy(Math.random() * Math.PI * 2)
             .add(squadPos),
           {
@@ -153,7 +153,7 @@ export class PlayState extends Superstate {
     for (let _ = 0; _ < 10000; _++) {
       const terrainWidth = 8000; // WIP: better max decor spawn radius
 
-      const dpos = new Vec2(
+      const dpos = new Victor(
         Math.sqrt(Math.random() * terrainWidth * terrainWidth),
         0,
       ).rotateBy(Math.random() * Math.PI * 2);
@@ -166,7 +166,7 @@ export class PlayState extends Superstate {
     }
   }
 
-  makeNewDecor(pos: Vec2) {
+  makeNewDecor(pos: Victor) {
     this.spawn(Decor, pos, {});
   }
 
@@ -177,14 +177,14 @@ export class PlayState extends Superstate {
       this.removeObj(this.player.possessed);
     }
 
-    const pos = new Vec2(1600, 0).rotateBy(Math.PI * 2 * Math.random());
+    const pos = new Victor(1600, 0).rotateBy(Math.PI * 2 * Math.random());
 
     let playerShip = null;
 
     const addShip = (
       money: number,
       makeup: ShipMakeup,
-      offs: Vec2 = null,
+      offs: Victor = null,
     ): Ship => {
       let spawnPos = pos;
       if (offs != null) spawnPos = spawnPos.clone().add(offs);
@@ -194,7 +194,7 @@ export class PlayState extends Superstate {
         makeup: makeup,
         angle: pos.clone().invert().angle(),
       });
-      ship.vel = new Vec2(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
+      ship.vel = new Victor(ship.maxEngineThrust() / ship.weight, 0).rotateBy(
         ship.angle,
       );
 
@@ -217,7 +217,7 @@ export class PlayState extends Superstate {
 
       for (const member of player.fleet) {
         if (member.makeup.captain == null) continue;
-        const offs = new Vec2(
+        const offs = new Victor(
           playerShip.size * playerShip.lateralCrossSection * 2 +
             random.uniform(30, 200)(),
           0,
@@ -262,7 +262,7 @@ export class PlayState extends Superstate {
     return this.game.height;
   }
 
-  makeShip(pos: Vec2, params?: Partial<ShipParams>) {
+  makeShip(pos: Victor, params?: Partial<ShipParams>) {
     const res = new Ship(this.game, pos, params);
     this.addShip(res);
     return res;
@@ -291,15 +291,15 @@ export class PlayState extends Superstate {
     this.tickables = this.tickables.filter((t) => !t.dying);
   }
 
-  cameraPos(): Vec2 {
+  cameraPos(): Victor {
     if (this.player != null && this.player.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
-      return new Vec2(0, 0);
+      return new Victor(0, 0);
     }
   }
 
-  makePhysObj(pos: Vec2, params?: Partial<PhysicsParams>) {
+  makePhysObj(pos: Victor, params?: Partial<PhysicsParams>) {
     return this.physics.makePhysObj(pos, params);
   }
 
@@ -325,7 +325,7 @@ export class PlayState extends Superstate {
     if (params.speed == null) params.speed = 2;
     if (params.angle == null) params.angle = ship.angle;
     if (params.vel == null)
-      params.vel = new Vec2(params.speed, 0)
+      params.vel = new Victor(params.speed, 0)
         .rotateBy(params.angle)
         .add(ship.vel);
     if (params.size == null) params.size = 3.5;
@@ -357,8 +357,8 @@ export class PlayState extends Superstate {
   }
 
   spawn<A extends Tickable & Renderable, P extends PhysicsParams>(
-    objType: new (play: PlayState, pos: Vec2, params?: Partial<P>) => A,
-    pos: Vec2,
+    objType: new (play: PlayState, pos: Victor, params?: Partial<P>) => A,
+    pos: Victor,
     params: Partial<P>,
   ): A {
     const res = new objType(this, pos, params);

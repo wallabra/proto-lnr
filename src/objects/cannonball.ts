@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { ObjectRenderInfo } from "../render";
 import { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
@@ -13,7 +13,7 @@ export class Cannonball {
   instigator: Ship;
   phys: PhysicsObject;
   dying: boolean;
-  predictedFall: Vec2 | null = null;
+  predictedFall: Victor | null = null;
 
   constructor(
     game: PlayState,
@@ -26,7 +26,7 @@ export class Cannonball {
     this.dying = false;
   }
 
-  computePredictedFall(): Vec2 {
+  computePredictedFall(): Victor {
     const airtime = Math.max(0, this.airtime());
     const drag = this.phys.airDrag() / this.phys.weight;
     return this.pos
@@ -34,7 +34,7 @@ export class Cannonball {
       .add(this.vel.multiplyScalar((1 - Math.exp(-drag * airtime)) / drag));
   }
 
-  predictFall(): Vec2 {
+  predictFall(): Victor {
     return (this.predictedFall = this.computePredictedFall());
   }
 
@@ -194,7 +194,7 @@ export class Cannonball {
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - this.height / 2;
-    const proximityScale = camheight / new Vec2(hdist, cdist).length();
+    const proximityScale = camheight / new Victor(hdist, cdist).length();
     const size = this.size * proximityScale * info.scale;
 
     if (hdist < 0.02) {

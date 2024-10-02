@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { Pickup } from "./pickup";
 import { PhysicsParams } from "./physics";
 import { Ship } from "./ship";
@@ -12,7 +12,7 @@ export class CashPickup extends Pickup<CashPickupParams> {
   cash: number;
   mainColor: string = "#406220";
 
-  constructor(game: PlayState, pos: Vec2, params?: Partial<CashPickupParams>) {
+  constructor(game: PlayState, pos: Victor, params?: Partial<CashPickupParams>) {
     if (params == null) params = {};
     super(game, pos, params);
     this.cash = params.cash ?? 10;

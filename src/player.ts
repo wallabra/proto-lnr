@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { Ship } from "./objects/ship";
 import { PlayMouseHandler } from "./mouse";
 import { Game } from "./game";
@@ -82,13 +82,13 @@ export class Player {
     return this.game.mouse;
   }
 
-  steer(offs: Vec2, deltaTime: number) {
+  steer(offs: Victor, deltaTime: number) {
     const targ = offs.angle();
     this.possessed.steer(deltaTime, targ);
   }
 
-  approach(offs: Vec2, deltaTime: number, throttle: number = 1.0) {
-    const dot = new Vec2(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
+  approach(offs: Victor, deltaTime: number, throttle: number = 1.0) {
+    const dot = new Victor(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
     this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }
 

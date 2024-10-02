@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { ObjectRenderInfo } from "../render";
 import type { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
@@ -11,13 +11,13 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   phys: PhysicsObject;
   mainColor: string = "#6a4000";
 
-  constructor(play: PlayState, pos: Vec2, params: Partial<P>) {
+  constructor(play: PlayState, pos: Victor, params: Partial<P>) {
     if (params == null) params = {} as P;
     if (params.size == null) params.size = 4;
     if (params.angle == null) params.angle = Math.random() * Math.PI * 2;
 
     this.play = play;
-    this.phys = this.play.makePhysObj(pos || new Vec2(0, 0), {
+    this.phys = this.play.makePhysObj(pos || new Victor(0, 0), {
       weight: 100,
       baseDrag: 8,
       ...params,
@@ -30,7 +30,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
   drawBox(
     ctx: CanvasRenderingContext2D,
-    drawPos: Vec2,
+    drawPos: Victor,
     size: number,
     offs: number,
   ) {
@@ -53,7 +53,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - this.phys.height / 2;
-    const proximityScale = camheight / new Vec2(hdist, cdist).length();
+    const proximityScale = camheight / new Victor(hdist, cdist).length();
     const size =
       (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
 
@@ -112,7 +112,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
     this.phys.applyForce(
       deltaTime,
-      new Vec2(Math.random() * 1, 0)
+      new Victor(Math.random() * 1, 0)
         .rotateBy(Math.random() * Math.PI * 2)
         .add(this.phys.vel.multiplyScalar(0.6)),
     );
@@ -144,7 +144,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
 > {
   item: I;
 
-  constructor(game: PlayState, pos: Vec2, params: ItemPickupParams<I>) {
+  constructor(game: PlayState, pos: Victor, params: ItemPickupParams<I>) {
     super(game, pos, params);
     this.item = params.item;
   }

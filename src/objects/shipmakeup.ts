@@ -8,7 +8,7 @@ import {
 } from "../inventory";
 import { Cannonball } from "./cannonball";
 import { Ship } from "./ship";
-import Vec2 from "victor";
+import Victor from "victor";
 import { Player } from "../player";
 import {
   DEFAULT_CANNON,
@@ -454,7 +454,7 @@ export class Cannon extends ShipPart {
       (dist - velComp + cball.phys.airDrag() * Math.pow(airtime, 2)) / airtime,
       this.range,
     );
-    cball.phys.vel = new Vec2(targSpeed, 0)
+    cball.phys.vel = new Victor(targSpeed, 0)
       .rotateBy(cball.phys.angle)
       .add(ship.vel);
 

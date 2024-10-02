@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import {
   TerraSector,
   SECTOR_AREA,
@@ -27,17 +27,17 @@ import { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
 
 export type ObjectRenderInfo = {
   scale: number;
-  scaleVec: Vec2;
+  scaleVec: Victor;
   ctx: CanvasRenderingContext2D;
-  base: Vec2;
-  cam: Vec2;
+  base: Victor;
+  cam: Victor;
   largeEdge: number;
   smallEdge: number;
   renderer: ObjectRenderer;
   width: number;
   height: number;
-  toScreen: (worldPos: Vec2) => Vec2;
-  toWorld: (screenPos: Vec2) => Vec2;
+  toScreen: (worldPos: Victor) => Vec2;
+  toWorld: (screenPos: Victor) => Vec2;
 };
 
 export interface Renderable {
@@ -73,11 +73,11 @@ export class ObjectRenderer {
     const zoom = this.game.game.drawScale;
 
     const cam = this.game.cameraPos();
-    const base = new Vec2(baseX, baseY);
+    const base = new Victor(baseX, baseY);
 
     const info: ObjectRenderInfo = {
       scale: zoom,
-      scaleVec: new Vec2(zoom, zoom),
+      scaleVec: new Victor(zoom, zoom),
       ctx: ctx,
       base: base,
       cam: cam,
@@ -86,9 +86,9 @@ export class ObjectRenderer {
       renderer: this,
       width: this.game.width,
       height: this.game.height,
-      toScreen: (worldPos: Vec2) =>
+      toScreen: (worldPos: Victor) =>
         worldPos.clone().subtract(cam).multiplyScalar(zoom).add(base),
-      toWorld: (screenPos: Vec2) =>
+      toWorld: (screenPos: Victor) =>
         screenPos.clone().subtract(base).divideScalar(zoom).add(cam),
     };
 
@@ -172,7 +172,7 @@ export class TerrainRenderer {
         this.game.waterLevel * 1.1,
         height,
       );
-      const shadowness = lerp(0, gradient.dot(new Vec2(0, -10)), shadowEffect);
+      const shadowness = lerp(0, gradient.dot(new Victor(0, -10)), shadowEffect);
 
       ctx.lineWidth = 0;
       ctx.fillStyle = rgbString(

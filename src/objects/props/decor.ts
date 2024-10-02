@@ -2,7 +2,7 @@ import { ObjectRenderInfo, Renderable } from "../../render";
 import { PlayState, Tickable } from "../../superstates/play";
 import { PhysicsObject, PhysicsParams } from "../physics";
 import rwc from "random-weighted-choice";
-import Vec2 from "victor";
+import Victor from "victor";
 
 export interface DecorArgs extends Partial<PhysicsParams> {
   sprite?: string;
@@ -40,7 +40,7 @@ export class Decor implements Renderable, Tickable {
   sprite: HTMLImageElement;
   args: DecorArgs | undefined;
 
-  constructor(play: PlayState, pos: Vec2, args: DecorArgs) {
+  constructor(play: PlayState, pos: Victor, args: DecorArgs) {
     this.play = play;
     this.drawScale = args.drawScale ??= 0.5;
     this.spritePath = args.sprite ??= randomDecor();

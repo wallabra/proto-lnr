@@ -1,4 +1,4 @@
-import Vec2 from "victor";
+import Victor from "victor";
 import { angDiff, umod, lerp } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
 import { ObjectRenderInfo } from "../render";
@@ -73,7 +73,7 @@ export class TickAction<T> {
 }
 
 export interface CollisionCircle {
-  center: Vec2;
+  center: Victor;
   radius: number;
 }
 
@@ -116,7 +116,7 @@ export function closestCircle(
 class ShipRenderContext {
   ship: Ship;
   ctx: CanvasRenderingContext2D;
-  drawPos: Vec2;
+  drawPos: Victor;
   info: ObjectRenderInfo;
   shoffs: number;
   hoffs: number;
@@ -145,7 +145,7 @@ class ShipRenderContext {
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - ship.height / 2;
-    const proximityScale = camheight / new Vec2(hdist, cdist).length();
+    const proximityScale = camheight / new Victor(hdist, cdist).length();
     const scale = proximityScale * info.scale;
     const size = ship.size * scale;
     const isPlayer = ship.isPlayer;
@@ -230,7 +230,7 @@ class ShipRenderContext {
     ctx.lineWidth = 1.75;
     ctx.beginPath();
     ctx.moveTo(drawPos.x, drawPos.y);
-    const to = new Vec2(ship.size * ship.lateralCrossSection * scale, 0)
+    const to = new Victor(ship.size * ship.lateralCrossSection * scale, 0)
       .rotateBy(ship.angle)
       .add(drawPos);
     ctx.lineTo(to.x, to.y);
@@ -292,7 +292,7 @@ class ShipRenderContext {
     const from = ship.pos
       .clone()
       .add(
-        new Vec2(ship.size * ship.lateralCrossSection, 0).rotateBy(ship.angle),
+        new Victor(ship.size * ship.lateralCrossSection, 0).rotateBy(ship.angle),
       );
     const fromDraw = info.base
       .clone()
@@ -330,7 +330,7 @@ class ShipRenderContext {
     }
   }
 
-  drawCannon(cannon: Cannon, offs: Vec2) {
+  drawCannon(cannon: Cannon, offs: Victor) {
     const { ctx, ship, drawPos, scale } = this;
     const width = (0.1 + scale * cannon.caliber) / 2;
     const length = (width * (0.4 * Math.PI)) / cannon.spread;
@@ -364,7 +364,7 @@ class ShipRenderContext {
     cannons.forEach((cannon, idx) => {
       this.drawCannon(
         cannon,
-        new Vec2(
+        new Victor(
           lerp(
             0.3,
             1.0,
@@ -576,7 +576,7 @@ export class Ship {
     return this.makeup.hullDamage;
   }
 
-  constructor(game: Game, pos: Vec2, params?: Partial<ShipParams>) {
+  constructor(game: Game, pos: Victor, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
 
@@ -587,7 +587,7 @@ export class Ship {
 
     this.game = game;
     this.phys = (<PlayState>game.state).makePhysObj(
-      pos || new Vec2(0, 0),
+      pos || new Victor(0, 0),
       params,
     );
     const name =
@@ -648,12 +648,12 @@ export class Ship {
   dragMixin() {
     this.phys.dragVector = function (this: Ship) {
       const alpha = Math.abs(
-        new Vec2(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
+        new Victor(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
       );
-      const res = new Vec2(1 - alpha, alpha * this.lateralCrossSection).rotate(
+      const res = new Victor(1 - alpha, alpha * this.lateralCrossSection).rotate(
         this.angle,
       );
-      return new Vec2(Math.abs(res.x), Math.abs(res.y));
+      return new Victor(Math.abs(res.x), Math.abs(res.y));
     }.bind(this);
   }
 
@@ -671,7 +671,7 @@ export class Ship {
     return this.phys.vel;
   }
 
-  set vel(vel: Vec2) {
+  set vel(vel: Victor) {
     this.phys.vel = vel;
   }
 
@@ -822,7 +822,7 @@ export class Ship {
     return this.pos
       .clone()
       .add(
-        new Vec2(Math.random() * this.size * 0.8, 0).rotateBy(
+        new Victor(Math.random() * this.size * 0.8, 0).rotateBy(
           Math.random() * Math.PI * 2,
         ),
       );
@@ -831,7 +831,7 @@ export class Ship {
   private pickupParams(): Partial<PhysicsParams> {
     return {
       vel: this.vel.add(
-        new Vec2(15, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
+        new Victor(15, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
       ),
       vspeed: 0.7,
       height: this.height + 0.1,
@@ -940,7 +940,7 @@ export class Ship {
     this.phys.angVel += angOffs * deltaTime;
   }
 
-  steerToward(deltaTime: number, otherPos: Vec2) {
+  steerToward(deltaTime: number, otherPos: Victor) {
     const angleTarg = otherPos.clone().subtract(this.pos).angle();
     this.steer(deltaTime, angleTarg);
   }
@@ -970,7 +970,7 @@ export class Ship {
     });
 
     const thrust = engineThrust * amount;
-    this.phys.applyForce(deltaTime, new Vec2(thrust, 0).rotate(this.angle));
+    this.phys.applyForce(deltaTime, new Victor(thrust, 0).rotate(this.angle));
   }
 
   spawnSmokeFor(engine: Engine, factor: number = 1.0) {
@@ -1016,7 +1016,7 @@ export class Ship {
   }
 
   heightGradient() {
-    if (this.play.terrain == null) return new Vec2(0, 0);
+    if (this.play.terrain == null) return new Victor(0, 0);
     return this.play.terrain.gradientAt(this.pos.x, this.pos.y);
   }
 
@@ -1043,7 +1043,7 @@ export class Ship {
 
   boundaryPoint(angle: number) {
     return this.pos.add(
-      new Vec2(this.intermediaryRadius(angle), 0).rotateBy(angle),
+      new Victor(this.intermediaryRadius(angle), 0).rotateBy(angle),
     );
   }
 
@@ -1083,7 +1083,7 @@ export class Ship {
 
   collision(ship: Ship): {
     dist: number;
-    point: Vec2;
+    point: Victor;
     circle1: CollisionCircle;
     circle2: CollisionCircle;
   } | null {
@@ -1107,7 +1107,7 @@ export class Ship {
         const alpha = num / Math.max(1, numCircles - 1);
         const off = maxOff * alpha;
         return {
-          center: new Vec2(off, 0).rotate(this.angle).add(this.pos),
+          center: new Victor(off, 0).rotate(this.angle).add(this.pos),
           radius: lerp(this.size, edge, Math.abs(alpha)),
         };
       });
@@ -1222,7 +1222,7 @@ export class Ship {
     return this.pos
       .clone()
       .add(
-        new Vec2(this.size * this.lateralCrossSection * 0.4, 0).rotateBy(
+        new Victor(this.size * this.lateralCrossSection * 0.4, 0).rotateBy(
           this.angle,
         ),
       );
