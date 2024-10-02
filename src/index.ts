@@ -10,7 +10,7 @@ function main() {
   }
 
   const game = new Game(canvas);
-  (<Window & typeof globalThis & { game?: Game }>window).game = game;
+  (window as Window & typeof globalThis & { game?: Game }).game = game;
 
   requestAnimationFrame(tickLoop.bind(null, game));
 }
