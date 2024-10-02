@@ -31,8 +31,8 @@ export interface Physicable {
 
 export class PlayState extends Superstate {
   terrain: Terrain | null;
-  tickables: Array<Tickable>;
-  renderables: Array<Renderable>;
+  tickables: Tickable[];
+  renderables: Renderable[];
   renderer: GameRenderer;
   physics: PhysicsSimulation;
   public sfx: SoundEngine | null;
@@ -48,7 +48,7 @@ export class PlayState extends Superstate {
   }
 
   reloadSoundEngine() {
-    if (this.player == null || this.player.possessed == null) {
+    if (this.player.possessed == null) {
       this.sfx = null;
       return false;
     }
@@ -292,7 +292,7 @@ export class PlayState extends Superstate {
   }
 
   cameraPos(): Victor {
-    if (this.player != null && this.player.possessed != null) {
+    if (this.player.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
       return new Victor(0, 0);
@@ -371,7 +371,7 @@ export class PlayState extends Superstate {
     this.game.setMouseHandler(PlayMouseHandler);
     this.game.setKeyboardHandler(PlayKeyHandler);
 
-    if (this.game.player != null && this.game.player.possessed != null) {
+    if (this.game.player.possessed != null) {
       this.addShip(this.game.player.possessed);
     }
   }

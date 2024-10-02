@@ -5,7 +5,7 @@ import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 export class BackToLandState implements AIHandler<AIStartArgs> {
   name = "backToLand";
 
-  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);

@@ -25,7 +25,7 @@ import { Optional } from "utility-types";
 import { Player } from "./player";
 import { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
 
-export type ObjectRenderInfo = {
+export interface ObjectRenderInfo {
   scale: number;
   scaleVec: Victor;
   ctx: CanvasRenderingContext2D;
@@ -38,7 +38,7 @@ export type ObjectRenderInfo = {
   height: number;
   toScreen: (worldPos: Victor) => Victor;
   toWorld: (screenPos: Victor) => Victor;
-};
+}
 
 export interface Renderable {
   render: (info: ObjectRenderInfo) => void;
@@ -1410,7 +1410,7 @@ class HudRenderer {
     const game = this.game;
     const ctx = game.drawCtx;
 
-    if (game.player == null || game.player.possessed == null) {
+    if (game.player.possessed == null) {
       return false;
     }
 

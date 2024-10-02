@@ -17,7 +17,7 @@ export interface FleetMember {
 export class Player {
   possessed: Ship;
   inputState: string | null;
-  actions: Array<PlayerAction>;
+  actions: PlayerAction[];
   game: Game;
   money: number;
   makeup: ShipMakeup;
@@ -134,31 +134,31 @@ export class Player {
 
     if (name === "steerLeft") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.steer(
+        { this.possessed.steer(
           deltaTime,
           this.possessed.angle + this.possessed.phys.angVel - Math.PI / 2,
-        ),
+        ); },
       );
     }
 
     if (name === "steerRight") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.steer(
+        { this.possessed.steer(
           deltaTime,
           this.possessed.angle + this.possessed.phys.angVel + Math.PI / 2,
-        ),
+        ); },
       );
     }
 
     if (name === "thrustForward") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.thrustForward(deltaTime, 1.0),
+        { this.possessed.thrustForward(deltaTime, 1.0); },
       );
     }
 
     if (name === "thrustBackward") {
       this.possessed.nextTick((deltaTime) =>
-        this.possessed.thrustForward(deltaTime, -1.0),
+        { this.possessed.thrustForward(deltaTime, -1.0); },
       );
     }
   }
@@ -179,7 +179,7 @@ export class Player {
   }
 
   doAction(deltaTime: number) {
-    this.actions.forEach((act) => act(deltaTime));
+    this.actions.forEach((act) => { act(deltaTime); });
   }
 
   doMouseShoot(_deltaTime: number) {
@@ -191,7 +191,7 @@ export class Player {
   }
 
   doSteer(deltaTime: number) {
-    if (!(<PlayMouseHandler>this.mouse).steering) {
+    if (!(this.mouse as PlayMouseHandler).steering) {
       return;
     }
 

@@ -15,7 +15,7 @@ interface LRUItem2D<T> {
 
 class LRUMap2D<T> {
   private cache: LRUItem2D<T>[];
-  private index: { [x: number]: { [y: number]: number } };
+  private index: Record<number, Record<number, number>>;
   private order: number[];
   private maxLen: number | null;
 
@@ -78,7 +78,7 @@ class LRUMap2D<T> {
 }
 
 export class TerraSector {
-  heights: Array<number>;
+  heights: number[];
 
   constructor() {
     this.heights = new Array(SECTOR_AREA).fill(0);

@@ -35,5 +35,5 @@ export interface AIHandler<StartArgs extends AIStartArgs> {
   name: string;
   start?(args: StartArgs);
   free?();
-  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish;
+  aiTick(args: AITickArgs): AIJump | Nullish;
 }

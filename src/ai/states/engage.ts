@@ -20,7 +20,7 @@ export class EngageState implements AIHandler<EngageStartArgs> {
     this.target = null;
   }
 
-  aiTick(args: AITickArgs): Nullish | AIJump<unknown & AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump {
     const { target } = this;
     const { ship, deltaTime, soonPos } = args;
 

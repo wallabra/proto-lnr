@@ -39,7 +39,7 @@ export interface ShipPartArgs {
   weight: number;
 }
 
-export function slots(make: ShipMake): { [type: string]: number } {
+export function slots(make: ShipMake): Record<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
 }
 
@@ -592,7 +592,7 @@ export const FUEL_PROPS = {
   },
 };
 
-export const SMOKE_COLORS: { [fuelType: string]: number[] } = {
+export const SMOKE_COLORS: Record<string, number[]> = {
   diesel: [50, 60, 50],
   coal: [12, 12, 12],
 };
@@ -646,7 +646,7 @@ export interface PartSlot {
 
 export interface ShipMake {
   name: string;
-  slots: Array<PartSlot>;
+  slots: PartSlot[];
   maxDamage: number;
   drag: number;
   size: number;
@@ -758,7 +758,7 @@ export interface ShipMakeupArgs {
 
 export class ShipMakeup {
   make: ShipMake;
-  parts: Array<ShipPart>;
+  parts: ShipPart[];
   hullDamage: number;
   inventory: ShipInventory;
   name: string;
@@ -787,19 +787,19 @@ export class ShipMakeup {
   }
 
   get ammo() {
-    return <CannonballAmmo[]>this.inventory.getItemsOf("ammo");
+    return this.inventory.getItemsOf("ammo");
   }
 
   get fuel() {
-    return <FuelItem[]>this.inventory.getItemsOf("fuel");
+    return this.inventory.getItemsOf("fuel");
   }
 
   get food() {
-    return <FoodItem[]>this.inventory.getItemsOf("food");
+    return this.inventory.getItemsOf("food");
   }
 
   get crew() {
-    return <Crew[]>this.inventory.getItemsOf("crew");
+    return this.inventory.getItemsOf("crew");
   }
 
   assignCrewTo(part: ShipPart): Crew | null {
@@ -830,10 +830,10 @@ export class ShipMakeup {
     const res = match<string, ShipItem | null>(
       part.type,
       match.val("cannon", () => {
-        return new CannonballAmmo((<Cannon>part).caliber, 20 * factor);
+        return new CannonballAmmo((part as Cannon).caliber, 20 * factor);
       }),
       match.val("engine", () => {
-        const engine = <Engine>part;
+        const engine = part as Engine;
         if (engine.fuelType == null) return null;
         const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * factor;
         return new FuelItem({
@@ -1114,8 +1114,8 @@ export class ShipMakeup {
     return this.hullRepairCost() + this.partRepairCost();
   }
 
-  getReadyEngines(): Array<Engine> {
-    return (<Array<Engine>>this.getPartsOf("engine")).filter((p: Engine) =>
+  getReadyEngines(): Engine[] {
+    return (this.getPartsOf("engine") as Engine[]).filter((p: Engine) =>
       p.available(this),
     );
   }
@@ -1144,7 +1144,7 @@ export class ShipMakeup {
     if (readyCannon) return readyCannon;
 
     // just return the cannon that's closest to ready to fire again
-    const cannons = (<Array<Cannon>>this.getPartsOf("cannon"))
+    const cannons = (this.getPartsOf("cannon") as Cannon[])
       .filter((c) => c.alreadyManned())
       .sort((a, b) => a.cooldown - b.cooldown);
     return cannons[0] || null;
@@ -1152,7 +1152,7 @@ export class ShipMakeup {
 
   get readyCannon(): Cannon | null {
     // return the biggest caliber cannon currently available
-    const cannons = (<Array<Cannon>>this.getPartsOf("cannon"))
+    const cannons = (this.getPartsOf("cannon") as Cannon[])
       .filter((c) => c.available(this))
       .sort((a, b) => b.caliber - a.caliber);
     return cannons[0] || null;
@@ -1179,7 +1179,7 @@ export class ShipMakeup {
   }
 
   tick(deltaTime: number, owner: Ship) {
-    this.parts.forEach((p) => p.tick(deltaTime, owner));
+    this.parts.forEach((p) => { p.tick(deltaTime, owner); });
   }
 
   endLevelUpdate(player: Player) {

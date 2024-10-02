@@ -43,7 +43,7 @@ export class TickAction<T> {
   private action: TickActionFunction<T>;
   private result: T;
   private done: boolean;
-  private callbacks: Array<TickActionCallback<T>>;
+  private callbacks: TickActionCallback<T>[];
 
   constructor(action: TickActionFunction<T>) {
     this.action = action;
@@ -68,7 +68,7 @@ export class TickAction<T> {
   finish(result) {
     this.result = result;
     this.done = true;
-    this.callbacks.forEach((c) => c(this.result));
+    this.callbacks.forEach((c) => { c(this.result); });
   }
 }
 
@@ -456,20 +456,20 @@ export class Ship {
   phys: PhysicsObject;
   dying: boolean;
   lastInstigator: Ship | null;
-  chasers: Set<Ship> = new Set();
+  chasers = new Set<Ship>();
   lastInstigTime: number | null;
   currShootDist: number | null;
   killScore: number;
   money: number;
   makeup: ShipMakeup;
-  tickActions: Array<TickAction<unknown>>;
+  tickActions: TickAction<unknown>[];
   drawer: ShipRenderContext;
   lastWave: number;
   lastSmoke: number;
   lastEngineSound: number;
   following: Ship = null;
-  alliance: Set<Ship> = new Set([this]);
-  followers: Set<Ship> = new Set();
+  alliance = new Set<Ship>([this]);
+  followers = new Set<Ship>();
 
   follow(other: Ship) {
     if (this.following != null) this.unfollow();
@@ -510,7 +510,6 @@ export class Ship {
   setInstigator(other: Ship) {
     if (!this.dying) {
       if (
-        this.following != null &&
         this.following.lastInstigator != null &&
         this.following.lastInstigator !== other
       )
@@ -571,7 +570,7 @@ export class Ship {
   }
 
   get play(): PlayState {
-    return <PlayState>this.game.state;
+    return this.game.state as PlayState;
   }
 
   get damage(): number {
@@ -588,7 +587,7 @@ export class Ship {
       DEFAULT_MAKE;
 
     this.game = game;
-    this.phys = (<PlayState>game.state).makePhysObj(
+    this.phys = (game.state as PlayState).makePhysObj(
       pos || new Victor(0, 0),
       params,
     );
@@ -665,7 +664,7 @@ export class Ship {
       ...this.makeup
         .getPartsOf("cannon")
         .filter((c) => c.available(this.makeup))
-        .map((c) => (<Cannon>c).spread),
+        .map((c) => (c as Cannon).spread),
     );
   }
 

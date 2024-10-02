@@ -1,7 +1,7 @@
 import Victor from "victor";
 import { Howl, Howler } from "howler";
 
-const audioCache: { [name: string]: Howl } = {};
+const audioCache: Record<string, Howl> = {};
 
 import s_engine_coal from "data-url:./sound/engine_coal.opus";
 import s_engine_diesel from "data-url:./sound/engine_diesel.opus";
@@ -11,7 +11,7 @@ import s_shotbase from "data-url:./sound/shotbase.opus";
 import s_shotbigness from "data-url:./sound/shotbigness.opus";
 import s_waterimpact from "data-url:./sound/waterimpact.opus";
 
-export const ALL_EFFECTS: { [name: string]: string } = {
+export const ALL_EFFECTS: Record<string, string> = {
   engine_coal: s_engine_coal,
   engine_diesel: s_engine_diesel,
   impactblast: s_impactblast,

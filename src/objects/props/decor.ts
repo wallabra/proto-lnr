@@ -19,7 +19,7 @@ const SPRITES = {
   "flag.png": { src: SPRITE_FLAG, angleRandom: true },
 };
 
-const SPRITE_CACHE: Map<string, HTMLImageElement> = new Map();
+const SPRITE_CACHE = new Map<string, HTMLImageElement>();
 
 function randomDecor(): string {
   return rwc(
@@ -60,7 +60,7 @@ export class Decor implements Renderable, Tickable {
       return;
     }
 
-    const sprite = document.createElement("img") as HTMLImageElement;
+    const sprite = document.createElement("img");
     const def = SPRITES[spritePath];
     sprite.src = def.src;
     if (def.angleRandom) this.args.angle ??= Math.random() * Math.PI * 2;

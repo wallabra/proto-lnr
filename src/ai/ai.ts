@@ -23,7 +23,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   default: string;
   stateName: string;
   nextChange: number;
-  pendingChange: AIJump<unknown & AIStartArgs> | null;
+  pendingChange: AIJump | null;
 
   constructor(
     ai: AIController,
@@ -103,7 +103,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     if (newState === this.state) return;
 
     this.nextChange = Date.now() + 500;
-    if (this.state != null && this.state.free != null) this.state.free();
+    if (this.state.free != null) this.state.free();
     //console.log(from, "->", next, "::", this.ai);
 
     this.state = newState;
@@ -117,7 +117,7 @@ export class AIController {
   game: PlayState;
   possessed: Ship;
   dying = false;
-  stateMachine: AIStateMachine<unknown & AIStartArgs>;
+  stateMachine: AIStateMachine;
 
   constructor(
     game: PlayState,

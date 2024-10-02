@@ -21,7 +21,7 @@ export interface PhysicsParams {
 
 export class PhysicsSimulation {
   play: PlayState;
-  objects: Array<PhysicsObject>;
+  objects: PhysicsObject[];
 
   constructor(play: PlayState) {
     this.play = play;

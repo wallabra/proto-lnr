@@ -5,7 +5,7 @@ import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 export class FollowState implements AIHandler<AIStartArgs> {
   name = "follow";
 
-  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump {
     const { ship, deltaTime } = args;
 
     if (ship.following == null) return { next: "start", immediate: true };

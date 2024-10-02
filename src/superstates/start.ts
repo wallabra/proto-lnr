@@ -17,7 +17,7 @@ import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guard
 
 export default class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: { [stateName: string]: CanvasUIElement } = {};
+  states: Record<string, CanvasUIElement> = {};
   stateStack: string[] = [];
 
   private switchState(stateName: string) {

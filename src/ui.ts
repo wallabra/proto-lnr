@@ -106,11 +106,11 @@ export type CachedInfo = {
   last: Date;
   dims: Rectangle;
   innerPos: { x: number; y: number };
-} & { [infoName: string]: unknown };
+} & Record<string, unknown>;
 
 export abstract class CanvasUIElement<ExtraProps = object> {
   parent: CanvasUIElement | Nullish;
-  children: Array<CanvasUIElement>;
+  children: CanvasUIElement[];
   x: number;
   y: number;
   width: number;
@@ -222,7 +222,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     }
   }
 
-  protected extraCacheInfo(): { [infoName: string]: unknown } {
+  protected extraCacheInfo(): Record<string, unknown> {
     return {};
   }
 
@@ -235,11 +235,11 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     return { x: 0, y: 0 };
   }
 
-  public addChild(item: CanvasUIElement): CanvasUIElement {
+  public addChild(item: CanvasUIElement): this {
     return this._addChild(item);
   }
 
-  _addChild(item: CanvasUIElement): CanvasUIElement {
+  _addChild(item: CanvasUIElement): this {
     this.children.push(item);
     item.parent = this;
     this.modified = true;
@@ -903,12 +903,12 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
   }
 
   event<E extends UIEvent>(e: E) {
-    const ev = <E & { dragStart: Victor }>e;
+    const ev = e as E & { dragStart: Victor };
     if (
       e.name == "canvasdrag" &&
       this.isInside(ev.dragStart.x, ev.dragStart.y)
     ) {
-      const ev = <E & UIMouseEvent>e;
+      const ev = e as E & UIMouseEvent;
       const delta = ev.delta;
       this.scrollTowardPx(
         delta.dot(
@@ -1336,7 +1336,7 @@ export class CanvasUIGroup extends CanvasUIElement {
     const height = this.realHeight;
 
     const pctx = ctx.ctx;
-    pctx.fillStyle = <string>this.bgColor;
+    pctx.fillStyle = this.bgColor as string;
     pctx.fillRect(pos.x, pos.y, width, height);
   }
   preChildrenRender() {}

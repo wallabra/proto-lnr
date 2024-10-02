@@ -17,9 +17,9 @@ import { pickByRarity } from "./rarity";
 export function instantiatePart(def: AnyPartDef, type: string) {
   const part = match<string, ShipPart>(
     type,
-    match.val("cannon", new Cannon(<PartDef<CannonArgs>>def)),
-    match.val("engine", new Engine(<PartDef<EngineArgs>>def)),
-    match.val("vacuum", new Vacuum(<PartDef<VacuumArgs>>def)),
+    match.val("cannon", new Cannon((def as PartDef<CannonArgs>))),
+    match.val("engine", new Engine((def as PartDef<EngineArgs>))),
+    match.val("vacuum", new Vacuum((def as PartDef<VacuumArgs>))),
     match._(() => {
       throw new Error("Can't handle unknown part type: " + type);
     }),
@@ -89,7 +89,7 @@ export default function randomParts(
     const part: ShipPart = instantiatePart(def, type);
 
     res.push(part);
-    available -= <number>def.rarity;
+    available -= def.rarity as number;
     availableSlots--;
     makeSlots[type]--;
     if (makeSlots[type] === 0) delete makeSlots[type];

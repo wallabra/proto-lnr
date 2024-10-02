@@ -17,7 +17,7 @@ export class FleeState implements AIHandler<FleeStartArgs> {
     this.target = null;
   }
 
-  aiTick(args: AITickArgs): AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): AIJump {
     const { ship, deltaTime } = args;
 
     if (this.target == null || this.target.dying) {

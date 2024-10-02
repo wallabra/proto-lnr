@@ -121,7 +121,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   }
 
   tick(deltaTime: number) {
-    if (this.phys.age > 300) return this.destroy();
+    if (this.phys.age > 300) { this.destroy(); return; }
     this.bob(deltaTime);
     this.checkShipCollisions(deltaTime);
   }

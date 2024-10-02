@@ -2,7 +2,7 @@ import { tickLoop } from "./tick";
 import { Game } from "./game";
 
 function main() {
-  const canvas = <HTMLCanvasElement | undefined>(
+  const canvas = (
     document.querySelector("#game-canvas")
   );
   if (canvas == null) {

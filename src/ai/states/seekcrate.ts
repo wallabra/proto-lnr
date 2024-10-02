@@ -21,7 +21,7 @@ export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
     this.crate = null;
   }
 
-  aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
+  aiTick(args: AITickArgs): Nullish | AIJump {
     if (this.crate.dying) {
       return { next: "start", immediate: true };
     }

@@ -25,7 +25,7 @@ export interface ShipItem extends InventoryItem {
 }
 
 export class ShipInventory {
-  private inventory: Array<ShipItem>;
+  private inventory: ShipItem[];
 
   get items() {
     return this.inventory;
@@ -67,8 +67,8 @@ export class ShipInventory {
     return true;
   }
 
-  getItemsOf<I extends ShipItem>(type: string): Array<I> {
-    return <I[]>this.inventory.filter((i) => i.type === type);
+  getItemsOf<I extends ShipItem>(type: string): I[] {
+    return this.inventory.filter((i) => i.type === type) as I[];
   }
 
   pruneItems() {

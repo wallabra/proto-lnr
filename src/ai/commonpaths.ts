@@ -4,7 +4,7 @@ import { FleeStartArgs } from "./states/flee";
 
 export function commonPaths(
   args: AITickArgs,
-): AIJump<unknown & AIStartArgs> | null {
+): AIJump | null {
   const { ship, play, soonPos, stateName } = args;
 
   if (ship.lastInstigator != null) {

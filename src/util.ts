@@ -20,7 +20,7 @@ export function interpColor(
   to: [number, number, number],
   alpha: number,
 ): [number, number, number] {
-  return <[number, number, number]>from.map((f, i) => lerp(f, to[i], alpha));
+  return from.map((f, i) => lerp(f, to[i], alpha)) as [number, number, number];
 }
 
 export function zeroPad(text: string, size: number) {

@@ -118,9 +118,7 @@ interface DrydockPartWidgetArgs extends PaneArgs, CanvasPanelArgs {
 }
 
 class DrydockPartWidget extends Pane<
-  DrydockPartWidgetArgs,
-  CanvasPanel,
-  CanvasPanelArgs
+  DrydockPartWidgetArgs
 > {
   part: ShipPart;
   private label: CanvasLabel;
@@ -266,9 +264,9 @@ class DrydockPartWidget extends Pane<
     if (!this.part.manned) return;
 
     if (!this.part.alreadyManned()) {
-      return this.tryAssignCrew();
+      this.tryAssignCrew(); return;
     } else {
-      return this.tryUnassignCrew();
+      this.tryUnassignCrew(); return;
     }
   }
 
@@ -314,7 +312,7 @@ class DrydockPartWidget extends Pane<
         font: "$Hpx sans-serif",
       });
     } else {
-      (<CanvasLabel>this.details.children[idx]).label = line;
+      (this.details.children[idx] as CanvasLabel).label = line;
     }
   }
 
@@ -326,7 +324,7 @@ class DrydockPartWidget extends Pane<
       ...this.manningStatus(),
     ];
 
-    lines.forEach((line, i) => this.updateDetailLine(line, i));
+    lines.forEach((line, i) => { this.updateDetailLine(line, i); });
 
     for (const child of this.details.children.slice(lines.length).reverse()) {
       child.remove();
@@ -370,9 +368,7 @@ interface DrydockInventoryItemWidgetArgs extends PaneArgs {
 }
 
 class DrydockInventoryItemWidget extends Pane<
-  DrydockInventoryItemWidgetArgs,
-  CanvasPanel,
-  CanvasPanelArgs
+  DrydockInventoryItemWidgetArgs
 > {
   item: ShipItem;
   private resellFactor: number;
@@ -727,7 +723,7 @@ class DrydockInventoryItemWidget extends Pane<
       return;
     }
 
-    const item = <ShipPart>this.item;
+    const item = this.item;
 
     if (this.makeup.addPart(item) == null) return;
 
@@ -735,7 +731,7 @@ class DrydockInventoryItemWidget extends Pane<
   }
 
   private fireCrew() {
-    const crew = <Crew>this.item;
+    const crew = this.item as Crew;
     crew.unassign();
     this.makeup.inventory.removeItem(this.item);
     this.destroy();
@@ -799,7 +795,7 @@ function updateList<
   }
 
   for (const item of remaining) {
-    if (shouldSkip == null || !shouldSkip(item)) {
+    if (!shouldSkip(item)) {
       add(item);
     }
   }
@@ -812,9 +808,7 @@ interface DrydockInventoryWidgetArgs extends PaneArgs {
 }
 
 class DrydockInventoryWidget extends Pane<
-  DrydockInventoryWidgetArgs,
-  CanvasPanel,
-  CanvasPanelArgs
+  DrydockInventoryWidgetArgs
 > {
   private itemList: CanvasScroller;
   private resellFactor: number;
@@ -868,7 +862,7 @@ class DrydockInventoryWidget extends Pane<
     if (
       this.itemList.contentPane.children.length ===
       this.makeup.inventory.items.filter(
-        (i) => this.makeup.parts.indexOf(<ShipPart>i) === -1,
+        (i) => this.makeup.parts.indexOf((i as ShipPart)) === -1,
       ).length
     )
       return;
@@ -882,7 +876,7 @@ class DrydockInventoryWidget extends Pane<
       (item) => {
         this.addItem(item);
       },
-      (item) => this.makeup.parts.indexOf(<ShipPart>item) !== -1,
+      (item) => this.makeup.parts.indexOf((item as ShipPart)) !== -1,
     );
   }
 
@@ -1062,7 +1056,7 @@ class PaneShop extends Pane<PaneShopArgs> {
       this.shopItems,
       this.itemWidgets,
       (remaining, widget) => remaining.indexOf(widget.item),
-      (item) => this.addShopItem(item),
+      (item) => { this.addShopItem(item); },
       (item) => this.makeup.inventory.items.indexOf(item) > -1,
     );
   }
@@ -1988,7 +1982,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
   }
 
   private updateTabColors() {
-    for (const tab of this.tabPanel.tabs.children as CanvasTab[]) {
+    for (const tab of this.tabPanel.tabs.children) {
       if (tab.content.pane == null) continue;
 
       const member = (tab.content.pane as PaneDrydockShip["pane"]).member;
@@ -2261,7 +2255,7 @@ export default class IntermissionState extends Superstate {
       {
         name: "Fuel",
         stat: function (this: StatRow) {
-          const engines = <Engine[]>this.makeup.getPartsOf("engine");
+          const engines = this.makeup.getPartsOf("engine") as Engine[];
           const fueled = engines.filter((e) => this.makeup.hasFuel(e.fuelType));
           const consumption = fueled.reduce(
             (accum, engine) => ({
@@ -2291,7 +2285,7 @@ export default class IntermissionState extends Superstate {
       {
         name: "Ammunition",
         stat: function (this: StatRow) {
-          const cannons = <Cannon[]>this.makeup.getPartsOf("cannon");
+          const cannons = this.makeup.getPartsOf("cannon") as Cannon[];
           const loaded = cannons.filter((c) => this.makeup.hasAmmo(c.caliber));
           const missingCalibers = cannons
             .filter((c) => !this.makeup.hasAmmo(c.caliber))

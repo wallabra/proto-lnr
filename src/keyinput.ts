@@ -8,9 +8,9 @@ interface KeyRegister {
 }
 
 export abstract class KeyHandler {
-  registry: Array<KeyRegister>;
+  registry: KeyRegister[];
   game: Game;
-  heldKeys: { [key: string]: () => void };
+  heldKeys: Record<string, () => void>;
 
   constructor(game: Game) {
     this.game = game;
