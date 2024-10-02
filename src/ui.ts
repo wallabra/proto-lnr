@@ -994,8 +994,8 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
 
 class CanvasScrollerContentPane extends CanvasUIElement {
   parent: CanvasScroller;
-  measuring: boolean = false;
-  private updatingParent: boolean = false;
+  measuring = false;
+  private updatingParent = false;
 
   updateCache(): void {
     super.updateCache();
@@ -1249,7 +1249,7 @@ export interface CanvasUIGroupArgs extends CanvasUIArgs {
 }
 
 export class CanvasUIGroup extends CanvasUIElement {
-  private measuring: number = 0;
+  private measuring = 0;
   bgColor: string | OnBeforeUnloadEventHandler;
 
   constructor(args: CanvasUIGroupArgs) {

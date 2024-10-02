@@ -204,7 +204,7 @@ export default class MainMenuState extends Superstate {
     this.ui.checkChangeDimensions(this.game.width, this.game.height);
   }
 
-  private backgroundCounter: number = 0;
+  private backgroundCounter = 0;
 
   private renderBackground(ctx: UIDrawContext) {
     const dctx = ctx.ctx;

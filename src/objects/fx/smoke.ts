@@ -9,10 +9,10 @@ export class Smoke implements Renderable, Tickable, Physicable {
   ship: Ship;
   color: number[];
   play: PlayState;
-  dying: boolean = false;
+  dying = false;
   growth: number;
   opacity: number;
-  renderOrder: number = 1;
+  renderOrder = 1;
 
   constructor(play: PlayState, from: Ship, color: number[], opacity: number) {
     this.play = play;

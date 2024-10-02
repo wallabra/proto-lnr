@@ -3,7 +3,7 @@ import { commonPaths } from "../commonpaths";
 import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
 
 export class BackToLandState implements AIHandler<AIStartArgs> {
-  name: string = "backToLand";
+  name = "backToLand";
 
   aiTick(args: AITickArgs): Nullish | AIJump<AIStartArgs> {
     const { ship, deltaTime } = args;

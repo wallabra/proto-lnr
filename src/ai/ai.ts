@@ -116,7 +116,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 export class AIController {
   game: PlayState;
   possessed: Ship;
-  dying: boolean = false;
+  dying = false;
   stateMachine: AIStateMachine<unknown & AIStartArgs>;
 
   constructor(

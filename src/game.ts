@@ -16,17 +16,17 @@ export class Game {
   zoom: number;
   mouse: MouseHandler;
   keyboard: KeyHandler;
-  paused: boolean = false;
+  paused = false;
 
   /** Difficulty level. Starts at zero.
    *
    * Multiplies (by 1+x) the number of ships spawned as well as how well
    * equipped they tend to be.
    */
-  difficulty: number = 0;
+  difficulty = 0;
 
   /** Difficulty progression, per day. */
-  prog_difficulty: number = 1;
+  prog_difficulty = 1;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;

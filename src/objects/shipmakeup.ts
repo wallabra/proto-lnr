@@ -177,18 +177,18 @@ export interface CrewRandomArgs {
 
 export class Crew implements ShipItem {
   salary: number;
-  hunger: number = 0;
+  hunger = 0;
   manningPart: ShipPart | null = null;
-  salaryWithhold: number = 0;
+  salaryWithhold = 0;
   strength: number;
   caloricIntake: number;
   cost: number;
   weight: number;
   type = "crew" as const;
-  dying: boolean = false;
+  dying = false;
   name: string;
   integerAmounts: boolean;
-  dropChance: number = 0;
+  dropChance = 0;
   shopChance: number;
 
   nameInDeck(makeup: ShipMakeup) {
@@ -355,7 +355,7 @@ export class CannonballAmmo implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
-  shopChance: number = 0.4;
+  shopChance = 0.4;
 
   constructor(caliber, amount = 15) {
     this.caliber = caliber;
@@ -435,7 +435,7 @@ export class Cannon extends ShipPart {
   private shootCannonball(
     ship: Ship,
     dist: number,
-    spread: number = this.spread,
+    spread = this.spread,
   ) {
     dist = Math.min(dist, this.range);
 
@@ -830,7 +830,7 @@ export class ShipMakeup {
     this.make = make;
   }
 
-  addDefaultFuel(part: ShipPart, factor: number = 1) {
+  addDefaultFuel(part: ShipPart, factor = 1) {
     const res = match<string, ShipItem | null>(
       part.type,
       match.val("cannon", () => {
@@ -888,7 +888,7 @@ export class ShipMakeup {
     return true;
   }
 
-  addDefaultDependencies(part, factor: number = 1) {
+  addDefaultDependencies(part, factor = 1) {
     this.addDefaultFuel(part, factor);
     this.addDefaultCrew(part);
   }
@@ -914,7 +914,7 @@ export class ShipMakeup {
     return this;
   }
 
-  giveRandomParts(bonus: number = 0) {
+  giveRandomParts(bonus = 0) {
     const parts = randomParts(
       Math.max(2.5, 3.5 + random.exponential(1.5)() * (10 + bonus)) *
         random.uniform(0.5, 1)() *

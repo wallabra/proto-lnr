@@ -9,7 +9,7 @@ export interface EngageStartArgs extends AIStartArgs {
 }
 
 export class EngageState implements AIHandler<EngageStartArgs> {
-  name: string = "engage";
+  name = "engage";
   target: Ship | null;
 
   start(args: EngageStartArgs) {

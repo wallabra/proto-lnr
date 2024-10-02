@@ -108,7 +108,7 @@ function landfill(def: LandfillDef) {
   };
 }
 
-function randomLandfill(scale: number = 1): LandfillDef {
+function randomLandfill(scale = 1): LandfillDef {
   return {
     center: new Victor(random.uniform(0, 500 * scale)(), 0).rotateBy(
       Math.PI * Math.random() * 2,
@@ -118,7 +118,7 @@ function randomLandfill(scale: number = 1): LandfillDef {
   };
 }
 
-function randomLandfills(scale: number = 1): LandfillDef[] {
+function randomLandfills(scale = 1): LandfillDef[] {
   return new Array(random.uniformInt(5, 20)())
     .fill(null)
     .map(() => randomLandfill(scale));
@@ -126,7 +126,7 @@ function randomLandfills(scale: number = 1): LandfillDef[] {
 
 function landfills(
   landfills: LandfillDef[] = randomLandfills(),
-  roughness: number = 20,
+  roughness = 20,
 ) {
   const funcs = landfills.map((def) => landfill(def));
 
@@ -180,7 +180,7 @@ function multiLandfillBoundingBox(...landfills: LandfillDef[]): BoundingBox {
   return boxUnion(...landfills.map((l) => landfillBoundingBox(l)));
 }
 
-export function landfillGenerator(distFactor: number = 1): TerraDef {
+export function landfillGenerator(distFactor = 1): TerraDef {
   const ldefs = randomLandfills(distFactor);
   return Object.assign(landfills(ldefs), {
     boundingBox: multiLandfillBoundingBox(...ldefs),
@@ -196,8 +196,8 @@ export class Terrain {
 
   constructor(
     definition: TerraDef,
-    cacheSize: number = 512,
-    cacheRes: number = 4,
+    cacheSize = 512,
+    cacheRes = 4,
   ) {
     this.definition = definition;
     this.sectors = new LRUMap2D();

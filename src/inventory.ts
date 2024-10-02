@@ -92,7 +92,7 @@ export interface FuelItemArgs {
 
 export function computeResellCost(
   item: ShipItem,
-  resellFactor: number = DFAULT_RESELL_FACTOR,
+  resellFactor = DFAULT_RESELL_FACTOR,
 ): number {
   let repairFactor = 0;
   const damageableItem = item as ShipItem & {
@@ -119,8 +119,8 @@ export class FuelItem implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
-  dropChance: number = 0.6;
-  shopChance: number = 0.3;
+  dropChance = 0.6;
+  shopChance = 0.3;
 
   canConsolidate(other: FuelItem): boolean {
     return other.cost === this.cost && other.name === this.name;
@@ -158,8 +158,8 @@ export class FoodItem implements ShipItem {
   dying: boolean;
   integerAmounts: boolean;
   weight: number;
-  dropChance: number = 0.5;
-  shopChance: number = 0.7;
+  dropChance = 0.5;
+  shopChance = 0.7;
 
   canConsolidate(other: FoodItem): boolean {
     return other.spoilDays === this.spoilDays && other.name === this.name;

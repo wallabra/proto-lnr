@@ -9,7 +9,7 @@ export interface SeekCrateStartArgs extends AIStartArgs {
 }
 
 export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
-  name: string = "seekCrate";
+  name = "seekCrate";
 
   crate: Pickup<unknown & ShipItem> | null;
 

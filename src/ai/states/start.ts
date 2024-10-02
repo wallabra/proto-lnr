@@ -7,7 +7,7 @@ import { Nullish } from "utility-types";
 import { ShipItem } from "../../inventory";
 
 export class StartState implements AIHandler<AIStartArgs> {
-  name: string = "start";
+  name = "start";
 
   private findPickupCrate(args: AITickArgs): Pickup<unknown & ShipItem> | null {
     const { ship, play } = args;

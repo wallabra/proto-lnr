@@ -87,8 +87,8 @@ export default abstract class MouseHandler {
 }
 
 export class PlayMouseHandler extends MouseHandler {
-  steering: boolean = false;
-  shooting: boolean = false;
+  steering = false;
+  shooting = false;
 
   onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(

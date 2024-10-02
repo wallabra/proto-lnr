@@ -22,9 +22,9 @@ export class Player {
   money: number;
   makeup: ShipMakeup;
   fleet: FleetMember[];
-  kills: number = 0;
+  kills = 0;
 
-  constructor(game: Game, ship: Ship, money: number = 0) {
+  constructor(game: Game, ship: Ship, money = 0) {
     this.game = game;
     this.possessed = ship;
     this.inputState = null;
@@ -87,7 +87,7 @@ export class Player {
     this.possessed.steer(deltaTime, targ);
   }
 
-  approach(offs: Victor, deltaTime: number, throttle: number = 1.0) {
+  approach(offs: Victor, deltaTime: number, throttle = 1.0) {
     const dot = new Victor(1, 0).rotateBy(this.possessed.angle).dot(offs.norm());
     this.possessed.thrustForward(deltaTime, (dot + 1 / 2) * throttle);
   }

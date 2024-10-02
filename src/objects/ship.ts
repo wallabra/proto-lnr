@@ -973,7 +973,7 @@ export class Ship {
     this.phys.applyForce(deltaTime, new Victor(thrust, 0).rotate(this.angle));
   }
 
-  spawnSmokeFor(engine: Engine, factor: number = 1.0) {
+  spawnSmokeFor(engine: Engine, factor = 1.0) {
     const color = SMOKE_COLORS[engine.fuelType] || null;
     const amount = Math.abs(factor * engine.thrust);
 
@@ -991,7 +991,7 @@ export class Ship {
     this.play.spawnArgs(Smoke, this, color, 0.3);
   }
 
-  playEngineSound(engine: Engine, factor: number = 1.0) {
+  playEngineSound(engine: Engine, factor = 1.0) {
     if (!(engine.fuelType in ENGINE_SFX_BY_TYPE)) {
       return;
     }

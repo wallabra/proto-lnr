@@ -89,7 +89,7 @@ abstract class Pane<
   protected game: Game;
   protected player: Player;
   protected makeup: ShipMakeup;
-  destroyed: boolean = false;
+  destroyed = false;
 
   constructor(args: A & PA) {
     Object.assign(this, args);
@@ -559,7 +559,7 @@ class DrydockInventoryItemWidget extends Pane<
     item.setAsCaptain(this.makeup);
   }
 
-  private openMoveDropdown(half: boolean = false) {
+  private openMoveDropdown(half = false) {
     this.killDropdown();
     this.dropdown = new CanvasScroller({
       parent: this.pane,
@@ -609,7 +609,7 @@ class DrydockInventoryItemWidget extends Pane<
     }
   }
 
-  private moveCallback(member: FleetMember, half: boolean = false) {
+  private moveCallback(member: FleetMember, half = false) {
     const fromMakeup = this.makeup;
     const targMakeup = member.makeup;
     this.drydockTabPanel.tabs.children
@@ -1778,7 +1778,7 @@ class PaneDrydockShip extends Pane<
     return this.state.paneDrydock.tabPanel;
   }
 
-  private disbandShip(sellAll: boolean = false) {
+  private disbandShip(sellAll = false) {
     if (!this.canDisbandShip()) return;
     const idx = this.player.fleet.indexOf(this.member);
     if (idx === -1) return;

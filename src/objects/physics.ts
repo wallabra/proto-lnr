@@ -58,7 +58,7 @@ export class PhysicsSimulation {
 export class PhysicsObject {
   play: PlayState;
   lastFloor: { age: number; floor: number } | null;
-  frozen: boolean = false;
+  frozen = false;
   size: number;
   angle: number;
   pos: Victor;
@@ -75,7 +75,7 @@ export class PhysicsObject {
   age: number;
   dying: boolean;
   restitution: number;
-  displacement: number = 0;
+  displacement = 0;
 
   constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
@@ -113,7 +113,7 @@ export class PhysicsObject {
     this.lastPos.add(offset);
   }
 
-  playSound(name: string, volume: number = 1.0) {
+  playSound(name: string, volume = 1.0) {
     if (this.play.sfx == null) return null;
     return this.play.sfx.play(this, name, volume);
   }

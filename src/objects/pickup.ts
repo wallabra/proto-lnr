@@ -9,7 +9,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   play: PlayState;
   dying: boolean;
   phys: PhysicsObject;
-  mainColor: string = "#6a4000";
+  mainColor = "#6a4000";
 
   constructor(play: PlayState, pos: Victor, params: Partial<P>) {
     if (params == null) params = {} as P;

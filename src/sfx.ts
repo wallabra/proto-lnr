@@ -51,9 +51,9 @@ class SoundSource {
   private from: SoundObject;
   private soundSrc: Howl;
   private soundId: number;
-  private finished: boolean = false;
+  private finished = false;
 
-  constructor(from: SoundObject, src: Howl, volume: number = 1.0) {
+  constructor(from: SoundObject, src: Howl, volume = 1.0) {
     this.from = from;
     this.soundSrc = src;
     const soundId = (this.soundId = src.play());
@@ -98,7 +98,7 @@ export class SoundEngine {
     this.update();
   }
 
-  play(from: SoundObject, name: string, volume: number = 1.0) {
+  play(from: SoundObject, name: string, volume = 1.0) {
     const asrc = loadAudio(name);
     const source = new SoundSource(from, asrc, volume);
     this.sources.push(source);

@@ -30,7 +30,7 @@ export function instantiatePart(def: AnyPartDef, type: string) {
 export default function randomParts(
   allocRarity: number,
   forMake?: ShipMake,
-  temperature: number = 50,
+  temperature = 50,
 ): ShipPart[] {
   let available = allocRarity;
 

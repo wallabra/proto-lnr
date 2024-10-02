@@ -11,7 +11,7 @@ interface GuaranteedRarity {
 export function pickByRarity<T extends Rarity>(
   defs: T[],
   points: number | null = null,
-  temperature: number = 50,
+  temperature = 50,
 ): T {
   const newDefs: (T & GuaranteedRarity)[] = defs.filter(
     (d) => d.rarity !== "always" && (points == null || d.rarity < points),

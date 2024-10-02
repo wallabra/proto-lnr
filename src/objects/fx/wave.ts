@@ -9,9 +9,9 @@ export class Wave implements Renderable, Tickable, Physicable {
   width: number;
   ship: Ship;
   play: PlayState;
-  dying: boolean = false;
+  dying = false;
   growth: number;
-  renderOrder: number = -1;
+  renderOrder = -1;
 
   constructor(play: PlayState, from: Ship) {
     this.play = play;
