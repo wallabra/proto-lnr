@@ -208,21 +208,25 @@ export class PlayState extends Superstate {
 
     let money = player.money;
     playerShip = player.possessed = addShip(money / 2, player.makeup);
-    money /= 2;
     const ships = [playerShip];
-    const moneyPart = money / player.fleet.length;
 
-    for (const member of player.fleet) {
-      if (member.makeup.captain == null) continue;
-      const offs = new Vec2(
-        playerShip.size * playerShip.lateralCrossSection * 2 +
-          random.uniform(30, 200)(),
-        0,
-      ).rotateBy(Math.PI * Math.random() * 2);
+    if (player.fleet.filter((s) => s.makeup.captain != null).length > 0) {
+      money /= 2;
+      const moneyPart =
+        money / player.fleet.filter((s) => s.makeup.captain != null).length;
 
-      const ship = addShip(moneyPart, member.makeup, offs);
-      ships.push(ship);
-      member.ship = ship;
+      for (const member of player.fleet) {
+        if (member.makeup.captain == null) continue;
+        const offs = new Vec2(
+          playerShip.size * playerShip.lateralCrossSection * 2 +
+            random.uniform(30, 200)(),
+          0,
+        ).rotateBy(Math.PI * Math.random() * 2);
+
+        const ship = addShip(moneyPart, member.makeup, offs);
+        ships.push(ship);
+        member.ship = ship;
+      }
     }
 
     this.reloadSoundEngine();
