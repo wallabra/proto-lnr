@@ -8,7 +8,7 @@
     "prettify": "prettier src/ --write",
     "lint": "eslint src/ && tsc --noEmit",
     "check": "npm run lint && npm run test",
-    "server": "parcel src/index.html",
+    "server": "parcel serve src/index.html",
     "build": "parcel build src/index.html --public-url=."
   },
   "author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
