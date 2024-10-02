@@ -798,9 +798,7 @@ export class Ship {
       this.game.player != null &&
       [this, this.following].indexOf(this.game.player.possessed) != -1
     ) {
-      this.game.player.money = this.game.player.fleet
-        .filter((m) => m.ship != null)
-        .reduce((a, b) => a + b.ship.money, 0);
+      this.game.player.updateMoneyFromFleet();
     }
   }
 

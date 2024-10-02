@@ -226,6 +226,7 @@ export class PlayState extends Superstate {
     }
 
     this.reloadSoundEngine();
+    player.updateMoneyFromFleet();
 
     return ships;
   }

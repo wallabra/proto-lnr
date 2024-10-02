@@ -36,6 +36,12 @@ export class Player {
     console.log(this.makeup);
   }
 
+  public updateMoneyFromFleet() {
+    this.money = this.fleet
+      .filter((m) => m.ship != null)
+      .reduce((a, b) => a + b.ship.money, 0);
+  }
+
   public totalSalary() {
     return this.fleet.reduce(
       (accum, member) => accum + member.makeup.totalSalary(),
