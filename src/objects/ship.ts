@@ -793,11 +793,11 @@ export class Ship {
   }
 
   setMoney(money: number) {
+    if (this.following != null) {
+      return this.following.setMoney(money);
+    }
     this.money = money;
-    if (
-      this.game.player != null &&
-      [this, this.following].indexOf(this.game.player.possessed) != -1
-    ) {
+    if (this.game.player != null && this.game.player.possessed === this) {
       this.game.player.updateMoneyFromFleet();
     }
   }
