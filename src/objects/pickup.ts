@@ -1,14 +1,14 @@
 import Victor from "victor";
 import type { ObjectRenderInfo } from "../render";
 import type { PhysicsObject, PhysicsParams } from "./physics";
-import { Ship } from "./ship";
+import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
 import type { ShipItem } from "../inventory";
 
 export function isPickup<T extends Partial<PhysicsParams>>(
   item: Tickable,
 ): item is Pickup<T> {
-  return item instanceof Pickup;
+  return item.type === "pickup";
 }
 
 export abstract class Pickup<P extends Partial<PhysicsParams>> {
@@ -16,6 +16,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   dying: boolean;
   phys: PhysicsObject;
   mainColor = "#6a4000";
+  type = "pickup";
 
   constructor(play: PlayState, pos?: Victor, params?: Partial<P>) {
     if (params == null) params = {} as P;
@@ -103,11 +104,11 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
   protected checkShipCollisions(deltaTime: number) {
     for (const ship of this.play.tickables) {
-      if (!(ship instanceof Ship)) {
+      if (ship.type !== 'ship') {
         continue;
       }
 
-      if (this.checkShipCollision(deltaTime, ship)) {
+      if (this.checkShipCollision(deltaTime, ship as Ship)) {
         break;
       }
     }

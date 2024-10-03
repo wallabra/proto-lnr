@@ -39,6 +39,7 @@ export class Decor implements Renderable, Tickable {
   spritePath: string;
   sprite: HTMLImageElement;
   args: DecorArgs | undefined;
+  type = "decor";
 
   constructor(play: PlayState, pos: Victor, args: DecorArgs) {
     this.play = play;

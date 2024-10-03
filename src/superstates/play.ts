@@ -23,6 +23,7 @@ import { Decor } from "../objects/props/decor";
 export interface Tickable {
   tick: (deltaTime: number) => void;
   dying: boolean;
+  type: string;
 }
 
 export interface Physicable {

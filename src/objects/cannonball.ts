@@ -1,19 +1,21 @@
 import Victor from "victor";
-import { ObjectRenderInfo } from "../render";
-import { PhysicsObject, PhysicsParams } from "./physics";
-import { Ship } from "./ship";
-import { PlayState } from "../superstates/play";
+import type { ObjectRenderInfo, Renderable } from "../render";
+import type { PhysicsObject } from "./physics";
+import { PhysicsParams } from "./physics";
+import type { Ship } from "./ship";
+import type { PlayState, Tickable } from "../superstates/play";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
 }
 
-export class Cannonball {
+export class Cannonball implements Tickable, Renderable {
   game: PlayState;
   instigator: Ship;
   phys: PhysicsObject;
   dying: boolean;
   predictedFall: Victor | null = null;
+  type = "cannonball";
 
   constructor(
     game: PlayState,

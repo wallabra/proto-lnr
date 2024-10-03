@@ -1,9 +1,9 @@
 import Victor from "victor";
 import { angDiff, umod, lerp } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
-import { ObjectRenderInfo } from "../render";
+import { ObjectRenderInfo, Renderable } from "../render";
 import { CashPickup, CashPickupParams } from "./cash";
-import { PlayState } from "../superstates/play";
+import { PlayState, Tickable } from "../superstates/play";
 import { Game } from "../game";
 import {
   Engine,
@@ -462,7 +462,7 @@ class ShipRenderContext {
 
 const CHASE_LOCK_RANGE = Math.pow(1200, 2);
 
-export class Ship {
+export class Ship implements Tickable, Renderable {
   game: Game;
   phys: PhysicsObject;
   dying: boolean;
@@ -481,6 +481,7 @@ export class Ship {
   following: Ship | null = null;
   alliance = new Set<Ship>([this]);
   followers = new Set<Ship>();
+  type = "ship";
 
   public follow(other: Ship) {
     if (this.following != null) this.unfollow();
