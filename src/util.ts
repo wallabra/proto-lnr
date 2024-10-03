@@ -28,7 +28,7 @@ export function zeroPad(text: string, size: number) {
 }
 
 export function moneyString(cash: number) {
-  return cash.toLocaleString(undefined, { style: "currency", currency: "USD" });
+  return "$" + cash.toFixed(2);
 }
 
 export function weightString(weight: number) {
