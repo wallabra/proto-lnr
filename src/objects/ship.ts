@@ -1195,7 +1195,7 @@ export class Ship implements Tickable, Renderable {
 
   checkShipCollisions(deltaTime: number) {
     for (const ship of this.play.tickables) {
-      if (!(ship instanceof Ship)) {
+      if (ship.type !== "ship") {
         continue;
       }
 
@@ -1203,7 +1203,7 @@ export class Ship implements Tickable, Renderable {
         break;
       }
 
-      this.checkShipCollision(deltaTime, ship);
+      this.checkShipCollision(deltaTime, ship as Ship);
     }
   }
 

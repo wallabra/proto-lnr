@@ -1,6 +1,6 @@
-import { Nullish } from "utility-types";
+import type { Nullish } from "utility-types";
 import { commonPaths } from "../commonpaths";
-import { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
+import type { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 
 export class AvoidTerrainState implements AIHandler<AIStartArgs> {
   name = "avoidTerrain";

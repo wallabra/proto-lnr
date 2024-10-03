@@ -1,24 +1,24 @@
-import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
-import { Pickup } from "../../objects/pickup";
-import { Ship } from "../../objects/ship";
-import { SeekCrateStartArgs } from "./seekcrate";
+import type { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
+import type { Pickup } from "../../objects/pickup";
+import type { Ship } from "../../objects/ship";
+import type { SeekCrateStartArgs } from "./seekcrate";
 import { commonPaths } from "../commonpaths";
-import { Nullish } from "utility-types";
-import { ShipItem } from "../../inventory";
+import type { Nullish } from "utility-types";
+import type { ShipItem } from "../../inventory";
 
 export class StartState implements AIHandler<AIStartArgs> {
   name = "start";
 
-  private findPickupCrate(args: AITickArgs): Pickup<unknown & ShipItem> | null {
+  private findPickupCrate(args: AITickArgs): Pickup<ShipItem> | null {
     const { ship, play } = args;
     const pos = ship.pos;
     const maxDist = 300 + ship.size * ship.lateralCrossSection * 1.5;
     let lastDist = Infinity;
 
     return play.tickables.reduce((a, b) => {
-      if (!(b instanceof Pickup)) return a;
+      if (b.type !== "pickup") return a;
       if (a == null) return b;
-      const dist = b.phys.pos.distance(pos);
+      const dist = (b as Pickup<ShipItem>).phys.pos.distance(pos);
       if (dist > Math.min(maxDist, lastDist - 10)) return a;
       lastDist = dist;
       return b as Pickup<unknown & ShipItem>;
@@ -30,7 +30,7 @@ export class StartState implements AIHandler<AIStartArgs> {
     ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 
-  aiTick(args: AITickArgs): AIJump | Nullish {
+  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);

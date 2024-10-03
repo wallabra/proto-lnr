@@ -1,11 +1,11 @@
-import { Nullish } from "utility-types";
-import { Pickup } from "../../objects/pickup";
+import type { Nullish } from "utility-types";
+import type { Pickup } from "../../objects/pickup";
 import { commonPaths } from "../commonpaths";
-import { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
-import { ShipItem } from "../../inventory";
+import type { AIHandler, AIStartArgs, AITickArgs, AIJump } from "../defs";
+import type { ShipItem } from "../../inventory";
 
 export interface SeekCrateStartArgs extends AIStartArgs {
-  crate: Pickup<unknown & ShipItem>;
+  crate: Pickup<ShipItem>;
 }
 
 export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
@@ -22,7 +22,7 @@ export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
   }
 
   aiTick(args: AITickArgs): Nullish | AIJump {
-    if (this.crate.dying) {
+    if (this.crate == null || this.crate.dying) {
       return { next: "start", immediate: true };
     }
 

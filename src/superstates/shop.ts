@@ -61,7 +61,9 @@ function weightInfo(item: ShipItem) {
 
 function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
   return (
-    (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(2) + " " : "") + ((makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ?? item.getItemLabel()) +
+    (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(2) + " " : "") +
+    ((makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ??
+      item.getItemLabel()) +
     (priceFactor == null
       ? ""
       : ` (${moneyString(item.cost * priceFactor * (item.amount || 1))})`)

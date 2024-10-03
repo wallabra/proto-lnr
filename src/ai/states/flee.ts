@@ -1,5 +1,6 @@
-import { Ship } from "../../objects/ship";
-import { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
+import type { Nullish } from "utility-types";
+import type { Ship } from "../../objects/ship";
+import type { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 
 export interface FleeStartArgs extends AIStartArgs {
   target: Ship;
@@ -7,7 +8,7 @@ export interface FleeStartArgs extends AIStartArgs {
 
 export class FleeState implements AIHandler<FleeStartArgs> {
   name = "flee";
-  target: Ship;
+  target: Ship | null;
 
   start(args: FleeStartArgs) {
     this.target = args.target;
@@ -17,7 +18,7 @@ export class FleeState implements AIHandler<FleeStartArgs> {
     this.target = null;
   }
 
-  aiTick(args: AITickArgs): AIJump {
+  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish {
     const { ship, deltaTime } = args;
 
     if (this.target == null || this.target.dying) {

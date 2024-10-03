@@ -104,7 +104,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
   protected checkShipCollisions(deltaTime: number) {
     for (const ship of this.play.tickables) {
-      if (ship.type !== 'ship') {
+      if (ship.type !== "ship") {
         continue;
       }
 
@@ -141,7 +141,7 @@ export class DebugPickup extends Pickup<PhysicsParams> {
   protected override checkShipCollisions() {
     // not pickuppable
   }
-  
+
   protected override collect(): void {
     // do nothing
   }

@@ -1,8 +1,8 @@
-import { AIStartArgs, AITickArgs, AIHandler, AIJump } from "../defs";
-import { Ship } from "../../objects/ship";
+import type { AIStartArgs, AITickArgs, AIHandler, AIJump } from "../defs";
+import type { Ship } from "../../objects/ship";
 import { angDiff } from "../../util";
 import { commonPaths } from "../commonpaths";
-import { Nullish } from "utility-types";
+import type { Nullish } from "utility-types";
 
 export interface EngageStartArgs extends AIStartArgs {
   target: Ship;

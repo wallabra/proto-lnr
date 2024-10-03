@@ -1,7 +1,7 @@
 import Victor from "victor";
 import type { ObjectRenderInfo, Renderable } from "../render";
 import type { PhysicsObject } from "./physics";
-import { PhysicsParams } from "./physics";
+import type { PhysicsParams } from "./physics";
 import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
 
@@ -118,7 +118,7 @@ export class Cannonball implements Tickable, Renderable {
 
   checkShipCollisions(deltaTime) {
     for (const ship of this.game.tickables) {
-      if (!(ship instanceof Ship)) {
+      if (ship.type !== "ship") {
         continue;
       }
 

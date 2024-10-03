@@ -1,15 +1,15 @@
-import { AIController } from "./ai";
-import { Ship } from "../objects/ship";
-import { Game } from "../game";
-import { PlayState } from "../superstates/play";
-import Victor from "victor";
-import { Nullish } from "utility-types";
+import type { AIController } from "./ai";
+import type { Ship } from "../objects/ship";
+import type { Game } from "../game";
+import type { PlayState } from "../superstates/play";
+import type Victor from "victor";
+import type { Nullish, Subtract } from "utility-types";
 
-export type UnknownAIHandler = AIHandler<unknown & AIStartArgs>;
+export type UnknownAIHandler = AIHandler<AIStartArgs>;
 
 export interface AIJump<A extends AIStartArgs = AIStartArgs> {
   next: string;
-  args?: Exclude<A, AIStartArgs>;
+  args?: Subtract<A, AIStartArgs>;
   immediate?: boolean;
 }
 
