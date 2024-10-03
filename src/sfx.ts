@@ -22,7 +22,7 @@ export const ALL_EFFECTS: Record<string, string> = {
 };
 
 function loadAudio(name: string): Howl {
-  if (audioCache[name] != null) {
+  if (name in audioCache) {
     return audioCache[name];
   }
   const audio = new Howl({ src: [decodeURIComponent(ALL_EFFECTS[name])] });
@@ -33,7 +33,7 @@ function loadAudio(name: string): Howl {
 
 // preload SFX
 function preloader() {
-  for (const effect in Object.keys(ALL_EFFECTS)) {
+  for (const effect of Object.keys(ALL_EFFECTS)) {
     loadAudio(effect);
   }
   console.log("Audio preloaded");
