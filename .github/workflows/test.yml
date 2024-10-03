@@ -1,7 +1,9 @@
-name: NodeJS with Parcel
+name: ESLint and unit tests
 
 on:
   push:
+    branches: ["main"]
+  pull_request:
     branches: ["main"]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  lint:
     strategy:
       matrix:
         node-version: [21.x]
@@ -39,19 +41,33 @@ jobs:
           npm i --global pnpm
           pnpm i
 
-      - name: Build
+      - name: Lint
         run: |
-          pnpm build
+          pnpm lint
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+  test:
+    strategy:
+      matrix:
+        node-version: [21.x]
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+    runs-on: ubuntu-latest
+    needs: [lint]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          # Upload dist folder
-          path: "dist"
+          node-version: ${{ matrix.node-version }}
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install dependencies
+        run: |
+          npm i --global pnpm
+          pnpm i
+
+      - name: Test
+        run: |
+          pnpm test
+
+
