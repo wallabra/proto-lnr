@@ -1,8 +1,8 @@
 import Victor from "victor";
 import { Pickup } from "./pickup";
-import { PhysicsParams } from "./physics";
-import { Ship } from "./ship";
-import { PlayState } from "../superstates/play";
+import type { PhysicsParams } from "./physics";
+import type { Ship } from "./ship";
+import type { PlayState } from "../superstates/play";
 
 export interface CashPickupParams extends PhysicsParams {
   cash: number;
