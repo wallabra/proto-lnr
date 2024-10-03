@@ -1,9 +1,9 @@
 import Victor from "victor";
-import { ObjectRenderInfo } from "../render";
+import type { ObjectRenderInfo } from "../render";
 import type { PhysicsObject, PhysicsParams } from "./physics";
 import { Ship } from "./ship";
-import { PlayState, Tickable } from "../superstates/play";
-import { ShipItem } from "../inventory";
+import type { PlayState, Tickable } from "../superstates/play";
+import type { ShipItem } from "../inventory";
 
 export function isPickup<T extends Partial<PhysicsParams>>(
   item: Tickable,
@@ -32,9 +32,9 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   }
 
   /// Callback for when this crate item is collected.
-  abstract collect(ship: Ship): void;
+  protected abstract collect(ship: Ship): void;
 
-  drawBox(
+  private drawBox(
     ctx: CanvasRenderingContext2D,
     drawPos: Victor,
     size: number,
@@ -49,7 +49,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     ctx.resetTransform();
   }
 
-  render(info: ObjectRenderInfo) {
+  public render(info: ObjectRenderInfo) {
     const ctx = info.ctx;
 
     const drawPos = info.base
@@ -84,12 +84,12 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.drawBox(ctx, drawPos, size - 4, 0);
   }
 
-  destroy() {
+  public destroy() {
     this.dying = true;
     this.phys.dying = true;
   }
 
-  checkShipCollision(deltaTime: number, ship: Ship) {
+  private checkShipCollision(deltaTime: number, ship: Ship): boolean {
     const closeness = this.phys.touchingShip(ship);
     if (closeness <= 0) {
       return false;
@@ -101,7 +101,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     return true;
   }
 
-  checkShipCollisions(deltaTime: number) {
+  protected checkShipCollisions(deltaTime: number) {
     for (const ship of this.play.tickables) {
       if (!(ship instanceof Ship)) {
         continue;
@@ -113,7 +113,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     }
   }
 
-  bob(deltaTime: number) {
+  protected bob(deltaTime: number) {
     if (!this.phys.inWater()) return;
 
     this.phys.applyForce(
@@ -126,7 +126,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.phys.angVel += ((Math.random() * Math.PI) / 4) * deltaTime;
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     if (this.phys.age > 300) {
       this.destroy();
       return;
@@ -137,8 +137,13 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 }
 
 export class DebugPickup extends Pickup<PhysicsParams> {
-  checkShipCollisions() {}
-  collect(): void {}
+  protected override checkShipCollisions() {
+    // not pickuppable
+  }
+  
+  protected override collect(): void {
+    // do nothing
+  }
 }
 
 export type ItemPickupParams<I extends ShipItem> = Partial<PhysicsParams> & {
@@ -158,7 +163,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
     this.item = params.item;
   }
 
-  collect(ship: Ship): void {
+  protected override collect(ship: Ship): void {
     ship.makeup.inventory.addItem(this.item);
   }
 }
