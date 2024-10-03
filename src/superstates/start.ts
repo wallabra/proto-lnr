@@ -15,7 +15,7 @@ import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
 import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guards";
 
-export default class MainMenuState extends Superstate {
+export class MainMenuState extends Superstate {
   ui: CanvasRoot;
   states: Record<string, CanvasUIElement> = {};
   stateStack: string[] = [];

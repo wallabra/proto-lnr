@@ -3,10 +3,10 @@ import Superstate from "./superstates/base";
 import { Player } from "./player";
 import { TerraDef, landfillGenerator } from "./terrain";
 import { PlayState } from "./superstates/play";
-import MouseHandler from "./mouse";
+import { MouseHandler } from "./mouse";
 import { KeyHandler } from "./keyinput";
 import random from "random";
-import MainMenuState from "./superstates/start";
+import { MainMenuState } from "./superstates/start";
 
 export class Game {
   canvas: HTMLCanvasElement;

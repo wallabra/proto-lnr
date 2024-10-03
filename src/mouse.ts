@@ -1,6 +1,6 @@
 import Victor from "victor";
 import { Game } from "./game";
-import IntermissionState from "./superstates/shop";
+import { IntermissionState } from "./superstates/shop";
 import match from "rustmatchjs";
 import { CanvasUIElement } from "./ui";
 
@@ -22,7 +22,7 @@ export interface GameMouseDragInfo extends GameMouseInfo {
   dragStart: Victor;
 }
 
-export default abstract class MouseHandler {
+export abstract class MouseHandler {
   game: Game;
   pos: Victor;
   delta: Victor;
