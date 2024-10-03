@@ -48,7 +48,7 @@ export class PlayState extends Superstate {
   }
 
   reloadSoundEngine() {
-    if (this.player.possessed == null) {
+    if (this.player == null || this.player.possessed == null) {
       this.sfx = null;
       return false;
     }
@@ -73,6 +73,10 @@ export class PlayState extends Superstate {
   }
 
   setupNPCs(numNPCs: number) {
+    if (this.player == null || this.player.possessed == null) {
+      throw new Error("setupNPCs can only be called when a player ship already exists");
+    }
+    
     let toSpawn = numNPCs;
     let radiusBonus = 0;
     let attempts = 0;
@@ -82,7 +86,7 @@ export class PlayState extends Superstate {
         attempts = 0;
         radiusBonus += 50;
       }
-      let leader: Ship = null;
+      let leader: Ship | null = null;
       let squadSize = Math.max(
         1,
         Math.ceil(0.3 + random.exponential(1.7)() * 1.3) *
@@ -149,6 +153,10 @@ export class PlayState extends Superstate {
   }
 
   spawnDecor() {
+    if (this.terrain == null) {
+      return;
+    }
+    
     // WIP: better num. decor to spawn
     for (let _ = 0; _ < 10000; _++) {
       const terrainWidth = 8000; // WIP: better max decor spawn radius
@@ -171,20 +179,24 @@ export class PlayState extends Superstate {
   }
 
   spawnPlayerFleet() {
-    const player = this.game.player;
+    const player = this.player;
+
+    if (player == null) {
+      throw new Error("Called spawnPlayerFleet while superstate player is null");
+    }
 
     if (player.possessed !== null) {
-      this.removeObj(this.player.possessed);
+      this.removeObj(player.possessed);
     }
 
     const pos = new Victor(1600, 0).rotateBy(Math.PI * 2 * Math.random());
 
-    let playerShip = null;
+    let playerShip: Ship;
 
     const addShip = (
       money: number,
       makeup: ShipMakeup,
-      offs: Victor = null,
+      offs: Victor | null = null,
     ): Ship => {
       let spawnPos = pos;
       if (offs != null) spawnPos = spawnPos.clone().add(offs);
@@ -291,8 +303,8 @@ export class PlayState extends Superstate {
     this.tickables = this.tickables.filter((t) => !t.dying);
   }
 
-  cameraPos(): Victor {
-    if (this.player.possessed != null) {
+  public cameraPos(): Victor {
+    if (this.player != null && this.player.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
       return new Victor(0, 0);
@@ -371,8 +383,8 @@ export class PlayState extends Superstate {
     this.game.setMouseHandler(PlayMouseHandler);
     this.game.setKeyboardHandler(PlayKeyHandler);
 
-    if (this.game.player.possessed != null) {
-      this.addShip(this.game.player.possessed);
+    if (this.player != null && this.player.possessed != null) {
+      this.addShip(this.player.possessed);
     }
   }
 
