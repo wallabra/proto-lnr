@@ -1060,7 +1060,7 @@ export class Ship implements Tickable, Renderable {
   }
 
   boundaryPoint(angle: number) {
-    return this.pos.add(
+    return this.pos.clone().add(
       new Victor(this.intermediaryRadius(angle), 0).rotateBy(angle),
     );
   }
