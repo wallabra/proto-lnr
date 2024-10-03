@@ -107,10 +107,15 @@ export class SoundEngine {
 
   private updatePerspective() {
     const persp = this.perspective;
+
+    if (isNaN(persp.pos.x) || isNaN(persp.pos.y)) {
+      console.log(this.perspective);
+      return;
+    }
+    
     const dx = Math.cos(persp.angle);
     const dy = Math.sin(persp.angle);
     Howler.orientation(dx, 0, dy, 0, 1, 0);
-    console.log(persp.pos);
     Howler.pos(persp.pos.x, 0, persp.pos.y);
   }
 
