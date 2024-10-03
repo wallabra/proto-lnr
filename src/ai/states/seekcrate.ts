@@ -11,7 +11,7 @@ export interface SeekCrateStartArgs extends AIStartArgs {
 export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
   name = "seekCrate";
 
-  crate: Pickup<unknown & ShipItem> | null;
+  crate: Pickup<ShipItem> | null;
 
   start(args: SeekCrateStartArgs) {
     this.crate = args.crate;

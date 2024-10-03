@@ -21,8 +21,8 @@ export class StartState implements AIHandler<AIStartArgs> {
       const dist = (b as Pickup<ShipItem>).phys.pos.distance(pos);
       if (dist > Math.min(maxDist, lastDist - 10)) return a;
       lastDist = dist;
-      return b as Pickup<unknown & ShipItem>;
-    }, null) as Pickup<unknown & ShipItem> | null;
+      return b as Pickup<ShipItem>;
+    }, null) as Pickup<ShipItem> | null;
   }
 
   private roam(deltaTime: number, ship: Ship) {
@@ -30,7 +30,7 @@ export class StartState implements AIHandler<AIStartArgs> {
     ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 
-  aiTick(args: AITickArgs): AIJump<unknown & AIStartArgs> | Nullish {
+  aiTick(args: AITickArgs): AIJump<AIStartArgs> | Nullish {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);

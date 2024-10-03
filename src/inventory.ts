@@ -15,7 +15,7 @@ export interface InventoryItem {
   shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;
   endLevelUpdate?(player: Player): void;
-  canConsolidate?(other: unknown & InventoryItem): boolean;
+  canConsolidate?(other: InventoryItem): boolean;
   getInventoryLabel?(makeup: ShipMakeup): string;
 }
 

@@ -2017,11 +2017,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
 
 export class IntermissionState extends Superstate {
   ui: CanvasPanel;
-  panes: Pane<
-    unknown & PaneArgs,
-    unknown & CanvasUIElement,
-    unknown & CanvasUIArgs
-  >[];
+  panes: Pane<PaneArgs, CanvasUIElement, CanvasUIArgs>[];
   paneDrydock: PaneDrydock;
   private paneTabs: CanvasTabPanel;
   private cashCounter: CanvasLabel;
