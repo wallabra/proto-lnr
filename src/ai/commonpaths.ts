@@ -1,4 +1,4 @@
-import { AIJump, AIStartArgs, AITickArgs } from "./defs";
+import { AIJump, AITickArgs } from "./defs";
 import { EngageStartArgs } from "./states/engage";
 import { FleeStartArgs } from "./states/flee";
 

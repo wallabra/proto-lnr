@@ -33,7 +33,6 @@ import {
   CanvasUIElement,
   CanvasUIArgs,
   CanvasTabPanel,
-  CanvasTab,
 } from "../ui";
 import { moneyString, weightString } from "../util";
 import Superstate from "./base";
