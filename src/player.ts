@@ -15,7 +15,7 @@ export interface FleetMember {
 }
 
 export class Player {
-  possessed: Ship;
+  possessed: Ship | null;
   inputState: string | null;
   actions: PlayerAction[];
   game: Game;
