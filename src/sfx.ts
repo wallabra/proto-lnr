@@ -72,6 +72,9 @@ class SoundSource {
 
   public update() {
     const { from, soundSrc, soundId } = this;
+    if (isNaN(from.pos.x) || isNaN(from.pos.y)) {
+      console.log("Caught NaN in sound object: ", from);
+    }
     soundSrc.pos(from.pos.x, 0, from.pos.y, soundId);
   }
 
@@ -109,7 +112,7 @@ export class SoundEngine {
     const persp = this.perspective;
 
     if (isNaN(persp.pos.x) || isNaN(persp.pos.y)) {
-      console.log(this.perspective);
+      console.log("Caught NaN in sound perspective:", this.perspective);
       return;
     }
 
