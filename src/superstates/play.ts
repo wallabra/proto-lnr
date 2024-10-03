@@ -196,6 +196,7 @@ export class PlayState extends Superstate {
     }
 
     const pos = new Victor(1600, 0).rotateBy(Math.PI * 2 * Math.random());
+    console.log("Player position:", pos);
 
     let playerShip: Ship | null = null;
 
