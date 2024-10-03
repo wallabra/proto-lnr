@@ -283,9 +283,9 @@ export class PhysicsObject {
   }
 
   orbitalMomentumAt(pos: Victor): Victor {
-    return this.orbitalVelocityAt(pos).multiplyScalar(
-      this.angularInertiaAt(pos),
-    );
+    return this.orbitalVelocityAt(pos)
+      .clone()
+      .multiplyScalar(this.angularInertiaAt(pos));
   }
 
   momentumRelativeTo(other: PhysicsObject): number {

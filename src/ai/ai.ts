@@ -63,7 +63,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     const game = play.game;
     const ship = ai.possessed;
     const dHeight = ship.heightGradient();
-    const soonPos = ship.vel.add(ship.pos);
+    const soonPos = ship.vel.clone().add(ship.pos);
 
     const thisJump = this.state.aiTick({
       ai,

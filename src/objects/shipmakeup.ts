@@ -1029,11 +1029,11 @@ export class ShipMakeup {
     let amount = 1;
 
     for (const ammo of this.ammo) {
-      if ((ammo).caliber !== caliber) {
+      if (ammo.caliber !== caliber) {
         continue;
       }
 
-      (ammo).amount--;
+      ammo.amount--;
       amount = 0;
     }
 
@@ -1082,9 +1082,7 @@ export class ShipMakeup {
   }
 
   totalSalary() {
-    return this.crew
-      .map((c) => (c).nextSalary())
-      .reduce((a, b) => a + b, 0);
+    return this.crew.map((c) => c.nextSalary()).reduce((a, b) => a + b, 0);
   }
 
   partsValue() {
