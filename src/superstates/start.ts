@@ -39,7 +39,7 @@ export default class MainMenuState extends Superstate {
 
   private buildState(
     stateName: string,
-    stateBuilder: (holder: CanvasUIGroup) => CanvasUIElement | Nullish | void,
+    stateBuilder: (holder: CanvasUIGroup) => CanvasUIElement | Nullish,
   ) {
     const holder = new CanvasUIGroup({
       parent: null,

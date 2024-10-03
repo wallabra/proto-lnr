@@ -33,7 +33,7 @@ export interface AITickArgs {
 
 export interface AIHandler<StartArgs extends AIStartArgs> {
   name: string;
-  start?(args: StartArgs);
-  free?();
+  start?(args: StartArgs): void;
+  free?(): void;
   aiTick(args: AITickArgs): AIJump | Nullish;
 }

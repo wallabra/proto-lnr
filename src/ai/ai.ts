@@ -8,7 +8,10 @@ function mapStates(
 ): Map<string, UnknownAIHandler> {
   return states
     .map((S) => new S())
-    .reduce((map, state) => map.set(state.name, state), new Map());
+    .reduce((map, state) => map.set(state.name, state), new Map()) as Map<
+    string,
+    UnknownAIHandler
+  >;
 }
 
 export interface AIStates {
@@ -21,20 +24,21 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   state: UnknownAIHandler;
   mapper: Map<string, UnknownAIHandler>;
   default: string;
-  stateName: string;
-  nextChange: number;
+  stateName: string | null;
+  nextChange: number | null;
   pendingChange: AIJump | null;
 
   constructor(
     ai: AIController,
     mapper: AIStates,
-    args: Exclude<S, AIStartArgs>,
+    args?: Exclude<S, AIStartArgs>,
   ) {
     this.ai = ai;
     this.default = mapper.start;
     this.mapper = mapStates(mapper.states);
     this.nextChange = null;
-    this.jumpToState(this.default, args);
+    this.stateName = null;
+    this.jumpToState(this.default, args ?? ({} as Exclude<S, AIStartArgs>));
   }
 
   private startState<S extends AIStartArgs>(
@@ -43,14 +47,16 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   ) {
     if (this.state.start != null)
       this.state.start({
+        ...args,
+        from,
         ai: this.ai,
         ship: this.ai.possessed,
-        from: from,
-        ...args,
       });
   }
 
   tick(deltaTime: number) {
+    if (this.stateName == null) return;
+
     const ai = this.ai;
     const play = ai.game;
     const game = play.game;
@@ -77,7 +83,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
       Date.now() < this.nextChange &&
       !nextJump.immediate
     ) {
-      this.pendingChange = nextJump ?? null;
+      this.pendingChange = nextJump;
       return;
     }
 
@@ -90,24 +96,24 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     args?: Exclude<A, AIStartArgs>,
   ) {
     const from = this.stateName;
-    if (this.stateName === undefined) this.stateName = next;
+    this.stateName = next;
 
     if (!this.mapper.has(next)) {
       throw new Error(
-        `AI state ${this.stateName} tried to jump to unknown state ${next}`,
+        `AI state ${this.stateName.toString()} tried to jump to unknown state ${next}`,
       );
       return;
     }
 
     const newState = this.mapper.get(next);
-    if (newState === this.state) return;
+    if (newState == null || newState === this.state) return;
 
     this.nextChange = Date.now() + 500;
     if (this.state.free != null) this.state.free();
     //console.log(from, "->", next, "::", this.ai);
 
     this.state = newState;
-    this.startState(from, args ?? null);
+    this.startState<A>(from, args ?? ({} as Exclude<A, AIStartArgs>)); // only valid if A *is* AIStartArgs, but whatever
     this.stateName = next;
     this.pendingChange = null;
   }
@@ -126,7 +132,7 @@ export class AIController {
   ) {
     this.game = game;
     this.possessed = ship;
-    this.stateMachine = new AIStateMachine(this, stateMapper, null);
+    this.stateMachine = new AIStateMachine(this, stateMapper);
   }
 
   tick(deltaTime: number) {

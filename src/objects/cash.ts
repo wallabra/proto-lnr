@@ -23,7 +23,9 @@ export class CashPickup extends Pickup<CashPickupParams> {
   }
 
   collect(ship: Ship): void {
-    console.log(`${ship.makeup.name} is collecting cash: $${this.cash}`);
+    console.log(
+      `${ship.makeup.name} is collecting cash: $${this.cash.toFixed(2)}`,
+    );
     ship.giveMoney(this.cash);
   }
 }

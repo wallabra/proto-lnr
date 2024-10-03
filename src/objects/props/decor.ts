@@ -13,10 +13,10 @@ import SPRITE_GRASS from "data-url:../../sprites/grass.png";
 import SPRITE_ROCK from "data-url:../../sprites/rock.png";
 import SPRITE_FLAG from "data-url:../../sprites/flag.png";
 
-const SPRITES = {
+const SPRITES: { [filename: string]: { src: string; angleRandom: boolean } } = {
   "grass.png": { src: SPRITE_GRASS, angleRandom: true },
   "rock.png": { src: SPRITE_ROCK, angleRandom: true },
-  "flag.png": { src: SPRITE_FLAG, angleRandom: true },
+  "flag.png": { src: SPRITE_FLAG, angleRandom: false },
 };
 
 const SPRITE_CACHE = new Map<string, HTMLImageElement>();
@@ -28,7 +28,7 @@ function randomDecor(): string {
       ["rock.png", 1 / 8],
       ["flag.png", 1 / 30],
     ].map(([id, weight]) => ({ id, weight })),
-  );
+  ) as string;
 }
 
 export class Decor implements Renderable, Tickable {
@@ -55,27 +55,26 @@ export class Decor implements Renderable, Tickable {
   private preloadSprite() {
     const { spritePath } = this;
 
-    if (SPRITE_CACHE.has(spritePath)) {
-      this.sprite = SPRITE_CACHE.get(spritePath);
+    const cached = SPRITE_CACHE.get(spritePath);
+    if (cached != null) {
+      this.sprite = cached;
       return;
     }
 
     const sprite = document.createElement("img");
     const def = SPRITES[spritePath];
     sprite.src = def.src;
-    if (def.angleRandom) this.args.angle ??= Math.random() * Math.PI * 2;
-    //console.log(sprite.src);
+
+    if (def.angleRandom && this.args !== undefined) {
+      this.args.angle ??= Math.random() * Math.PI * 2;
+    }
+
     SPRITE_CACHE.set(spritePath, sprite);
     this.sprite = sprite;
   }
 
   render(info: ObjectRenderInfo): void {
-    if (
-      this.sprite == null ||
-      !this.sprite.complete ||
-      !this.phys.isVisible(info)
-    )
-      return;
+    if (!this.sprite.complete || !this.phys.isVisible(info)) return;
 
     const { ctx, scale } = info;
     const { sprite } = this;
@@ -91,14 +90,11 @@ export class Decor implements Renderable, Tickable {
     try {
       ctx.drawImage(this.sprite, 0, 0);
     } catch (e) {
-      console.warn(`Can't draw sprite ${this.spritePath}: ${e}`);
+      console.warn(`Can't draw sprite ${this.spritePath}: ${e.toString()}`);
       this.dying = true;
       ctx.restore();
       return;
     }
-    //ctx.strokeStyle = 'red';
-    //ctx.lineWidth = 2;
-    //ctx.arc(0, 0, 10, 0, Math.PI * 2);
 
     ctx.stroke();
     ctx.restore();

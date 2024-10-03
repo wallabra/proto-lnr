@@ -1,11 +1,13 @@
 import { Game } from "./game";
 
-let lastTime: Date | null = null;
+let lastTime: number | null = null;
 const frameDuration = 1000 / 30;
 
-export function tickLoop(game: Game, current: Date) {
+export function tickLoop(game: Game, current: number) {
   if (lastTime == null) {
-    requestAnimationFrame(tickLoop.bind(null, game));
+    requestAnimationFrame(
+      tickLoop.bind(null, game) as (current: number) => void,
+    );
     lastTime = current;
     return;
   }
@@ -14,10 +16,12 @@ export function tickLoop(game: Game, current: Date) {
   lastTime = current;
 
   if (deltaTime > frameDuration * 20) {
-    console.warn(`Skipping tick due to huge lagspike: ${deltaTime}ms`);
+    console.warn(
+      `Skipping tick due to huge lagspike: ${deltaTime.toFixed(0)}ms`,
+    );
   } else if (deltaTime > frameDuration) {
     console.warn(
-      `Compensating for lag: ${deltaTime - frameDuration}ms behind target framerate!`,
+      `Compensating for lag: ${(deltaTime - frameDuration).toFixed(0)}ms behind target framerate!`,
     );
   }
 
@@ -26,7 +30,7 @@ export function tickLoop(game: Game, current: Date) {
     deltaTime -= frameDuration;
   }
 
-  requestAnimationFrame(tickLoop.bind(null, game));
+  requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
 
   processTick(game, deltaTime);
 }

@@ -19,11 +19,12 @@ import random from "random";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
+import { Nullish } from "utility-types";
 
 const DEBUG_DRAW = false;
 const DEBUG_COLL = false;
 
-const ENGINE_SFX_BY_TYPE = {
+const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
   coal: "engine_coal",
   diesel: "engine_diesel",
 };
@@ -41,7 +42,7 @@ export type TickActionCallback<T> = (action: T) => void;
 
 export class TickAction<T> {
   private action: TickActionFunction<T>;
-  private result: T;
+  private result: T | null;
   private done: boolean;
   private callbacks: TickActionCallback<T>[];
 
@@ -52,23 +53,34 @@ export class TickAction<T> {
     this.callbacks = [];
   }
 
-  isDone() {
+  public isDone(): boolean {
     return this.done;
   }
 
-  perform(deltaTime) {
+  public perform(deltaTime: number) {
     this.finish(this.action(deltaTime));
   }
 
-  then(callback: TickActionCallback<T>) {
+  public then(callback: TickActionCallback<T>) {
     this.callbacks.push(callback);
     return this;
   }
 
-  finish(result) {
+  public getResult(): T {
+    if (this.result == null) {
+      throw new Error(
+        "Tried to get the result from an unresolved TickAction; check with isDone() first!",
+      );
+    }
+    return this.result;
+  }
+
+  public finish(result: T) {
     this.result = result;
     this.done = true;
-    this.callbacks.forEach((c) => { c(this.result); });
+    this.callbacks.forEach((c) => {
+      c(result);
+    });
   }
 }
 
@@ -392,13 +404,12 @@ class ShipRenderContext {
 
     if (!isPlayer) return;
 
-    const available = cannon != null && cannon.cooldown <= 0;
+    const available = cannon.cooldown <= 0;
 
     const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(mouseDist, ship.maxShootRange ?? Infinity);
     const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
-    const shootRadius =
-      cannon == null ? 0 : Math.tan(cannon.spread) * shootDist * info.scale;
+    const shootRadius = Math.tan(cannon.spread) * shootDist * info.scale;
 
     const color = available ? "#FFFF0008" : "#88000018";
     ctx.strokeStyle = color;
@@ -464,25 +475,26 @@ export class Ship {
   makeup: ShipMakeup;
   tickActions: TickAction<unknown>[];
   drawer: ShipRenderContext;
-  lastWave: number;
-  lastSmoke: number;
-  lastEngineSound: number;
-  following: Ship = null;
+  lastWave: number | null = null;
+  lastSmoke: number | null = null;
+  lastEngineSound: number | null = null;
+  following: Ship | null = null;
   alliance = new Set<Ship>([this]);
   followers = new Set<Ship>();
 
-  follow(other: Ship) {
+  public follow(other: Ship) {
     if (this.following != null) this.unfollow();
     other.followers.add(this);
     this.following = other;
   }
 
-  unfollow() {
+  public unfollow() {
+    if (this.following == null) return;
     this.following.followers.delete(this);
     this.following = null;
   }
 
-  ally(other: Ship) {
+  public ally(other: Ship) {
     this.alliance = other.alliance = new Set([
       this.following ?? this,
       ...Array.from(this.alliance),
@@ -507,20 +519,22 @@ export class Ship {
     }
   }
 
-  setInstigator(other: Ship) {
-    if (!this.dying) {
-      if (
-        this.following.lastInstigator != null &&
-        this.following.lastInstigator !== other
-      )
-        return false;
+  public setInstigator(other: Ship | null) {
+    if (!this.dying && other != null) {
+      if (this.following != null) {
+        if (
+          this.following.lastInstigator != null &&
+          this.following.lastInstigator !== other
+        )
+          return false;
 
-      if (
-        this.following != null &&
-        this.following === other.following &&
-        this.following.isPlayer
-      )
-        return false;
+        if (this.following === other.following && this.following.isPlayer)
+          return false;
+
+        if (this.following.lastInstigator == null && Math.random() < 0.3) {
+          this.following.aggro(other);
+        }
+      }
 
       if (this.following === other) return false;
       if (this.followers.has(other)) return false;
@@ -536,14 +550,6 @@ export class Ship {
         follower.setInstigator(other);
       }
 
-      if (
-        this.following != null &&
-        this.following.lastInstigator == null &&
-        Math.random() < 0.3
-      ) {
-        this.following.aggro(other);
-      }
-
       for (const otherFollower of Array.from(other.followers)) {
         otherFollower.setInstigator(this);
       }
@@ -556,28 +562,28 @@ export class Ship {
     this.lastInstigator = other;
 
     if (other != null) {
-      this.lastInstigator.chasers.add(this);
+      other.chasers.add(this);
       this.lastInstigTime = Date.now();
     }
 
     return true;
   }
 
-  inDanger(): boolean {
+  public inDanger(): boolean {
     return Array.from(this.chasers).some(
       (chaser) => chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE,
     );
   }
 
-  get play(): PlayState {
+  public get play(): PlayState {
     return this.game.state as PlayState;
   }
 
-  get damage(): number {
+  public get damage(): number {
     return this.makeup.hullDamage;
   }
 
-  constructor(game: Game, pos: Victor, params?: Partial<ShipParams>) {
+  constructor(game: Game, pos?: Victor, params?: Partial<ShipParams>) {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
 
@@ -619,7 +625,7 @@ export class Ship {
     this.drawer = new ShipRenderContext(this);
   }
 
-  scoreKill() {
+  public scoreKill() {
     this.killScore++;
 
     if (this.game.player != null && this.game.player.possessed === this) {
@@ -627,26 +633,26 @@ export class Ship {
     }
   }
 
-  nextTick<T>(action: TickActionFunction<T>): TickAction<T> {
+  public nextTick<T>(action: TickActionFunction<T>): TickAction<T> {
     const actionObj = new TickAction(action);
     this.tickActions.push(actionObj);
     return actionObj;
   }
 
-  processTickActions(deltaTime: number) {
-    let action: TickAction<unknown>;
-    while ((action = this.tickActions.splice(0, 1)[0])) {
+  public processTickActions(deltaTime: number) {
+    let action: TickAction<unknown> | Nullish;
+    while ((action = this.tickActions.splice(0, 1).shift()) != null) {
       action.perform(deltaTime);
     }
   }
 
-  setMakeup(makeup: ShipMakeup) {
+  public setMakeup(makeup: ShipMakeup) {
     this.makeup = makeup;
     this.phys.size = makeup.make.size;
     this.phys.baseDrag = makeup.make.drag;
   }
 
-  dragMixin() {
+  protected dragMixin() {
     this.phys.dragVector = function (this: Ship) {
       const alpha = Math.abs(
         new Victor(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
@@ -654,12 +660,12 @@ export class Ship {
       const res = new Victor(
         1 - alpha,
         alpha * this.lateralCrossSection,
-      ).rotate(this.angle);
+      ).rotateBy(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
-    }.bind(this);
+    }.bind(this) as () => Victor;
   }
 
-  maxSpread() {
+  public maxSpread() {
     return Math.max(
       ...this.makeup
         .getPartsOf("cannon")
@@ -669,44 +675,44 @@ export class Ship {
   }
 
   // -- phys util getters
-  get vel() {
+  public get vel() {
     return this.phys.vel;
   }
 
-  set vel(vel: Victor) {
+  public set vel(vel: Victor) {
     this.phys.vel = vel;
   }
 
-  get floor() {
+  public get floor() {
     return this.phys.floor;
   }
 
-  get height() {
+  public get height() {
     return this.phys.height;
   }
 
-  get pos() {
+  public get pos() {
     return this.phys.pos;
   }
 
-  get size() {
+  public get size() {
     return this.makeup.make.size;
   }
 
-  get angle() {
+  public get angle() {
     return this.phys.angle;
   }
 
-  get weight() {
+  public get weight() {
     return this.phys.weight;
   }
   // --
 
-  get instigMemory() {
+  protected get instigMemory() {
     return 12;
   }
 
-  aggro(instigator: Ship) {
+  public aggro(instigator: Ship) {
     const instigTime = Date.now();
 
     // check reinforced aggression
@@ -727,7 +733,7 @@ export class Ship {
     this.setInstigator(instigator);
   }
 
-  damageShip(damage: number) {
+  public damageShip(damage: number) {
     damage = Math.max(0, damage);
     const die = this.makeup.damageShip(damage);
 
@@ -740,11 +746,11 @@ export class Ship {
     }
   }
 
-  get isPlayer() {
+  public get isPlayer() {
     return this.game.player != null && this.game.player.possessed === this;
   }
 
-  tryShoot(shootDist: number) {
+  public tryShoot(shootDist?: number) {
     if (shootDist == null) shootDist = 100;
     if (shootDist < 20) shootDist = 20;
 
@@ -772,11 +778,11 @@ export class Ship {
     });
   }
 
-  get angNorm() {
+  public get angNorm() {
     return this.phys.angNorm;
   }
 
-  isVisible(info: ObjectRenderInfo) {
+  public isVisible(info: ObjectRenderInfo) {
     const pos = info.base
       .clone()
       .add(this.pos.clone().subtract(info.cam).multiplyScalar(info.scale));
@@ -790,13 +796,13 @@ export class Ship {
     );
   }
 
-  render(info: ObjectRenderInfo) {
+  public render(info: ObjectRenderInfo) {
     this.drawer.draw(info);
   }
 
-  setMoney(money: number) {
+  public setMoney(money: number) {
     if (this.following != null) {
-      return this.following.setMoney(money);
+      this.following.setMoney(money);
     }
     this.money = money;
     if (this.game.player != null && this.game.player.possessed === this) {
@@ -804,23 +810,23 @@ export class Ship {
     }
   }
 
-  giveMoney(money: number) {
+  public giveMoney(money: number) {
     if (money < 0) {
       console.warn(
-        `Tried to give negative money (${money}) to ship ${this.makeup.name}!`,
+        `Tried to give negative money (${money.toFixed(2)}) to ship ${this.makeup.name}!`,
       );
       return;
     }
     if (money < 0.01) {
       console.warn(
-        `Tried to give sub-cent money (${money}) to ship ${this.makeup.name}; rounding up to the cent`,
+        `Tried to give sub-cent money (${money.toFixed(2)}) to ship ${this.makeup.name}; rounding up to the cent`,
       );
       money = 0.01;
     }
     this.setMoney(money + this.money);
   }
 
-  private pickupSpawnPos() {
+  private pickupSpawnPos(): Victor {
     return this.pos
       .clone()
       .add(
@@ -869,8 +875,8 @@ export class Ship {
     }
   }
 
-  spawnDroppedItem<I extends ShipItem>(item: I) {
-    this.play.spawn<ItemPickup<I>, ItemPickupParamType<I>>(
+  spawnDroppedItem(item: ShipItem) {
+    this.play.spawn<ItemPickup<ShipItem>, ItemPickupParamType<ShipItem>>(
       ItemPickup,
       this.pickupSpawnPos(),
       {
@@ -976,10 +982,12 @@ export class Ship {
   }
 
   spawnSmokeFor(engine: Engine, factor = 1.0) {
-    const color = SMOKE_COLORS[engine.fuelType] || null;
-    const amount = Math.abs(factor * engine.thrust);
+    if (engine.fuelType == null) return null;
 
+    const color: number[] | null = SMOKE_COLORS[engine.fuelType] ?? null;
     if (color == null) return;
+
+    const amount = Math.abs(factor * engine.thrust);
 
     if (
       this.lastSmoke != null &&
@@ -994,6 +1002,8 @@ export class Ship {
   }
 
   playEngineSound(engine: Engine, factor = 1.0) {
+    if (engine.fuelType == null) return null;
+
     if (!(engine.fuelType in ENGINE_SFX_BY_TYPE)) {
       return;
     }
@@ -1014,6 +1024,7 @@ export class Ship {
       ENGINE_SFX_BY_TYPE[engine.fuelType],
       0.02 + 0.1 / (1 + Math.exp(1 - 7 * factor)),
     );
+    if (ssrc == null) return;
     ssrc.rate(0.6 + 2.2 / (1 + Math.exp(-amount / 30)));
   }
 

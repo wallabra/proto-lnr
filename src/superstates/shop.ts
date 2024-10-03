@@ -106,7 +106,6 @@ abstract class Pane<
   public destroy() {
     if (this.pane != null) {
       this.pane.remove();
-      this.pane = null;
     }
     this.destroyed = true;
   }
@@ -116,9 +115,7 @@ interface DrydockPartWidgetArgs extends PaneArgs, CanvasPanelArgs {
   part: ShipPart;
 }
 
-class DrydockPartWidget extends Pane<
-  DrydockPartWidgetArgs
-> {
+class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
   part: ShipPart;
   private label: CanvasLabel;
   private details: CanvasUIGroup;
@@ -263,9 +260,11 @@ class DrydockPartWidget extends Pane<
     if (!this.part.manned) return;
 
     if (!this.part.alreadyManned()) {
-      this.tryAssignCrew(); return;
+      this.tryAssignCrew();
+      return;
     } else {
-      this.tryUnassignCrew(); return;
+      this.tryUnassignCrew();
+      return;
     }
   }
 
@@ -273,7 +272,6 @@ class DrydockPartWidget extends Pane<
     this.part.tryRepair(this.player);
     if (this.part.damage === 0) {
       this.repairButton.remove();
-      this.repairButton = null;
     }
   }
 
@@ -323,7 +321,9 @@ class DrydockPartWidget extends Pane<
       ...this.manningStatus(),
     ];
 
-    lines.forEach((line, i) => { this.updateDetailLine(line, i); });
+    lines.forEach((line, i) => {
+      this.updateDetailLine(line, i);
+    });
 
     for (const child of this.details.children.slice(lines.length).reverse()) {
       child.remove();
@@ -366,9 +366,7 @@ interface DrydockInventoryItemWidgetArgs extends PaneArgs {
   resellFactor: number;
 }
 
-class DrydockInventoryItemWidget extends Pane<
-  DrydockInventoryItemWidgetArgs
-> {
+class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
   item: ShipItem;
   private resellFactor: number;
   private resellLabel: CanvasLabel;
@@ -806,9 +804,7 @@ interface DrydockInventoryWidgetArgs extends PaneArgs {
   resellFactor: number;
 }
 
-class DrydockInventoryWidget extends Pane<
-  DrydockInventoryWidgetArgs
-> {
+class DrydockInventoryWidget extends Pane<DrydockInventoryWidgetArgs> {
   private itemList: CanvasScroller;
   private resellFactor: number;
   private itemWidgets: DrydockInventoryItemWidget[];
@@ -861,7 +857,7 @@ class DrydockInventoryWidget extends Pane<
     if (
       this.itemList.contentPane.children.length ===
       this.makeup.inventory.items.filter(
-        (i) => this.makeup.parts.indexOf((i as ShipPart)) === -1,
+        (i) => this.makeup.parts.indexOf(i as ShipPart) === -1,
       ).length
     )
       return;
@@ -875,7 +871,7 @@ class DrydockInventoryWidget extends Pane<
       (item) => {
         this.addItem(item);
       },
-      (item) => this.makeup.parts.indexOf((item as ShipPart)) !== -1,
+      (item) => this.makeup.parts.indexOf(item as ShipPart) !== -1,
     );
   }
 
@@ -1055,7 +1051,9 @@ class PaneShop extends Pane<PaneShopArgs> {
       this.shopItems,
       this.itemWidgets,
       (remaining, widget) => remaining.indexOf(widget.item),
-      (item) => { this.addShopItem(item); },
+      (item) => {
+        this.addShopItem(item);
+      },
       (item) => this.makeup.inventory.items.indexOf(item) > -1,
     );
   }

@@ -74,9 +74,11 @@ export class PlayState extends Superstate {
 
   setupNPCs(numNPCs: number) {
     if (this.player == null || this.player.possessed == null) {
-      throw new Error("setupNPCs can only be called when a player ship already exists");
+      throw new Error(
+        "setupNPCs can only be called when a player ship already exists",
+      );
     }
-    
+
     let toSpawn = numNPCs;
     let radiusBonus = 0;
     let attempts = 0;
@@ -156,7 +158,7 @@ export class PlayState extends Superstate {
     if (this.terrain == null) {
       return;
     }
-    
+
     // WIP: better num. decor to spawn
     for (let _ = 0; _ < 10000; _++) {
       const terrainWidth = 8000; // WIP: better max decor spawn radius
@@ -182,7 +184,9 @@ export class PlayState extends Superstate {
     const player = this.player;
 
     if (player == null) {
-      throw new Error("Called spawnPlayerFleet while superstate player is null");
+      throw new Error(
+        "Called spawnPlayerFleet while superstate player is null",
+      );
     }
 
     if (player.possessed !== null) {
@@ -191,7 +195,7 @@ export class PlayState extends Superstate {
 
     const pos = new Victor(1600, 0).rotateBy(Math.PI * 2 * Math.random());
 
-    let playerShip: Ship;
+    let playerShip: Ship | null = null;
 
     const addShip = (
       money: number,

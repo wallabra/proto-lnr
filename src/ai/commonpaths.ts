@@ -2,9 +2,7 @@ import { AIJump, AITickArgs } from "./defs";
 import { EngageStartArgs } from "./states/engage";
 import { FleeStartArgs } from "./states/flee";
 
-export function commonPaths(
-  args: AITickArgs,
-): AIJump | null {
+export function commonPaths(args: AITickArgs): AIJump | null {
   const { ship, play, soonPos, stateName } = args;
 
   if (ship.lastInstigator != null) {

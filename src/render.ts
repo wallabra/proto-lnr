@@ -1094,7 +1094,7 @@ class HudCounters {
 
     this.addRow("---");
     this.addRow("Velocity", (label, player) => {
-      label.label = `${player.possessed.vel.length().toFixed(2)} m/s`;
+      label.label = `${(player.possessed.vel.length() / 10).toFixed(2)} m/s`;
     });
     this.addRow("Thrust & Weight", (label, player) => {
       const thrust = player.makeup.maxEngineThrust();
