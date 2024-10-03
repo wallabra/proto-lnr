@@ -1,10 +1,10 @@
 import Victor from "victor";
-import { Ship } from "./objects/ship";
-import { PlayMouseHandler } from "./mouse";
-import { Game } from "./game";
-import IntermissionState from "./superstates/shop";
+import type { Ship } from "./objects/ship";
+import type { PlayMouseHandler } from "./mouse";
+import type { Game } from "./game";
+import { IntermissionState } from "./superstates/shop";
 import { PlayState } from "./superstates/play";
-import { ShipMakeup } from "./objects/shipmakeup";
+import type { ShipMakeup } from "./objects/shipmakeup";
 import { lerp } from "./util";
 
 export type PlayerAction = (deltaTime: number) => void;
