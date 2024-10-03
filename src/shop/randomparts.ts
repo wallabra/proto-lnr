@@ -17,9 +17,9 @@ import { pickByRarity } from "./rarity";
 export function instantiatePart(def: AnyPartDef, type: string) {
   const part = match<string, ShipPart>(
     type,
-    match.val("cannon", new Cannon((def as PartDef<CannonArgs>))),
-    match.val("engine", new Engine((def as PartDef<EngineArgs>))),
-    match.val("vacuum", new Vacuum((def as PartDef<VacuumArgs>))),
+    match.val("cannon", new Cannon(def as PartDef<CannonArgs>)),
+    match.val("engine", new Engine(def as PartDef<EngineArgs>)),
+    match.val("vacuum", new Vacuum(def as PartDef<VacuumArgs>)),
     match._(() => {
       throw new Error("Can't handle unknown part type: " + type);
     }),

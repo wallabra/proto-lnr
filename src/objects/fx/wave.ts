@@ -44,7 +44,7 @@ export class Wave implements Renderable, Tickable, Physicable {
     const { ctx, toScreen } = info;
     if (!this.phys.isVisible(info)) return;
     const drawPos = toScreen(this.phys.pos);
-    const color = `rgba(200, 200, 255, ${Math.exp(-this.phys.age) / 65})`;
+    const color = `rgba(200, 200, 255, ${(Math.exp(-this.phys.age) / 65).toString()})`;
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     ctx.lineWidth = this.phys.size / 2;

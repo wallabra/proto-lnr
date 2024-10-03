@@ -55,7 +55,7 @@ export class Smoke implements Renderable, Tickable, Physicable {
     const { ctx, toScreen } = info;
     if (!this.phys.isVisible(info)) return;
     const drawPos = toScreen(this.phys.pos);
-    const color = `rgba(${this.color.join(", ")}, ${Math.exp(-this.phys.age) * this.opacity})`;
+    const color = `rgba(${this.color.join(", ")}, ${(Math.exp(-this.phys.age) * this.opacity).toString()})`;
     ctx.fillStyle = color;
     ctx.lineWidth = 3;
     ctx.beginPath();

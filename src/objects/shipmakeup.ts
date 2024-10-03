@@ -21,17 +21,18 @@ import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
+import { isPickup } from "./pickup";
 import type { Pickup } from "./pickup";
 import type { PlayState } from "../superstates/play";
 import randomParts from "../shop/randomparts";
 
 export interface ShipPartArgs {
   type: string;
-  name?: string;
+  name: string;
   cost?: number;
   damage?: number;
   manned?: boolean | number;
-  maxDamage?: number;
+  maxDamage: number;
   vulnerability?: number;
   repairCostScale?: number;
   dropChance?: number;
@@ -45,7 +46,7 @@ export function slots(make: ShipMake): Record<string, number> {
 
 export class ShipPart implements ShipItem {
   type: string;
-  name: string | null;
+  name: string;
   cost: number;
   damage: number;
   manned: boolean | number;
@@ -61,14 +62,14 @@ export class ShipPart implements ShipItem {
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
-    this.cost = args.cost || 0;
-    this.name = args.name || null;
-    this.damage = args.damage || 0;
+    this.cost = args.cost ?? 0;
+    this.name = args.name;
+    this.damage = args.damage ?? 0;
     this.maxDamage = args.maxDamage;
-    this.manned = args.manned || false;
+    this.manned = args.manned ?? false;
     this.weight = args.weight;
-    this.vulnerability = args.vulnerability;
-    this.repairCostScale = args.repairCostScale || 1.4;
+    this.vulnerability = args.vulnerability ?? 0.01;
+    this.repairCostScale = args.repairCostScale ?? 1.4;
     this.dropChance = args.dropChance ?? 0.4;
     this.shopChance = args.shopChance ?? 0.5;
     this.dying = false;
@@ -114,7 +115,7 @@ export class ShipPart implements ShipItem {
           "Needs to be manned" +
             (typeof this.manned !== "number"
               ? ""
-              : ` (min. crew strength ${this.manned})`),
+              : ` (min. crew strength ${this.manned.toString()})`),
         ]
       : [];
   }
@@ -195,7 +196,7 @@ export class Crew implements ShipItem {
     const which =
       makeup.crew.filter((c) => c.name === this.name).indexOf(this) + 1;
 
-    return this.name + (which === 1 ? "" : " " + which);
+    return this.name + (which === 1 ? "" : " " + which.toString());
   }
 
   maxSalaryWithhold(): number {
@@ -244,9 +245,9 @@ export class Crew implements ShipItem {
   shopInfo(makeup?: ShipMakeup): string[] {
     return [
       (makeup == null ? "daily salary: " : "next day's salary: ") +
-        this.nextSalary(),
-      "daily food intake: " + this.caloricIntake,
-      "manning strength: " + this.strength,
+        this.nextSalary().toString(),
+      "daily food intake: " + this.caloricIntake.toString(),
+      "manning strength: " + this.strength.toString(),
       ...(makeup == null
         ? []
         : [
@@ -272,7 +273,7 @@ export class Crew implements ShipItem {
   }
 
   strikeReason(): string {
-    const reasons = [];
+    const reasons: string[] = [];
     if (this.isHungry()) reasons.push("hunger");
     if (this.isUnderpaid()) reasons.push("wage withholding");
     return reasons.join(" and ");
@@ -324,7 +325,7 @@ export class Crew implements ShipItem {
   }
 
   tick(_deltaTime: number): void {
-    if (this.manningPart.dying) {
+    if (this.manningPart != null && this.manningPart.dying) {
       this.manningPart = null;
     }
   }
@@ -334,13 +335,15 @@ export class Crew implements ShipItem {
 
     const applicable = CREWDEFS.filter(
       (c) =>
-        (args.minStrength == null || c.strength >= args.minStrength) &&
-        (args.maxStrength == null || c.strength <= args.maxStrength),
+        (args.minStrength == null || (c.strength ?? 10) >= args.minStrength) &&
+        (args.maxStrength == null || (c.strength ?? 10) <= args.maxStrength),
     );
 
     if (applicable.length === 0) return null;
 
-    return new Crew(random.choice(applicable));
+    const crew = random.choice(applicable);
+    if (crew == null) return null;
+    return new Crew(crew);
   }
 }
 
@@ -357,13 +360,13 @@ export class CannonballAmmo implements ShipItem {
   weight: number;
   shopChance = 0.4;
 
-  constructor(caliber, amount = 15) {
+  constructor(caliber: number, amount = 15) {
     this.caliber = caliber;
     this.amount = amount;
     this.type = "ammo";
     this.weight = this.sphericalVolume() * CANNONBALL_DENSITY;
     this.cost = this.estimateCost();
-    this.name = `${this.caliber}cm cannonball ammo`;
+    this.name = `${(this.caliber * 10).toFixed(0)}mm cannonball ammo`;
     this.dying = false;
     this.integerAmounts = true;
   }
@@ -381,7 +384,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   getItemLabel() {
-    return `${Math.round(this.caliber * 10)}mm cannonball${this.amount > 1 ? "s" : ""}`;
+    return `${(this.caliber * 10).toFixed(0)}mm cannonball${this.amount > 1 ? "s" : ""}`;
   }
 
   specialImpact(_cannonball: Cannonball, _victimShip: Ship) {}
@@ -408,10 +411,10 @@ export class Cannon extends ShipPart {
 
   shopInfo(): string[] {
     return [
-      "caliber: " + Math.round(this.caliber * 10) + "mm",
-      "max SPM:" + 60 / this.shootRate,
-      "max range: " + this.range,
-      "spread (°): " + Math.ceil((this.spread * 360) / Math.PI),
+      "caliber: " + (this.caliber * 10).toFixed(0) + "mm",
+      "max SPM:" + (60 / this.shootRate).toFixed(2),
+      "max range: " + (this.range / 10).toFixed(1) + "m",
+      "spread (°): " + ((this.spread * 360) / Math.PI).toFixed(1),
     ];
   }
 
@@ -501,7 +504,7 @@ export class Cannon extends ShipPart {
 }
 
 export interface VacuumArgs
-  extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
+  extends Optional<ShipPartArgsSuper, "vulnerability"> {
   suckRadius: number;
   suckStrength: number;
 }
@@ -511,24 +514,28 @@ export class Vacuum extends ShipPart implements VacuumArgs {
   suckStrength: number;
 
   constructor(args: VacuumArgs) {
-    super({ type: "vacuum", ...args });
+    super({
+      type: "vacuum",
+      ...args,
+      vulnerability: args.vulnerability || 0.008,
+    });
     this.suckRadius = args.suckRadius;
     this.suckStrength = args.suckStrength;
   }
 
   shopInfo(): string[] {
     return [
-      "suck radius: " + this.suckRadius,
-      "suck strength: " + this.suckStrength,
+      "item attract range: " + (this.suckRadius / 10).toFixed(0) + "m",
+      "item attract strength: " + (this.suckStrength / 10).toFixed(2),
     ];
   }
 
-  findCrates(ship: Ship): Pickup<unknown & ShipItem>[] {
-    const res = [];
+  findCrates(ship: Ship): Pickup<ShipItem>[] {
+    const res: Pickup<ShipItem>[] = [];
 
     for (const item of (ship.game.state as PlayState).tickables) {
-      if ((item as Pickup<unknown & ShipItem>).bob == null) continue;
-      const crate = item as Pickup<unknown & ShipItem>;
+      if (!isPickup(item)) continue;
+      const crate = item as Pickup<ShipItem>;
 
       const dist = crate.phys.pos.distance(ship.pos);
       if (dist > ship.size * ship.lateralCrossSection + this.suckRadius)
@@ -544,7 +551,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     return new Vacuum(DEFAULT_VACUUM);
   }
 
-  suckCrate(deltaTime: number, ship: Ship, crate: Pickup<unknown & ShipItem>) {
+  suckCrate(deltaTime: number, ship: Ship, crate: Pickup<ShipItem>) {
     crate.phys.applyForce(
       deltaTime,
       ship.pos
@@ -576,12 +583,14 @@ export interface EngineArgs
   extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
   fuel?: {
     type: string;
-    cost: number;
+    cost?: number;
   };
   thrust: number;
 }
 
-export const FUEL_PROPS = {
+export const FUEL_PROPS: {
+  [fuelType: string]: { cost: number; weight: number } | undefined;
+} = {
   coal: {
     cost: 3,
     weight: 8,
@@ -598,7 +607,7 @@ export const SMOKE_COLORS: Record<string, number[]> = {
 };
 
 export class Engine extends ShipPart {
-  fuelType: string;
+  fuelType: string | null;
   fuelCost: number;
   thrust: number;
 
@@ -620,8 +629,8 @@ export class Engine extends ShipPart {
   shopInfo(): string[] {
     return [
       this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
-      "fuel cost /min: " + Math.round(this.fuelCost * 600) / 10,
-      "thrust: " + Math.round(this.thrust / 10) / 100 + "kN",
+      "fuel cost: " + (this.fuelCost * 60).toFixed(2) + "/min",
+      "thrust: " + (this.thrust / 10000).toFixed(2) + "kN",
     ];
   }
 
@@ -740,14 +749,14 @@ const shipNameSuffixes = [
 ];
 
 function generateShipName() {
-  const parts: string[] = [];
+  const parts: (string | undefined)[] = [];
 
   if (Math.random() < 0.5) parts.push(random.choice(shipNameAdjectives));
   if (Math.random() < 0.4) parts.push(random.choice(shipNameTitles));
   parts.push(random.choice(shipNameCores));
   if (Math.random() < 0.25) parts.push(random.choice(shipNameSuffixes));
 
-  return parts.join(" ");
+  return parts.map((part) => part != null).join(" ");
 }
 
 export interface ShipMakeupArgs {
@@ -767,11 +776,11 @@ export class ShipMakeup {
   subtractFood(hunger: number): number {
     if (hunger <= 0) return 0;
     for (const food of this.inventory.getItemsOf("food")) {
-      if (food.amount > hunger) {
-        food.amount -= hunger;
+      if ((food.amount ?? 1) > hunger) {
+        food.amount = (food.amount ?? 1) - hunger;
         return 0;
       }
-      hunger -= food.amount;
+      hunger -= food.amount ?? 1;
       food.amount = 0;
       food.dying = true;
     }
@@ -786,24 +795,24 @@ export class ShipMakeup {
     );
   }
 
-  get ammo() {
-    return this.inventory.getItemsOf("ammo");
+  get ammo(): CannonballAmmo[] {
+    return this.inventory.getItemsOf("ammo") as CannonballAmmo[];
   }
 
-  get fuel() {
-    return this.inventory.getItemsOf("fuel");
+  get fuel(): FuelItem[] {
+    return this.inventory.getItemsOf("fuel") as FuelItem[];
   }
 
-  get food() {
-    return this.inventory.getItemsOf("food");
+  get food(): FoodItem[] {
+    return this.inventory.getItemsOf("food") as FoodItem[];
   }
 
-  get crew() {
-    return this.inventory.getItemsOf("crew");
+  get crew(): Crew[] {
+    return this.inventory.getItemsOf("crew") as Crew[];
   }
 
   assignCrewTo(part: ShipPart): Crew | null {
-    const crew = this.crew;
+    const crew = this.crew as Crew[];
     if (crew.length === 0) return null;
 
     const res =
@@ -836,11 +845,20 @@ export class ShipMakeup {
         const engine = part as Engine;
         if (engine.fuelType == null) return null;
         const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * factor;
+
+        const props = FUEL_PROPS[engine.fuelType];
+        if (props === undefined) {
+          console.warn(
+            `Fuel properties not found for fuel type '${engine.fuelType}'`,
+          );
+          return null;
+        }
+
         return new FuelItem({
           name: engine.fuelType,
-          cost: FUEL_PROPS[engine.fuelType].cost,
+          cost: props.cost,
           amount: fuelAmount,
-          weight: FUEL_PROPS[engine.fuelType].weight,
+          weight: props.weight,
         });
       }),
       match.val("vacuum", () => {
@@ -861,13 +879,15 @@ export class ShipMakeup {
   addDefaultFood(crew: Crew) {
     let nutrition = crew.caloricIntake * 2;
     while (nutrition > 0) {
-      const food = new FoodItem(random.choice(FOODDEFS));
+      const def = random.choice(FOODDEFS);
+      if (def == null) break;
+      const food = new FoodItem(def);
       nutrition -= food.amount;
       this.inventory.addItem(food);
     }
   }
 
-  addDefaultCrew(part: ShipPart) {
+  addDefaultCrew(part: ShipPart): boolean {
     if (!part.manned) return false;
     let neededStrength = typeof part.manned === "number" ? part.manned : 1;
     while (neededStrength > 0) {
@@ -884,12 +904,13 @@ export class ShipMakeup {
     return true;
   }
 
-  addDefaultDependencies(part, factor = 1) {
+  addDefaultDependencies(part: ShipPart, factor = 1): this {
     this.addDefaultFuel(part, factor);
     this.addDefaultCrew(part);
+    return this;
   }
 
-  defaultLoadout() {
+  defaultLoadout(): this {
     const engines = [Engine.default(), Engine.default()];
     const cannons = [Cannon.default(), Cannon.default()];
     const vacuums = [Vacuum.default()];
@@ -910,7 +931,7 @@ export class ShipMakeup {
     return this;
   }
 
-  giveRandomParts(bonus = 0) {
+  giveRandomParts(bonus = 0): this {
     const parts = randomParts(
       Math.max(2.5, 3.5 + random.exponential(1.5)() * (10 + bonus)) *
         random.uniform(0.5, 1)() *
@@ -922,38 +943,39 @@ export class ShipMakeup {
       this.inventory.addItem(part);
       this.addDefaultDependencies(part);
     }
+    return this;
   }
 
-  numSlotsOf(type) {
+  numSlotsOf(type: string): number {
     return this.make.slots
       .map((s) => +(s.type === type))
       .reduce((a, b) => a + b, 0);
   }
 
-  numPartsOf(type) {
+  numPartsOf(type: string): number {
     return this.parts.map((p) => p.type === type).reduce((a, b) => +b + a, 0);
   }
 
-  getPartsOf(type) {
+  getPartsOf(type: string): ShipPart[] {
     return this.parts.filter((p) => p.type === type);
   }
 
-  slotsRemaining(type) {
+  slotsRemaining(type: string): number {
     return this.numSlotsOf(type) - this.numPartsOf(type);
   }
 
-  addPart(part: ShipPart) {
+  addPart(part: ShipPart): boolean {
     if (this.parts.indexOf(part) !== -1) {
-      return null;
+      return false;
     }
     if (this.slotsRemaining(part.type) <= 0) {
-      return null;
+      return false;
     }
     this.parts.push(part);
-    return part;
+    return true;
   }
 
-  removePart(part: ShipPart) {
+  removePart(part: ShipPart): boolean {
     part.onRemove();
     const idx = this.parts.indexOf(part);
     if (idx === -1) return false;
@@ -983,18 +1005,18 @@ export class ShipMakeup {
     this.parts = this.parts.filter((p) => !p.dying);
   }
 
-  spendFuel(fuelType: string, amount: number) {
+  spendFuel(fuelType: string, amount: number): boolean {
     for (const fuel of this.fuel) {
       if (fuel.name !== fuelType) {
         continue;
       }
 
-      if (fuel.amount >= amount) {
-        fuel.amount -= amount;
+      if ((fuel.amount ?? 1) >= amount) {
+        fuel.amount = (fuel.amount ?? 1) - amount;
         break;
       }
 
-      amount -= fuel.amount;
+      amount -= fuel.amount ?? 1;
       fuel.amount = 0;
     }
 
@@ -1007,11 +1029,11 @@ export class ShipMakeup {
     let amount = 1;
 
     for (const ammo of this.ammo) {
-      if (ammo.caliber !== caliber) {
+      if ((ammo as CannonballAmmo).caliber !== caliber) {
         continue;
       }
 
-      ammo.amount--;
+      (ammo as CannonballAmmo).amount--;
       amount = 0;
     }
 
@@ -1050,17 +1072,19 @@ export class ShipMakeup {
   totalFuel(fuelType: string) {
     return this.fuel
       .filter((f: FuelItem) => f.name === fuelType)
-      .reduce((a, b) => a + b.amount, 0);
+      .reduce((a, b) => a + (b.amount ?? 1), 0);
   }
 
   totalAmmo(caliber: number) {
     return this.ammo
       .filter((a: CannonballAmmo) => a.caliber === caliber)
-      .reduce((a, b) => a + b.amount, 0);
+      .reduce((a, b) => a + (b.amount ?? 1), 0);
   }
 
   totalSalary() {
-    return this.crew.map((c) => c.nextSalary()).reduce((a, b) => a + b, 0);
+    return this.crew
+      .map((c) => (c as Crew).nextSalary())
+      .reduce((a, b) => a + b, 0);
   }
 
   partsValue() {
@@ -1179,7 +1203,9 @@ export class ShipMakeup {
   }
 
   tick(deltaTime: number, owner: Ship) {
-    this.parts.forEach((p) => { p.tick(deltaTime, owner); });
+    this.parts.forEach((p) => {
+      p.tick(deltaTime, owner);
+    });
   }
 
   endLevelUpdate(player: Player) {

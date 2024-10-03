@@ -15,7 +15,7 @@ interface LRUItem2D<T> {
 
 class LRUMap2D<T> {
   private cache: LRUItem2D<T>[];
-  private index: Record<number, Record<number, number>>;
+  private index: Map<number, Map<number, number>>;
   private order: number[];
   private maxLen: number | null;
 
@@ -26,24 +26,35 @@ class LRUMap2D<T> {
 
   public clear() {
     this.cache = [];
-    this.index = {};
+    this.index = new Map();
     this.order = [];
   }
 
   private _delete(idx: number) {
     const item = this.cache[idx];
-    delete this.index[item.x][item.y];
+    const sub = this.index.get(item.x);
+    if (sub) sub.delete(item.y);
     this.cache.splice(idx, 1);
   }
 
   private _setItem(item: LRUItem2D<T>, idx: number) {
-    (this.index[item.x] ??= {})[item.y] = idx;
+    const sub = this.index.get(item.x);
+    if (sub) {
+      sub.set(item.y, idx);
+    } else {
+      this.index.set(item.x, new Map([[item.y, idx]]));
+    }
     this.order.push(idx);
   }
 
   private setItem(item: LRUItem2D<T>) {
     if (this.maxLen != null && this.cache.length > this.maxLen) {
       const idx = this.order.shift();
+      if (idx === undefined) {
+        throw new Error(
+          "Empty order array when item has to be set in terrain LRU",
+        );
+      }
       this._delete(idx);
     }
     const newIdx = this.cache.push(item) - 1;
@@ -60,16 +71,16 @@ class LRUMap2D<T> {
   }
 
   public get(x: number, y: number): T | null {
-    const row = this.index[x];
+    const row = this.index.get(x);
     if (row == null) return null;
-    const idx = row[y];
+    const idx = row.get(y);
     if (idx == null) return null;
 
     const orderIdx = this.order.indexOf(idx);
     if (orderIdx > 0)
       this.order[0] = this.order.splice(orderIdx, 1, this.order[0])[0];
 
-    return row[y] != null ? this.cache[row[y]].item : null;
+    return this.cache[idx].item;
   }
 
   public size() {
@@ -81,7 +92,7 @@ export class TerraSector {
   heights: number[];
 
   constructor() {
-    this.heights = new Array(SECTOR_AREA).fill(0);
+    this.heights = new Array(SECTOR_AREA).fill(0) as number[];
   }
 }
 

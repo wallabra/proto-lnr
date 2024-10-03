@@ -93,8 +93,12 @@ export class PlayMouseHandler extends MouseHandler {
   onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(
       e.name,
-      match.val("mousedown", () => { this.onMouseDown(e); }),
-      match.val("mouseup", () => { this.onMouseUp(e); }),
+      match.val("mousedown", () => {
+        this.onMouseDown(e);
+      }),
+      match.val("mouseup", () => {
+        this.onMouseUp(e);
+      }),
       match._(() => {}),
     );
   }
@@ -148,10 +152,18 @@ export class GUIMouseHandler extends MouseHandler {
   onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(
       e.name,
-      match.val("mousedown", () => { this.onMouseDown(e); }),
-      match.val("mouseup", () => { this.onMouseUp(e); }),
-      match.val("mousemove", () => { this.tryHandleDrag(e); }),
-      match.val("click", () => { this.onClick(e); }),
+      match.val("mousedown", () => {
+        this.onMouseDown(e);
+      }),
+      match.val("mouseup", () => {
+        this.onMouseUp(e);
+      }),
+      match.val("mousemove", () => {
+        this.tryHandleDrag(e);
+      }),
+      match.val("click", () => {
+        this.onClick(e);
+      }),
       match._(() => {}),
     );
   }
