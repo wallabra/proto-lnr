@@ -19,6 +19,7 @@ import random from "random";
 import { ShipMakeup } from "../objects/shipmakeup";
 import { SoundEngine } from "../sfx";
 import { Decor } from "../objects/props/decor";
+import { Nullish } from "utility-types";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -252,9 +253,7 @@ export class PlayState extends Superstate {
     return ships;
   }
 
-  removeObj<T extends Tickable | Renderable | { phys: PhysicsObject }>(
-    toRemove: T,
-  ) {
+  removeObj(toRemove: Tickable | Renderable | { phys: PhysicsObject }) {
     const it = this.tickables.indexOf(toRemove as Tickable);
     const ir = this.renderables.indexOf(toRemove as Renderable);
 
@@ -266,7 +265,7 @@ export class PlayState extends Superstate {
       this.renderables.splice(it, 1);
     }
 
-    if ((toRemove as { phys: PhysicsObject }).phys != null) {
+    if ((toRemove as { phys: PhysicsObject | Nullish }).phys != null) {
       this.physics.removePhysObj((toRemove as { phys: PhysicsObject }).phys);
     }
   }

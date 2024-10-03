@@ -1,7 +1,8 @@
-import { Ship } from "../objects/ship";
-import { PlayState } from "../superstates/play";
+import type { Subtract } from "utility-types";
+import type { Ship } from "../objects/ship";
+import type { PlayState } from "../superstates/play";
 import { DEFAULT_AI_STATES } from "./default";
-import { UnknownAIHandler, AIStartArgs, AIJump } from "./defs";
+import type { UnknownAIHandler, AIStartArgs, AIJump } from "./defs";
 
 function mapStates(
   states: (new () => UnknownAIHandler)[],
@@ -31,19 +32,19 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   constructor(
     ai: AIController,
     mapper: AIStates,
-    args?: Exclude<S, AIStartArgs>,
+    args?: Subtract<S, AIStartArgs>,
   ) {
     this.ai = ai;
     this.default = mapper.start;
     this.mapper = mapStates(mapper.states);
     this.nextChange = null;
     this.stateName = null;
-    this.jumpToState(this.default, args ?? ({} as Exclude<S, AIStartArgs>));
+    this.jumpToState(this.default, args ?? ({} as Subtract<S, AIStartArgs>));
   }
 
   private startState<S extends AIStartArgs>(
     from: string | null,
-    args: Exclude<S, AIStartArgs>,
+    args: Subtract<S, AIStartArgs>,
   ) {
     if (this.state.start != null)
       this.state.start({
@@ -93,7 +94,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 
   jumpToState<A extends AIStartArgs>(
     next: string,
-    args?: Exclude<A, AIStartArgs>,
+    args?: Subtract<A, AIStartArgs>,
   ) {
     const from = this.stateName;
 
@@ -113,7 +114,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 
     this.stateName = next;
     this.state = newState;
-    this.startState<A>(from, args ?? ({} as Exclude<A, AIStartArgs>)); // only valid if A *is* AIStartArgs, but whatever
+    this.startState<A>(from, args ?? ({} as Subtract<A, AIStartArgs>)); // only valid if A *is* AIStartArgs, but whatever
     this.stateName = next;
     this.pendingChange = null;
   }

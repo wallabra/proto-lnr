@@ -13,7 +13,7 @@ import {
 import { GUIMouseHandler, GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
-import { Nullish } from "../../node_modules/utility-types/dist/aliases-and-guards";
+import type { Nullish } from "utility-types";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;

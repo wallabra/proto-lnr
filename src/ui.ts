@@ -1,12 +1,11 @@
 // UI utilities for the canv
 // do nothing;
 
-import { Optional } from "utility-types";
-import { Game } from "./game";
-import { GameMouseInfo } from "./mouse";
+import type { Omit, Optional, Nullish } from "utility-types";
+import type { Game } from "./game";
+import type { GameMouseInfo } from "./mouse";
 import { lerp } from "./util";
 import Victor from "victor";
-import { Nullish } from "../node_modules/utility-types/dist/aliases-and-guards";
 
 export interface UIEvent {
   name: string;
@@ -1528,7 +1527,7 @@ export class CanvasTabRow extends CanvasUIGroup {
 
   addTab(
     tab: { label: string; content: Widget } & Partial<
-      Exclude<CanvasTabArgs, "label" | "parent" | "content">
+      Omit<CanvasTabArgs, "label" | "parent" | "content">
     >,
   ) {
     const opts: CanvasTabArgs = {
@@ -1582,7 +1581,7 @@ export class CanvasTabPanel extends CanvasPanel {
 
   addTab(
     tab: { label: string; content: Widget } & Partial<
-      Exclude<CanvasTabArgs, "label" | "parent" | "content">
+      Omit<CanvasTabArgs, "label" | "parent" | "content">
     >,
   ) {
     this.tabs.addTab(tab);
