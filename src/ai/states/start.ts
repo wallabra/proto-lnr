@@ -30,7 +30,7 @@ export class StartState implements AIHandler<AIStartArgs> {
     ship.steer(deltaTime * 0.03, Math.random() * Math.PI * 2);
   }
 
-  aiTick(args: AITickArgs): AIJump<AIStartArgs> | Nullish {
+  aiTick(args: AITickArgs): AIJump | Nullish {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);

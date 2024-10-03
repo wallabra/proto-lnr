@@ -696,6 +696,10 @@ export class Ship implements Tickable, Renderable {
     return this.phys.pos;
   }
 
+  public set pos(pos: Victor) {
+    this.phys.pos = pos;
+  }
+
   public get size() {
     return this.makeup.make.size;
   }

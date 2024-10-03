@@ -796,23 +796,23 @@ export class ShipMakeup {
   }
 
   get ammo(): CannonballAmmo[] {
-    return this.inventory.getItemsOf("ammo") as CannonballAmmo[];
+    return this.inventory.getItemsOf("ammo");
   }
 
   get fuel(): FuelItem[] {
-    return this.inventory.getItemsOf("fuel") as FuelItem[];
+    return this.inventory.getItemsOf("fuel");
   }
 
   get food(): FoodItem[] {
-    return this.inventory.getItemsOf("food") as FoodItem[];
+    return this.inventory.getItemsOf("food");
   }
 
   get crew(): Crew[] {
-    return this.inventory.getItemsOf("crew") as Crew[];
+    return this.inventory.getItemsOf("crew");
   }
 
   assignCrewTo(part: ShipPart): Crew | null {
-    const crew = this.crew as Crew[];
+    const crew = this.crew;
     if (crew.length === 0) return null;
 
     const res =
@@ -1029,11 +1029,11 @@ export class ShipMakeup {
     let amount = 1;
 
     for (const ammo of this.ammo) {
-      if ((ammo as CannonballAmmo).caliber !== caliber) {
+      if ((ammo).caliber !== caliber) {
         continue;
       }
 
-      (ammo as CannonballAmmo).amount--;
+      (ammo).amount--;
       amount = 0;
     }
 
@@ -1083,7 +1083,7 @@ export class ShipMakeup {
 
   totalSalary() {
     return this.crew
-      .map((c) => (c as Crew).nextSalary())
+      .map((c) => (c).nextSalary())
       .reduce((a, b) => a + b, 0);
   }
 

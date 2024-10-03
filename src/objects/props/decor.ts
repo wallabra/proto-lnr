@@ -22,13 +22,11 @@ const SPRITES: { [filename: string]: { src: string; angleRandom: boolean } } = {
 const SPRITE_CACHE = new Map<string, HTMLImageElement>();
 
 function randomDecor(): string {
-  return rwc(
-    [
-      {item: "grass.png", weight: 1},
-      {item: "rock.png", weight: 1 / 8},
-      {item: "flag.png", weight: 1 / 30},
-    ]
-  );
+  return rwc([
+    { item: "grass.png", weight: 1 },
+    { item: "rock.png", weight: 1 / 8 },
+    { item: "flag.png", weight: 1 / 30 },
+  ]);
 }
 
 export class Decor implements Renderable, Tickable {

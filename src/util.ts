@@ -41,8 +41,8 @@ export function weightString(weight: number) {
 }
 
 export interface WeightedItem<T> {
-  item: T,
-  weight: number
+  item: T;
+  weight: number;
 }
 
 export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
@@ -53,7 +53,9 @@ export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
   // (0 = original weights, 1 = full random)
   const totalWeight = weights.reduce((a, b) => a + b, 0);
   const averageWeight = totalWeight / weights.length;
-  const thermalWeights = weights.map((weight) => lerp(weight,averageWeight, temperature));
+  const thermalWeights = weights.map((weight) =>
+    lerp(weight, averageWeight, temperature),
+  );
 
   let selection = random.uniform(0, totalWeight)();
 
@@ -63,7 +65,7 @@ export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
     if (weight == null) {
       throw new Error("weight and candidate array length mismatch");
     }
-    
+
     if (selection < weight) {
       return item;
     }
