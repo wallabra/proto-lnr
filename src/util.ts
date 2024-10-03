@@ -1,3 +1,5 @@
+import random from "random";
+
 export const umod = (a: number, b: number): number => ((a % b) + b) % b;
 
 export const angDiff = (from: number, to: number): number =>
@@ -36,4 +38,38 @@ export function weightString(weight: number) {
   if (weight > 1000) return `${(weight / 1000).toFixed(1)}t`;
 
   return `${weight.toFixed(1)}kg`;
+}
+
+export interface WeightedItem<T> {
+  item: T,
+  weight: number
+}
+
+export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
+  const candidates = items.map((item) => item.item);
+  const weights = items.map((item) => item.weight);
+
+  // Interpolate weights toward mean depending on temperature
+  // (0 = original weights, 1 = full random)
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  const averageWeight = totalWeight / weights.length;
+  const thermalWeights = weights.map((weight) => lerp(weight,averageWeight, temperature));
+
+  let selection = random.uniform(0, totalWeight)();
+
+  for (const item of candidates) {
+    const weight = thermalWeights.shift();
+
+    if (weight == null) {
+      throw new Error("weight and candidate array length mismatch");
+    }
+    
+    if (selection < weight) {
+      return item;
+    }
+
+    selection -= weight;
+  }
+
+  throw new Error("random weighted choice error");
 }

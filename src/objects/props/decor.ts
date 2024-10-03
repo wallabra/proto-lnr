@@ -1,7 +1,7 @@
 import { ObjectRenderInfo, Renderable } from "../../render";
 import { PlayState, Tickable } from "../../superstates/play";
 import { PhysicsObject, PhysicsParams } from "../physics";
-import rwc from "random-weighted-choice";
+import rwc from "../../util";
 import Victor from "victor";
 
 export interface DecorArgs extends Partial<PhysicsParams> {
@@ -24,11 +24,11 @@ const SPRITE_CACHE = new Map<string, HTMLImageElement>();
 function randomDecor(): string {
   return rwc(
     [
-      ["grass.png", 1],
-      ["rock.png", 1 / 8],
-      ["flag.png", 1 / 30],
-    ].map(([id, weight]) => ({ id, weight })),
-  ) as string;
+      {item: "grass.png", weight: 1},
+      {item: "rock.png", weight: 1 / 8},
+      {item: "flag.png", weight: 1 / 30},
+    ]
+  );
 }
 
 export class Decor implements Renderable, Tickable {

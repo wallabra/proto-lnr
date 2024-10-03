@@ -1,4 +1,4 @@
-import rwc from "random-weighted-choice";
+import { rwc } from "../util";
 
 export interface Rarity {
   rarity: number | "always";
@@ -20,7 +20,7 @@ export function pickByRarity<T extends Rarity>(
   return newDefs[
     rwc(
       newDefs.map((d, i) => {
-        return { id: i, weight: max / d.rarity };
+        return { item: i, weight: max / d.rarity };
       }),
       temperature,
     )

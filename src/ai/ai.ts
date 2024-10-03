@@ -100,7 +100,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
 
     if (!this.mapper.has(next)) {
       throw new Error(
-        `AI state ${this.stateName != null ? this.stateName : "(null)"} tried to jump to unknown state ${next}`,
+        `AI state ${this.stateName ?? "(null)"} tried to jump to unknown state ${next}`,
       );
       return;
     }

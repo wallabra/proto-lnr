@@ -31,7 +31,6 @@
     "array-counter": "^1.0.0",
     "howler": "^2.2.4",
     "random": "^5.1.1",
-    "random-weighted-choice": "^0.1.4",
     "rustmatchjs": "^0.0.4",
     "utility-types": "^3.11.0",
     "victor": "^1.1.0"
