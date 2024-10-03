@@ -1,7 +1,7 @@
 import { ObjectRenderInfo, Renderable } from "../../render";
 import { PlayState, Tickable } from "../../superstates/play";
 import { PhysicsObject, PhysicsParams } from "../physics";
-import rwc from "../../util";
+import { rwc } from "../../util";
 import Victor from "victor";
 
 export interface DecorArgs extends Partial<PhysicsParams> {
