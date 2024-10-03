@@ -96,11 +96,10 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     args?: Exclude<A, AIStartArgs>,
   ) {
     const from = this.stateName;
-    this.stateName = next;
 
     if (!this.mapper.has(next)) {
       throw new Error(
-        `AI state ${this.stateName.toString()} tried to jump to unknown state ${next}`,
+        `AI state ${this.stateName != null ? this.stateName : '(null)'} tried to jump to unknown state ${next}`,
       );
       return;
     }
@@ -109,9 +108,10 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
     if (newState == null || newState === this.state) return;
 
     this.nextChange = Date.now() + 500;
-    if (this.state.free != null) this.state.free();
+    if (this.stateName != null && this.state.free != null) this.state.free();
     //console.log(from, "->", next, "::", this.ai);
 
+    this.stateName = next;
     this.state = newState;
     this.startState<A>(from, args ?? ({} as Exclude<A, AIStartArgs>)); // only valid if A *is* AIStartArgs, but whatever
     this.stateName = next;
