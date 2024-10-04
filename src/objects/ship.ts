@@ -672,7 +672,7 @@ export class Ship implements Tickable, Renderable {
       const res = new Victor(
         1 - alpha,
         alpha * this.lateralCrossSection,
-      ).rotateBy(this.angle);
+      ).rotate(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
     }.bind(this) as () => Victor;
   }
