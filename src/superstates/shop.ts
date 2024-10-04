@@ -1,21 +1,25 @@
-import { Game } from "../game";
-import { FoodItem, FuelItem, ShipItem, computeResellCost } from "../inventory";
+import type { Game } from "../game";
+import {
+  FoodItem,
+  FuelItem,
+  FuelItemArgs,
+  ShipItem,
+  computeResellCost,
+} from "../inventory";
 import { GUIKeyHandler } from "../keyinput";
-import { GameMouseInfo, GUIMouseHandler } from "../mouse";
+import type { GameMouseInfo } from "../mouse";
+import { GUIMouseHandler } from "../mouse";
 import arrayCounter from "array-counter";
 import {
-  Cannon,
-  CannonballAmmo,
-  Crew,
-  Engine,
   FUEL_PROPS,
-  PartSlot,
-  ShipMake,
-  ShipMakeup,
-  ShipPart,
   slots,
+  CannonballAmmo,
+  ShipPart,
+  ShipMakeup,
+  Crew,
 } from "../objects/shipmakeup";
-import { FleetMember, Player } from "../player";
+import type { Cannon, Engine, PartSlot, ShipMake } from "../objects/shipmakeup";
+import type { FleetMember, Player } from "../player";
 import {
   CanvasButton,
   CanvasLabel,
@@ -35,12 +39,12 @@ import {
   CanvasTabPanel,
 } from "../ui";
 import { moneyString, weightString } from "../util";
-import Superstate from "./base";
+import { Superstate } from "./base";
 import { PARTDEFS } from "../shop/partdefs";
 import { instantiatePart } from "../shop/randomparts";
 import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
-import { Class, Optional } from "utility-types";
+import type { Class, Optional } from "utility-types";
 import { MAKEDEFS } from "../shop/makedefs";
 
 interface PaneArgs {
@@ -59,7 +63,11 @@ function weightInfo(item: ShipItem) {
   return "weight: " + weightString(weight);
 }
 
-function itemLabel(item: ShipItem, makeup: ShipMakeup | null, priceFactor = 1) {
+function itemLabel(
+  item: ShipItem,
+  makeup: ShipMakeup | null,
+  priceFactor: number | null = 1,
+) {
   return (
     (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(2) + " " : "") +
     ((makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ??
@@ -76,7 +84,7 @@ function manningRequirements(part: ShipPart) {
   if (typeof part.manned !== "number") {
     return ["Needs to be manned"];
   } else {
-    return [`Needs min. ${part.manned} total manning strength`];
+    return [`Needs min. ${part.manned.toFixed(0)} total manning strength`];
   }
 }
 
@@ -88,25 +96,35 @@ abstract class Pane<
   pane: P;
   protected state: IntermissionState;
   protected game: Game;
-  protected player: Player;
-  protected makeup: ShipMakeup;
+  private _makeup: ShipMakeup | null;
   destroyed = false;
 
   constructor(args: A & PA) {
     Object.assign(this, args);
-    this.game = this.game ?? this.state.game;
-    this.player = this.player ?? this.game.player;
-    this.makeup = this.makeup ?? this.player.makeup;
+    this.game = args.game ?? this.state.game;
+    this._makeup = args.makeup ?? null;
     this.buildPane(args);
     this.state.panes.push(this);
     if (this.update) this.update();
+  }
+
+  public get player(): Player {
+    if (this.game.player == null)
+      throw new Error(
+        "Intermission screen cannot function when there is no Player set in Game",
+      );
+    return this.game.player;
+  }
+
+  public get makeup(): ShipMakeup {
+    return this._makeup ?? this.player.makeup;
   }
 
   protected abstract buildPane(args: PaneArgs & PA): void;
   public abstract update?(): void;
 
   public destroy() {
-    if (this.pane != null) {
+    if (!this.destroyed) {
       this.pane.remove();
     }
     this.destroyed = true;
@@ -193,7 +211,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
       this.repairButton = new CanvasButton({
         ...this.buttonArgs,
         parent: this.buttonList,
-        callback: this.tryRepair.bind(this),
+        callback: this.tryRepair.bind(this) as typeof this.tryRepair,
         bgColor: "#2020f0c0",
       });
       this.repairButton.label("Repair", this.labelArgs);
@@ -204,7 +222,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     new CanvasButton({
       ...this.buttonArgs,
       parent: this.buttonList,
-      callback: this.tryUninstall.bind(this),
+      callback: this.tryUninstall.bind(this) as typeof this.tryUninstall,
       bgColor: "#f02020c0",
     }).label("Uninstall", this.labelArgs);
   }
@@ -215,7 +233,9 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
         this.assignCrewButton = new CanvasButton({
           ...this.buttonArgs,
           parent: this.buttonList,
-          callback: this.crewButtonAction.bind(this),
+          callback: this.crewButtonAction.bind(
+            this,
+          ) as typeof this.crewButtonAction,
           bgColor: "#2040f0c0",
         });
         this.assignCrewLabel = this.assignCrewButton.label("", this.labelArgs);
@@ -230,7 +250,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
   }
 
   private updateCrewButtonLabel() {
-    if (this.assignCrewButton == null) return;
+    if (this.assignCrewButton == null || this.assignCrewLabel == null) return;
     this.assignCrewLabel.label = this.part.alreadyManned()
       ? "Unassign Crew"
       : "Assign Crew";
@@ -333,14 +353,12 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
   }
 
   public update() {
-    this.label.label = this.part.getInventoryLabel
-      ? this.part.getInventoryLabel(this.makeup)
-      : this.part.getItemLabel();
+    this.label.label = this.part.getInventoryLabel(this.makeup);
     this.damageMeter.setProgress(this.part.damage / this.part.maxDamage);
     this.damageLabel.label =
       this.part.damage <= 0
         ? "Not damaged"
-        : `${Math.round((100 * this.part.damage) / this.part.maxDamage)}% damaged (${moneyString(this.part.repairCost())})`;
+        : `${((100 * this.part.damage) / this.part.maxDamage).toFixed(0)}% damaged (${moneyString(this.part.repairCost())})`;
     if (this.details.isVisible()) {
       this.updateDetails();
     }
@@ -357,9 +375,9 @@ interface Damageable {
 
 function isDamageable(item: unknown): item is Damageable {
   return (
-    (item as Damageable).damage != null &&
-    (item as Damageable).maxDamage != null &&
-    (item as Damageable).repairCost != null
+    (item as Partial<Damageable>).damage != null &&
+    (item as Partial<Damageable>).maxDamage != null &&
+    (item as Partial<Damageable>).repairCost != null
   );
 }
 
@@ -442,7 +460,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
           color: "#fff",
           childOrdering: "vertical",
           childMargin: 2,
-          label: `${Math.round(100 * this.damageFactor())}% damaged (${moneyString(this.item.repairCost())} to repair)`,
+          label: `${(100 * this.damageFactor()).toFixed(0)}% damaged (${moneyString(this.item.repairCost())} to repair)`,
         });
     }
 
@@ -472,7 +490,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !this.letResellHalf(),
-      callback: this.resellHalf.bind(this),
+      callback: this.resellHalf.bind(this) as typeof this.resellHalf,
     });
     this.resellHalfLabel = this.resellHalfButton.label("-", labelArgs);
 
@@ -498,7 +516,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !this.canMove(),
-      callback: this.openMoveDropdown.bind(this, false),
+      callback: this.openMoveDropdown.bind(this, false) as () => void,
     });
     this.moveButton.label("Move to Ship...", labelArgs);
 
@@ -511,7 +529,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !(this.canMove() && this.letResellHalf()),
-      callback: this.openMoveDropdown.bind(this, true),
+      callback: this.openMoveDropdown.bind(this, true) as () => void,
     });
     this.moveHalfButton.label("Move Half to Ship...", labelArgs);
 
@@ -524,7 +542,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !this.canCaptain(),
-      callback: this.setCaptain.bind(this),
+      callback: this.setCaptain.bind(this) as typeof this.setCaptain,
     });
     this.setCaptainButton.label("Appoint to Captainship", labelArgs);
 
@@ -537,7 +555,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         childFill: 1,
         fillX: true,
         height: 12,
-        callback: this.installPart.bind(this),
+        callback: this.installPart.bind(this) as typeof this.installPart,
       }).label("Install Part", labelArgs);
     }
   }
@@ -595,7 +613,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         childOrdering: "vertical",
         childMargin: 2,
         bgColor: "#aac3",
-        callback: this.moveCallback.bind(this, member, half),
+        callback: this.moveCallback.bind(this, member, half) as () => void,
       });
       moveButton.label("to " + member.makeup.name, {
         color: "#fff",
@@ -613,14 +631,18 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
           (tab.content.pane as CanvasPanel & { makeup: ShipMakeup }).makeup ===
           targMakeup,
       )
-      .activate();
+      ?.activate();
+
+    const amount = this.item.amount ?? 1;
 
     if (half) {
-      let moveAmount = this.item.amount / 2;
+      let moveAmount = amount / 2;
       if (this.item.integerAmounts) moveAmount = Math.floor(moveAmount);
-      this.item.amount -= moveAmount;
+      this.item.amount = amount - moveAmount;
       const newItem = Object.assign(
-        Object.create(Object.getPrototypeOf(this.item)),
+        Object.create(
+          Object.getPrototypeOf(this.item) as new () => ShipItem,
+        ) as ShipItem,
         this.item,
       );
       newItem.amount = moveAmount;
@@ -699,19 +721,21 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
   }
 
   private resellHalf() {
+    const amount = this.item.amount ?? 1;
     if (this.item.integerAmounts) {
-      const half = Math.floor(this.item.amount / 2);
-      this.item.amount -= half;
+      const half = Math.floor(amount / 2);
+      this.item.amount = amount - half;
       this.player.money += this.item.cost * half * this.resellFactor;
     } else {
       this.player.money += this.resellCost(0.5);
-      this.item.amount /= 2;
+      this.item.amount = amount / 2;
     }
 
     this.update();
   }
 
   private resell() {
+    // makeup is guaranteed to be non-null if player is non-null
     this.makeup.inventory.removeItem(this.item);
     this.player.money += this.resellCost();
     this.destroy();
@@ -737,21 +761,22 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
   }
 
   private updateResellAction() {
-    this.resellButton.callback = (
-      this.item.type === "crew" ? this.fireCrew : this.resell
-    ).bind(this);
+    this.resellButton.callback = () => {
+      if (this.item.type === "crew") {
+        this.fireCrew();
+      } else {
+        this.resell();
+      }
+    };
     this.resellHalfButton.hidden = !this.letResellHalf();
   }
 
   public update() {
-    if (
-      this.item == null ||
-      this.makeup.inventory.items.indexOf(this.item) === -1
-    ) {
+    if (this.makeup.inventory.items.indexOf(this.item) === -1) {
       this.destroy();
       return;
     }
-    this.itemLabel.label = itemLabel(this.item, this.makeup, null);
+    this.itemLabel.label = itemLabel(this.item, this.makeup);
     this.resellLabel.label =
       this.item.type === "crew"
         ? "Fire"
@@ -781,20 +806,17 @@ function updateList<
   const remaining = items.slice();
 
   for (const widget of widgets) {
-    if (widget.pane == null) {
-      continue;
-    }
     const idx = index(remaining, widget);
     if (idx === -1 || (shouldSkip != null && shouldSkip(remaining[idx]))) {
       widget.destroy();
     } else {
-      if (widget.pane.isVisible()) widget.update();
+      if (widget.update != null && widget.pane.isVisible()) widget.update();
       remaining.splice(idx, 1);
     }
   }
 
   for (const item of remaining) {
-    if (!shouldSkip(item)) {
+    if (shouldSkip == null || !shouldSkip(item)) {
       add(item);
     }
   }
@@ -934,11 +956,9 @@ class ShopItemWidget extends Pane<
       childMargin: 2,
     });
 
-    const detailLines = [
+    const detailLines: string[] = [
       ...((this.item.shopInfo && this.item.shopInfo()) ?? []),
-      ...(this.item instanceof ShipPart
-        ? [manningRequirements(this.item)]
-        : []),
+      ...(this.item instanceof ShipPart ? manningRequirements(this.item) : []),
     ];
 
     for (const line of detailLines) {
@@ -954,14 +974,14 @@ class ShopItemWidget extends Pane<
       });
       const addedHeight = infoLabel.height + infoLabel.childMargin * 2;
       this.pane.height += addedHeight;
-      if (typeof this.pane.fillY === "number")
+      if (typeof this.pane.fillY === "number" && this.pane.parent != null)
         this.pane.fillY += addedHeight / this.pane.parent.innerHeight;
     }
 
     new CanvasButton({
       parent: this.pane,
       fillX: 1.0,
-      callback: this.buyItem.bind(this),
+      callback: this.buyItem.bind(this) as () => void,
       paddingY: 4,
       childOrdering: "vertical",
       childMargin: 3,
@@ -1091,9 +1111,11 @@ class StatRow {
 
   constructor(args: StatRowArgs) {
     Object.assign(this, args);
+    if (this.state.player == null)
+      throw new Error("Non-null state.player required in StatRow");
     this.player = this.state.player;
     this.name = args.name;
-    this.stat = args.stat.bind(this);
+    this.stat = args.stat.bind(this) as (this: StatRow) => string;
 
     this.pane = new CanvasPanel({
       parent: args.parent,
@@ -1276,7 +1298,7 @@ class ShipMakeWidget extends Pane<
       fillX: true,
       bgColor: "#0082",
       height: 22,
-      callback: this.trySwitch.bind(this),
+      callback: this.trySwitch.bind(this) as () => void,
     }).label(this.constructSwitchLabel(), {
       color: "#fee",
       height: 14,
@@ -1291,7 +1313,7 @@ class ShipMakeWidget extends Pane<
       fillX: true,
       bgColor: "#0082",
       height: 22,
-      callback: this.tryBuy.bind(this),
+      callback: this.tryBuy.bind(this) as () => void,
     }).label(this.constructBuyLabel(), {
       color: "#fee",
       height: 14,
@@ -1367,7 +1389,7 @@ class ShipMakeWidget extends Pane<
     const cost = this.getCost();
     const makeup = new ShipMakeup({ make: this.make });
     this.player.money -= cost;
-    this.player.fleet.push({ makeup: makeup, ship: null });
+    this.player.fleet.push({ makeup: makeup });
     this.destroy();
   }
 
@@ -1385,9 +1407,9 @@ class ShipMakeWidget extends Pane<
 
   private populateDetail(): void {
     const info = [
-      "HP: " + this.make.maxDamage,
-      `Size: ${this.make.size * this.make.lateralCrossSection}x${this.make.size}`,
-      "Drag: " + this.make.drag,
+      "Max HP: " + this.make.maxDamage.toFixed(1),
+      `Size: ${((this.make.size * this.make.lateralCrossSection) / 10).toFixed(2)}m x ${(this.make.size / 10).toFixed(2)}m`,
+      "Drag: " + this.make.drag.toFixed(2),
     ];
 
     const info2 = ["Slots:", ...this.make.slots.map((s) => this.slotInfo(s))];
@@ -1578,7 +1600,7 @@ class PaneDrydockShip extends Pane<
       childMargin: 3,
       childFill: 1,
       hidden: !this.canDisbandShip(),
-      callback: this.disbandShip.bind(this, false),
+      callback: this.disbandShip.bind(this, false) as () => void,
     });
     this.disbandShipHullLabel = this.disbandShipHullButton.label(
       "Disband Ship & Sell Hull",
@@ -1594,7 +1616,7 @@ class PaneDrydockShip extends Pane<
       childMargin: 3,
       childFill: 1,
       hidden: !this.canDisbandShip(),
-      callback: this.disbandShip.bind(this, true),
+      callback: this.disbandShip.bind(this, true) as () => void,
     });
     this.disbandShipLabel = this.disbandShipButton.label(
       "Disband Ship & Sell All",
@@ -1618,7 +1640,7 @@ class PaneDrydockShip extends Pane<
       parent: shipManager,
       fillX: 0.5,
       height: 40,
-      callback: this.doRepairHull.bind(this),
+      callback: this.doRepairHull.bind(this) as () => void,
       dockX: "center",
       childMargin: 0,
       childOrdering: "vertical",
@@ -1784,7 +1806,7 @@ class PaneDrydockShip extends Pane<
 
     if (this.player.makeup === this.makeup) {
       this.player.makeup = this.player.fleet[0].makeup;
-      this.player.possessed = this.player.fleet[0].ship;
+      this.player.fleet[0].makeup.unassignCaptain();
     }
 
     if (!sellAll) {
@@ -1803,8 +1825,13 @@ class PaneDrydockShip extends Pane<
     const nextTab = this.drydockTabPanel.tabs.children.find(
       (otherTab) => otherTab !== tab,
     );
+    if (tab == null || nextTab == null) {
+      throw new Error(
+        "Couldn't find necessary tabs for ship disband UI updates",
+      );
+    }
     nextTab.activate();
-    nextTab.content.update();
+    if (nextTab.content.update != null) nextTab.content.update();
     tab.remove();
     this.destroy();
   }
@@ -1813,10 +1840,12 @@ class PaneDrydockShip extends Pane<
     const makeSlots = slots(this.makeup.make);
     const partTypes = arrayCounter(this.makeup.parts.map((p) => p.type));
 
-    const labelParts = [];
+    const labelParts: string[] = [];
 
     for (const name in makeSlots) {
-      labelParts.push(`${name} (${partTypes[name] || 0}/${makeSlots[name]})`);
+      labelParts.push(
+        `${name} (${partTypes[name].toString() || "0"}/${makeSlots[name].toString()})`,
+      );
     }
 
     this.slotsLabel.label = "Slots: " + labelParts.join(", ");
@@ -1903,7 +1932,7 @@ class PaneCartography extends Pane {
       dockMarginY: 50,
       fillX: 0.5,
       height: 100,
-      callback: this.doNextLevel.bind(this),
+      callback: this.doNextLevel.bind(this) as () => void,
     });
     nextLevelButton.label("Invade Next Island", {
       color: "#ccd",
@@ -1982,8 +2011,6 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
 
   private updateTabColors() {
     for (const tab of this.tabPanel.tabs.children) {
-      if (tab.content.pane == null) continue;
-
       const member = (tab.content.pane as PaneDrydockShip["pane"]).member;
 
       tab.colors = {
@@ -2057,7 +2084,8 @@ export class IntermissionState extends Superstate {
         },
       },
     });
-    this.game.player.makeup.inventory.consolidateInventory();
+    if (this.game.player != null)
+      this.game.player.makeup.inventory.consolidateInventory();
     this.buildUI();
   }
 
@@ -2066,10 +2094,9 @@ export class IntermissionState extends Superstate {
     A extends PaneArgs = PaneArgs,
     P extends CanvasUIElement = CanvasPanel,
     PA extends CanvasUIArgs = CanvasPanelArgs,
-    PT extends Class<PO> = Class<PO>,
   >(
     paneName: string,
-    paneType: PT,
+    paneType: Class<PO>,
     args: Optional<A & PA, "state" | "parent">,
   ): PO {
     args = {
@@ -2105,67 +2132,69 @@ export class IntermissionState extends Superstate {
     ];
   }
 
-  private generateShopItems() {
-    return [
-      ...PARTDEFS.engine
-        .map((d) =>
-          Array(d.shopRepeat)
+  private generateShopItems(): ShipItem[] {
+    return (
+      [
+        ...PARTDEFS.engine
+          .map((d) =>
+            Array(d.shopRepeat)
+              .fill(0)
+              .map(() => instantiatePart(d, "engine")),
+          )
+          .reduce((a, b) => a.concat(b), []),
+        ...PARTDEFS.cannon
+          .map((d) =>
+            Array(d.shopRepeat)
+              .fill(0)
+              .map(() => instantiatePart(d, "cannon")),
+          )
+          .reduce((a, b) => a.concat(b), []),
+        ...PARTDEFS.vacuum
+          .map((d) =>
+            Array(d.shopRepeat)
+              .fill(0)
+              .map(() => instantiatePart(d, "vacuum")),
+          )
+          .reduce((a, b) => a.concat(b), []),
+        ...this.fuelItems()
+          .map((p) => {
+            const item = {
+              name: p.type,
+              ...FUEL_PROPS[p.type],
+              amount: p.amount,
+            } as FuelItemArgs;
+            return Array(p.repeat)
+              .fill(0)
+              .map(() => Object.assign({}, item));
+          })
+          .reduce((a, b) => a.concat(b), [])
+          .map((def) => new FuelItem(def)),
+        new CannonballAmmo(4, 15),
+        new CannonballAmmo(4, 15),
+        new CannonballAmmo(4, 15),
+        new CannonballAmmo(4, 30),
+        new CannonballAmmo(4, 30),
+        new CannonballAmmo(4, 40),
+        new CannonballAmmo(5.5, 15),
+        new CannonballAmmo(5.5, 15),
+        new CannonballAmmo(5.5, 15),
+        new CannonballAmmo(5.5, 15),
+        new CannonballAmmo(5.5, 30),
+        new CannonballAmmo(5.5, 30),
+        new CannonballAmmo(6.2, 5),
+        new CannonballAmmo(6.2, 5),
+        new CannonballAmmo(6.2, 15),
+        new CannonballAmmo(6.2, 15),
+        new CannonballAmmo(7.5, 10),
+        new CannonballAmmo(7.5, 10),
+        ...FOODDEFS.map((f) =>
+          Array(f.shopRepeat)
             .fill(0)
-            .map(() => instantiatePart(d, "engine")),
-        )
-        .reduce((a, b) => a.concat(b), []),
-      ...PARTDEFS.cannon
-        .map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "cannon")),
-        )
-        .reduce((a, b) => a.concat(b), []),
-      ...PARTDEFS.vacuum
-        .map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "vacuum")),
-        )
-        .reduce((a, b) => a.concat(b), []),
-      ...this.fuelItems()
-        .map((p) => {
-          const item = {
-            name: p.type,
-            ...FUEL_PROPS[p.type],
-            amount: p.amount,
-          };
-          return Array(p.repeat)
-            .fill(0)
-            .map(() => Object.assign({}, item));
-        })
-        .reduce((a, b) => a.concat(b), [])
-        .map((def) => new FuelItem(def)),
-      new CannonballAmmo(4, 15),
-      new CannonballAmmo(4, 15),
-      new CannonballAmmo(4, 15),
-      new CannonballAmmo(4, 30),
-      new CannonballAmmo(4, 30),
-      new CannonballAmmo(4, 40),
-      new CannonballAmmo(5.5, 15),
-      new CannonballAmmo(5.5, 15),
-      new CannonballAmmo(5.5, 15),
-      new CannonballAmmo(5.5, 15),
-      new CannonballAmmo(5.5, 30),
-      new CannonballAmmo(5.5, 30),
-      new CannonballAmmo(6.2, 5),
-      new CannonballAmmo(6.2, 5),
-      new CannonballAmmo(6.2, 15),
-      new CannonballAmmo(6.2, 15),
-      new CannonballAmmo(7.5, 10),
-      new CannonballAmmo(7.5, 10),
-      ...FOODDEFS.map((f) =>
-        Array(f.shopRepeat)
-          .fill(0)
-          .map(() => new FoodItem(f)),
-      ).reduce((a, b) => a.concat(b), []),
-      ...CREWDEFS.map((c) => new Crew(c)),
-    ].filter((i) => i.shopChance == null || Math.random() < i.shopChance);
+            .map(() => new FoodItem(f)),
+        ).reduce((a, b) => a.concat(b), []),
+        ...CREWDEFS.map((c) => new Crew(c)),
+      ] as ShipItem[]
+    ).filter((i) => i.shopChance == null || Math.random() < i.shopChance);
   }
 
   private statsRows(): StatRowOptions[] {
@@ -2185,11 +2214,11 @@ export class IntermissionState extends Superstate {
               `You need +${moneyString(totalSalary - this.player.money)} to meet salaries tomorrow, at ${moneyString(totalSalary)}/day. ` +
               (hasUnhappy
                 ? ""
-                : `Or else, some crew may refuse to work in ${soonestRevolt} days.`)
+                : `Or else, some crew may refuse to work in ${soonestRevolt.toString()} days.`)
             );
           } else {
             const salaryDays = Math.floor(this.player.money / totalSalary);
-            return `You have enough money to pay ${salaryDays} day${salaryDays === 1 ? "" : "s"} worth of salary for your crew, at ${moneyString(totalSalary)}/day.`;
+            return `You have enough money to pay ${salaryDays.toString()} day${salaryDays === 1 ? "" : "s"} worth of salary for your crew, at ${moneyString(totalSalary)}/day.`;
           }
         },
       },
@@ -2213,7 +2242,7 @@ export class IntermissionState extends Superstate {
             );
           } else {
             message.push(
-              `You have enough for ${Math.floor(totalAvailable / totalConsumption)} days, not counting food spoilage.`,
+              `You have enough for ${Math.floor(totalAvailable / totalConsumption).toString()} days, not counting food spoilage.`,
             );
           }
 
@@ -2251,22 +2280,28 @@ export class IntermissionState extends Superstate {
         name: "Fuel",
         stat: function (this: StatRow) {
           const engines = this.makeup.getPartsOf("engine") as Engine[];
-          const fueled = engines.filter((e) => this.makeup.hasFuel(e.fuelType));
-          const consumption = fueled.reduce(
-            (accum, engine) => ({
-              ...accum,
-              [engine.fuelType]:
-                (accum[engine.fuelType] || 0) + engine.fuelCost,
-            }),
-            {},
+          const fueled = engines.filter(
+            (engine) =>
+              engine.fuelType == null || this.makeup.hasFuel(engine.fuelType),
           );
+          const consumption = fueled
+            .filter((engine) => engine.fuelType != null)
+            .reduce(
+              (accum, engine: Engine & { fuelType: string }) => ({
+                ...accum,
+                [engine.fuelType]:
+                  (accum[engine.fuelType] || 0) + engine.fuelCost,
+              }),
+              {},
+            );
           const quickest = Object.keys(consumption)
             .map((fuelType) => ({
               type: fuelType,
               duration: this.makeup.totalFuel(fuelType) / consumption[fuelType],
             }))
             .reduce(
-              (a, b) => (a == null || a.duration > b.duration ? b : a),
+              (a: { type: string; duration: number } | null, b) =>
+                a == null || a.duration > b.duration ? b : a,
               null,
             );
           return (

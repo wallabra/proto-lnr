@@ -10,7 +10,7 @@ export interface InventoryItem {
   amount?: number;
   weight: number;
   dropChance?: number;
-  shopChance?: number;
+  shopChance?: number | null;
   onRemove?(): void;
   shopInfo?(makeup?: ShipMakeup): string[];
   postBuy?(player: Player): void;

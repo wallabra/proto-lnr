@@ -13,7 +13,7 @@ export interface UIEvent {
   y: number;
   // do nothing;
   consumed: boolean;
-  inside?: CanvasUIElement;
+  inside?: CanvasUIElement | null;
 }
 
 export type UIMouseEvent = UIEvent & GameMouseInfo & MouseEvent;

@@ -3,8 +3,8 @@ import type { Pickup } from "../../objects/pickup";
 import type { Ship } from "../../objects/ship";
 import type { SeekCrateStartArgs } from "./seekcrate";
 import { commonPaths } from "../commonpaths";
-import type { Nullish } from "utility-types";
 import type { ShipItem } from "../../inventory";
+import type { Nullish } from "utility-types";
 
 export class StartState implements AIHandler<AIStartArgs> {
   name = "start";

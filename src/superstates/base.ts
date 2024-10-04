@@ -1,6 +1,6 @@
 import { Game } from "../game";
 
-export default abstract class Superstate {
+export abstract class Superstate {
   game: Game;
 
   constructor(game: Game) {

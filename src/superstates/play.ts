@@ -1,25 +1,24 @@
-import { Cannonball, CannonballParams } from "../objects/cannonball";
-import { Ship, ShipParams } from "../objects/ship";
-import {
-  PhysicsSimulation,
-  PhysicsParams,
-  PhysicsObject,
-} from "../objects/physics";
-import { Terrain, TerraDef } from "../terrain";
-import Superstate from "./base";
-
+import { Cannonball } from "../objects/cannonball";
+import type { CannonballParams } from "../objects/cannonball";
+import { Ship } from "../objects/ship";
+import type { ShipParams } from "../objects/ship";
+import { PhysicsSimulation } from "../objects/physics";
+import type { PhysicsParams, PhysicsObject } from "../objects/physics";
+import { Terrain } from "../terrain";
+import type { TerraDef } from "../terrain";
+import { Superstate } from "./base";
 import Victor from "victor";
 import { AIController } from "../ai/ai";
-
-import { GameRenderer, Renderable } from "../render";
-import { Game } from "../game";
+import { GameRenderer } from "../render";
+import type { Renderable } from "../render";
+import type { Game } from "../game";
 import { PlayMouseHandler } from "../mouse";
 import { PlayKeyHandler } from "../keyinput";
 import random from "random";
-import { ShipMakeup } from "../objects/shipmakeup";
+import type { ShipMakeup } from "../objects/shipmakeup";
 import { SoundEngine } from "../sfx";
 import { Decor } from "../objects/props/decor";
-import { Nullish } from "utility-types";
+import type { Nullish } from "utility-types";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;

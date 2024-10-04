@@ -1,6 +1,6 @@
 import type { Subtract } from "utility-types";
 import type { Ship } from "../objects/ship";
-import type { PlayState } from "../superstates/play";
+import type { PlayState, Tickable } from "../superstates/play";
 import { DEFAULT_AI_STATES } from "./default";
 import type { UnknownAIHandler, AIStartArgs, AIJump } from "./defs";
 
@@ -120,7 +120,8 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   }
 }
 
-export class AIController {
+export class AIController implements Tickable {
+  type = "ai";
   game: PlayState;
   possessed: Ship;
   dying = false;

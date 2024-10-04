@@ -1,4 +1,4 @@
-import Superstate from "./base";
+import { Superstate } from "./base";
 import {
   CanvasButton,
   CanvasButtonArgs,
@@ -10,10 +10,10 @@ import {
   UIDrawContext,
   UIEvent,
 } from "../ui";
-import { GUIMouseHandler, GameMouseInfo } from "../mouse";
+import { GUIMouseHandler } from "../mouse";
+import type { GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
-import type { Nullish } from "utility-types";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;
@@ -39,7 +39,7 @@ export class MainMenuState extends Superstate {
 
   private buildState(
     stateName: string,
-    stateBuilder: (holder: CanvasUIGroup) => CanvasUIElement | Nullish,
+    stateBuilder: (holder: CanvasUIGroup) => CanvasUIElement | null,
   ) {
     const holder = new CanvasUIGroup({
       parent: null,
@@ -126,6 +126,8 @@ export class MainMenuState extends Superstate {
         },
       });
       newGameButton.label("New Game", { ...buttonLabelArgs });
+
+      return null;
     });
 
     this.buildState("new game", (holder: CanvasUIGroup) => {
@@ -183,6 +185,8 @@ export class MainMenuState extends Superstate {
         maxHeight: 16,
         color: "#aaa",
       });
+
+      return null;
     });
   }
 
@@ -216,6 +220,7 @@ export class MainMenuState extends Superstate {
     patternCanvas.width = 200;
     patternCanvas.height = 100;
     const pctx = patternCanvas.getContext("2d");
+    if (pctx == null) return;
     pctx.fillStyle = "#AA11C860";
     pctx.beginPath();
     pctx.arc(
@@ -264,6 +269,7 @@ export class MainMenuState extends Superstate {
     pctx.fill();
 
     const patternFill = dctx.createPattern(patternCanvas, "repeat");
+    if (patternFill == null) return;
     dctx.save();
     dctx.fillStyle = patternFill;
     dctx.fillRect(0, 0, this.game.width, this.game.height);
