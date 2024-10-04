@@ -102,7 +102,7 @@ export class SoundEngine {
     this.update();
   }
 
-  play(from: SoundObject, name: string, volume = 1.0) {
+  public play(from: SoundObject, name: string, volume = 1.0) {
     const asrc = loadAudio(name);
     const source = new SoundSource(from, asrc, volume);
     this.sources.push(source);
