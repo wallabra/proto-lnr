@@ -17,24 +17,34 @@ import { GAME_VERSION } from "../info";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: Record<string, CanvasUIElement> = {};
+  states: Map<string, CanvasUIElement> = new Map();
   stateStack: string[] = [];
 
-  private switchState(stateName: string) {
+  private setState(stateName: string) {
+    // Does NOT update the stack, do not use this in user code
+    const state = this.states.get(stateName);
+    if (state == null) return;
+    
     this.ui.clearChildren();
-    this.ui.addChild(this.states[stateName]);
+    this.ui.addChild(state);
+  }
+
+  private switchState(stateName: string) {
+    // DOES update the stack :)
+    this.setState(stateName);
     this.stateStack.unshift(stateName);
   }
 
   private goBackState() {
+    if (this.stateStack.length < 2) return;
     this.stateStack.shift();
+    
     const target = this.stateStack[0];
-    this.ui.clearChildren();
-    this.ui.addChild(this.states[target]);
+    this.setState(target);
   }
 
   private addState(stateName: string, state: CanvasUIElement) {
-    this.states[stateName] = state;
+    this.states.set(stateName, state);
   }
 
   private buildState(
