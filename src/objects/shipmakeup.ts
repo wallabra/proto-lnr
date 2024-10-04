@@ -964,15 +964,15 @@ export class ShipMakeup {
     return this.numSlotsOf(type) - this.numPartsOf(type);
   }
 
-  addPart(part: ShipPart): boolean {
+  addPart(part: ShipPart): ShipPart | null {
     if (this.parts.indexOf(part) !== -1) {
-      return false;
+      return null;
     }
     if (this.slotsRemaining(part.type) <= 0) {
-      return false;
+      return null;
     }
     this.parts.push(part);
-    return true;
+    return part;
   }
 
   removePart(part: ShipPart): boolean {
