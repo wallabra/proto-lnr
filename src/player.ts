@@ -15,6 +15,11 @@ export interface FleetMember {
   ship?: Ship;
 }
 
+export type InputEvent =
+  | ({ type: "keyboard" } & KeyboardEvent)
+  | ({ type: "mouse" } & MouseEvent)
+  | ({ type: "ui" } & UIEvent);
+
 export class Player {
   possessed: Ship | null;
   inputState: string | null;
@@ -41,7 +46,7 @@ export class Player {
   public updateMoneyFromFleet() {
     this.money = this.fleet
       .filter((m) => m.ship != null)
-      .reduce((a, b) => a + b.ship!.money, 0);
+      .reduce((a, b) => a + (b.ship as Ship).money, 0);
   }
 
   public totalSalary() {
@@ -104,7 +109,7 @@ export class Player {
     return this.inShopRange() && !this.possessed.inDanger();
   }
 
-  inputEvent(name: string, _event: KeyboardEvent) {
+  inputEvent(name: string, _event: InputEvent) {
     if (this.possessed.dying) {
       return;
     }

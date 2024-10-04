@@ -1,6 +1,6 @@
-import Victor from "victor";
-import Superstate from "./superstates/base";
+import type { Superstate } from "./superstates/base";
 import { Player } from "./player";
+import type { InputEvent } from "./player";
 import { TerraDef, landfillGenerator } from "./terrain";
 import { PlayState } from "./superstates/play";
 import { MouseHandler } from "./mouse";
@@ -8,15 +8,17 @@ import { KeyHandler } from "./keyinput";
 import random from "random";
 import { MainMenuState } from "./superstates/start";
 
+const DEFAULT_GAMEMODE = "freeplay";
+
 export class Game {
   canvas: HTMLCanvasElement;
   drawCtx: CanvasRenderingContext2D;
   player: Player | null;
   state: Superstate;
   zoom: number;
-  mouse: MouseHandler;
-  keyboard: KeyHandler;
-  gamemode: string | null = null;
+  mouse: MouseHandler | null;
+  keyboard: KeyHandler | null;
+  gamemode: string = DEFAULT_GAMEMODE;
   paused = false;
 
   /** Difficulty level. Starts at zero.
@@ -44,8 +46,11 @@ export class Game {
     return npcs * (1 + this.difficulty);
   }
 
-  restart(gamemode: string, terradef: TerraDef = landfillGenerator()) {
-    this.gamemode = gamemode;    
+  restart(
+    gamemode: string = DEFAULT_GAMEMODE,
+    terradef: TerraDef = landfillGenerator(),
+  ) {
+    this.gamemode = gamemode;
     this.difficulty = 0;
     this.setPlayState(terradef);
     this.resetPlayer();
@@ -96,9 +101,9 @@ export class Game {
     return res;
   }
 
-  setState<T extends Superstate>(
-    stateType: new (game: Game, ...args) => T,
-    ...args
+  setState<T extends Superstate, A>(
+    stateType: new (game: Game, ...args: A[]) => T,
+    ...args: A[]
   ): T {
     const res = new stateType(this, ...args);
     this.state = res;
@@ -106,7 +111,7 @@ export class Game {
     return res;
   }
 
-  inputHandler(name: string, event) {
+  inputHandler(name: string, event: InputEvent) {
     if (name === "RESTART") {
       this.restart();
     }

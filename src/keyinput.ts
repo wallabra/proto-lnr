@@ -8,18 +8,16 @@ interface KeyRegister {
 }
 
 export abstract class KeyHandler {
-  registry: KeyRegister[];
+  registry: KeyRegister[] = [];
   game: Game;
-  heldKeys: Record<string, () => void>;
+  heldKeys: Map<string, () => void> = new Map();
 
   constructor(game: Game) {
     this.game = game;
-    this.registry = [];
-    this.heldKeys = {};
   }
 
   protected registerKey(key: string, callback: InputCallback) {
-    const listener = (event) => {
+    const listener = (event: KeyboardEvent) => {
       if (event.key == key) {
         callback(event);
       }
@@ -33,17 +31,17 @@ export abstract class KeyHandler {
   }
 
   protected registerHeldKey(key: string, callback: InputCallback) {
-    const listenerDown = ((event) => {
+    const listenerDown: InputCallback = (event: KeyboardEvent) => {
       if (event.key == key) {
-        this.heldKeys[key] = callback.bind(this, event);
+        this.heldKeys.set(key, callback.bind(this, event) as () => void);
       }
-    }).bind(this);
+    };
 
-    const listenerUp = ((event) => {
+    const listenerUp: InputCallback = (event: KeyboardEvent) => {
       if (event.key == key) {
-        delete this.heldKeys[key];
+        this.heldKeys.delete(key);
       }
-    }).bind(this);
+    };
 
     document.addEventListener("keydown", listenerDown, false);
     document.addEventListener("keyup", listenerUp, false);
@@ -59,7 +57,7 @@ export abstract class KeyHandler {
     );
   }
 
-  abstract register();
+  abstract register(): void;
 
   deregister() {
     for (const reg of this.registry) {
@@ -69,34 +67,49 @@ export abstract class KeyHandler {
   }
 
   tick() {
-    for (const key of Object.keys(this.heldKeys)) {
-      this.heldKeys[key]();
+    for (const checker of Array.from(this.heldKeys.values())) {
+      checker();
     }
   }
 }
 
 export class PlayKeyHandler extends KeyHandler {
   register() {
-    this.registerKey("r", this.game.inputHandler.bind(this.game, "RESTART"));
-    this.registerKey(" ", this.game.inputHandler.bind(this.game, "shoot"));
-    this.registerKey("l", this.game.inputHandler.bind(this.game, "shop"));
-    this.registerKey("h", this.game.inputHandler.bind(this.game, "hud"));
-    this.registerKey("p", this.game.inputHandler.bind(this.game, "pause"));
+    this.registerKey(
+      "r",
+      this.game.inputHandler.bind(this.game, "RESTART") as InputCallback,
+    );
+    this.registerKey(
+      " ",
+      this.game.inputHandler.bind(this.game, "shoot") as InputCallback,
+    );
+    this.registerKey(
+      "l",
+      this.game.inputHandler.bind(this.game, "shop") as InputCallback,
+    );
+    this.registerKey(
+      "h",
+      this.game.inputHandler.bind(this.game, "hud") as InputCallback,
+    );
+    this.registerKey(
+      "p",
+      this.game.inputHandler.bind(this.game, "pause") as InputCallback,
+    );
     this.registerHeldKey(
       "w",
-      this.game.inputHandler.bind(this.game, "thrustForward"),
+      this.game.inputHandler.bind(this.game, "thrustForward") as InputCallback,
     );
     this.registerHeldKey(
       "s",
-      this.game.inputHandler.bind(this.game, "thrustBackward"),
+      this.game.inputHandler.bind(this.game, "thrustBackward") as InputCallback,
     );
     this.registerHeldKey(
       "a",
-      this.game.inputHandler.bind(this.game, "steerLeft"),
+      this.game.inputHandler.bind(this.game, "steerLeft") as InputCallback,
     );
     this.registerHeldKey(
       "d",
-      this.game.inputHandler.bind(this.game, "steerRight"),
+      this.game.inputHandler.bind(this.game, "steerRight") as InputCallback,
     );
   }
 }

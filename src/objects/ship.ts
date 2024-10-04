@@ -13,16 +13,13 @@ import {
   SMOKE_COLORS,
 } from "./shipmakeup";
 import { ShipItem } from "../inventory";
-import { ItemPickup, ItemPickupParamType, DebugPickup } from "./pickup";
-import { DEFAULT_MAKE, MAKEDEFS } from "../shop/makedefs";
+import { ItemPickup, ItemPickupParamType } from "./pickup";
+import { MAKEDEFS } from "../shop/makedefs";
 import random from "random";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
 import { Nullish } from "utility-types";
-
-const DEBUG_DRAW = false;
-const DEBUG_COLL = false;
 
 const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
   coal: "engine_coal",
@@ -455,9 +452,8 @@ class ShipRenderContext {
     this.drawName();
     this.drawCrosshairs();
 
-    if (DEBUG_DRAW) {
-      this.drawDebug();
-    }
+    // DEBUG
+    //this.drawDebug();
   }
 }
 
@@ -625,15 +621,17 @@ export class Ship implements Tickable, Renderable {
     const makeupParams = {
       name: params.name ?? null,
       make:
-        (params.make &&
-          (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make)) ||
-        null,
+        params.make != null
+          ? params.make === "random"
+            ? pickByRarity(MAKEDEFS)
+            : params.make
+          : null,
     };
 
     this.setMakeup(
       params.makeup === "default"
         ? ShipMakeup.defaultMakeup(makeupParams)
-        : (params.makeup ?? new ShipMakeup(makeupParams)),
+        : new ShipMakeup(makeupParams),
     );
   }
 
@@ -1000,8 +998,8 @@ export class Ship implements Tickable, Renderable {
   spawnSmokeFor(engine: Engine, factor = 1.0) {
     if (engine.fuelType == null) return null;
 
-    const color: number[] | null = SMOKE_COLORS[engine.fuelType] ?? null;
-    if (color == null) return;
+    if (!(engine.fuelType in SMOKE_COLORS)) return;
+    const color: number[] = SMOKE_COLORS[engine.fuelType];
 
     const amount = Math.abs(factor * engine.thrust);
 
@@ -1186,7 +1184,8 @@ export class Ship implements Tickable, Renderable {
       force.clone().multiplyScalar(-ship.phys.restitution),
     );
 
-    if (DEBUG_COLL) this.play.spawn(DebugPickup, bumpAt, { height: 1.5 });
+    // DEBUG
+    //this.play.spawn(DebugPickup, bumpAt, { height: 1.5 });
 
     this.phys.applyForce(
       null,

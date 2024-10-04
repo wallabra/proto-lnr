@@ -11,9 +11,6 @@ importers:
       '@types/victor':
         specifier: ^1.1.5
         version: 1.1.5
-      array-counter:
-        specifier: ^1.0.0
-        version: 1.0.0
       howler:
         specifier: ^2.2.4
         version: 2.2.4
@@ -1002,9 +999,6 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
-
-  array-counter@1.0.0:
-    resolution: {integrity: sha512-mtHdaqNxtpCfZot3ArBvcVKKxjvksTqdCiB8ybbt8djlIbFJmXuPSaZY7B7som5PKSTmMhGJzYe18dMGkixL+A==}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -3674,8 +3668,6 @@ snapshots:
       sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
-
-  array-counter@1.0.0: {}
 
   babel-jest@29.7.0(@babel/core@7.25.2):
     dependencies:

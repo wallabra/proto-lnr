@@ -7,7 +7,7 @@ import {
 
 export type PartRarity = number | "always";
 
-export const OARS: PartDef<EngineArgs> = {
+export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
   name: "Oars",
   cost: 30,
   thrust: 24576.0,

@@ -4,10 +4,12 @@ import { IntermissionState } from "./superstates/shop";
 import match from "rustmatchjs";
 import { CanvasUIElement } from "./ui";
 
+type MouseCallbackFunc = (e: MouseEvent) => void;
+
 interface MouseCallback {
   name: string;
-  callback: (e: MouseEvent) => void;
-  original: (e: MouseEvent) => void;
+  callback: MouseCallbackFunc;
+  original: MouseCallbackFunc;
 }
 
 export interface GameMouseInfo {
@@ -23,10 +25,10 @@ export interface GameMouseDragInfo extends GameMouseInfo {
 }
 
 export abstract class MouseHandler {
-  game: Game;
-  pos: Victor;
-  delta: Victor;
-  registry: MouseCallback[];
+  protected game: Game;
+  public pos: Victor;
+  public delta: Victor;
+  private registry: MouseCallback[];
 
   constructor(game: Game) {
     this.game = game;
@@ -35,7 +37,7 @@ export abstract class MouseHandler {
     this.registry = [];
   }
 
-  onMouseUpdate(e: MouseEvent) {
+  public onMouseUpdate(e: MouseEvent) {
     this.delta = new Victor(
       (e.clientX - window.innerWidth / 2) / this.game.drawScale,
       (e.clientY - window.innerHeight / 2) / this.game.drawScale,
@@ -44,42 +46,70 @@ export abstract class MouseHandler {
     this.pos.y = (e.clientY - window.innerHeight / 2) / this.game.drawScale;
   }
 
-  abstract onMouseEvent(e: MouseEvent & GameMouseInfo);
+  public abstract onMouseEvent(e: MouseEvent & GameMouseInfo): void;
 
-  registerEvent(name, cb) {
-    cb = cb.bind(this);
+  private registerEvent(name: string, cb: MouseCallbackFunc) {
+    cb = cb.bind(this) as MouseCallbackFunc;
     const bound = (ev: MouseEvent) => {
       const mev = ev as MouseEvent & GameMouseInfo;
       mev.pos = this.pos;
       mev.delta = this.delta;
       mev.name = name;
-      mev.rmb =
-        "which" in ev
-          ? ev.which === 3
-          : "button" in (ev as MouseEvent)
-            ? (ev as MouseEvent).button === 2
-            : false;
+      mev.rmb = ev.button === 2;
       cb(mev);
     };
     document.addEventListener(name, bound, false);
     this.registry.push({ name: name, callback: bound, original: cb });
   }
 
-  register() {
-    this.registerEvent("mousemove", this.onMouseUpdate);
-    this.registerEvent("mousemove", this.onMouseEvent);
-    this.registerEvent("mouseup", this.onMouseEvent);
-    this.registerEvent("mousedown", this.onMouseEvent);
-    this.registerEvent("drag", this.onMouseEvent);
-    this.registerEvent("dragenter", this.onMouseEvent);
-    this.registerEvent("dragleave", this.onMouseEvent);
-    this.registerEvent("dragstart", this.onMouseEvent);
-    this.registerEvent("dragend", this.onMouseEvent);
-    this.registerEvent("dragover", this.onMouseEvent);
-    this.registerEvent("click", this.onMouseEvent);
+  public register() {
+    this.registerEvent(
+      "mousemove",
+      this.onMouseUpdate.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "mousemove",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "mouseup",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "mousedown",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "drag",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "dragenter",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "dragleave",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "dragstart",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "dragend",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "dragover",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
+    this.registerEvent(
+      "click",
+      this.onMouseEvent.bind(this) as MouseCallbackFunc,
+    );
   }
 
-  deregister() {
+  public deregister() {
     for (const reg of this.registry) {
       document.removeEventListener(reg.name, reg.callback, false);
     }
@@ -87,10 +117,10 @@ export abstract class MouseHandler {
 }
 
 export class PlayMouseHandler extends MouseHandler {
-  steering = false;
-  shooting = false;
+  public steering = false;
+  public shooting = false;
 
-  onMouseEvent(e: MouseEvent & GameMouseInfo) {
+  public override onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(
       e.name,
       match.val("mousedown", () => {
@@ -115,16 +145,16 @@ export class PlayMouseHandler extends MouseHandler {
 }
 
 export class GUIMouseHandler extends MouseHandler {
-  dragging: boolean;
-  dragStart?: Victor;
-  dragStartElement?: CanvasUIElement;
+  public dragging: boolean;
+  private dragStart: Victor | null = null;
+  private dragStartElement: CanvasUIElement | null = null;
 
   constructor(game: Game) {
     super(game);
     this.dragging = false;
   }
 
-  private onMouseDown(e) {
+  private onMouseDown(e: MouseEvent & GameMouseDragInfo) {
     this.dragging = true;
     this.dragStart = new Victor(e.x, e.y);
     const state = this.game.state as IntermissionState;
@@ -133,14 +163,19 @@ export class GUIMouseHandler extends MouseHandler {
     this.dragStartElement = e.inside;
   }
 
-  private onMouseUp(e) {
+  private onMouseUp(e: MouseEvent & GameMouseDragInfo) {
     if (this.dragging) {
+      if (this.dragStart == null) {
+        throw new Error("dragStart unset when dragging is true");
+      }
       const state = this.game.state as IntermissionState;
       e.dragStart = this.dragStart;
       e.name = "canvasdragend";
       state.mouseEvent(e);
     }
     this.dragging = false;
+    this.dragStart = null;
+    this.dragStartElement = null;
   }
 
   private tryHandleDrag(e: MouseEvent & GameMouseInfo) {
@@ -149,14 +184,14 @@ export class GUIMouseHandler extends MouseHandler {
     }
   }
 
-  onMouseEvent(e: MouseEvent & GameMouseInfo) {
+  public override onMouseEvent(e: MouseEvent & GameMouseInfo) {
     match(
       e.name,
       match.val("mousedown", () => {
-        this.onMouseDown(e);
+        this.onMouseDown(e as MouseEvent & GameMouseDragInfo);
       }),
       match.val("mouseup", () => {
-        this.onMouseUp(e);
+        this.onMouseUp(e as MouseEvent & GameMouseDragInfo);
       }),
       match.val("mousemove", () => {
         this.tryHandleDrag(e);
@@ -174,6 +209,8 @@ export class GUIMouseHandler extends MouseHandler {
   }
 
   private onMouseDrag(e: MouseEvent & GameMouseInfo) {
+    if (this.dragStart == null) return;
+
     const state = this.game.state as IntermissionState;
     e.name = "canvasdrag";
     (e as MouseEvent & GameMouseDragInfo).dragStart = this.dragStart;

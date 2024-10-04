@@ -44,7 +44,8 @@ export class ShipInventory {
         if (item.type !== otherItem.type) continue;
         if (item.canConsolidate == null) continue;
         if (!item.canConsolidate(otherItem)) continue;
-        item.amount += otherItem.amount;
+        if (item.amount == null) item.amount = 1;
+        item.amount += otherItem.amount ?? 1;
         otherItem.dying = true;
       }
       idx++;
@@ -194,7 +195,7 @@ export class FoodItem implements ShipItem {
   }
 
   shopInfo(): string[] {
-    return ["days until spoiled: " + Math.ceil(this.spoilDays)];
+    return ["days until spoiled: " + Math.ceil(this.spoilDays).toString()];
   }
 
   getItemLabel() {

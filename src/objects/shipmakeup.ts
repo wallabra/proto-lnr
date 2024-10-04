@@ -16,7 +16,7 @@ import {
   DEFAULT_VACUUM,
   OARS,
 } from "../shop/partdefs";
-import arrayCounter from "array-counter";
+import { arrayCounter } from "../util";
 import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
@@ -25,6 +25,11 @@ import { isPickup } from "./pickup";
 import type { Pickup } from "./pickup";
 import type { PlayState } from "../superstates/play";
 import randomParts from "../shop/randomparts";
+import { DEFAULT_MAKE } from "../shop/makedefs";
+
+export function slots(make: ShipMake): Map<string, number> {
+  return arrayCounter(make.slots.map((s) => s.type));
+}
 
 export interface ShipPartArgs {
   type: string;
@@ -38,10 +43,6 @@ export interface ShipPartArgs {
   dropChance?: number;
   shopChance?: number;
   weight: number;
-}
-
-export function slots(make: ShipMake): Record<string, number> {
-  return arrayCounter(make.slots.map((s) => s.type));
 }
 
 export class ShipPart implements ShipItem {
@@ -760,9 +761,9 @@ function generateShipName() {
 }
 
 export interface ShipMakeupArgs {
-  make: ShipMake;
-  hullDamage?: number;
-  name?: string;
+  make?: ShipMake | null;
+  hullDamage?: number | null;
+  name?: string | null;
 }
 
 export class ShipMakeup {
@@ -833,7 +834,7 @@ export class ShipMakeup {
 
   constructor(args: ShipMakeupArgs) {
     this.parts = [];
-    this.make = args.make;
+    this.make = args.make || DEFAULT_MAKE;
     this.hullDamage = args.hullDamage ?? 0;
     this.inventory = new ShipInventory();
     this.name = args.name ?? generateShipName();
@@ -1019,12 +1020,12 @@ export class ShipMakeup {
         continue;
       }
 
-      if ((fuel.amount ?? 1) >= amount) {
-        fuel.amount = (fuel.amount ?? 1) - amount;
+      if (fuel.amount >= amount) {
+        fuel.amount = fuel.amount - amount;
         break;
       }
 
-      amount -= fuel.amount ?? 1;
+      amount -= fuel.amount;
       fuel.amount = 0;
     }
 
@@ -1080,13 +1081,13 @@ export class ShipMakeup {
   totalFuel(fuelType: string) {
     return this.fuel
       .filter((f: FuelItem) => f.name === fuelType)
-      .reduce((a, b) => a + (b.amount ?? 1), 0);
+      .reduce((a, b) => a + b.amount, 0);
   }
 
   totalAmmo(caliber: number) {
     return this.ammo
       .filter((a: CannonballAmmo) => a.caliber === caliber)
-      .reduce((a, b) => a + (b.amount ?? 1), 0);
+      .reduce((a, b) => a + b.amount, 0);
   }
 
   totalSalary() {
@@ -1126,7 +1127,7 @@ export class ShipMakeup {
   totalFood() {
     return this.inventory
       .getItemsOf("food")
-      .map((i) => i.amount)
+      .map((i: FoodItem) => i.amount)
       .reduce((a, b) => a + b, 0);
   }
 

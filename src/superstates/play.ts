@@ -404,7 +404,7 @@ export class PlayState extends Superstate {
     }
 
     // WIP: add other gamemodes beside Free Play
-    console.log('Selected gamemode would be ' + this.game.gamemode);
+    console.log("Selected gamemode would be " + this.game.gamemode);
   }
 
   spawnArgs<A, T extends Tickable & Renderable>(

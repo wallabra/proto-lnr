@@ -195,7 +195,7 @@ export class TerrainRenderer {
     zoom: number,
   ) {
     const ctx = this.game.drawCtx;
-    const key = `${sx},${sy}`;
+    const key = `${sx.toString()},${sy.toString()}`;
     const sectorSize = SECTOR_REAL_SIZE * zoom;
     let image = this.renderedSectors.get(key);
 
@@ -369,7 +369,7 @@ class HudDamageBar {
       "Hull: " +
       (this.makeup.hullDamage === 0
         ? `100%`
-        : `${Math.floor(100 * (1 - this.damageProgress()))}%${this.damageProgress() < 0.985 ? "" : "!"}`);
+        : `${Math.floor(100 * (1 - this.damageProgress())).toString()}%${this.damageProgress() < 0.985 ? "" : "!"}`);
   }
 
   damageProgress() {
@@ -629,7 +629,7 @@ class HudEngine {
   }
 
   getLabel() {
-    return `${this.engine.name}  (${this.engine.fuelType})`;
+    return `${this.engine.name}  (${this.engine.fuelType ?? "manual"})`;
   }
 
   alert(message: string) {
@@ -936,7 +936,7 @@ class HudAmmo {
 
     new CanvasLabel({
       ...labelOpts,
-      label: Math.round(this.caliber * 10) + "mm",
+      label: (this.caliber * 10).toFixed(0) + "mm",
     });
 
     this.label = new CanvasLabel({
@@ -1084,7 +1084,7 @@ class HudCounters {
     addStat("Cash", (player) => player.money);
     addStat("Inventory Value", (player) => player.totalInventoryValue());
 
-    let initialAccrued = null;
+    let initialAccrued: null | number = null;
     addStat("Day Profit", (player) => {
       const accrued = player.money + player.totalInventoryValue();
       if (initialAccrued == null) initialAccrued = accrued;
@@ -1126,7 +1126,7 @@ class HudCounters {
     const i = this.rows.push(row);
     row.bgColor = `#${i % 2 ? "11" : "22"}08${i % 2 ? "08" : "11"}40`;
 
-    const labels = [];
+    const labels: CanvasLabel[] = [];
 
     const opts: Optional<CanvasLabelArgs, "label"> = {
       parent: row,
@@ -1156,7 +1156,11 @@ class HudCounters {
       if (typeof value === "string") {
         label.label = value;
       } else {
-        const appliedUpdater = value.bind(this, label, this.player);
+        const appliedUpdater = value.bind(
+          this,
+          label,
+          this.player,
+        ) as () => void;
         this.updaters.push(appliedUpdater);
         appliedUpdater();
       }
@@ -1339,7 +1343,6 @@ class Hud extends CanvasPanel {
   tick(deltaTime: number) {
     if (
       this.player == null ||
-      this.makeup == null ||
       this.makeup.hullDamage > this.makeup.make.maxDamage
     ) {
       return;

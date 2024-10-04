@@ -10,12 +10,12 @@ export interface CannonballParams extends PhysicsParams {
 }
 
 export class Cannonball implements Tickable, Renderable {
-  game: PlayState;
-  instigator: Ship;
-  phys: PhysicsObject;
-  dying: boolean;
-  predictedFall: Victor | null = null;
-  type = "cannonball";
+  public game: PlayState;
+  public instigator: Ship;
+  public phys: PhysicsObject;
+  public dying: boolean;
+  public predictedFall: Victor | null = null;
+  public type = "cannonball";
 
   constructor(
     game: PlayState,
@@ -28,7 +28,7 @@ export class Cannonball implements Tickable, Renderable {
     this.dying = false;
   }
 
-  computePredictedFall(): Victor {
+  public computePredictedFall(): Victor {
     const airtime = Math.max(0, this.airtime());
     const drag = this.phys.airDrag() / this.phys.weight;
     return this.pos
@@ -36,55 +36,55 @@ export class Cannonball implements Tickable, Renderable {
       .add(this.vel.multiplyScalar((1 - Math.exp(-drag * airtime)) / drag));
   }
 
-  predictFall(): Victor {
+  public predictFall(): Victor {
     return (this.predictedFall = this.computePredictedFall());
   }
 
   // -- phys util getters
-  get vel() {
+  public get vel() {
     return this.phys.vel;
   }
 
-  set vel(vel) {
+  public set vel(vel) {
     this.phys.vel = vel;
   }
 
-  get floor() {
+  public get floor() {
     return this.phys.floor;
   }
 
-  get height() {
+  public get height() {
     return this.phys.height;
   }
 
-  get pos() {
+  public get pos() {
     return this.phys.pos;
   }
 
-  get size() {
+  public get size() {
     return this.phys.size;
   }
 
-  get angle() {
+  public get angle() {
     return this.phys.angle;
   }
 
-  get weight() {
+  public get weight() {
     return this.phys.weight;
   }
   // --
 
-  get damageFactor() {
+  public get damageFactor() {
     // TODO: make depend on munition type (corrosive, oxidizing, explosive, incendiary etc)
     return 1;
   }
 
-  destroy() {
+  public destroy() {
     this.dying = true;
     this.phys.dying = true;
   }
 
-  checkShipCollision(deltaTime, ship) {
+  private checkShipCollision(ship: Ship) {
     const closeness = this.phys.touchingShip(ship);
     if (closeness <= 0) {
       return false;
@@ -103,7 +103,7 @@ export class Cannonball implements Tickable, Renderable {
 
     ship.damageShip(
       this.damageFactor *
-        this.phys.kineticEnergyRelativeTo(ship) *
+        this.phys.kineticEnergyRelativeTo(ship.phys) *
         damageScale *
         0.0235,
     );
@@ -116,7 +116,7 @@ export class Cannonball implements Tickable, Renderable {
     return true;
   }
 
-  checkShipCollisions(deltaTime) {
+  protected checkShipCollisions() {
     for (const ship of this.game.tickables) {
       if (ship.type !== "ship") {
         continue;
@@ -126,26 +126,26 @@ export class Cannonball implements Tickable, Renderable {
         continue;
       }
 
-      if (this.checkShipCollision(deltaTime, ship)) {
+      if (this.checkShipCollision(ship as Ship)) {
         break;
       }
     }
   }
 
-  checkTerrainCollision() {
+  protected checkTerrainCollision() {
     if (this.height < this.game.waterLevel) {
       this.phys.playSound("waterimpact", 0.7);
       this.destroy();
     }
   }
 
-  tick(deltaTime: number) {
+  public tick() {
     if (this.phys.age > 50) {
       this.destroy();
       return;
     }
     this.checkTerrainCollision();
-    this.checkShipCollisions(deltaTime);
+    this.checkShipCollisions();
   }
 
   airtime() {
@@ -179,7 +179,7 @@ export class Cannonball implements Tickable, Renderable {
       return;
     }
 
-    const color = `rgba(0, 140, 240, ${0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * this.airtime())))})`;
+    const color = `rgba(0, 140, 240, ${(0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * this.airtime())))).toString()})`;
     ctx.strokeStyle = color;
     ctx.lineWidth = 0.75 * this.phys.size;
     ctx.beginPath();

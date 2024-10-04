@@ -9,7 +9,6 @@ import {
 import { GUIKeyHandler } from "../keyinput";
 import type { GameMouseInfo } from "../mouse";
 import { GUIMouseHandler } from "../mouse";
-import arrayCounter from "array-counter";
 import {
   FUEL_PROPS,
   slots,
@@ -46,6 +45,7 @@ import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
 import type { Class, Optional } from "utility-types";
 import { MAKEDEFS } from "../shop/makedefs";
+import { arrayCounter } from "../util";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -1842,9 +1842,9 @@ class PaneDrydockShip extends Pane<
 
     const labelParts: string[] = [];
 
-    for (const name in makeSlots) {
+    for (const name of makeSlots.keys()) {
       labelParts.push(
-        `${name} (${partTypes[name].toString() || "0"}/${makeSlots[name].toString()})`,
+        `${name} (${(partTypes.get(name) as number).toString() || "0"}/${(makeSlots.get(name) as number).toString()})`,
       );
     }
 
@@ -2287,7 +2287,10 @@ export class IntermissionState extends Superstate {
           const consumption = fueled
             .filter((engine) => engine.fuelType != null)
             .reduce(
-              (accum, engine: Engine & { fuelType: string }) => ({
+              (
+                accum: Record<string, number>,
+                engine: Engine & { fuelType: string },
+              ) => ({
                 ...accum,
                 [engine.fuelType]:
                   (accum[engine.fuelType] || 0) + engine.fuelCost,
@@ -2305,7 +2308,7 @@ export class IntermissionState extends Superstate {
               null,
             );
           return (
-            `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length} out of your ${engines.length} currently installed engines have fuel.` +
+            `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length.toString()} out of your ${engines.length.toString()} currently installed engines have fuel.` +
             (quickest == null
               ? ""
               : ` The fuel you'll first run out of is ${quickest.type}, at ${quickest.duration.toFixed(1)}s.`)
@@ -2322,7 +2325,7 @@ export class IntermissionState extends Superstate {
             .reduce((set, can) => (set.add(can.caliber), set), new Set());
 
           return (
-            `${loaded.length === cannons.length ? "All" : loaded.length === 0 ? "None" : loaded.length} out of your ${cannons.length} cannons have ammo.` +
+            `${loaded.length() === cannons.length() ? "All" : loaded.length === 0 ? "None" : loaded.length.toString()} out of your ${cannons.length.toString()} cannons have ammo.` +
             (missingCalibers.size === 0
               ? ""
               : ` You need these calibers:  ${Array.from(missingCalibers.keys()).join(", ")}`)
@@ -2336,10 +2339,10 @@ export class IntermissionState extends Superstate {
           const manned = parts.filter((p) => p.manned !== false);
           const satisfied = manned.filter((p) => p.alreadyManned());
           return (
-            `Of your ship's ${parts.length} currently installed part, ${manned.length === parts.length ? "all" : manned.length === 0 ? "none" : manned.length} are manned.` +
+            `Of your ship's ${parts.length.toString()} currently installed part, ${manned.length === parts.length ? "all" : manned.length === 0 ? "none" : manned.length.toString()} are manned.` +
             (manned.length === 0
               ? ""
-              : ` Of these, ${satisfied.length === manned.length ? "all" : satisfied.length === 0 ? "none" : satisfied.length} have crew manning them.`)
+              : ` Of these, ${satisfied.length === manned.length ? "all" : satisfied.length === 0 ? "none" : satisfied.length.toString()} have crew manning them.`)
           );
         },
       },
@@ -2414,7 +2417,7 @@ export class IntermissionState extends Superstate {
 
     this.updateCashCounter();
     for (const pane of this.panes) {
-      if (pane.pane != null && !pane.pane.hidden && pane.update) pane.update();
+      if (!pane.pane.hidden && pane.update != null) pane.update();
     }
   }
 }

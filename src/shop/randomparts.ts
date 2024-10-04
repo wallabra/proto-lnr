@@ -1,24 +1,28 @@
 import match from "rustmatchjs";
-import {
-  Cannon,
+import type {
   CannonArgs,
-  Engine,
   EngineArgs,
   ShipMake,
   ShipPart,
-  Vacuum,
+  ShipPartArgsSuper,
   VacuumArgs,
-  slots,
 } from "../objects/shipmakeup";
+import { Cannon, Engine, Vacuum, slots } from "../objects/shipmakeup";
 import { AnyPartDef, PARTDEFS, PartDef } from "./partdefs";
 import random from "random";
 import { pickByRarity } from "./rarity";
 
-export function instantiatePart(def: AnyPartDef, type: string) {
+export function instantiatePart(def: AnyPartDef, type: string): ShipPart {
   const part = match<string, ShipPart>(
     type,
-    match.val("cannon", new Cannon(def as PartDef<CannonArgs>)),
-    match.val("engine", new Engine(def as PartDef<EngineArgs>)),
+    match.val(
+      "cannon",
+      new Cannon(def as PartDef<CannonArgs & ShipPartArgsSuper>),
+    ),
+    match.val(
+      "engine",
+      new Engine(def as PartDef<EngineArgs & ShipPartArgsSuper>),
+    ),
     match.val("vacuum", new Vacuum(def as PartDef<VacuumArgs>)),
     match._(() => {
       throw new Error("Can't handle unknown part type: " + type);
@@ -34,37 +38,40 @@ export default function randomParts(
 ): ShipPart[] {
   let available = allocRarity;
 
-  const makeSlots =
-    forMake != null
-      ? slots(forMake)
-      : Object.keys(PARTDEFS).reduce(
-          (o, k) => Object.assign(o, { [k]: NaN }),
-          {},
-        );
-  let availableSlots = Object.keys(makeSlots)
-    .map((k) => makeSlots[k])
+  let makeSlots: Map<string, number> = new Map();
+
+  if (forMake != null) {
+    makeSlots = slots(forMake);
+  } else {
+    for (const partType in PARTDEFS) {
+      makeSlots.set(partType, NaN);
+    }
+  }
+
+  let availableSlots = Array.from(makeSlots.keys())
+    // 'as number' because must exist
+    .map((k) => makeSlots.get(k) as number)
     .reduce((a, b) => a + b, 0);
-  const smallestRarity = Object.keys(makeSlots).reduce(
-    (a, b) =>
-      Object.assign(a, {
-        [b]: Math.min(
-          ...(PARTDEFS[b] as AnyPartDef[])
-            .filter((d) => d.rarity !== "always")
-            .map((d) => d.rarity as number),
-        ),
-      }),
-    {},
-  );
+
+  const smallestRarity: Map<string, number> = new Map();
+
+  makeSlots.forEach((_, parttype) => {
+    const defs = PARTDEFS[parttype] as AnyPartDef[];
+    const smallest = Math.min(
+      ...defs.map((def) => def.rarity).filter((rarity) => rarity !== "always"),
+    );
+    smallestRarity.set(parttype, smallest);
+  });
 
   // Start with the parts of rarity 'always'
   const res = Object.keys(PARTDEFS).reduce(
-    (a, b) =>
+    (a: ShipPart[], b) =>
       a.concat(
-        PARTDEFS[b]
-          .filter((p: AnyPartDef) => p.rarity === "always")
-          .map((d: AnyPartDef) => {
-            makeSlots[b]--;
-            if (makeSlots[b] === 0) delete makeSlots[b];
+        (PARTDEFS[b] as AnyPartDef[])
+          .filter((p) => p.rarity === "always")
+          .map((d) => {
+            // 'as number' because must be non-zero
+            makeSlots.set(b, (makeSlots.get(b) as number) - 1);
             availableSlots--;
             return instantiatePart(d, b);
           }),
@@ -75,13 +82,19 @@ export default function randomParts(
   while (
     availableSlots > 0 &&
     available >
-      Math.min(...Object.keys(smallestRarity).map((k) => smallestRarity[k]))
+      Math.min(
+        ...Array.from(smallestRarity.keys()).map(
+          (k) => smallestRarity.get(k) as number,
+        ),
+      )
   ) {
-    const type = random.choice(Object.keys(makeSlots));
+    const type = random.choice(Array.from(makeSlots.keys()));
+    if (type === undefined) break;
+
     if (available < smallestRarity[type]) continue;
 
     const def = pickByRarity<AnyPartDef>(
-      PARTDEFS[type],
+      PARTDEFS[type] as AnyPartDef[],
       available,
       temperature,
     );
@@ -91,8 +104,9 @@ export default function randomParts(
     res.push(part);
     available -= def.rarity as number;
     availableSlots--;
-    makeSlots[type]--;
-    if (makeSlots[type] === 0) delete makeSlots[type];
+    // 'as number' because must be non-zero
+    makeSlots.set(type, (makeSlots.get(type) as number) - 1);
+    if (makeSlots.get(type) === 0) makeSlots.delete(type);
   }
 
   return res;

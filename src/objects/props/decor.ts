@@ -89,7 +89,8 @@ export class Decor implements Renderable, Tickable {
     try {
       ctx.drawImage(this.sprite, 0, 0);
     } catch (e) {
-      console.warn(`Can't draw sprite ${this.spritePath}: ${e.toString()}`);
+      const error: Error = e as Error;
+      console.warn(`Can't draw sprite ${this.spritePath}: ${error.toString()}`);
       this.dying = true;
       ctx.restore();
       return;

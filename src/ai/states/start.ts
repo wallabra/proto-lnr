@@ -15,7 +15,7 @@ export class StartState implements AIHandler<AIStartArgs> {
     const maxDist = 300 + ship.size * ship.lateralCrossSection * 1.5;
     let lastDist = Infinity;
 
-    return play.tickables.reduce((a, b) => {
+    return play.tickables.reduce((a: Pickup<ShipItem> | null, b) => {
       if (b.type !== "pickup") return a;
       if (a == null) return b;
       const dist = (b as Pickup<ShipItem>).phys.pos.distance(pos);

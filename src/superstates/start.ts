@@ -24,7 +24,7 @@ export class MainMenuState extends Superstate {
     // Does NOT update the stack, do not use this in user code
     const state = this.states.get(stateName);
     if (state == null) return;
-    
+
     this.ui.clearChildren();
     this.ui.addChild(state);
   }
@@ -38,7 +38,7 @@ export class MainMenuState extends Superstate {
   private goBackState() {
     if (this.stateStack.length < 2) return;
     this.stateStack.shift();
-    
+
     const target = this.stateStack[0];
     this.setState(target);
   }
@@ -201,7 +201,7 @@ export class MainMenuState extends Superstate {
   }
 
   private a_newGame(gamemode: string) {
-     this.game.restart(gamemode);
+    this.game.restart(gamemode);
   }
 
   public init() {
