@@ -6,7 +6,7 @@ let errored = false;
 
 export function tickLoop(game: Game, current: number) {
   if (errored) return;
-  
+
   if (lastTime == null) {
     requestAnimationFrame(
       tickLoop.bind(null, game) as (current: number) => void,

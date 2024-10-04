@@ -614,8 +614,9 @@ export class Ship implements Tickable, Renderable {
     this.tickActions = [];
     this.money = 0;
     this.setMoney(
-      params.money ?? random.uniform(5, 35)() +
-            this.makeup.make.cost * random.uniform(0.0008, 0.005)(),
+      params.money ??
+        random.uniform(5, 35)() +
+          this.makeup.make.cost * random.uniform(0.0008, 0.005)(),
     );
 
     this.dragMixin();
@@ -1276,7 +1277,7 @@ export class Ship implements Tickable, Renderable {
 
     if (Math.random() < 0.3) this.phys.playSound("waterimpact", 0.1);
   }
-  
+
   public tick(deltaTime: number) {
     if (this.pos.length() > 15000 && !this.isPlayer) {
       // Despawn NPC ships too far from land
