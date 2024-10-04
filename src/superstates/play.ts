@@ -402,6 +402,9 @@ export class PlayState extends Superstate {
     if (this.player != null && this.player.possessed != null) {
       this.addShip(this.player.possessed);
     }
+
+    // WIP: add other gamemodes beside Free Play
+    console.log('Selected gamemode would be ' + this.game.gamemode);
   }
 
   spawnArgs<A, T extends Tickable & Renderable>(

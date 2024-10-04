@@ -16,6 +16,7 @@ export class Game {
   zoom: number;
   mouse: MouseHandler;
   keyboard: KeyHandler;
+  gamemode: string | null = null;
   paused = false;
 
   /** Difficulty level. Starts at zero.
@@ -43,7 +44,8 @@ export class Game {
     return npcs * (1 + this.difficulty);
   }
 
-  restart(terradef: TerraDef = landfillGenerator()) {
+  restart(gamemode: string, terradef: TerraDef = landfillGenerator()) {
+    this.gamemode = gamemode;    
     this.difficulty = 0;
     this.setPlayState(terradef);
     this.resetPlayer();

@@ -56,7 +56,7 @@ export class MainMenuState extends Superstate {
       fillX: true,
       fillY: true,
     });
-    this.addState(stateName, stateBuilder(holder) || holder);
+    this.addState(stateName, stateBuilder(holder) ?? holder);
   }
 
   private buildStates() {
@@ -200,9 +200,8 @@ export class MainMenuState extends Superstate {
     });
   }
 
-  private a_newGame(_gamemode: string) {
-    // WIP: add other gamemodes beside Free Play
-    this.game.restart();
+  private a_newGame(gamemode: string) {
+     this.game.restart(gamemode);
   }
 
   public init() {
