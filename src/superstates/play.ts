@@ -229,13 +229,21 @@ export class PlayState extends Superstate {
     playerShip = player.possessed = addShip(money / 2, player.makeup);
     const ships = [playerShip];
 
+    let encounteredPlayerInFleet = false;
+
     if (player.fleet.filter((s) => s.makeup.captain != null).length > 0) {
       money /= 2;
       const moneyPart =
         money / player.fleet.filter((s) => s.makeup.captain != null).length;
 
       for (const member of player.fleet) {
-        if (member.makeup.captain == null) continue;
+        if (member.makeup.captain == null) {
+          if (!encounteredPlayerInFleet) {
+            member.ship = playerShip;
+            encounteredPlayerInFleet = true;
+          }
+          continue;
+        }
         const offs = new Victor(
           playerShip.size * playerShip.lateralCrossSection * 2 +
             random.uniform(30, 200)(),
