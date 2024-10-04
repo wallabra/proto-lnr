@@ -556,11 +556,11 @@ class HudCannonList {
     );
   }
 
-  public tick(deltaTime: number) {
+  public tick() {
     this.pruneWidgets();
     this.pane.bgColor = this.makeup.readyCannon != null ? "#F0E09018" : "#0000";
 
-    for (const widget of this.widgets) widget.tick(deltaTime);
+    for (const widget of this.widgets) widget.tick();
   }
 }
 
@@ -737,10 +737,10 @@ class HudEngineList {
     );
   }
 
-  public tick(deltaTime: number) {
+  public tick() {
     this.pruneWidgets();
 
-    for (const widget of this.widgets) widget.tick(deltaTime);
+    for (const widget of this.widgets) widget.tick();
   }
 }
 
@@ -885,8 +885,8 @@ class HudFuelList {
     }
   }
 
-  tick(deltaTime: number) {
-    for (const widget of this.widgets) widget.tick(deltaTime);
+  tick() {
+    for (const widget of this.widgets) widget.tick();
   }
 }
 
@@ -1021,8 +1021,8 @@ class HudAmmoList {
     }
   }
 
-  tick(deltaTime: number) {
-    for (const widget of this.widgets) widget.tick(deltaTime);
+  tick() {
+    for (const widget of this.widgets) widget.tick();
   }
 }
 
@@ -1366,11 +1366,11 @@ class Hud extends CanvasPanel {
       : "#fecb";
 
     this.damageBar.tick(deltaTime);
-    this.cannonList.tick(deltaTime);
-    this.engineList.tick(deltaTime);
-    this.fuelList.tick(deltaTime);
-    this.ammoList.tick(deltaTime);
-    this.counters.tick(deltaTime);
+    this.cannonList.tick();
+    this.engineList.tick();
+    this.fuelList.tick();
+    this.ammoList.tick();
+    this.counters.tick();
   }
 }
 
