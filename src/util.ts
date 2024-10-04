@@ -30,7 +30,10 @@ export function zeroPad(text: string, size: number) {
 }
 
 export function moneyString(cash: number) {
-  return "$" + cash.toFixed(2);
+  let cashStr = '$' + Math.abs(cash).toFixed(2);
+  if (cash < 0) cashStr = '-' + cashStr;
+  
+  return cashStr;
 }
 
 export function weightString(weight: number) {
