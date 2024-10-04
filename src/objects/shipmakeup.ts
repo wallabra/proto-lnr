@@ -1192,6 +1192,7 @@ export class ShipMakeup {
   }
 
   totalWeight() {
+    console.log(this.inventory.items.map((item) => `${item.name} (${item.amount}): ${item.weight}`));
     return (
       this.make.weight +
       this.inventory.items
