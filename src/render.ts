@@ -497,7 +497,7 @@ class HudCannon {
     this.updateDamage();
   }
 
-  public tick(_deltaTime: number) {
+  public tick() {
     this.update();
   }
 }
@@ -678,7 +678,7 @@ class HudEngine {
     this.updateDamage();
   }
 
-  public tick(_deltaTime: number) {
+  public tick() {
     this.update();
   }
 }
@@ -819,7 +819,7 @@ class HudFuel {
         : "#faa";
   }
 
-  public tick(_deltaTime: number) {
+  public tick() {
     this.update();
   }
 }
@@ -955,7 +955,7 @@ class HudAmmo {
     this.label.label = amount.toFixed(0);
   }
 
-  tick(_deltaTime: number) {
+  tick() {
     this.update();
   }
 }
@@ -1179,7 +1179,7 @@ class HudCounters {
     }
   }
 
-  tick(_deltaTime: number) {
+  tick() {
     this.update();
   }
 }
