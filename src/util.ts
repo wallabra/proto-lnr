@@ -56,8 +56,9 @@ export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
   const thermalWeights = weights.map((weight) =>
     lerp(weight, averageWeight, temperature),
   );
+  const totalThermalWeight = thermalWeights.reduce((a, b) => a + b, 0);
 
-  let selection = random.uniform(0, totalWeight)();
+  let selection = random.uniform(0, totalThermalWeight)();
 
   for (const item of candidates) {
     const weight = thermalWeights.shift();
