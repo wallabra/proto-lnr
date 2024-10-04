@@ -78,13 +78,6 @@ export class PhysicsObject {
   public restitution: number;
   public displacement = 0;
 
-  private posNanCheck() {
-    const pos = this.pos;
-    if (isNaN(pos.x) || isNaN(pos.y)) {
-      throw new Error("Tried to set NaN position to physics object");
-    }    
-  }
-
   constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.play = play;
@@ -112,12 +105,10 @@ export class PhysicsObject {
     const vel = this.vel;
     this.pos = newPos.clone();
     this.vel = vel;
-    this.posNanCheck();
   }
 
   shift(offset: Victor) {
     this.pos.add(offset);
-    this.posNanCheck();
     this.lastPos.add(offset);
   }
 
