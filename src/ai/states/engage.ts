@@ -28,6 +28,7 @@ export class EngageState implements AIHandler<EngageStartArgs> {
     if (commonNext != null && commonNext.next != this.name) return commonNext;
 
     if (
+      target == null ||
       target !== ship.lastInstigator ||
       target.dying ||
       target.makeup.hullDamage > target.makeup.make.maxDamage
@@ -36,7 +37,7 @@ export class EngageState implements AIHandler<EngageStartArgs> {
     }
 
     const dist = target.pos.clone().subtract(ship.pos).length();
-    const airtime = ship.shotAirtime(dist);
+    const airtime = ship.shotAirtime(dist) || 0;
     const targetSoonPos = target.pos
       .clone()
       .add(target.vel.multiplyScalar(airtime));

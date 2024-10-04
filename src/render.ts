@@ -305,7 +305,7 @@ class FpsCounter extends CanvasLabel {
     this.refreshRate = args.refreshRate || 1;
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     const immediateFps = 1 / deltaTime;
 
     if (this.fps == null) {
@@ -360,11 +360,11 @@ class HudDamageBar {
     this.updateLabel();
   }
 
-  updateBar() {
+  protected updateBar() {
     this.bar.progress = this.damageProgress();
   }
 
-  updateLabel() {
+  protected updateLabel() {
     this.label.label =
       "Hull: " +
       (this.makeup.hullDamage === 0
@@ -372,11 +372,11 @@ class HudDamageBar {
         : `${Math.floor(100 * (1 - this.damageProgress())).toString()}%${this.damageProgress() < 0.985 ? "" : "!"}`);
   }
 
-  damageProgress() {
+  protected damageProgress() {
     return this.makeup.hullDamage / this.makeup.make.maxDamage;
   }
 
-  tick(_timeDelta: number) {
+  public tick(_timeDelta: number) {
     this.updateBar();
     this.updateLabel();
   }
@@ -447,47 +447,47 @@ class HudCannon {
     this.update();
   }
 
-  alert(message: string) {
+  protected alert(message: string) {
     this.pane.bgColor = "#a776";
     this.label.label += ` (${message})`;
     this.label.color = "#faa";
   }
 
-  updateHasAmmo() {
+  protected updateHasAmmo() {
     if (this.makeup.hasAmmo(this.cannon.caliber)) return;
     this.alert("No Ammo!");
   }
 
-  updateHasCrew() {
+  protected updateHasCrew() {
     if (this.cannon.alreadyManned()) return;
     this.alert("No Crew!");
   }
 
-  updateCooldown() {
+  protected updateCooldown() {
     this.pane.progress = this.cannon.cooldown / this.cannon.shootRate;
   }
 
-  updateDamage() {
+  protected updateDamage() {
     this.damage.progress = 1 - this.cannon.damage / this.cannon.maxDamage;
   }
 
-  resetLabel() {
+  protected resetLabel() {
     this.label.label = this.cannon.name;
     this.label.color = "#fff";
   }
 
-  resetBgColor() {
+  protected resetBgColor() {
     this.pane.bgColor = "#2224";
   }
 
-  checkDestroyed(): boolean {
+  protected checkDestroyed(): boolean {
     if (this.cannon.damage < this.cannon.maxDamage) return false;
 
     this.pane.remove();
     return true;
   }
 
-  update() {
+  protected update() {
     if (this.checkDestroyed()) return;
     this.resetLabel();
     this.resetBgColor();
@@ -497,7 +497,7 @@ class HudCannon {
     this.updateDamage();
   }
 
-  tick(_deltaTime: number) {
+  public tick(_deltaTime: number) {
     this.update();
   }
 }
@@ -538,7 +538,7 @@ class HudCannonList {
     this.populateCannonList();
   }
 
-  populateCannonList() {
+  protected populateCannonList() {
     for (const cannon of this.makeup.getPartsOf("cannon") as Cannon[]) {
       this.widgets.push(
         new HudCannon({
@@ -550,13 +550,13 @@ class HudCannonList {
     }
   }
 
-  pruneWidgets() {
+  protected pruneWidgets() {
     this.widgets = this.widgets.filter(
       (w) => w.cannon.damage < w.cannon.maxDamage,
     );
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     this.pruneWidgets();
     this.pane.bgColor = this.makeup.readyCannon != null ? "#F0E09018" : "#0000";
 
@@ -628,47 +628,48 @@ class HudEngine {
     this.update();
   }
 
-  getLabel() {
+  protected getLabel() {
     return `${this.engine.name}  (${this.engine.fuelType ?? "manual"})`;
   }
 
-  alert(message: string) {
+  protected alert(message: string) {
     this.pane.bgColor = "#a776";
     this.label.label += ` - ${message}`;
     this.label.color = "#faa";
   }
 
-  updateHasFuel() {
+  protected updateHasFuel() {
+    if (this.engine.fuelType == null) return;
     if (this.makeup.hasFuel(this.engine.fuelType)) return;
     this.alert("No Fuel!");
   }
 
-  updateHasCrew() {
+  protected updateHasCrew() {
     if (this.engine.alreadyManned()) return;
     this.alert("No Crew!");
   }
 
-  updateDamage() {
+  protected updateDamage() {
     this.damage.progress = 1 - this.engine.damage / this.engine.maxDamage;
   }
 
-  resetLabel() {
+  protected resetLabel() {
     this.label.label = this.getLabel();
     this.label.color = "#fff";
   }
 
-  resetBgColor() {
+  protected resetBgColor() {
     this.pane.bgColor = "#2224";
   }
 
-  checkDestroyed(): boolean {
+  protected checkDestroyed(): boolean {
     if (this.engine.damage < this.engine.maxDamage) return false;
 
     this.pane.remove();
     return true;
   }
 
-  update() {
+  public update() {
     if (this.checkDestroyed()) return;
     this.resetLabel();
     this.resetBgColor();
@@ -677,7 +678,7 @@ class HudEngine {
     this.updateDamage();
   }
 
-  tick(_deltaTime: number) {
+  public tick(_deltaTime: number) {
     this.update();
   }
 }
@@ -718,7 +719,7 @@ class HudEngineList {
     this.populateEngineList();
   }
 
-  populateEngineList() {
+  protected populateEngineList() {
     for (const engine of this.makeup.getPartsOf("engine") as Engine[]) {
       this.widgets.push(
         new HudEngine({
@@ -730,13 +731,13 @@ class HudEngineList {
     }
   }
 
-  pruneWidgets() {
+  protected pruneWidgets() {
     this.widgets = this.widgets.filter(
       (w) => w.engine.damage < w.engine.maxDamage,
     );
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     this.pruneWidgets();
 
     for (const widget of this.widgets) widget.tick(deltaTime);
@@ -802,7 +803,7 @@ class HudFuel {
     this.update();
   }
 
-  update() {
+  protected update() {
     const amount = this.makeup.totalFuel(this.fuelType);
     if (amount > this.maximum) this.maximum = amount;
     this.pane.progress = amount / this.maximum;
@@ -818,7 +819,7 @@ class HudFuel {
         : "#faa";
   }
 
-  tick(_deltaTime: number) {
+  public tick(_deltaTime: number) {
     this.update();
   }
 }
@@ -872,7 +873,7 @@ class HudFuelList {
     const names = new Set();
     for (const engine of this.makeup.getPartsOf("engine") as Engine[]) {
       const fuelType = engine.fuelType;
-      if (names.has(fuelType)) continue;
+      if (fuelType == null || names.has(fuelType)) continue;
       this.widgets.push(
         new HudFuel({
           makeup: this.makeup,
@@ -1094,6 +1095,7 @@ class HudCounters {
 
     this.addRow("---");
     this.addRow("Velocity", (label, player) => {
+      if (player.possessed == null) return;
       label.label = `${(player.possessed.vel.length() / 10).toFixed(2)} m/s`;
     });
     this.addRow("Thrust & Weight", (label, player) => {
@@ -1206,6 +1208,8 @@ class Hud extends CanvasPanel {
   }
 
   get player() {
+    if (this.play.player == null)
+      throw new Error("Cannot draw HUD for a playerless game");
     return this.play.player;
   }
 
@@ -1342,7 +1346,7 @@ class Hud extends CanvasPanel {
 
   tick(deltaTime: number) {
     if (
-      this.player == null ||
+      this.player.possessed == null ||
       this.makeup.hullDamage > this.makeup.make.maxDamage
     ) {
       return;
@@ -1371,24 +1375,24 @@ class Hud extends CanvasPanel {
 }
 
 class HudRenderer {
-  game: PlayState;
-  fpsCounter: FpsCounter;
-  root: CanvasRoot;
-  hud: Hud;
-  hudMessage: CanvasLabel;
+  public game: PlayState;
+  protected fpsCounter: FpsCounter;
+  protected root: CanvasRoot;
+  protected hud: Hud;
+  protected hudMessage: CanvasLabel;
 
   constructor(game: PlayState) {
     this.game = game;
-    this.root = new CanvasRoot(game);
+    this.root = new CanvasRoot(game.game);
     this.fpsCounter = new FpsCounter({ parent: this.root });
     this.hud = new Hud({ parent: this.root, renderer: this });
   }
 
-  toggleHud() {
+  public toggleHud() {
     this.hud.toggleHud();
   }
 
-  renderPauseScreen() {
+  protected renderPauseScreen() {
     const game = this.game;
     const ctx = game.drawCtx;
 
@@ -1409,9 +1413,13 @@ class HudRenderer {
     return true;
   }
 
-  renderDeathScreen() {
+  protected renderDeathScreen(): boolean {
     const game = this.game;
     const ctx = game.drawCtx;
+
+    if (game.player == null) {
+      return false;
+    }
 
     if (game.player.possessed == null) {
       return false;
@@ -1440,12 +1448,12 @@ class HudRenderer {
     return true;
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     this.fpsCounter.tick(deltaTime);
     if (!this.game.game.paused) this.hud.tick(deltaTime);
   }
 
-  renderUI(ctx: UIDrawContext) {
+  public renderUI(ctx: UIDrawContext) {
     if (this.renderDeathScreen()) this.hud.hidden = true;
 
     this.root.checkChangeDimensions(this.game.width, this.game.height);
@@ -1469,13 +1477,14 @@ export class GameRenderer {
     this.r_hud = new HudRenderer(game);
   }
 
-  toggleHud() {
+  public toggleHud() {
+    if (this.game.player == null) return;
     if (this.game.player.possessed != null && this.game.player.possessed.dying)
       return;
     this.r_hud.toggleHud();
   }
 
-  renderBackground() {
+  protected renderBackground() {
     const ctx = this.game.drawCtx;
 
     const bgColor = "#3377aa";
@@ -1484,7 +1493,7 @@ export class GameRenderer {
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
 
-  tick(deltaTime: number) {
+  public tick(deltaTime: number) {
     this.r_hud.tick(deltaTime);
   }
 

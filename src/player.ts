@@ -90,11 +90,13 @@ export class Player {
   }
 
   steer(offs: Victor, deltaTime: number) {
+    if (this.possessed == null) throw new Error("Playe has no ship");
     const targ = offs.angle();
     this.possessed.steer(deltaTime, targ);
   }
 
   approach(offs: Victor, deltaTime: number, throttle = 1.0) {
+    if (this.possessed == null) throw new Error("Playe has no ship");
     const dot = new Victor(1, 0)
       .rotateBy(this.possessed.angle)
       .dot(offs.norm());
@@ -102,15 +104,17 @@ export class Player {
   }
 
   inShopRange() {
+    if (this.possessed == null) throw new Error("Playe has no ship");
     return !this.possessed.dying && this.possessed.pos.length() >= 2500;
   }
 
   canShop() {
+    if (this.possessed == null) throw new Error("Playe has no ship");
     return this.inShopRange() && !this.possessed.inDanger();
   }
 
   inputEvent(name: string, _event: InputEvent) {
-    if (this.possessed.dying) {
+    if (this.possessed == null || this.possessed.dying) {
       return;
     }
 
@@ -141,6 +145,7 @@ export class Player {
 
     if (name === "steerLeft") {
       this.possessed.nextTick((deltaTime) => {
+        if (this.possessed == null) return;
         this.possessed.steer(
           deltaTime,
           this.possessed.angle + this.possessed.phys.angVel - Math.PI / 2,
@@ -150,6 +155,7 @@ export class Player {
 
     if (name === "steerRight") {
       this.possessed.nextTick((deltaTime) => {
+        if (this.possessed == null) return;
         this.possessed.steer(
           deltaTime,
           this.possessed.angle + this.possessed.phys.angVel + Math.PI / 2,
@@ -159,12 +165,14 @@ export class Player {
 
     if (name === "thrustForward") {
       this.possessed.nextTick((deltaTime) => {
+        if (this.possessed == null) return;
         this.possessed.thrustForward(deltaTime, 1.0);
       });
     }
 
     if (name === "thrustBackward") {
       this.possessed.nextTick((deltaTime) => {
+        if (this.possessed == null) return;
         this.possessed.thrustForward(deltaTime, -1.0);
       });
     }
@@ -181,6 +189,7 @@ export class Player {
 
   registerActions() {
     this.registerAction("shoot", () => {
+      if (this.possessed == null || this.mouse == null) return;
       this.possessed.tryShoot(this.mouse.pos.length());
     });
   }
@@ -192,6 +201,8 @@ export class Player {
   }
 
   doMouseShoot(_deltaTime: number) {
+    if (this.possessed == null || this.mouse == null) return;
+
     const mouse = this.mouse as PlayMouseHandler;
 
     if (!mouse.shooting) return;
@@ -200,7 +211,11 @@ export class Player {
   }
 
   doSteer(deltaTime: number) {
-    if (!(this.mouse as PlayMouseHandler).steering) {
+    if (
+      this.possessed == null ||
+      this.mouse == null ||
+      !(this.mouse as PlayMouseHandler).steering
+    ) {
       return;
     }
 
@@ -239,7 +254,7 @@ export class Player {
       return;
     }
 
-    if (this.possessed.dying) {
+    if (this.possessed == null || this.possessed.dying) {
       return;
     }
 

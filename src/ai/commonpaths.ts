@@ -24,7 +24,7 @@ export function commonPaths(args: AITickArgs): AIJump | null {
     )
       return { next: "flee", args: { target } } as AIJump<FleeStartArgs>;
   }
-  if (stateName === "engage") return;
+  if (stateName === "engage") return null;
 
   // strict terrain avoid
   if (
@@ -52,7 +52,7 @@ export function commonPaths(args: AITickArgs): AIJump | null {
     play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.55
   )
     return { next: "avoidTerrain" };
-  if (stateName === "avoidTerrain") return;
+  if (stateName === "avoidTerrain") return null;
 
   return null;
 }

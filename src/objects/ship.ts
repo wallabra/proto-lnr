@@ -111,13 +111,13 @@ export function circleCentreDist(
 export function closestCircle(
   soup: CollisionCircle[],
   target: CollisionCircle,
-): { circle: CollisionCircle; dist: number } {
+): { circle: CollisionCircle | null; dist: number } {
   return soup
     .map<{ circle: CollisionCircle; dist: number }>((c) => ({
       circle: c,
       dist: circleCentreDist(c, target),
     }))
-    .reduce<{ circle: CollisionCircle; dist: number }>(
+    .reduce<{ circle: CollisionCircle | null; dist: number }>(
       (a, b) => (a.dist < b.dist ? a : b),
       { circle: null, dist: Infinity },
     );
@@ -404,6 +404,7 @@ class ShipRenderContext {
 
     const available = cannon.cooldown <= 0;
 
+    if (game.mouse == null) return;
     const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(mouseDist, ship.maxShootRange ?? Infinity);
     const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
@@ -913,13 +914,18 @@ export class Ship implements Tickable, Renderable {
     return this.makeup.make.maxDamage;
   }
 
-  die() {
+  public die() {
     // TODO: trigger death FX
     this.spawnDrops();
     this.dying = true;
     this.phys.dying = true;
     this.setInstigator(null);
     this.phys.playSound("shipdeath", 1.0);
+    this.handlePlayerDie();
+  }
+
+  private handlePlayerDie() {
+    if (this.play.player == null) return;
 
     const playerFleetIndex = this.play.player.fleet.findIndex(
       (member) => member.makeup === this.makeup,

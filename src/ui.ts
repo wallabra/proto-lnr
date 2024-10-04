@@ -244,11 +244,11 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     return { x: 0, y: 0 };
   }
 
-  public addChild(item: CanvasUIElement): this {
+  public addChild(item: CanvasUIElement): CanvasUIElement {
     return this._addChild(item);
   }
 
-  _addChild(item: CanvasUIElement): this {
+  _addChild(this: CanvasUIElement, item: CanvasUIElement): CanvasUIElement {
     this.children.push(item);
     item.parent = this;
     this.modified = true;
@@ -493,7 +493,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     return pos;
   }
 
-  isInside(x, y) {
+  isInside(x: number, y: number) {
     if (this.isHidden()) return false;
 
     const pos = this.pos();
@@ -600,7 +600,7 @@ export class CanvasRoot extends CanvasUIElement<{ game: Game }> {
 
   _render(uictx: UIDrawContext): void {
     const ctx = uictx.ctx;
-    ctx.fillStyle = this.bgColor;
+    ctx.fillStyle = this.bgColor ?? "#000";
     ctx.fillRect(0, 0, this.game.width, this.game.height);
   }
 
@@ -797,7 +797,7 @@ export class CanvasPanel extends CanvasUIElement<CanvasPanelArgs> {
     const ctx = uictx.ctx;
     const pos = this.pos();
 
-    ctx.fillStyle = this.bgColor;
+    ctx.fillStyle = this.bgColor ?? "#000";
     ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
 
@@ -827,10 +827,11 @@ export class CanvasSplitPanel extends CanvasPanel {
     this.margin = args.margin || 5;
   }
 
-  preChildrenRender() {
+  override preChildrenRender() {
     // do nothing
   }
-  postChildrenRender() {
+
+  override postChildrenRender() {
     // do nothing
   }
 
@@ -840,39 +841,41 @@ export class CanvasSplitPanel extends CanvasPanel {
     pos.x += this.margin;
     pos.y += this.margin;
 
-    if (this.axis == "horizontal") {
-      pos.x += (this.parent.innerWidth / this.totalSplits) * this.index;
-    }
+    if (this.parent != null) {
+      if (this.axis == "horizontal") {
+        pos.x += (this.parent.innerWidth / this.totalSplits) * this.index;
+      }
 
-    if (this.axis == "vertical") {
-      pos.y += (this.parent.innerHeight / this.totalSplits) * this.index;
+      if (this.axis == "vertical") {
+        pos.y += (this.parent.innerHeight / this.totalSplits) * this.index;
+      }
     }
 
     return pos;
   }
 
-  computeWidth() {
-    let width;
+  computeWidth(): number {
+    if (this.parent == null) return 0;
+
+    let width: number;
 
     if (this.axis == "horizontal") {
       width = this.parent.innerWidth / this.totalSplits;
-    }
-
-    if (this.axis == "vertical") {
+    } else {
       width = this.parent.innerWidth;
     }
 
     return width - this.margin * 2;
   }
 
-  computeHeight() {
-    let height;
+  computeHeight(): number {
+    if (this.parent == null) return 0;
+
+    let height: number;
 
     if (this.axis == "horizontal") {
       height = this.parent.innerHeight;
-    }
-
-    if (this.axis == "vertical") {
+    } else {
       height = this.parent.innerHeight / this.totalSplits;
     }
 
@@ -1041,7 +1044,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
     const dctx = ctx.ctx;
     const pos = this.pos();
 
-    dctx.fillStyle = this.bgColor;
+    dctx.fillStyle = this.bgColor ?? "#000";
     dctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
     dctx.fillStyle = this.barColor;
     dctx.fillRect(
@@ -1111,7 +1114,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
 
   constructor(args: CanvasScrollerArgs) {
     super({ paddingX: 0, paddingY: 0, cullOutOfBounds: true, ...args });
-    this.bgColor = args.bgColor;
+    this.bgColor = args.bgColor ?? "#000";
     this.axis = args.axis;
     this.contentPane = new CanvasScrollerContentPane({
       paddingX: 0,
@@ -1279,7 +1282,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
   _render(ctx: UIDrawContext) {
     const pctx = ctx.ctx;
     const pos = this.pos();
-    pctx.fillStyle = this.bgColor;
+    pctx.fillStyle = this.bgColor ?? "#000";
     pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
   }
 }
@@ -1312,10 +1315,14 @@ export class CanvasImage extends CanvasUIElement {
 
     ctx.drawImage(
       this.image,
+      0,
+      0,
+      this.image.width,
+      this.image.height,
       pos.x,
       pos.y,
-      !this.scaled ? undefined : this.realWidth,
-      !this.scaled ? undefined : this.realHeight,
+      !this.scaled ? this.image.width : this.realWidth,
+      !this.scaled ? this.image.width : this.realHeight,
     );
   }
 
@@ -1491,7 +1498,7 @@ export class CanvasTab extends CanvasUIGroup {
       tab.content.pane.hidden = tab !== this;
       tab.updateColor();
     }
-    this.content.update();
+    if (this.content.update != null) this.content.update();
     this.parent.parent.updateCache();
   }
 
@@ -1618,7 +1625,7 @@ export class CanvasProgressBar extends CanvasUIElement {
   _render(ctx: UIDrawContext): void {
     const pctx = ctx.ctx;
     const pos = this.pos();
-    pctx.fillStyle = this.bgColor;
+    pctx.fillStyle = this.bgColor ?? "#000";
     pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
     if (!this.progress) return;
     pctx.fillStyle = this.progressColor;
@@ -1630,13 +1637,15 @@ export class CanvasProgressBar extends CanvasUIElement {
     );
   }
 
-  preChildrenRender() {
+  override preChildrenRender() {
     // do nothing;
   }
-  postChildrenRender() {
+
+  override postChildrenRender() {
     // do nothing;
   }
-  event() {
+
+  override event() {
     // do nothing;
   }
 }

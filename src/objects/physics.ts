@@ -144,6 +144,8 @@ export class PhysicsObject {
   get floor() {
     if (this.lastFloor == null || this.lastFloor.age !== this.age)
       this.regenLastFloor();
+    if (this.lastFloor == null)
+      throw new Error("regenLastFloor did not set the floor");
     return this.lastFloor.floor;
   }
 

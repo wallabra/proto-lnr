@@ -69,7 +69,7 @@ export interface BasePartDef {
 export type EngineDef = BasePartDef & EngineArgs;
 export type CannonDef = BasePartDef & CannonArgs;
 
-export type PartDef<PType extends ShipPartArgsSuper> = PType & BasePartDef;
+export type PartDef<PType> = PType & BasePartDef & ShipPartArgsSuper;
 export type AnyPartDef = (typeof PARTDEFS)[keyof typeof PARTDEFS][number];
 
 export const PARTDEFS: {

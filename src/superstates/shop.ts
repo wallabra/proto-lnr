@@ -120,6 +120,10 @@ abstract class Pane<
     return this._makeup ?? this.player.makeup;
   }
 
+  public set makeup(makeup: ShipMakeup) {
+    this._makeup = makeup;
+  }
+
   protected abstract buildPane(args: PaneArgs & PA): void;
   public abstract update?(): void;
 
@@ -2325,7 +2329,7 @@ export class IntermissionState extends Superstate {
             .reduce((set, can) => (set.add(can.caliber), set), new Set());
 
           return (
-            `${loaded.length() === cannons.length() ? "All" : loaded.length === 0 ? "None" : loaded.length.toString()} out of your ${cannons.length.toString()} cannons have ammo.` +
+            `${loaded.length === cannons.length ? "All" : loaded.length === 0 ? "None" : loaded.length.toString()} out of your ${cannons.length.toString()} cannons have ammo.` +
             (missingCalibers.size === 0
               ? ""
               : ` You need these calibers:  ${Array.from(missingCalibers.keys()).join(", ")}`)
@@ -2406,6 +2410,10 @@ export class IntermissionState extends Superstate {
   }
 
   private updateCashCounter() {
+    if (this.player == null) {
+      this.cashCounter.label = "";
+      return;
+    }
     this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
   }
 

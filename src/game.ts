@@ -170,7 +170,7 @@ export class Game {
   tick(deltaTime: number) {
     if (!this.paused) {
       this.tickPlayer(deltaTime);
-      this.keyboard.tick();
+      if (this.keyboard != null) this.keyboard.tick();
     }
     this.state.tick(deltaTime);
   }
