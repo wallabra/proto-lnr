@@ -37,7 +37,7 @@ export class EngageState implements AIHandler<EngageStartArgs> {
     }
 
     const dist = target.pos.clone().subtract(ship.pos).length();
-    const airtime = ship.shotAirtime(dist) || 0;
+    const airtime = ship.shotAirtime(dist) ?? 0;
     const targetSoonPos = target.pos
       .clone()
       .add(target.vel.multiplyScalar(airtime));
