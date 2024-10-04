@@ -61,7 +61,7 @@ export class PhysicsObject {
   public frozen = false;
   public size: number;
   public angle: number;
-  private _pos: Victor;
+  public pos: Victor;
   public lastPos: Victor;
   public height: number;
   public vspeed: number;
@@ -77,16 +77,8 @@ export class PhysicsObject {
   public restitution: number;
   public displacement = 0;
 
-  public get pos() {
-    return this._pos;
-  }
-
-  public set pos(pos: Victor) {
-    this._pos = pos;
-  }
-
   private posNanCheck() {
-    const pos = this._pos;
+    const pos = this.pos;
     if (isNaN(pos.x) || isNaN(pos.y)) {
       throw new Error("Tried to set NaN position to physics object");
     }    
@@ -121,10 +113,11 @@ export class PhysicsObject {
     const vel = this.vel;
     this.pos = newPos.clone();
     this.vel = vel;
+    this.posNanCheck();
   }
 
   shift(offset: Victor) {
-    this._pos.add(offset);
+    this.pos.add(offset);
     this.posNanCheck();
     this.lastPos.add(offset);
   }
