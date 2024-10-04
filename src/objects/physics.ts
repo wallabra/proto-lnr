@@ -56,26 +56,37 @@ export class PhysicsSimulation {
 }
 
 export class PhysicsObject {
-  play: PlayState;
-  lastFloor: { age: number; floor: number } | null;
-  frozen = false;
-  size: number;
-  angle: number;
-  pos: Victor;
-  lastPos: Victor;
-  height: number;
-  vspeed: number;
-  weight: number;
-  baseDrag: number;
-  baseFriction: number;
-  angVel: number;
-  angleDrag: number;
-  gravity: number;
-  buoyancy: number;
-  age: number;
-  dying: boolean;
-  restitution: number;
-  displacement = 0;
+  public play: PlayState;
+  public lastFloor: { age: number; floor: number } | null;
+  public frozen = false;
+  public size: number;
+  public angle: number;
+  private _pos: Victor;
+  public lastPos: Victor;
+  public height: number;
+  public vspeed: number;
+  public weight: number;
+  public baseDrag: number;
+  public baseFriction: number;
+  public angVel: number;
+  public angleDrag: number;
+  public gravity: number;
+  public buoyancy: number;
+  public age: number;
+  public dying: boolean;
+  public restitution: number;
+  public displacement = 0;
+
+  public get pos() {
+    return this._pos;
+  }
+
+  public set pos(pos: Victor) {
+    if (isNaN(pos.x) || isNaN(pos.y)) {
+      throw new Error("Tried to set NaN position to physics object");
+    }
+    this._pos = pos;
+  }
 
   constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
