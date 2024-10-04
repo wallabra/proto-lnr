@@ -614,10 +614,8 @@ export class Ship implements Tickable, Renderable {
     this.tickActions = [];
     this.money = 0;
     this.setMoney(
-      params.money != null
-        ? params.money
-        : random.uniform(5, 35)() +
-            this.makeup.make.cost * random.uniform(0.008, 0.08)(),
+      params.money ?? random.uniform(5, 35)() +
+            this.makeup.make.cost * random.uniform(0.0008, 0.005)(),
     );
 
     this.dragMixin();
