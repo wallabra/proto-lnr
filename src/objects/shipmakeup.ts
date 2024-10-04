@@ -1181,6 +1181,7 @@ export class ShipMakeup {
   }
 
   get shootRate() {
+    if (this.nextReadyCannon == null) return 0;
     return this.nextReadyCannon.shootRate;
   }
 
