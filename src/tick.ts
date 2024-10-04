@@ -1,4 +1,3 @@
-import { getReturnOfExpression } from "utility-types";
 import { Game } from "./game";
 
 let lastTime: number | null = null;
@@ -34,14 +33,14 @@ export function tickLoop(game: Game, current: number) {
     deltaTime -= frameDuration;
   }
 
+  requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
+
   try {
-    requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
+    processTick(game, deltaTime);
   } catch (e) {
     errored = true;
     throw e;
   }
-
-  processTick(game, deltaTime);
 }
 
 function processTick(game: Game, deltaTime: number) {
