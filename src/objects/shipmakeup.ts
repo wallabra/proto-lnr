@@ -756,7 +756,7 @@ function generateShipName() {
   parts.push(random.choice(shipNameCores));
   if (Math.random() < 0.25) parts.push(random.choice(shipNameSuffixes));
 
-  return parts.map((part) => part != null).join(" ");
+  return parts.filter((part) => part != null).join(" ");
 }
 
 export interface ShipMakeupArgs {
