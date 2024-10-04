@@ -91,7 +91,7 @@ export class PhysicsObject {
   constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
     this.play = play;
-    this.pos = pos;
+    this.pos = pos.clone();
     this.lastPos = pos.clone();
     if (params.vel) this.vel = params.vel;
     this.size = params.size ?? 1;
