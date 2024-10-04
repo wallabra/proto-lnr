@@ -57,7 +57,7 @@ export class PhysicsSimulation {
 
 export class PhysicsObject {
   public play: PlayState;
-  public lastFloor: { age: number; floor: number } | null;
+  public lastFloor: { age: number; floor: number } | null = null;
   public frozen = false;
   public size: number;
   public angle: number;
@@ -72,8 +72,9 @@ export class PhysicsObject {
   public angleDrag: number;
   public gravity: number;
   public buoyancy: number;
-  public age: number;
-  public dying: boolean;
+  public age = 0;
+  public tickAge = 0;
+  public dying = false;
   public restitution: number;
   public displacement = 0;
 
@@ -93,7 +94,6 @@ export class PhysicsObject {
     this.size = params.size ?? 1;
     this.angle = params.angle ?? 0;
     this.angVel = params.angVel ?? 0;
-    this.age = 0;
     this.height =
       params.height != null
         ? params.height
@@ -103,7 +103,6 @@ export class PhysicsObject {
     this.baseDrag = params.baseDrag ?? 0.5;
     this.baseFriction = params.baseFriction ?? 0.007;
     this.angleDrag = params.angleDrag ?? 0.05;
-    this.dying = false;
     this.gravity = params.gravity ?? 1.5;
     this.buoyancy = params.buoyancy ?? 0.06;
     this.restitution = params.restitution ?? 0.5;
@@ -374,6 +373,7 @@ export class PhysicsObject {
     if (this.frozen) return;
 
     this.age += deltaTime;
+    this.tickAge++;
 
     this.physAngle(deltaTime);
     this.physGravity(deltaTime);

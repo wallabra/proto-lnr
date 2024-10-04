@@ -1285,7 +1285,7 @@ export class Ship implements Tickable, Renderable {
     }
     
     if (isNaN(this.pos.x) || isNaN(this.pos.y)) {
-      throw new Error("Player position is NaN after " + at);
+      throw new Error(`Player position is NaN after ${at} (tick #${this.phys.tickAge})`);
     }
   }
 
