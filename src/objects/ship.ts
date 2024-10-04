@@ -1279,7 +1279,18 @@ export class Ship implements Tickable, Renderable {
     if (Math.random() < 0.3) this.phys.playSound("waterimpact", 0.1);
   }
 
-  tick(deltaTime: number) {
+  private nanCheckPrintPos(at: string) {
+    if (this.play.player == null || this.play.player.possessed !== this) {
+      return;
+    }
+    
+    if (isNaN(this.pos.x) || isNaN(this.pos.y)) {
+      throw new Error("Player position is NaN after " + at);
+    }
+  }
+
+  public tick(deltaTime: number) {
+    this.nanCheckPrintPos("tick start");
     if (this.pos.length() > 15000 && !this.isPlayer) {
       // Despawn NPC ships too far from land
       this.dying = true;
@@ -1287,13 +1298,18 @@ export class Ship implements Tickable, Renderable {
       return;
     }
     this.updateWeight();
+    this.nanCheckPrintPos("weight update");
     this.processTickActions(deltaTime);
+    this.nanCheckPrintPos("tick actions");
     this.makeup.tick(deltaTime, this);
+    this.nanCheckPrintPos("makeup tick");
     this.checkShipCollisions(deltaTime);
+    this.nanCheckPrintPos("ship collisions");
     this.checkTerrainDamage(deltaTime);
     this.pruneDeadInstigator();
     this.pruneDeadPointers();
     this.makeup.inventory.pruneItems();
     this.checkSpawnWave();
+    this.nanCheckPrintPos("wave spawn");
   }
 }
