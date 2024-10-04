@@ -227,9 +227,14 @@ export class PlayState extends Superstate {
 
     let money = player.money;
     playerShip = player.possessed = addShip(money / 2, player.makeup);
+    const member = player.fleet.find((member) => member.makeup === player.makeup);
+    if (member != null) {
+      member.ship = playerShip;
+    }
+    else {
+      console.warn("Could not find the player fleet member to register spawned player ship");
+    }
     const ships = [playerShip];
-
-    let encounteredPlayerInFleet = false;
 
     if (player.fleet.filter((s) => s.makeup.captain != null).length > 0) {
       money /= 2;
@@ -238,10 +243,6 @@ export class PlayState extends Superstate {
 
       for (const member of player.fleet) {
         if (member.makeup.captain == null) {
-          if (!encounteredPlayerInFleet) {
-            member.ship = playerShip;
-            encounteredPlayerInFleet = true;
-          }
           continue;
         }
         const offs = new Victor(
