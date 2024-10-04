@@ -1,9 +1,13 @@
+import { getReturnOfExpression } from "utility-types";
 import { Game } from "./game";
 
 let lastTime: number | null = null;
 const frameDuration = 1000 / 30;
+let errored = false;
 
 export function tickLoop(game: Game, current: number) {
+  if (errored) return;
+  
   if (lastTime == null) {
     requestAnimationFrame(
       tickLoop.bind(null, game) as (current: number) => void,
@@ -30,7 +34,12 @@ export function tickLoop(game: Game, current: number) {
     deltaTime -= frameDuration;
   }
 
-  requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
+  try {
+    requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
+  } catch (e) {
+    errored = true;
+    throw e;
+  }
 
   processTick(game, deltaTime);
 }
