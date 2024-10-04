@@ -614,17 +614,22 @@ export class Ship implements Tickable, Renderable {
     this.drawer = new ShipRenderContext(this);
   }
 
-  protected initMakeup(params: Partial<Pick<ShipParams, 'makeup' | 'make' | 'name'>>) {
-    if (params.makeup != null && params.makeup !== 'default') {
+  protected initMakeup(
+    params: Partial<Pick<ShipParams, "makeup" | "make" | "name">>,
+  ) {
+    if (params.makeup != null && params.makeup !== "default") {
       this.setMakeup(params.makeup);
       return;
     }
-    
+
     const makeupParams = {
       name: params.name ?? null,
-      make: params.make && (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make) || null
+      make:
+        (params.make &&
+          (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make)) ||
+        null,
     };
-    
+
     this.setMakeup(
       params.makeup === "default"
         ? ShipMakeup.defaultMakeup(makeupParams)

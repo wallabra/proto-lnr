@@ -61,9 +61,7 @@ export class Game {
   }
 
   resetPlayer() {
-    this.player = new Player(
-      this
-    );
+    this.player = new Player(this);
     if (this.state instanceof PlayState) this.state.reloadSoundEngine();
     console.log(this.player);
   }

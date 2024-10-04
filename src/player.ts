@@ -26,13 +26,14 @@ export class Player {
   kills = 0;
 
   constructor(game: Game, makeup: ShipMakeup | null = null, money = 0) {
+    makeup ??= ShipMakeup.defaultMakeup({ make: DEFAULT_MAKE });
     this.game = game;
     this.possessed = null;
     this.inputState = null;
     this.actions = [];
     this.money = money;
-    this.makeup = makeup ?? ShipMakeup.defaultMakeup({ make:DEFAULT_MAKE });
-    this.fleet = [{ makeup: makeup }];
+    this.makeup = makeup;
+    this.fleet = [{ makeup: this.makeup }];
     this.registerActions();
     console.log(this.makeup);
   }
@@ -40,7 +41,7 @@ export class Player {
   public updateMoneyFromFleet() {
     this.money = this.fleet
       .filter((m) => m.ship != null)
-      .reduce((a, b) => a + b.ship.money, 0);
+      .reduce((a, b) => a + b.ship!.money, 0);
   }
 
   public totalSalary() {

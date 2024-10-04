@@ -227,12 +227,15 @@ export class PlayState extends Superstate {
 
     let money = player.money;
     playerShip = player.possessed = addShip(money / 2, player.makeup);
-    const member = player.fleet.find((member) => member.makeup === player.makeup);
+    const member = player.fleet.find(
+      (member) => member.makeup === player.makeup,
+    );
     if (member != null) {
       member.ship = playerShip;
-    }
-    else {
-      console.warn("Could not find the player fleet member to register spawned player ship");
+    } else {
+      console.warn(
+        "Could not find the player fleet member to register spawned player ship",
+      );
     }
     const ships = [playerShip];
 
