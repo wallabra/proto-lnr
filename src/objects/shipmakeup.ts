@@ -773,6 +773,10 @@ export class ShipMakeup {
   name: string;
   captain: Crew | null;
 
+  public static defaultMakeup(args: ShipMakeupArgs) {
+    return new ShipMakeup(args).defaultLoadout();
+  }
+
   subtractFood(hunger: number): number {
     if (hunger <= 0) return 0;
     for (const food of this.inventory.getItemsOf("food")) {

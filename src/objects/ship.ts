@@ -35,6 +35,7 @@ export interface ShipParams extends PhysicsParams {
   makeup: ShipMakeup | "default";
   make?: ShipMake | "random";
   name?: string;
+  hullDamage?: number;
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -588,25 +589,13 @@ export class Ship implements Tickable, Renderable {
     if (params == null) params = {};
     if (params.size == null) params.size = 14;
 
-    const make: ShipMake =
-      (params.make &&
-        (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make)) ??
-      DEFAULT_MAKE;
-
     this.game = game;
     this.phys = (game.state as PlayState).makePhysObj(
       pos || new Victor(0, 0),
       params,
     );
-    const name =
-      (params.name ??
-        (params.makeup && params.makeup !== "default" && params.makeup.name)) ||
-      null;
-    this.setMakeup(
-      params.makeup === "default"
-        ? new ShipMakeup({ name: name, make: make }).defaultLoadout()
-        : (params.makeup ?? new ShipMakeup({ name: name, make: make })),
-    );
+
+    this.initMakeup(params);
     this.dying = false;
     this.lastInstigator = null;
     this.lastInstigTime = null;
@@ -623,6 +612,24 @@ export class Ship implements Tickable, Renderable {
     this.updateWeight();
 
     this.drawer = new ShipRenderContext(this);
+  }
+
+  protected initMakeup(params: Partial<Pick<ShipParams, 'makeup' | 'make' | 'name'>>) {
+    if (params.makeup != null && params.makeup !== 'default') {
+      this.setMakeup(params.makeup);
+      return;
+    }
+    
+    const makeupParams = {
+      name: params.name ?? null,
+      make: params.make && (params.make === "random" ? pickByRarity(MAKEDEFS) : params.make) || null
+    };
+    
+    this.setMakeup(
+      params.makeup === "default"
+        ? ShipMakeup.defaultMakeup(makeupParams)
+        : (params.makeup ?? new ShipMakeup(makeupParams)),
+    );
   }
 
   public scoreKill() {

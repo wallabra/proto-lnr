@@ -4,8 +4,9 @@ import type { PlayMouseHandler } from "./mouse";
 import type { Game } from "./game";
 import { IntermissionState } from "./superstates/shop";
 import { PlayState } from "./superstates/play";
-import type { ShipMakeup } from "./objects/shipmakeup";
+import { ShipMakeup } from "./objects/shipmakeup";
 import { lerp } from "./util";
+import { DEFAULT_MAKE } from "./shop/makedefs";
 
 export type PlayerAction = (deltaTime: number) => void;
 
@@ -24,14 +25,14 @@ export class Player {
   fleet: FleetMember[];
   kills = 0;
 
-  constructor(game: Game, ship: Ship, money = 0) {
+  constructor(game: Game, makeup: ShipMakeup | null = null, money = 0) {
     this.game = game;
-    this.possessed = ship;
+    this.possessed = null;
     this.inputState = null;
     this.actions = [];
     this.money = money;
-    this.makeup = ship.makeup;
-    this.fleet = [{ makeup: ship.makeup, ship: this.possessed }];
+    this.makeup = makeup ?? ShipMakeup.defaultMakeup({ make:DEFAULT_MAKE });
+    this.fleet = [{ makeup: makeup }];
     this.registerActions();
     console.log(this.makeup);
   }
