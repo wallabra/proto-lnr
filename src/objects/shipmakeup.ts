@@ -1192,11 +1192,11 @@ export class ShipMakeup {
   }
 
   totalWeight() {
-    console.log(this.inventory.items.map((item) => `${item.name} (${item.amount}): ${item.weight}`));
+    console.log(this.inventory.items.map((item) => [item, `${item.name} (${item.amount}): ${item.weight * (item.amount ?? 1)}`]));
     return (
       this.make.weight +
       this.inventory.items
-        .map((item) => item.weight * (item.amount || 1))
+        .map((item) => item.weight * (item.amount ?? 1))
         .reduce((a, b) => a + b, 0)
     );
   }
