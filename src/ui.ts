@@ -1159,7 +1159,12 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
   private updateScrollbar() {
     const shouldHave = this.scrollLength > this.axialSize;
 
-    if (!shouldHave && this.scrollbar != null) {
+    if (!shouldHave) {
+      if (this.scrollbar == null) {
+        return;
+      }
+      
+      console.log(this.scrollLength, this.axialSize);
       this.removeChild(this.scrollbar);
       this.scrollbar = null;
       this.scrollPos = 0;
@@ -1167,7 +1172,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
     }
 
     const barSize = Math.max(0.05, this.axialSize / this.scrollLength);
-
+      
     if (this.scrollbar == null) {
       this.scrollbar = new Scrollbar({
         parent: this,
