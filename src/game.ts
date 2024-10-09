@@ -43,7 +43,7 @@ export class Game {
   }
 
   modifyNpcCount(npcs: number): number {
-    return npcs * (1 + this.difficulty);
+    return npcs * (1 + this.difficulty * 0.4);
   }
 
   restart(
@@ -156,7 +156,7 @@ export class Game {
 
   setupNPCs(numNPCs: number | null = null) {
     (this.state as PlayState).setupNPCs(
-      this.modifyNpcCount(numNPCs || random.uniformInt(30, 60)()),
+      Math.round(this.modifyNpcCount(numNPCs ?? random.uniformInt(30, 60)())),
     );
   }
 

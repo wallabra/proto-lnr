@@ -96,9 +96,9 @@ export class PlayState extends Superstate {
           (1 + this.game.difficulty / 3),
       );
       const squadPos = new Victor(
-        Math.sqrt(Math.random()) * 1500 + 400 + radiusBonus,
+        Math.sqrt(Math.random()) * (1500 + radiusBonus) + 400 + radiusBonus / 2,
         0,
-      ).rotateBy(Math.random() * Math.PI * 2);
+      ).rotate(Math.random() * Math.PI * 2);
       if (
         squadPos.clone().subtract(this.player.possessed.pos).length() <
         this.player.possessed.size * this.player.possessed.lateralCrossSection +
