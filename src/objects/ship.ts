@@ -544,21 +544,29 @@ export class Ship implements Tickable, Renderable {
           other.purgeFromAlliance(this);
         } else return false;
       }
-
-      for (const follower of Array.from(this.followers)) {
-        follower.setInstigator(other);
-      }
-
-      for (const otherFollower of Array.from(other.followers)) {
-        otherFollower.setInstigator(this);
-      }
     }
 
-    if (this.lastInstigator != null) {
+    if (this.dying) {
+      return;
+    }
+
+    if (this.lastInstigator != other && this.lastInstigator != null) {
       this.lastInstigator.chasers.delete(this);
     }
 
     this.lastInstigator = other;
+
+    if (other == null) {
+      return;
+    }
+
+    for (const follower of Array.from(this.followers)) {
+      follower.setInstigator(other);
+    }
+
+    for (const otherFollower of Array.from(other.followers)) {
+      otherFollower.setInstigator(this);
+    }
 
     if (other != null) {
       other.chasers.add(this);
