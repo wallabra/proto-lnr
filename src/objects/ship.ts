@@ -568,10 +568,8 @@ export class Ship implements Tickable, Renderable {
       otherFollower.setInstigator(this);
     }
 
-    if (other != null) {
-      other.chasers.add(this);
-      this.lastInstigTime = Date.now();
-    }
+    other.chasers.add(this);
+    this.lastInstigTime = Date.now();
 
     return true;
   }
