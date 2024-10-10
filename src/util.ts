@@ -30,9 +30,9 @@ export function zeroPad(text: string, size: number) {
 }
 
 export function moneyString(cash: number) {
-  let cashStr = '$' + Math.abs(cash).toFixed(2);
-  if (cash < 0) cashStr = '-' + cashStr;
-  
+  let cashStr = "$" + Math.abs(cash).toFixed(2);
+  if (cash < 0) cashStr = "-" + cashStr;
+
   return cashStr;
 }
 
