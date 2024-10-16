@@ -4,13 +4,9 @@ import type {
   CanvasLabelArgs,
   CanvasUIElement,
   UIDrawContext,
-  UIEvent} from "../ui";
-import {
-  CanvasButton,
-  CanvasLabel,
-  CanvasRoot,
-  CanvasUIGroup
+  UIEvent,
 } from "../ui";
+import { CanvasButton, CanvasLabel, CanvasRoot, CanvasUIGroup } from "../ui";
 import { GUIMouseHandler } from "../mouse";
 import type { GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";

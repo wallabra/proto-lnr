@@ -1,6 +1,5 @@
 import type { Optional } from "utility-types";
-import type {
-  ShipItem} from "../inventory";
+import type { ShipItem } from "../inventory";
 import {
   FoodItem,
   FuelItem,

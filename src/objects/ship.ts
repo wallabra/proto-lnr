@@ -6,14 +6,8 @@ import type { CashPickupParams } from "./cash";
 import { CashPickup } from "./cash";
 import type { PlayState, Tickable } from "../superstates/play";
 import type { Game } from "../game";
-import type {
-  Engine,
-  ShipMake,
-  Cannon} from "./shipmakeup";
-import {
-  ShipMakeup,
-  SMOKE_COLORS,
-} from "./shipmakeup";
+import type { Engine, ShipMake, Cannon } from "./shipmakeup";
+import { ShipMakeup, SMOKE_COLORS } from "./shipmakeup";
 import type { ShipItem } from "../inventory";
 import type { ItemPickupParamType } from "./pickup";
 import { ItemPickup } from "./pickup";

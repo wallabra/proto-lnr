@@ -135,6 +135,8 @@ export class SpawnClass {
     let attempts = 0;
     const squadSize = defs.length;
 
+    state.makeAIFor(head);
+
     while (defs.length > 0) {
       if (attempts > 3 * squadSize) {
         break;

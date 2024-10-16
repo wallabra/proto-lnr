@@ -1,7 +1,7 @@
 import type { Superstate } from "./superstates/base";
 import { Player } from "./player";
 import type { InputEvent } from "./player";
-import type { TerraDef} from "./terrain";
+import type { TerraDef } from "./terrain";
 import { landfillGenerator } from "./terrain";
 import { PlayState } from "./superstates/play";
 import type { MouseHandler } from "./mouse";

@@ -1,12 +1,6 @@
 import type { Game } from "../game";
-import type {
-  FuelItemArgs,
-  ShipItem} from "../inventory";
-import {
-  FoodItem,
-  FuelItem,
-  computeResellCost,
-} from "../inventory";
+import type { FuelItemArgs, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, computeResellCost } from "../inventory";
 import { GUIKeyHandler } from "../keyinput";
 import type { GameMouseInfo } from "../mouse";
 import { GUIMouseHandler } from "../mouse";
@@ -28,7 +22,8 @@ import type {
   CanvasButtonArgs,
   CanvasLabelArgs,
   CanvasUIElement,
-  CanvasUIArgs} from "../ui";
+  CanvasUIArgs,
+} from "../ui";
 import {
   CanvasButton,
   CanvasLabel,

@@ -1,12 +1,10 @@
 import Victor from "victor";
-import type {
-  TerraSector,
-  Terrain} from "./terrain";
+import type { TerraSector, Terrain } from "./terrain";
 import {
   SECTOR_AREA,
   SECTOR_SIZE,
   SECTOR_REAL_SIZE,
-  SECTOR_RES
+  SECTOR_RES,
 } from "./terrain";
 import type { PlayState } from "./superstates/play";
 import { rgbString, interpColor, lerp, moneyString, unlerp } from "./util";
@@ -15,13 +13,14 @@ import type {
   CanvasPanelArgs,
   CanvasUIArgs,
   CanvasUIElement,
-  UIDrawContext} from "./ui";
+  UIDrawContext,
+} from "./ui";
 import {
   CanvasLabel,
   CanvasPanel,
   CanvasProgressBar,
   CanvasRoot,
-  CanvasUIGroup
+  CanvasUIGroup,
 } from "./ui";
 import type { Optional } from "utility-types";
 import type { Player } from "./player";
