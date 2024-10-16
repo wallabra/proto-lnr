@@ -130,7 +130,7 @@ export class PlayState extends Superstate {
 
   startContinuousSpawns(interval = 30) {
     this.stopContinuousSpawns();
-    this.continuousSpawnTimer = setInterval(
+    this.continuousSpawnTimer = this.game.setInterval(
       () => this.spawnEdgeNPCs(),
       interval * 1000,
     );
@@ -138,7 +138,7 @@ export class PlayState extends Superstate {
 
   stopContinuousSpawns() {
     if (this.continuousSpawnTimer !== null) {
-      clearInterval(this.continuousSpawnTimer);
+      this.game.clearInterval(this.continuousSpawnTimer);
       this.continuousSpawnTimer = null;
     }
   }
