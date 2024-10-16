@@ -131,11 +131,11 @@ export class SpawnClass {
       args,
       9 + state.game.difficulty * 3 + difficultyBonus,
     );
+
     const squad = [head];
+
     let attempts = 0;
     const squadSize = defs.length;
-
-    state.makeAIFor(head);
 
     while (defs.length > 0) {
       if (attempts > 3 * squadSize) {
@@ -179,18 +179,26 @@ export class SpawnClass {
         continue;
       }
 
+      ship.follow(head);
+      squad.push(ship);
+      defs.shift();
+    }
+
+    for (const ship of squad) {
       state.makeAIFor(ship);
 
       //-- fun mode 1: instant shower of death
-      //ship.aggro(this.player.possessed);
+      // ship.aggro(this.player.possessed);
 
       //-- fun mode 2: everyone loves you & protects you to death
-      //if (Math.random() < 0.3 && ship.makeup.nextReadyCannon != null) {
-      //  ship.follow(this.player.possessed);
-      //}
-
-      squad.push(ship);
-      defs.shift();
+      // if (
+      //   Math.random() < 0.3 &&
+      //   ship.makeup.nextReadyCannon != null &&
+      //   state.player != null &&
+      //   state.player.possessed != null
+      // ) {
+      //   ship.follow(state.player.possessed);
+      // }
     }
 
     return squad;

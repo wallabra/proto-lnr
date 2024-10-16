@@ -440,10 +440,48 @@ class ShipRenderContext {
     this.drawCrosshair(cannon);
   }
 
+  drawFollowLine() {
+    const { ship, info, ctx } = this;
+    const following = ship.following;
+
+    if (following == null) return;
+
+    const from = info.toScreen(ship.pos);
+    const to = info.toScreen(following.pos);
+
+    const off = to.clone().subtract(from).norm();
+
+    from.add(
+      off.clone().multiplyScalar(5 + ship.phys.size * ship.lateralCrossSection),
+    );
+    to.subtract(
+      off
+        .clone()
+        .multiplyScalar(
+          5 + following.phys.size * following.lateralCrossSection,
+        ),
+    );
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(170, 190, 170, 0.5)";
+    ctx.lineDashOffset = 5;
+    ctx.setLineDash([30, 10]);
+
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+  }
+
   draw(info: ObjectRenderInfo) {
+    this.update(info);
+
+    this.drawFollowLine();
+
     if (!this.ship.isVisible(info)) return;
 
-    this.update(info);
     this.drawBody();
     this.drawCannons();
     this.drawDamageBar();
