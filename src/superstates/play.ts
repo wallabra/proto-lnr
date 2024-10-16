@@ -124,7 +124,9 @@ export class PlayState extends Superstate {
 
   spawnEdgeNPCs(): Ship[] {
     return this.spawnRandomNPCs(
-      new Victor(3000, 0).rotate(Math.random() * Math.PI * 2),
+      new Victor(Math.max(2000, random.normal(2500, 300)()), 0).rotate(
+        Math.random() * Math.PI * 2,
+      ),
     );
   }
 

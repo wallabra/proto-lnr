@@ -8,7 +8,7 @@ import type { MouseHandler } from "./mouse";
 import type { KeyHandler } from "./keyinput";
 import random from "random";
 import { MainMenuState } from "./superstates/start";
-import type { Callback} from "./interval";
+import type { Callback } from "./interval";
 import { IntervalLoop } from "./interval";
 
 const DEFAULT_GAMEMODE = "freeplay";
