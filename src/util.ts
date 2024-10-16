@@ -95,3 +95,13 @@ export function arrayCounter<T>(arr: T[]): Map<T, number> {
 
   return counted;
 }
+
+export function maybeWeighted<A extends object>(
+  from: A | WeightedItem<A>[],
+): A {
+  return from.constructor === Array ? rwc(from) : (from as A);
+}
+
+export function maybeRange(val: number | { min: number; max: number }): number {
+  return typeof val === "number" ? val : random.uniformInt(val.min, val.max)();
+}

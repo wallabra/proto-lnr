@@ -105,6 +105,8 @@ export class Game {
     stateType: new (game: Game, ...args: A[]) => T,
     ...args: A[]
   ): T {
+    if ((this.state as Superstate | undefined) != null) this.state.deinit();
+
     const res = new stateType(this, ...args);
     this.state = res;
     res.init();
