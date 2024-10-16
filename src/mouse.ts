@@ -1,8 +1,8 @@
 import Victor from "victor";
-import { Game } from "./game";
-import { IntermissionState } from "./superstates/shop";
+import type { Game } from "./game";
+import type { IntermissionState } from "./superstates/shop";
 import match from "rustmatchjs";
-import { CanvasUIElement } from "./ui";
+import type { CanvasUIElement } from "./ui";
 
 type MouseCallbackFunc = (e: MouseEvent) => void;
 

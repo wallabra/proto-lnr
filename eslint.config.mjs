@@ -6,6 +6,7 @@ export default tseslint.config(
   { languageOptions: { globals: globals.browser },
     rules: {
     "no-unused-vars": "off",
+    "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/no-unused-vars": [
       "warn", // or "error"
       {

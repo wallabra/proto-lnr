@@ -1,4 +1,4 @@
-import { FoodArgs } from "../inventory";
+import type { FoodArgs } from "../inventory";
 
 interface ShopItemDef {
   shopRepeat?: number;

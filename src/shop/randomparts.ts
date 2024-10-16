@@ -8,7 +8,8 @@ import type {
   VacuumArgs,
 } from "../objects/shipmakeup";
 import { Cannon, Engine, Vacuum, slots } from "../objects/shipmakeup";
-import { AnyPartDef, PARTDEFS, PartDef } from "./partdefs";
+import type { AnyPartDef, PartDef } from "./partdefs";
+import { PARTDEFS } from "./partdefs";
 import random from "random";
 import { pickByRarity } from "./rarity";
 

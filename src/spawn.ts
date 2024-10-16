@@ -1,12 +1,13 @@
 //! Continuous spawning related definitions and methods.
 
-import { Optional } from "utility-types";
-import { ShipMake } from "./objects/shipmakeup";
-import { maybeRange, maybeWeighted, rwc, WeightedItem } from "./util";
+import type { Optional } from "utility-types";
+import type { ShipMake } from "./objects/shipmakeup";
+import type { WeightedItem } from "./util";
+import { maybeRange, maybeWeighted, rwc } from "./util";
 import random from "random";
-import { PlayState } from "./superstates/play";
+import type { PlayState } from "./superstates/play";
 import Victor from "victor";
-import { Ship, ShipParams } from "./objects/ship";
+import type { Ship, ShipParams } from "./objects/ship";
 import { MAKEDEFS } from "./shop/makedefs";
 
 /// Extra parameters for how a ship should be spawned.

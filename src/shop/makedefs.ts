@@ -1,4 +1,4 @@
-import { ShipMake } from "../objects/shipmakeup";
+import type { ShipMake } from "../objects/shipmakeup";
 
 export interface ShipMakeDef extends ShipMake {
   rarity: number;

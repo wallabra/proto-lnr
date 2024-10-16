@@ -1,29 +1,31 @@
 import Victor from "victor";
-import {
+import type {
   TerraSector,
+  Terrain} from "./terrain";
+import {
   SECTOR_AREA,
   SECTOR_SIZE,
   SECTOR_REAL_SIZE,
-  SECTOR_RES,
-  Terrain,
+  SECTOR_RES
 } from "./terrain";
-import { PlayState } from "./superstates/play";
+import type { PlayState } from "./superstates/play";
 import { rgbString, interpColor, lerp, moneyString, unlerp } from "./util";
-import {
-  CanvasLabel,
+import type {
   CanvasLabelArgs,
-  CanvasPanel,
   CanvasPanelArgs,
-  CanvasProgressBar,
-  CanvasRoot,
   CanvasUIArgs,
   CanvasUIElement,
-  CanvasUIGroup,
-  UIDrawContext,
+  UIDrawContext} from "./ui";
+import {
+  CanvasLabel,
+  CanvasPanel,
+  CanvasProgressBar,
+  CanvasRoot,
+  CanvasUIGroup
 } from "./ui";
-import { Optional } from "utility-types";
-import { Player } from "./player";
-import { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
+import type { Optional } from "utility-types";
+import type { Player } from "./player";
+import type { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
 
 export interface ObjectRenderInfo {
   scale: number;

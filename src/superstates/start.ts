@@ -1,14 +1,15 @@
 import { Superstate } from "./base";
+import type {
+  CanvasButtonArgs,
+  CanvasLabelArgs,
+  CanvasUIElement,
+  UIDrawContext,
+  UIEvent} from "../ui";
 import {
   CanvasButton,
-  CanvasButtonArgs,
   CanvasLabel,
-  CanvasLabelArgs,
   CanvasRoot,
-  CanvasUIElement,
-  CanvasUIGroup,
-  UIDrawContext,
-  UIEvent,
+  CanvasUIGroup
 } from "../ui";
 import { GUIMouseHandler } from "../mouse";
 import type { GameMouseInfo } from "../mouse";

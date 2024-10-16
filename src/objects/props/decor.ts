@@ -1,8 +1,8 @@
-import { ObjectRenderInfo, Renderable } from "../../render";
-import { PlayState, Tickable } from "../../superstates/play";
-import { PhysicsObject, PhysicsParams } from "../physics";
+import type { ObjectRenderInfo, Renderable } from "../../render";
+import type { PlayState, Tickable } from "../../superstates/play";
+import type { PhysicsObject, PhysicsParams } from "../physics";
 import { rwc } from "../../util";
-import Victor from "victor";
+import type Victor from "victor";
 
 export interface DecorArgs extends Partial<PhysicsParams> {
   sprite?: string;

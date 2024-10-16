@@ -1,15 +1,16 @@
-import { Optional } from "utility-types";
+import type { Optional } from "utility-types";
+import type {
+  ShipItem} from "../inventory";
 import {
   FoodItem,
   FuelItem,
   ShipInventory,
-  ShipItem,
   computeResellCost,
 } from "../inventory";
-import { Cannonball } from "./cannonball";
-import { Ship } from "./ship";
+import type { Cannonball } from "./cannonball";
+import type { Ship } from "./ship";
 import Victor from "victor";
-import { Player } from "../player";
+import type { Player } from "../player";
 import {
   DEFAULT_CANNON,
   DEFAULT_ENGINE,

@@ -1,25 +1,28 @@
 import Victor from "victor";
 import { angDiff, umod, lerp } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
-import { ObjectRenderInfo, Renderable } from "../render";
-import { CashPickup, CashPickupParams } from "./cash";
-import { PlayState, Tickable } from "../superstates/play";
-import { Game } from "../game";
-import {
+import type { ObjectRenderInfo, Renderable } from "../render";
+import type { CashPickupParams } from "./cash";
+import { CashPickup } from "./cash";
+import type { PlayState, Tickable } from "../superstates/play";
+import type { Game } from "../game";
+import type {
   Engine,
   ShipMake,
+  Cannon} from "./shipmakeup";
+import {
   ShipMakeup,
-  Cannon,
   SMOKE_COLORS,
 } from "./shipmakeup";
-import { ShipItem } from "../inventory";
-import { ItemPickup, ItemPickupParamType } from "./pickup";
+import type { ShipItem } from "../inventory";
+import type { ItemPickupParamType } from "./pickup";
+import { ItemPickup } from "./pickup";
 import { MAKEDEFS } from "../shop/makedefs";
 import random from "random";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
-import { Nullish } from "utility-types";
+import type { Nullish } from "utility-types";
 
 const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
   coal: "engine_coal",

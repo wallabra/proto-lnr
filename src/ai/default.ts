@@ -1,4 +1,4 @@
-import { AIStates } from "./ai";
+import type { AIStates } from "./ai";
 import { StartState } from "./states/start";
 import { SeekCrateState } from "./states/seekcrate";
 import { EngageState } from "./states/engage";

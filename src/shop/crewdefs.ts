@@ -1,4 +1,4 @@
-import { CrewArgs } from "../objects/shipmakeup";
+import type { CrewArgs } from "../objects/shipmakeup";
 
 export const CREWDEFS: CrewArgs[] = [
   { name: "Hicks", salary: 75, weight: 70, shopChance: 0.8 },
