@@ -2,7 +2,7 @@
 
 import type { Optional } from "utility-types";
 import type { ShipMake } from "./objects/shipmakeup";
-import type { WeightedItem } from "./util";
+import type { RandomRange, WeightedItem } from "./util";
 import { maybeRange, maybeWeighted, rwc } from "./util";
 import random from "random";
 import type { PlayState } from "./superstates/play";
@@ -20,34 +20,34 @@ export interface SpawnParams {
   /// 1 gives enough food for the whole crew for 2 days.
   ///
   /// Defaults to 1.
-  foodFactor?: number;
+  foodFactor?: number | RandomRange;
 
   /// A linear scale for how much ammo to give the ship.
   ///
   /// Defaults to 1.
-  ammoFactor?: number;
+  ammoFactor?: number | RandomRange;
 
   /// A linear scale for how much fuel to give the ship.
   ///
   /// Defaults to 1.
-  fuelFactor?: number;
+  fuelFactor?: number | RandomRange;
 
   /// How much extra loots o add, e.g. for "merchant" type ships.
   ///
   /// This consists on uninstalled parts other 'valuable' items.
   ///
   /// Defaults to 0.
-  extraLoot?: number | { min: number; max: number };
+  extraLoot?: number | RandomRange;
 
   /// Linear scale for the 'bonus' to apply to the ship's random parts.
   ///
   /// Defaults to 1.
-  bonusFactor?: number;
+  bonusFactor?: number | RandomRange;
 
   /// Linear offset for the 'bonus' to apply to the ship's random parts.
   ///
   /// Defaults to 0.
-  extraBonus?: number;
+  extraBonus?: number | RandomRange;
 }
 
 /// A definition for an individual spawn.
@@ -77,7 +77,7 @@ export function pollRandomParam(def: RandomizedSpawnParams): IndividualSpawn {
 export interface SpawnClassArgs {
   head: RandomizedSpawnParams;
   squad: RandomizedSpawnParams | WeightedItem<RandomizedSpawnParams>[];
-  squadSize?: number | { min: number; max: number };
+  squadSize?: number | RandomRange;
 }
 
 /**
@@ -87,7 +87,7 @@ export interface SpawnClassArgs {
 export class SpawnClass {
   head: RandomizedSpawnParams;
   squad: RandomizedSpawnParams | WeightedItem<RandomizedSpawnParams>[];
-  squadSize: number | { min: number; max: number };
+  squadSize: number | RandomRange;
 
   constructor(args: Optional<SpawnClassArgs, "squadSize">) {
     this.head = args.head;
@@ -216,10 +216,10 @@ export function spawnShipOnDef(
     typeof def.armed === "number"
       ? random.uniform(0, 1)() < def.armed
       : def.armed,
-    bonus * (def.bonusFactor ?? 1) + (def.extraBonus ?? 0),
-    def.ammoFactor,
-    def.fuelFactor,
-    def.foodFactor,
+    bonus * maybeRange(def.bonusFactor ?? 1) + maybeRange(def.extraBonus ?? 0),
+    maybeRange(def.ammoFactor ?? 0),
+    maybeRange(def.fuelFactor ?? 0),
+    maybeRange(def.foodFactor ?? 0),
   );
 
   // TODO: apply extra loot for merchant ships
@@ -334,7 +334,7 @@ export const SPAWN_CLASSES: { [name: string]: WeightedItem<SpawnClass> } = {
       squad: {
         make: [
           {
-            item: findMake("Patroler"),
+            item: findMake("Patroller"),
             weight: 2,
           },
           {
@@ -365,6 +365,112 @@ export const SPAWN_CLASSES: { [name: string]: WeightedItem<SpawnClass> } = {
       squadSize: 0,
     }),
     weight: 4,
+  },
+
+  BATTLESHIP: {
+    weight: 1 / 30,
+    item: new SpawnClass({
+      head: {
+        make: [
+          {
+            item: findMake("Jasper"),
+            weight: 10,
+          },
+          {
+            item: findMake("Marie Antoniette"),
+            weight: 9,
+          },
+          {
+            item: findMake("Vicky Victorious"),
+            weight: 6,
+          },
+        ],
+        armed: true,
+        ammoFactor: 5,
+        fuelFactor: 3,
+        extraBonus: 2,
+        extraLoot: { min: 0, max: 2 },
+        foodFactor: 2.5,
+      },
+      squad: {
+        make: [
+          {
+            item: findMake("Patroller"),
+            weight: 4,
+          },
+          {
+            item: findMake("Hubris"),
+            weight: 3,
+          },
+          {
+            item: findMake("High Harpooner"),
+            weight: 3,
+          },
+          {
+            item: findMake("High Seas Roberts"),
+            weight: 2,
+          },
+        ],
+        armed: true,
+        extraBonus: 0.5,
+        ammoFactor: 2,
+        fuelFactor: 1.2,
+        extraLoot: { min: 0, max: 0.5 },
+      },
+      squadSize: { min: 0, max: 3 },
+    }),
+  },
+
+  PIRATE: {
+    weight: 1 / 30,
+    item: new SpawnClass({
+      head: {
+        make: [
+          {
+            item: findMake("High Harpooner"),
+            weight: 8,
+          },
+          {
+            item: findMake("High Seas Roberts"),
+            weight: 6,
+          },
+          {
+            item: findMake("Wisp o' the Morning"),
+            weight: 8,
+          },
+          {
+            item: findMake("Jasper"),
+            weight: 3,
+          },
+        ],
+        armed: true,
+        ammoFactor: 2,
+        extraLoot: { min: 1, max: 4 },
+        extraBonus: 1,
+        bonusFactor: 1.2,
+        foodFactor: 0.8,
+      },
+      squad: {
+        make: [
+          {
+            item: findMake("Hubris"),
+            weight: 4,
+          },
+          {
+            item: findMake("Queen Bee"),
+            weight: 7,
+          },
+        ],
+        armed: true,
+        bonusFactor: 1.1,
+        extraBonus: 0.5,
+        ammoFactor: 1.2,
+        foodFactor: 0.6,
+        fuelFactor: 1.5,
+        extraLoot: 0.2,
+      },
+      squadSize: { min: 0, max: 5 },
+    }),
   },
 };
 
