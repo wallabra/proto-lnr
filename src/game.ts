@@ -48,7 +48,7 @@ export class Game {
   }
 
   modifyNpcCount(npcs: number): number {
-    return npcs * (1 + this.difficulty * 0.4);
+    return npcs * (1 + 0.33 * Math.log(1 + this.difficulty));
   }
 
   restart(
