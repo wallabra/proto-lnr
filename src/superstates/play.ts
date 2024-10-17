@@ -77,7 +77,7 @@ export class PlayState extends Superstate {
 
   public killAllNPCs() {
     this.tickables.forEach((t) => {
-      if (t.type !== 'ship') {
+      if (t.type !== "ship") {
         return;
       }
       if (t === this.player?.possessed) {
@@ -85,7 +85,7 @@ export class PlayState extends Superstate {
       }
 
       (t as Ship).die();
-    })
+    });
   }
 
   setupNPCs(numNPCs: number) {

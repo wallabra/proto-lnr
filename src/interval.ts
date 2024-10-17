@@ -25,9 +25,7 @@ export class IntervalLoop {
   private bumpCallback(reg: CallbackRegister): CallbackRegister {
     return {
       ...reg,
-      when:
-        reg.when +
-        reg.interval * Math.ceil((this.now() - reg.when) / reg.interval),
+      when: reg.when + reg.interval,
     };
   }
 
@@ -63,18 +61,22 @@ export class IntervalLoop {
 
   private checkExecute(): void {
     const now = this.now();
-    for (const reg of this.nextCallbacks) {
+    for (let reg of this.nextCallbacks) {
       if (reg.when > now) break;
 
-      reg.callback();
+      while (reg.when <= now) {
+        reg.callback();
+        reg = this.bumpCallback(reg);
+      }
+      
       this.nextCallbacks.shift();
-      this.nextCallbacks.push(this.bumpCallback(reg));
+      this.nextCallbacks.push(reg);
     }
     this.sortCallbacks();
   }
 
   public tick(deltaTime: number): void {
-    this.timeCounter += deltaTime;
+    this.timeCounter += deltaTime * 1000;
     this.checkExecute();
   }
 }
