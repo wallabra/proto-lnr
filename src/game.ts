@@ -1,12 +1,15 @@
 import type { Superstate } from "./superstates/base";
 import { Player } from "./player";
 import type { InputEvent } from "./player";
-import { TerraDef, landfillGenerator } from "./terrain";
+import type { TerraDef } from "./terrain";
+import { landfillGenerator } from "./terrain";
 import { PlayState } from "./superstates/play";
-import { MouseHandler } from "./mouse";
-import { KeyHandler } from "./keyinput";
+import type { MouseHandler } from "./mouse";
+import type { KeyHandler } from "./keyinput";
 import random from "random";
 import { MainMenuState } from "./superstates/start";
+import type { Callback } from "./interval";
+import { IntervalLoop } from "./interval";
 
 const DEFAULT_GAMEMODE = "freeplay";
 
@@ -18,6 +21,7 @@ export class Game {
   zoom: number;
   mouse: MouseHandler | null;
   keyboard: KeyHandler | null;
+  intervalLoop: IntervalLoop = new IntervalLoop();
   gamemode: string = DEFAULT_GAMEMODE;
   paused = false;
 
@@ -40,10 +44,11 @@ export class Game {
     this.drawCtx = ctx;
     this.zoom = 2000;
     this.setState(MainMenuState);
+    this.intervalLoop = new IntervalLoop();
   }
 
   modifyNpcCount(npcs: number): number {
-    return npcs * (1 + this.difficulty * 0.4);
+    return npcs * (1 + 0.33 * Math.log(1 + this.difficulty));
   }
 
   restart(
@@ -105,6 +110,9 @@ export class Game {
     stateType: new (game: Game, ...args: A[]) => T,
     ...args: A[]
   ): T {
+    if ((this.state as Superstate | undefined) != null) this.state.deinit();
+    this.intervalLoop.clearAllIntervals();
+
     const res = new stateType(this, ...args);
     this.state = res;
     res.init();
@@ -171,6 +179,7 @@ export class Game {
     if (!this.paused) {
       this.tickPlayer(deltaTime);
       if (this.keyboard != null) this.keyboard.tick();
+      this.intervalLoop.tick(deltaTime);
     }
     this.state.tick(deltaTime);
   }
@@ -180,5 +189,17 @@ export class Game {
     this.canvas.height = this.height;
 
     this.state.render();
+  }
+
+  public setInterval(
+    callback: Callback,
+    interval: number,
+    immediateCallback: boolean = false,
+  ): number {
+    return this.intervalLoop.setInterval(callback, interval, immediateCallback);
+  }
+
+  public clearInterval(id: number): void {
+    this.intervalLoop.clearInterval(id);
   }
 }

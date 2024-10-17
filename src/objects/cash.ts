@@ -1,4 +1,4 @@
-import Victor from "victor";
+import type Victor from "victor";
 import { Pickup } from "./pickup";
 import type { PhysicsParams } from "./physics";
 import type { Ship } from "./ship";

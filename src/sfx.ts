@@ -1,4 +1,4 @@
-import Victor from "victor";
+import type Victor from "victor";
 import { Howl, Howler } from "howler";
 
 const audioCache: Record<string, Howl> = {};

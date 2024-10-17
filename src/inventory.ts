@@ -1,5 +1,5 @@
-import { ShipMakeup } from "./objects/shipmakeup";
-import { Player } from "./player";
+import type { ShipMakeup } from "./objects/shipmakeup";
+import type { Player } from "./player";
 import { DFAULT_RESELL_FACTOR } from "./superstates/shop";
 
 export interface InventoryItem {

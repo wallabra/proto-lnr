@@ -1,25 +1,22 @@
 import Victor from "victor";
 import { angDiff, umod, lerp } from "../util";
 import type { PhysicsObject, PhysicsParams } from "./physics.ts";
-import { ObjectRenderInfo, Renderable } from "../render";
-import { CashPickup, CashPickupParams } from "./cash";
-import { PlayState, Tickable } from "../superstates/play";
-import { Game } from "../game";
-import {
-  Engine,
-  ShipMake,
-  ShipMakeup,
-  Cannon,
-  SMOKE_COLORS,
-} from "./shipmakeup";
-import { ShipItem } from "../inventory";
-import { ItemPickup, ItemPickupParamType } from "./pickup";
+import type { ObjectRenderInfo, Renderable } from "../render";
+import type { CashPickupParams } from "./cash";
+import { CashPickup } from "./cash";
+import type { PlayState, Tickable } from "../superstates/play";
+import type { Game } from "../game";
+import type { Engine, ShipMake, Cannon } from "./shipmakeup";
+import { ShipMakeup, SMOKE_COLORS } from "./shipmakeup";
+import type { ShipItem } from "../inventory";
+import type { ItemPickupParamType } from "./pickup";
+import { ItemPickup } from "./pickup";
 import { MAKEDEFS } from "../shop/makedefs";
 import random from "random";
 import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
-import { Nullish } from "utility-types";
+import type { Nullish } from "utility-types";
 
 const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
   coal: "engine_coal",
@@ -443,10 +440,48 @@ class ShipRenderContext {
     this.drawCrosshair(cannon);
   }
 
+  drawFollowLine() {
+    const { ship, info, ctx } = this;
+    const following = ship.following;
+
+    if (following == null) return;
+
+    const from = info.toScreen(ship.pos);
+    const to = info.toScreen(following.pos);
+
+    const off = to.clone().subtract(from).norm();
+
+    from.add(
+      off.clone().multiplyScalar(5 + ship.phys.size * ship.lateralCrossSection),
+    );
+    to.subtract(
+      off
+        .clone()
+        .multiplyScalar(
+          5 + following.phys.size * following.lateralCrossSection,
+        ),
+    );
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(170, 190, 170, 0.5)";
+    ctx.lineDashOffset = 5;
+    ctx.setLineDash([30, 10]);
+
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+  }
+
   draw(info: ObjectRenderInfo) {
+    this.update(info);
+
+    this.drawFollowLine();
+
     if (!this.ship.isVisible(info)) return;
 
-    this.update(info);
     this.drawBody();
     this.drawCannons();
     this.drawDamageBar();

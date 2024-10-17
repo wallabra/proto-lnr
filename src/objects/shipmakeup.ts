@@ -1,15 +1,15 @@
-import { Optional } from "utility-types";
+import type { Optional } from "utility-types";
+import type { ShipItem } from "../inventory";
 import {
   FoodItem,
   FuelItem,
   ShipInventory,
-  ShipItem,
   computeResellCost,
 } from "../inventory";
-import { Cannonball } from "./cannonball";
-import { Ship } from "./ship";
+import type { Cannonball } from "./cannonball";
+import type { Ship } from "./ship";
 import Victor from "victor";
-import { Player } from "../player";
+import type { Player } from "../player";
 import {
   DEFAULT_CANNON,
   DEFAULT_ENGINE,
@@ -844,16 +844,16 @@ export class ShipMakeup {
     this.make = make;
   }
 
-  addDefaultFuel(part: ShipPart, factor = 1) {
+  addDefaultFuel(part: ShipPart, ammoFactor = 1, fuelFactor = 1) {
     const res = match<string, ShipItem | null>(
       part.type,
       match.val("cannon", () => {
-        return new CannonballAmmo((part as Cannon).caliber, 20 * factor);
+        return new CannonballAmmo((part as Cannon).caliber, 20 * ammoFactor);
       }),
       match.val("engine", () => {
         const engine = part as Engine;
         if (engine.fuelType == null) return null;
-        const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * factor;
+        const fuelAmount = engine.fuelCost * DEFAULT_FUEL_FACTOR * fuelFactor;
 
         const props = FUEL_PROPS[engine.fuelType];
         if (props === undefined) {
@@ -885,8 +885,8 @@ export class ShipMakeup {
     return res;
   }
 
-  addDefaultFood(crew: Crew) {
-    let nutrition = crew.caloricIntake * 2;
+  addDefaultFood(crew: Crew, foodFactor = 1) {
+    let nutrition = crew.caloricIntake * 2 * foodFactor;
     while (nutrition > 0) {
       const def = random.choice(FOODDEFS);
       if (def == null) break;
@@ -896,7 +896,7 @@ export class ShipMakeup {
     }
   }
 
-  addDefaultCrew(part: ShipPart): boolean {
+  addDefaultCrew(part: ShipPart, foodFactor = 1): boolean {
     if (!part.manned) return false;
     let neededStrength = typeof part.manned === "number" ? part.manned : 1;
     while (neededStrength > 0) {
@@ -906,16 +906,21 @@ export class ShipMakeup {
         return false;
       }
       crew.assignToPart(this, part);
-      this.addDefaultFood(crew);
+      this.addDefaultFood(crew, foodFactor);
       this.inventory.addItem(crew);
       neededStrength -= crew.strength;
     }
     return true;
   }
 
-  addDefaultDependencies(part: ShipPart, factor = 1): this {
-    this.addDefaultFuel(part, factor);
-    this.addDefaultCrew(part);
+  addDefaultDependencies(
+    part: ShipPart,
+    ammoFactor = 1,
+    fuelFactor = 1,
+    foodFactor = 1,
+  ): this {
+    this.addDefaultFuel(part, ammoFactor, fuelFactor);
+    this.addDefaultCrew(part, foodFactor);
     return this;
   }
 
@@ -940,7 +945,13 @@ export class ShipMakeup {
     return this;
   }
 
-  giveRandomParts(bonus = 0): this {
+  giveRandomParts(
+    armed = true,
+    bonus = 0,
+    ammoFactor = 1,
+    fuelFactor = 1,
+    foodFactor = 1,
+  ): this {
     const parts = randomParts(
       Math.max(2.5, 3.5 + random.exponential(1.5)() * (10 + bonus)) *
         random.uniform(0.5, 1)() *
@@ -948,9 +959,10 @@ export class ShipMakeup {
       this.make,
     );
     for (const part of parts) {
+      if (part instanceof Cannon && !armed) continue;
       this.addPart(part);
       this.inventory.addItem(part);
-      this.addDefaultDependencies(part);
+      this.addDefaultDependencies(part, ammoFactor, fuelFactor, foodFactor);
     }
     return this;
   }

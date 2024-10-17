@@ -19,6 +19,7 @@ import type { ShipMakeup } from "../objects/shipmakeup";
 import { SoundEngine } from "../sfx";
 import { Decor } from "../objects/props/decor";
 import type { Nullish } from "utility-types";
+import { getRandomSpawnClass } from "../spawn";
 
 export interface Tickable {
   tick: (deltaTime: number) => void;
@@ -37,6 +38,7 @@ export class PlayState extends Superstate {
   renderer: GameRenderer;
   physics: PhysicsSimulation;
   public sfx: SoundEngine | null;
+  continuousSpawnTimer: number | null = null;
 
   constructor(game: Game, terraDef: TerraDef) {
     super(game);
@@ -73,6 +75,19 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
+  public killAllNPCs() {
+    this.tickables.forEach((t) => {
+      if (t.type !== "ship") {
+        return;
+      }
+      if (t === this.player?.possessed) {
+        return;
+      }
+
+      (t as Ship).die();
+    });
+  }
+
   setupNPCs(numNPCs: number) {
     if (this.player == null || this.player.possessed == null) {
       throw new Error(
@@ -85,20 +100,23 @@ export class PlayState extends Superstate {
     let attempts = 0;
 
     while (toSpawn) {
-      if (attempts >= 50) {
+      if (attempts >= 10) {
         attempts = 0;
         radiusBonus += 50;
+
+        if (radiusBonus > 500) {
+          console.warn(
+            `Couldn't spawn ${numNPCs.toString()} NPCs; stopped after ${(numNPCs - toSpawn).toString()}`,
+          );
+          break;
+        }
       }
-      let leader: Ship | null = null;
-      let squadSize = Math.max(
-        1,
-        Math.ceil(0.3 + random.exponential(1.7)() * 1.3) *
-          (1 + this.game.difficulty / 3),
-      );
+
       const squadPos = new Victor(
         Math.sqrt(Math.random()) * (1500 + radiusBonus) + 400 + radiusBonus / 2,
         0,
       ).rotate(Math.random() * Math.PI * 2);
+
       if (
         squadPos.clone().subtract(this.player.possessed.pos).length() <
         this.player.possessed.size * this.player.possessed.lateralCrossSection +
@@ -107,51 +125,36 @@ export class PlayState extends Superstate {
         attempts++;
         continue;
       }
-      while (squadSize && toSpawn) {
-        const aiship = this.makeShip(
-          new Victor(100 + 300 * Math.sqrt(Math.random()), 0)
-            .rotateBy(Math.random() * Math.PI * 2)
-            .add(squadPos),
-          {
-            angle: Math.random() * Math.PI * 2,
-            make: leader != null ? leader.makeup.make : "random",
-          },
-        );
-        if (
-          aiship.pos.clone().subtract(this.player.possessed.pos).length() <
-          aiship.size * aiship.lateralCrossSection +
-            this.player.possessed.size *
-              this.player.possessed.lateralCrossSection +
-            600
-        ) {
-          aiship.die();
-          attempts++;
-          continue;
-        }
-        if (aiship.floor > this.waterLevel * 0.5) {
-          aiship.die();
-          attempts++;
-          continue;
-        }
-        aiship.makeup.giveRandomParts(
-          +(leader == null) * (9 + this.game.difficulty * 3) +
-            this.game.difficulty * 2,
-        );
-        this.makeAIFor(aiship);
-        if (leader == null) {
-          leader = aiship;
-        } else {
-          aiship.follow(leader);
-        }
-        toSpawn--;
-        squadSize--;
-        //-- fun mode 1: instant shower of death
-        //aiship.aggro(this.player.possessed);
-        //-- fun mode 2: everyone loves you & protects you to death
-        //if (Math.random() < 0.3 && aiship.makeup.nextReadyCannon != null) {
-        //  aiship.follow(this.player.possessed);
-        //}
-      }
+
+      const squad = this.spawnRandomNPCs(squadPos, radiusBonus);
+      toSpawn -= squad.length;
+    }
+  }
+
+  spawnRandomNPCs(squadPos: Victor, radiusBonus = 0): Ship[] {
+    return getRandomSpawnClass().spawnSquad(this, squadPos, {}, radiusBonus);
+  }
+
+  spawnEdgeNPCs(): Ship[] {
+    return this.spawnRandomNPCs(
+      new Victor(Math.max(2000, random.normal(2500, 300)()), 0).rotate(
+        Math.random() * Math.PI * 2,
+      ),
+    );
+  }
+
+  startContinuousSpawns(interval = 30) {
+    this.stopContinuousSpawns();
+    this.continuousSpawnTimer = this.game.setInterval(
+      () => this.spawnEdgeNPCs(),
+      interval * 1000,
+    );
+  }
+
+  stopContinuousSpawns() {
+    if (this.continuousSpawnTimer !== null) {
+      this.game.clearInterval(this.continuousSpawnTimer);
+      this.continuousSpawnTimer = null;
     }
   }
 
@@ -405,6 +408,12 @@ export class PlayState extends Superstate {
 
     // WIP: add other gamemodes beside Free Play
     console.log("Selected gamemode would be " + this.game.gamemode);
+
+    this.startContinuousSpawns();
+  }
+
+  deinit() {
+    this.stopContinuousSpawns();
   }
 
   spawnArgs<A, T extends Tickable & Renderable>(

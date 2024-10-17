@@ -108,6 +108,10 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
         continue;
       }
 
+      if (ship.dying) {
+        return;
+      }
+
       if (this.checkShipCollision(deltaTime, ship as Ship)) {
         break;
       }

@@ -1,4 +1,4 @@
-import { Game } from "./game";
+import type { Game } from "./game";
 
 let lastTime: number | null = null;
 const frameDuration = 1000 / 30;

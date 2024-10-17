@@ -1,11 +1,6 @@
 import type { Game } from "../game";
-import {
-  FoodItem,
-  FuelItem,
-  FuelItemArgs,
-  ShipItem,
-  computeResellCost,
-} from "../inventory";
+import type { FuelItemArgs, ShipItem } from "../inventory";
+import { FoodItem, FuelItem, computeResellCost } from "../inventory";
 import { GUIKeyHandler } from "../keyinput";
 import type { GameMouseInfo } from "../mouse";
 import { GUIMouseHandler } from "../mouse";
@@ -19,22 +14,24 @@ import {
 } from "../objects/shipmakeup";
 import type { Cannon, Engine, PartSlot, ShipMake } from "../objects/shipmakeup";
 import type { FleetMember, Player } from "../player";
+import type {
+  UIDrawContext,
+  CanvasPanelArgs,
+  UIEvent,
+  CanvasUIGroupArgs,
+  CanvasButtonArgs,
+  CanvasLabelArgs,
+  CanvasUIElement,
+  CanvasUIArgs,
+} from "../ui";
 import {
   CanvasButton,
   CanvasLabel,
   CanvasPanel,
   CanvasRoot,
-  UIDrawContext,
-  CanvasPanelArgs,
-  UIEvent,
   CanvasScroller,
   CanvasUIGroup,
-  CanvasUIGroupArgs,
-  CanvasButtonArgs,
   CanvasProgressBar,
-  CanvasLabelArgs,
-  CanvasUIElement,
-  CanvasUIArgs,
   CanvasTabPanel,
 } from "../ui";
 import { moneyString, weightString } from "../util";

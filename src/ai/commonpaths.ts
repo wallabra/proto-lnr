@@ -1,6 +1,6 @@
-import { AIJump, AITickArgs } from "./defs";
-import { EngageStartArgs } from "./states/engage";
-import { FleeStartArgs } from "./states/flee";
+import type { AIJump, AITickArgs } from "./defs";
+import type { EngageStartArgs } from "./states/engage";
+import type { FleeStartArgs } from "./states/flee";
 
 export function commonPaths(args: AITickArgs): AIJump | null {
   const { ship, play, soonPos, stateName } = args;

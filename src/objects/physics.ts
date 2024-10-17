@@ -1,7 +1,7 @@
 import Victor from "victor";
-import { PlayState } from "../superstates/play";
-import { Ship } from "./ship";
-import { ObjectRenderInfo } from "../render";
+import type { PlayState } from "../superstates/play";
+import type { Ship } from "./ship";
+import type { ObjectRenderInfo } from "../render";
 
 export interface PhysicsParams {
   size: number;

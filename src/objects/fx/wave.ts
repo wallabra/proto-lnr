@@ -1,8 +1,8 @@
-import { ObjectRenderInfo, Renderable } from "../../render";
-import { Physicable, PlayState, Tickable } from "../../superstates/play";
+import type { ObjectRenderInfo, Renderable } from "../../render";
+import type { Physicable, PlayState, Tickable } from "../../superstates/play";
 import { lerp } from "../../util";
-import { PhysicsObject } from "../physics";
-import { Ship } from "../ship";
+import type { PhysicsObject } from "../physics";
+import type { Ship } from "../ship";
 
 export class Wave implements Renderable, Tickable, Physicable {
   phys: PhysicsObject;
