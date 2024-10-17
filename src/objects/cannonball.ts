@@ -163,7 +163,9 @@ export class Cannonball implements Tickable, Renderable {
     this.predictFall();
     if (this.predictedFall == null) return;
 
-    const chrad = Math.max(5, this.airtime() * 50) + this.size;
+    const airtime = this.airtime();
+
+    const chrad = Math.max(5, airtime * 50) + this.size;
     const fall = this.predictedFall
       .clone()
       .subtract(info.cam)
@@ -179,12 +181,15 @@ export class Cannonball implements Tickable, Renderable {
       return;
     }
 
-    const color = `rgba(0, 140, 240, ${(0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * this.airtime())))).toString()})`;
+    const color = `rgba(0, 140, 240, ${(0.3 * (0.8 - Math.min(0.65, Math.max(0, 0.4 * airtime)))).toString()})`;
     ctx.strokeStyle = color;
+    const dashSpacing = 7 + 20 / (1 + airtime / 2);
+    ctx.setLineDash([6, dashSpacing, 3, dashSpacing]);
     ctx.lineWidth = 0.75 * this.phys.size;
     ctx.beginPath();
     ctx.arc(fall.x, fall.y, chrad, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   render(info: ObjectRenderInfo) {
