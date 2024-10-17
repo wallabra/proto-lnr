@@ -75,6 +75,19 @@ export class PlayState extends Superstate {
     this.renderables.push(ship);
   }
 
+  public killAllNPCs() {
+    this.tickables.forEach((t) => {
+      if (t.type !== 'ship') {
+        return;
+      }
+      if (t === this.player?.possessed) {
+        return;
+      }
+
+      (t as Ship).die();
+    })
+  }
+
   setupNPCs(numNPCs: number) {
     if (this.player == null || this.player.possessed == null) {
       throw new Error(
