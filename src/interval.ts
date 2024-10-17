@@ -68,7 +68,7 @@ export class IntervalLoop {
         reg.callback();
         reg = this.bumpCallback(reg);
       }
-      
+
       this.nextCallbacks.shift();
       this.nextCallbacks.push(reg);
     }
