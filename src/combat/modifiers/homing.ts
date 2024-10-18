@@ -10,9 +10,9 @@ import { getPlayStateFromProj } from "../projectile";
 import type Victor from "victor";
 
 const HOMING_RANGE = 600;
-const HOMING_TURN_PER_SEC = Math.PI / 3;
+const HOMING_TURN_PER_SEC = Math.PI / 2;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 1.5;
-const HOMING_SLOWDOWN_PER_SEC = 50;
+const HOMING_SLOWDOWN_PER_SEC = 150;
 
 function getHomingTarget(
   proj: Projectile,
