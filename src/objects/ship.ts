@@ -1280,6 +1280,8 @@ export class Ship implements Tickable, Renderable {
       this.alliance.delete(friend);
     for (const follower of Array.from(this.followers).filter((a) => a.dying))
       this.followers.delete(follower);
+    for (const chaser of Array.from(this.chasers).filter((a) => a.dying))
+      this.chasers.delete(chaser);
   }
 
   pruneDeadInstigator() {
