@@ -163,7 +163,7 @@ export class Cannonball implements Tickable, Renderable, Projectile {
     this.checkShipCollisions();
   }
 
-  airtime() {
+  public airtime(): number {
     const vspeed = this.phys.vspeed;
     const altitude = this.phys.height - this.game.waterLevel;
     const airtime =

@@ -16,6 +16,8 @@ export interface Projectile extends Physicable {
   game: Game | PlayState;
   modifiers: Set<ProjectileModifier>;
   instigator?: Physicable & Damageable;
+
+  airtime(): number;
 }
 
 export function getPlayStateFromProj(proj: Projectile): PlayState {

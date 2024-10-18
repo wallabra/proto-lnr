@@ -24,7 +24,11 @@ function getHomingTarget(
       ...item,
       obj: item.obj as Damageable & Physicable,
       angleOffs: angDiff(
-        item.obj.phys.pos.clone().subtract(proj.phys.pos).angle(),
+        item.obj.phys.pos
+          .clone()
+          .add(item.obj.phys.vel.clone().multiplyScalar(proj.airtime()))
+          .subtract(proj.phys.pos)
+          .angle(),
         proj.phys.vel.angle(),
       ),
     }))
