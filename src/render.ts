@@ -104,14 +104,16 @@ export class ObjectRenderer {
 type RGB = [number, number, number];
 
 export class TerrainRenderer {
-  terrain: Terrain | null;
   game: PlayState;
   renderedSectors: Map<string, HTMLImageElement>;
 
   constructor(game: PlayState) {
     this.game = game;
-    this.terrain = game.terrain;
     this.renderedSectors = new Map();
+  }
+
+  get terrain(): Terrain | null {
+    return this.game.terrain;
   }
 
   interpTerrainColor(height: number) {
