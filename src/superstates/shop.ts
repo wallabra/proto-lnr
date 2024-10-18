@@ -1746,7 +1746,7 @@ class PaneDrydockShip extends Pane<
   }
 
   private buildAutoManagementPane(parent: CanvasUIElement) {
-    const group = new CanvasUIGroup({
+    const group = new CanvasPanel({
       parent: parent,
       dockX: "center",
       fillX: true,
