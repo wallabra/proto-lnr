@@ -1,3 +1,4 @@
+import { Cannonball } from "../../objects/cannonball";
 import { Ship } from "../../objects/ship";
 import type { ObjectRenderInfo } from "../../render";
 import type { Physicable } from "../../superstates/play";
@@ -6,14 +7,16 @@ import type { Damageable } from "../damageable";
 import { isDamageable } from "../damageable";
 import type { Projectile, ProjectileModifier } from "../projectile";
 import { getPlayStateFromProj } from "../projectile";
+import type Victor from "victor";
 
 const HOMING_RANGE = 600;
 const HOMING_TURN_PER_SEC = Math.PI;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 2;
+const HOMING_SLOWDOWN_PER_SEC = 50;
 
 function getHomingTarget(
   proj: Projectile,
-): { obj: Damageable & Physicable; angleOffs: number } | null {
+): { obj: Damageable & Physicable; angleOffs: number; offs: Victor } | null {
   const targets = getPlayStateFromProj(proj)
     .objectsInRadius(proj.phys.pos, HOMING_RANGE)
     .filter((obj) => isDamageable(obj.obj) && obj.obj !== proj.instigator)
@@ -75,6 +78,23 @@ class HomingModifier implements ProjectileModifier {
     projectile.phys.vel.rotateBy(
       HOMING_TURN_PER_SEC * Math.sign(target.angleOffs),
     );
+
+    if (projectile instanceof Cannonball) {
+      const fallAt = projectile.predictFall();
+      const fallDist = fallAt.clone().subtract(projectile.phys.pos).length();
+      const beyond = fallDist - target.offs.length();
+
+      if (beyond > 0) {
+        projectile.phys.applyForce(
+          deltaTime,
+          projectile.vel
+            .clone()
+            .invert()
+            .norm()
+            .multiplyScalar(HOMING_SLOWDOWN_PER_SEC * projectile.phys.weight),
+        );
+      }
+    }
   }
 }
 
