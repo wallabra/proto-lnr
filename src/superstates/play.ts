@@ -3,7 +3,8 @@ import type { CannonballParams } from "../objects/cannonball";
 import { Ship } from "../objects/ship";
 import type { ShipParams } from "../objects/ship";
 import { PhysicsSimulation } from "../objects/physics";
-import type { PhysicsParams, PhysicsObject } from "../objects/physics";
+import type { PhysicsParams} from "../objects/physics";
+import { PhysicsObject } from "../objects/physics";
 import { Terrain } from "../terrain";
 import type { TerraDef } from "../terrain";
 import { Superstate } from "./base";
@@ -21,20 +22,48 @@ import { Decor } from "../objects/props/decor";
 import type { Nullish } from "utility-types";
 import { getRandomSpawnClass } from "../spawn";
 
-export interface Tickable {
-  tick: (deltaTime: number) => void;
+export interface GameObject {
   dying: boolean;
   type: string;
 }
 
-export interface Physicable {
+export interface Tickable extends GameObject {
+  tick: (deltaTime: number) => void;
+}
+
+export interface Physicable extends GameObject {
   phys: PhysicsObject;
+}
+
+export function isGameObject(other: object): other is GameObject {
+  return (
+    "dying" in other &&
+    "type" in other &&
+    typeof other.dying === "boolean" &&
+    typeof other.type === "string"
+  );
+}
+
+export function isTickable(other: object): other is Tickable {
+  return (
+    isGameObject(other) && "tick" in other && typeof other.tick === "function"
+  );
+}
+
+export function isPhysicable(other: object): other is Physicable {
+  return (
+    isGameObject(other) &&
+    "phys" in other &&
+    other.phys instanceof PhysicsObject
+  );
 }
 
 export class PlayState extends Superstate {
   terrain: Terrain | null;
   tickables: Tickable[];
+  physicables: Physicable[];
   renderables: Renderable[];
+  allObjects: GameObject[];
   renderer: GameRenderer;
   physics: PhysicsSimulation;
   public sfx: SoundEngine | null;
@@ -86,6 +115,27 @@ export class PlayState extends Superstate {
 
       (t as Ship).die();
     });
+  }
+
+  public objectsInRadius(
+    at: Victor,
+    radius: number,
+  ): { obj: Physicable; offs: Victor }[] {
+    if (radius <= 0)
+      throw new Error("Cannot find objects in non-positive radius");
+
+    const baseCompare = radius * radius;
+
+    return this.physicables
+      .filter(
+        (obj) =>
+          obj.phys.pos.clone().subtract(at).lengthSq() <
+          baseCompare + obj.phys.size * obj.phys.size,
+      )
+      .map((obj) => ({
+        obj,
+        offs: obj.phys.pos.clone().subtract(at),
+      }));
   }
 
   setupNPCs(numNPCs: number) {
@@ -271,6 +321,8 @@ export class PlayState extends Superstate {
   removeObj(toRemove: Tickable | Renderable | { phys: PhysicsObject }) {
     const it = this.tickables.indexOf(toRemove as Tickable);
     const ir = this.renderables.indexOf(toRemove as Renderable);
+    const ip = this.physicables.indexOf(toRemove as Physicable);
+    const io = this.allObjects.indexOf(toRemove as GameObject);
 
     if (it !== -1) {
       this.tickables.splice(it, 1);
@@ -278,6 +330,14 @@ export class PlayState extends Superstate {
 
     if (ir !== -1) {
       this.renderables.splice(it, 1);
+    }
+
+    if (ip !== -1) {
+      this.physicables.splice(ip, 1);
+    }
+
+    if (io !== -1) {
+      this.allObjects.splice(io, 1);
     }
 
     if ((toRemove as { phys: PhysicsObject | Nullish }).phys != null) {
@@ -318,8 +378,16 @@ export class PlayState extends Superstate {
     });
   }
 
-  pruneDestroyedTickables() {
+  private pruneDestroyedTickables() {
     this.tickables = this.tickables.filter((t) => !t.dying);
+  }
+
+  private pruneDestroyedPhysicables() {
+    this.physicables = this.physicables.filter((p) => !p.dying);
+  }
+
+  private pruneDestroyedAllObjects() {
+    this.allObjects = this.allObjects.filter((o) => !o.dying);
   }
 
   public cameraPos(): Victor {
@@ -344,6 +412,8 @@ export class PlayState extends Superstate {
       this.physics.tick(deltaTime);
       this.tickTickables(deltaTime);
       this.pruneDestroyedTickables();
+      this.pruneDestroyedPhysicables();
+      this.pruneDestroyedAllObjects();
     }
     this.renderer.tick(deltaTime);
     if (this.sfx != null) {
@@ -367,6 +437,8 @@ export class PlayState extends Superstate {
     const cball = new Cannonball(this, ship, params);
     this.tickables.push(cball);
     this.renderables.push(cball);
+    this.physicables.push(cball);
+    this.allObjects.push(cball);
     return cball;
   }
 
@@ -387,7 +459,7 @@ export class PlayState extends Superstate {
     this.tickables.push(ai);
   }
 
-  spawn<A extends Tickable & Renderable, P extends PhysicsParams>(
+  spawn<A extends Tickable & Renderable & Physicable, P extends PhysicsParams>(
     objType: new (play: PlayState, pos: Victor, params?: Partial<P>) => A,
     pos: Victor,
     params: Partial<P>,
@@ -395,6 +467,8 @@ export class PlayState extends Superstate {
     const res = new objType(this, pos, params);
     this.tickables.push(res);
     this.renderables.push(res);
+    this.physicables.push(res);
+    this.allObjects.push(res);
     return res;
   }
 
@@ -416,13 +490,15 @@ export class PlayState extends Superstate {
     this.stopContinuousSpawns();
   }
 
-  spawnArgs<A, T extends Tickable & Renderable>(
+  spawnArgs<A, T extends Tickable & Renderable & Physicable>(
     objType: new (play: PlayState, ...args: A[]) => T,
     ...args: A[]
   ): T {
     const res = new objType(this, ...args);
     this.tickables.push(res);
     this.renderables.push(res);
+    this.physicables.push(res);
+    this.allObjects.push(res);
     return res;
   }
 }

@@ -101,7 +101,7 @@ export class Cannonball implements Tickable, Renderable {
 
     this.phys.playSound("impactblast");
 
-    ship.damageShip(
+    ship.takeDamage(
       this.damageFactor *
         this.phys.kineticEnergyRelativeTo(ship.phys) *
         damageScale *

@@ -789,7 +789,7 @@ export class Ship implements Tickable, Renderable {
     this.setInstigator(instigator);
   }
 
-  public damageShip(damage: number) {
+  public takeDamage(damage: number) {
     damage = Math.max(0, damage);
     const die = this.makeup.damageShip(damage);
 
@@ -1246,10 +1246,10 @@ export class Ship implements Tickable, Renderable {
     ship.aggro(this);
     this.aggro(ship);
 
-    this.damageShip(
+    this.takeDamage(
       ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.0001,
     );
-    ship.damageShip(
+    ship.takeDamage(
       this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.0001,
     );
   }
@@ -1270,7 +1270,7 @@ export class Ship implements Tickable, Renderable {
 
   checkTerrainDamage(deltaTime: number) {
     if (this.phys.floor > this.play.waterLevel) {
-      this.damageShip(1000 * deltaTime);
+      this.takeDamage(1000 * deltaTime);
     }
   }
 
