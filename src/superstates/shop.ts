@@ -1826,7 +1826,9 @@ class PaneDrydockShip extends Pane<
       this.makeup.inventory.items.filter(
         (a) => a instanceof ShipPart && this.makeup.parts.indexOf(a) === -1,
       ) as ShipPart[]
-    ).sort((a, b) => (b.strictBetterThan(a) ? 1 : -1))) {
+    ).sort((a, b) =>
+      b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
+    )) {
       if (
         this.makeup.make.slots[item.type] >
           this.makeup.parts.filter((p) => p.type === item.type).length &&
@@ -1843,9 +1845,10 @@ class PaneDrydockShip extends Pane<
       const replaceCandidates = this.makeup.parts
         .filter(
           (p) =>
+            p.type === item.type &&
             p instanceof item.constructor &&
             item.strictBetterThan(p) &&
-            surplusStrength + (typeof p.manned === "number" ? p.manned : 0) >
+            surplusStrength + (typeof p.manned === "number" ? p.manned : 0) >=
               (typeof item.manned === "number" ? item.manned : 0),
         )
         .sort((a, b) => (b.strictBetterThan(a) ? 1 : -1));
@@ -1866,6 +1869,7 @@ class PaneDrydockShip extends Pane<
 
     this.inventoryWidget.update();
     this.updatePartsList();
+    this.updateSlotsLabel();
   }
 
   private autoRepair() {
@@ -1884,10 +1888,11 @@ class PaneDrydockShip extends Pane<
     }
 
     this.updatePartsList();
+    this.updateRepairLabel();
   }
 
   private autoResell() {
-    for (const item of this.makeup.inventory.items) {
+    for (const item of Array.from(this.makeup.inventory.items)) {
       if (item.autoResell == null || !item.autoResell(this.makeup)) continue;
 
       this.makeup.inventory.removeItem(item);
