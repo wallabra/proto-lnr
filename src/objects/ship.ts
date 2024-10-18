@@ -32,20 +32,23 @@ export interface ShipParams extends PhysicsParams {
   hullDamage?: number;
 }
 
+export interface ShipEffect {
+  duration: number;
+  thrustMultiplier?: number;
+  damagePerSecond?: number;
+}
+
 export type TickActionFunction<T> = (deltaTime: number) => T;
 export type TickActionCallback<T> = (action: T) => void;
 
 export class TickAction<T> {
   private action: TickActionFunction<T>;
-  private result: T | null;
-  private done: boolean;
-  private callbacks: TickActionCallback<T>[];
+  private result: T | null = null;
+  private done: boolean = false;
+  private callbacks: TickActionCallback<T>[] = [];
 
   constructor(action: TickActionFunction<T>) {
     this.action = action;
-    this.result = null;
-    this.done = false;
-    this.callbacks = [];
   }
 
   public isDone(): boolean {
@@ -515,11 +518,45 @@ export class Ship implements Tickable, Renderable {
   alliance = new Set<Ship>([this]);
   followers = new Set<Ship>();
   type = "ship";
+  effects: ShipEffect[] = [];
 
   public follow(other: Ship) {
     if (this.following != null) this.unfollow();
     other.followers.add(this);
     this.following = other;
+  }
+
+  private totalThrustMultiplier(): number {
+    return this.effects
+      .filter((e) => e.thrustMultiplier != null)
+      .map((e) => e.thrustMultiplier as number)
+      .reduce((a, b) => a * b, 1);
+  }
+
+  private totalEffectDamageInTick(deltaTime: number): number {
+    return this.effects
+      .filter((e) => e.damagePerSecond != null)
+      .map(
+        (e) => (e.damagePerSecond as number) * Math.min(deltaTime, e.duration),
+      )
+      .reduce((a, b) => a + b, 0);
+  }
+
+  private pruneElapsedEffects() {
+    this.effects = this.effects.filter((e) => e.duration > 0);
+  }
+
+  private effectsElapseTime(deltaTime: number) {
+    for (const effect of this.effects) {
+      effect.duration -= deltaTime;
+    }
+
+    this.pruneElapsedEffects();
+  }
+
+  private tickApplyEffects(deltaTime: number) {
+    this.takeDamage(this.totalEffectDamageInTick(deltaTime));
+    this.effectsElapseTime(deltaTime);
   }
 
   public unfollow() {
@@ -1015,7 +1052,9 @@ export class Ship implements Tickable, Renderable {
   }
 
   maxEngineThrust(enginesList?: Engine[]) {
-    return this.makeup.maxEngineThrust(enginesList);
+    return (
+      this.makeup.maxEngineThrust(enginesList) * this.totalThrustMultiplier()
+    );
   }
 
   thrustForward(deltaTime: number, amount: number) {
@@ -1187,7 +1226,7 @@ export class Ship implements Tickable, Renderable {
       });
   }
 
-  checkShipCollision(deltaTime: number, ship: Ship) {
+  checkShipCollision(_deltaTime: number, ship: Ship) {
     const collision = this.collision(ship);
     if (collision == null) {
       return;
@@ -1344,6 +1383,7 @@ export class Ship implements Tickable, Renderable {
       return;
     }
     this.updateWeight();
+    this.tickApplyEffects(deltaTime);
     this.processTickActions(deltaTime);
     this.makeup.tick(deltaTime, this);
     this.checkShipCollisions(deltaTime);

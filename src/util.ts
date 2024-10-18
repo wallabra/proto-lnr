@@ -80,6 +80,10 @@ export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
   throw new Error("random weighted choice error");
 }
 
+export function randomChance(chance: number): boolean {
+  return random.uniform(0, 1)() <= chance;
+}
+
 export function arrayCounter<T>(arr: T[]): Map<T, number> {
   const counted: Map<T, number> = new Map();
 

@@ -3,7 +3,7 @@ import type { CannonballParams } from "../objects/cannonball";
 import { Ship } from "../objects/ship";
 import type { ShipParams } from "../objects/ship";
 import { PhysicsSimulation } from "../objects/physics";
-import type { PhysicsParams} from "../objects/physics";
+import type { PhysicsParams } from "../objects/physics";
 import { PhysicsObject } from "../objects/physics";
 import { Terrain } from "../terrain";
 import type { TerraDef } from "../terrain";

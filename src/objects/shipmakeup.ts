@@ -1079,6 +1079,17 @@ export class ShipMakeup {
     }
   }
 
+  public killCrew(who: Crew) {
+    if (this.crew.indexOf(who) === -1) return;
+
+    who.dying = true;
+    this.inventory.removeItem(who);
+
+    if (who.manningPart != null && this.parts.indexOf(who.manningPart) !== -1) {
+      who.manningPart.unassignCrew();
+    }
+  }
+
   damageShip(amount: number) {
     this.hullDamage += amount;
     this.damageParts(amount);
