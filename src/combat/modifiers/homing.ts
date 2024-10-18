@@ -2,17 +2,13 @@ import { Ship } from "../../objects/ship";
 import type { ObjectRenderInfo } from "../../render";
 import type { Physicable } from "../../superstates/play";
 import { angDiff } from "../../util";
-import type { Damageable} from "../damageable";
+import type { Damageable } from "../damageable";
 import { isDamageable } from "../damageable";
-import type {
-  Projectile,
-  ProjectileModifier} from "../projectile";
-import {
-  getPlayStateFromProj
-} from "../projectile";
+import type { Projectile, ProjectileModifier } from "../projectile";
+import { getPlayStateFromProj } from "../projectile";
 
 const HOMING_RANGE = 600;
-const HOMING_TURN_PER_SEC = Math.PI / 4;
+const HOMING_TURN_PER_SEC = Math.PI;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 2;
 
 function getHomingTarget(
@@ -60,8 +56,12 @@ class HomingModifier implements ProjectileModifier {
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(targetPos.x, targetPos.y, chSize, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
     ctx.moveTo(targetPos.x, targetPos.y + chSize + 15);
     ctx.lineTo(targetPos.x, targetPos.y - chSize - 15);
+    ctx.stroke();
+    ctx.beginPath();
     ctx.moveTo(targetPos.x - chSize - 15, targetPos.y);
     ctx.lineTo(targetPos.x + chSize + 15, targetPos.y);
     ctx.stroke();
