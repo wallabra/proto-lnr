@@ -12,7 +12,7 @@ import type Victor from "victor";
 const HOMING_RANGE = 600;
 const HOMING_TURN_PER_SEC = Math.PI / 8;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 1.5;
-const HOMING_SLOWDOWN_PER_SEC = 150;
+const HOMING_SLOWDOWN_PER_SEC = 100;
 
 function getHomingTarget(
   proj: Projectile,
@@ -92,7 +92,7 @@ class HomingModifier implements ProjectileModifier {
     if (projectile instanceof Cannonball) {
       const fallAt = projectile.predictFall();
       const fallDist = fallAt.clone().subtract(projectile.phys.pos).length();
-      const beyond = fallDist - target.offs.length();
+      const beyond = fallDist - target.offs.length() + target.obj.phys.size + projectile.phys.size;
 
       if (beyond > 0) {
         projectile.phys.applyForce(
