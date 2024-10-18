@@ -1,5 +1,5 @@
 import type Victor from "victor";
-import type { PlayState } from "../superstates/play";
+import type { Physicable, PlayState } from "../superstates/play";
 import { isDamageable } from "./damageable";
 
 export function aoeExplosion(
@@ -8,9 +8,11 @@ export function aoeExplosion(
   radius: number,
   damage: number,
   knockback = 10000,
+  filter: null | ((obj: Physicable) => boolean) = null,
+  knockbackModifier: null | ((obj: Physicable) => number) = null,
 ) {
   for (const { obj, offs } of state.objectsInRadius(at, radius)) {
-    if (!isDamageable(obj)) continue;
+    if (filter != null && !filter(obj)) continue;
 
     const dist = offs.length();
     const norm = offs.clone().norm();
@@ -18,9 +20,18 @@ export function aoeExplosion(
     // inverse square damage relationship
     const power = 1 / (1 + Math.sqrt(dist));
 
-    obj.takeDamage(damage * power);
+    if (damage > 0 && isDamageable(obj)) obj.takeDamage(damage * power);
 
     // deal knockback
-    obj.phys.applyForce(null, norm.clone().multiplyScalar(power * knockback));
+    obj.phys.applyForce(
+      null,
+      norm
+        .clone()
+        .multiplyScalar(
+          power *
+            knockback *
+            (knockbackModifier == null ? 1 : knockbackModifier(obj)),
+        ),
+    );
   }
 }

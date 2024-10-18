@@ -521,11 +521,11 @@ export class Ship implements Tickable, Renderable, Damageable {
   type = "ship";
   effects: ShipEffect[] = [];
 
-  getDamage(): number {
+  public getDamage(): number {
     return this.makeup.hullDamage;
   }
 
-  getMaxDamage(): number {
+  public getMaxDamage(): number {
     return this.makeup.make.maxDamage;
   }
 

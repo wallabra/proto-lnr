@@ -25,7 +25,6 @@ import { getRandomSpawnClass } from "../spawn";
 export interface GameObject {
   dying: boolean;
   type: string;
-  state: PlayState;
 }
 
 export interface Tickable extends GameObject {
@@ -40,10 +39,8 @@ export function isGameObject(other: object): other is GameObject {
   return (
     "dying" in other &&
     "type" in other &&
-    "state" in other &&
     typeof other.dying === "boolean" &&
-    typeof other.type === "string" &&
-    other.state instanceof PlayState
+    typeof other.type === "string"
   );
 }
 
@@ -101,6 +98,8 @@ export class PlayState extends Superstate {
   addShip(ship: Ship) {
     this.tickables.push(ship);
     this.renderables.push(ship);
+    this.physicables.push(ship);
+    this.allObjects.push(ship);
   }
 
   public killAllNPCs() {

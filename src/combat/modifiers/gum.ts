@@ -26,15 +26,15 @@ class PropellerGumModifier implements ProjectileModifier {
 
     const pos = toScreen(projectile.phys.pos);
 
-    ctx.strokeStyle = "#AABA";
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#B5B8";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, projectile.phys.size * 1.5, 0, Math.PI * 2);
+    ctx.arc(pos.x, pos.y, projectile.phys.size * 1.8, 0, Math.PI * 2);
     ctx.stroke();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#00B8";
+    ctx.strokeStyle = "#00B5";
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, projectile.phys.size * 1.5 + 5, 0, Math.PI * 2);
+    ctx.arc(pos.x, pos.y, projectile.phys.size * 1.8 + 6, 0, Math.PI * 2);
     ctx.stroke();
   }
 }

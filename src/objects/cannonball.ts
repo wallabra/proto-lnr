@@ -89,6 +89,7 @@ export class Cannonball implements Tickable, Renderable, Projectile {
 
   public destroy() {
     projApplyDestroyModifiers(this);
+
     this.dying = true;
     this.phys.dying = true;
   }
