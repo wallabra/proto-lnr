@@ -12,12 +12,13 @@ class IncendiaryModifier implements ProjectileModifier {
 
   onDestroy(): void {}
 
-  onHit(_projectile: Projectile, target: Damageable): void {
+  onHit(projectile: Projectile, target: Damageable): void {
     if (!(target instanceof Ship)) return;
 
     target.effects.push({
       duration: maybeRange(BURN_DURATION),
       damagePerSecond: BURN_DAMAGE,
+      instigator: projectile.instigator instanceof Ship ? projectile.instigator : undefined
     });
   }
 

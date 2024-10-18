@@ -37,6 +37,7 @@ export interface ShipEffect {
   duration: number;
   thrustMultiplier?: number;
   damagePerSecond?: number;
+  instigator?: Ship;
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -542,15 +543,6 @@ export class Ship implements Tickable, Renderable, Damageable {
       .reduce((a, b) => a * b, 1);
   }
 
-  private totalEffectDamageInTick(deltaTime: number): number {
-    return this.effects
-      .filter((e) => e.damagePerSecond != null)
-      .map(
-        (e) => (e.damagePerSecond as number) * Math.min(deltaTime, e.duration),
-      )
-      .reduce((a, b) => a + b, 0);
-  }
-
   private pruneElapsedEffects() {
     this.effects = this.effects.filter((e) => e.duration > 0);
   }
@@ -563,8 +555,19 @@ export class Ship implements Tickable, Renderable, Damageable {
     this.pruneElapsedEffects();
   }
 
+  private applyEffectDamage(deltaTime: number) {
+    for (const effect of this.effects) {
+      if (effect.damagePerSecond != null && effect.damagePerSecond > 0) {
+        this.takeDamage(effect.damagePerSecond * deltaTime);
+        if (this.dying && effect.instigator != null) {
+          effect.instigator.scoreKill();
+        }
+      }
+    }
+  }
+
   private tickApplyEffects(deltaTime: number) {
-    this.takeDamage(this.totalEffectDamageInTick(deltaTime));
+    this.applyEffectDamage(deltaTime);
     this.effectsElapseTime(deltaTime);
   }
 
