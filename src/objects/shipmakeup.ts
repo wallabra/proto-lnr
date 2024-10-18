@@ -290,11 +290,8 @@ export class Crew implements ShipItem {
     ];
   }
 
-  autoResell(makeup: ShipMakeup): boolean {
-    return (
-      this.manningPart == null &&
-      makeup.parts.filter((p) => !p.alreadyManned()).length === 0
-    );
+  autoResell(): boolean {
+    return false;
   }
 
   isHungry(): boolean {
