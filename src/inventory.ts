@@ -155,9 +155,9 @@ export class FoodItem implements ShipItem {
   cost: number;
   amount: number;
   spoilDays: number;
-  type: string;
-  dying: boolean;
-  integerAmounts: boolean;
+  type = "food";
+  dying = false;
+  integerAmounts = false;
   weight: number;
   dropChance = 0.5;
   shopChance = 0.7;
@@ -172,9 +172,6 @@ export class FoodItem implements ShipItem {
     this.amount = args.amount;
     this.weight = args.weight;
     this.spoilDays = args.spoilDays;
-    this.type = "food";
-    this.dying = false;
-    this.integerAmounts = false;
   }
 
   private spoil() {

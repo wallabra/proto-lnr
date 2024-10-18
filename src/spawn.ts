@@ -9,6 +9,7 @@ import type { PlayState } from "./superstates/play";
 import Victor from "victor";
 import type { Ship, ShipParams } from "./objects/ship";
 import { MAKEDEFS } from "./shop/makedefs";
+import { makeBonusValuables } from "./valuable";
 
 /// Extra parameters for how a ship should be spawned.
 export interface SpawnParams {
@@ -230,7 +231,16 @@ export function spawnShipOnDef(
     maybeRange(def.foodFactor ?? 0),
   );
 
-  // TODO: apply extra loot for merchant ships
+  // apply extra loot
+  if (def.extraLoot != null) {
+    const extraLoot = maybeRange(def.extraLoot);
+
+    if (extraLoot > 0) {
+      for (const valuable of makeBonusValuables(extraLoot)) {
+        ship.makeup.inventory.addItem(valuable);
+      }
+    }
+  }
 
   return ship;
 }
