@@ -1,5 +1,4 @@
 import type { ShipItem } from "./inventory";
-import { ShipMakeup } from "./objects/shipmakeup";
 import type { RandomRange, WeightedItem } from "./util";
 import { maybeRangeInt, rwc } from "./util";
 import random from "random";

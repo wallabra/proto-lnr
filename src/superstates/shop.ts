@@ -891,9 +891,17 @@ class DrydockInventoryWidget extends Pane<DrydockInventoryWidgetArgs> {
   private furnishItemList() {
     if (
       this.itemList.contentPane.children.length ===
-      this.makeup.inventory.items.filter(
-        (i) => this.makeup.parts.indexOf(i as ShipPart) === -1,
-      ).length
+        this.makeup.inventory.items.filter(
+          (i) => this.makeup.parts.indexOf(i as ShipPart) === -1,
+        ).length &&
+      this.makeup.inventory.items.every((item) =>
+        this.itemList.contentPane.children.some((child) => {
+          const widget = this.itemWidgets.find(
+            (widget) => widget.pane === child,
+          );
+          return widget != null && widget.item === item;
+        }),
+      )
     )
       return;
 
@@ -1855,6 +1863,9 @@ class PaneDrydockShip extends Pane<
         .map((c) => (c as Crew).strength)
         .reduce((a, b) => a + b, 0);
     }
+
+    this.inventoryWidget.update();
+    this.updatePartsList();
   }
 
   private autoRepair() {
@@ -1871,6 +1882,8 @@ class PaneDrydockShip extends Pane<
         part.tryRepair(this.player);
       }
     }
+
+    this.updatePartsList();
   }
 
   private autoResell() {
@@ -1882,6 +1895,9 @@ class PaneDrydockShip extends Pane<
       if (!(item instanceof Crew))
         this.player.money += computeResellCost(item, DEFAULT_RESELL_FACTOR);
     }
+
+    this.inventoryWidget.update();
+    this.updatePartsList();
   }
 
   private addPartItem(part: ShipPart) {
@@ -1904,7 +1920,15 @@ class PaneDrydockShip extends Pane<
   private updatePartsList() {
     if (
       this.partsScroller.contentPane.children.length ===
-      this.makeup.parts.length
+        this.makeup.parts.length &&
+      this.makeup.parts.every((part) =>
+        this.partsScroller.contentPane.children.some((child) => {
+          const widget = this.partsWidgets.find(
+            (widget) => widget.pane === child,
+          );
+          return widget != null && widget.part === part;
+        }),
+      )
     )
       return;
 
