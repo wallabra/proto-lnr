@@ -9,9 +9,11 @@ import Victor from "victor";
 const KILL_CHANCE = 0.05;
 
 class NoxiousGasModifier implements ProjectileModifier {
+  infoString = "anti-personnel noxious gas";
+
   onDestroy(): void {}
 
-  onHit(projectile: Projectile, target: Damageable): void {
+  onHit(_projectile: Projectile, target: Damageable): void {
     if (!(target instanceof Ship)) return;
 
     for (const crew of target.makeup.crew) {

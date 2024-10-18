@@ -26,6 +26,8 @@ import type { Pickup } from "./pickup";
 import type { PlayState } from "../superstates/play";
 import randomParts from "../shop/randomparts";
 import { DEFAULT_MAKE } from "../shop/makedefs";
+import type { ProjectileModifier } from "../combat/projectile";
+import { addModifiersToAmmo } from "../combat/projectile";
 
 export function slots(make: ShipMake): Map<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
@@ -360,8 +362,13 @@ export class CannonballAmmo implements ShipItem {
   integerAmounts: boolean;
   weight: number;
   shopChance = 0.4;
+  modifiers: Set<ProjectileModifier>;
 
-  constructor(caliber: number, amount = 15) {
+  constructor(
+    caliber: number,
+    amount = 15,
+    modifiers: Set<ProjectileModifier> = new Set(),
+  ) {
     this.caliber = caliber;
     this.amount = amount;
     this.type = "ammo";
@@ -370,10 +377,15 @@ export class CannonballAmmo implements ShipItem {
     this.name = `${(this.caliber * 10).toFixed(0)}mm cannonball ammo`;
     this.dying = false;
     this.integerAmounts = true;
+    this.modifiers = modifiers;
   }
 
   canConsolidate(other: CannonballAmmo): boolean {
-    return other.caliber === this.caliber;
+    return (
+      other.caliber === this.caliber &&
+      this.modifiers.size === other.modifiers.size &&
+      [...this.modifiers].every((o) => other.modifiers.has(o))
+    );
   }
 
   sphericalVolume() {
@@ -386,6 +398,12 @@ export class CannonballAmmo implements ShipItem {
 
   getItemLabel() {
     return `${(this.caliber * 10).toFixed(0)}mm cannonball${this.amount > 1 ? "s" : ""}`;
+  }
+
+  shopInfo(): string[] {
+    return Array.from(this.modifiers).map(
+      (mod) => "fitted with " + mod.infoString,
+    );
   }
 
   specialImpact(_cannonball: Cannonball, _victimShip: Ship) {}
@@ -436,7 +454,12 @@ export class Cannon extends ShipPart {
     return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
   }
 
-  private shootCannonball(ship: Ship, dist: number, spread = this.spread) {
+  private shootCannonball(
+    ship: Ship,
+    dist: number,
+    ammo: CannonballAmmo | null = null,
+    spread = this.spread,
+  ) {
     dist = Math.min(dist, this.range);
 
     const cball = ship.play.spawnCannonball(ship, {
@@ -459,18 +482,21 @@ export class Cannon extends ShipPart {
       .add(ship.vel);
 
     cball.predictFall();
+
+    if (ammo != null) cball.modifiers = new Set(ammo.modifiers);
+
     return cball;
   }
 
   public airtime(ship: Ship, dist: number) {
-    const tempCannonball = this.shootCannonball(ship, dist);
+    const tempCannonball = this.shootCannonball(ship, dist, null);
     const airtime = tempCannonball.airtime();
     tempCannonball.destroy();
     return airtime;
   }
 
   public hitLocation(ship: Ship, dist: number) {
-    const tempCannonball = this.shootCannonball(ship, dist, 0);
+    const tempCannonball = this.shootCannonball(ship, dist, null, 0);
     const location = tempCannonball.computePredictedFall();
     tempCannonball.destroy();
     return location;
@@ -485,13 +511,16 @@ export class Cannon extends ShipPart {
   }
 
   shoot(ship: Ship, dist: number): Cannonball | null {
-    // TODO: spawn cannonball
-    if (!ship.makeup.spendAmmo(this.caliber)) {
-      return null;
-    }
+    const ammo = ship.makeup.findAmmo(this.caliber);
 
-    const cannonball = this.shootCannonball(ship, dist);
+    if (ammo == null) return null;
+
+    const cannonball = this.shootCannonball(ship, dist, ammo);
     this.afterShot();
+
+    ammo.amount -= 1;
+    if (ammo.amount < 1) ship.makeup.inventory.removeItem(ammo);
+
     return cannonball;
   }
 
@@ -848,7 +877,12 @@ export class ShipMakeup {
     const res = match<string, ShipItem | null>(
       part.type,
       match.val("cannon", () => {
-        return new CannonballAmmo((part as Cannon).caliber, 20 * ammoFactor);
+        const ammo = new CannonballAmmo(
+          (part as Cannon).caliber,
+          20 * ammoFactor,
+        );
+        addModifiersToAmmo(ammo);
+        return ammo;
       }),
       match.val("engine", () => {
         const engine = part as Engine;
@@ -1010,12 +1044,6 @@ export class ShipMakeup {
     }
   }
 
-  private pruneSpentFood() {
-    for (const spent of this.food.filter((f) => f.amount === 0)) {
-      spent.dying = true;
-    }
-  }
-
   private pruneSpentAmmo() {
     for (const spent of this.ammo.filter((a) => a.amount === 0)) {
       spent.dying = true;
@@ -1046,7 +1074,15 @@ export class ShipMakeup {
     return amount <= 0;
   }
 
-  spendAmmo(caliber: number) {
+  findAmmo(caliber: number): CannonballAmmo | null {
+    const compatible = this.ammo
+      .filter((a) => a.caliber === caliber)
+      .sort((a, b) => b.modifiers.size - a.modifiers.size);
+
+    return compatible[0] ?? null;
+  }
+
+  spendAmmo(caliber: number): boolean {
     let amount = 1;
 
     for (const ammo of this.ammo) {
@@ -1062,7 +1098,7 @@ export class ShipMakeup {
     return amount <= 0;
   }
 
-  hasAmmo(caliber: number) {
+  hasAmmo(caliber: number): boolean {
     for (const ammo of this.ammo) {
       if (ammo.caliber === caliber) {
         return true;

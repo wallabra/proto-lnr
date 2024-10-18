@@ -4,18 +4,20 @@ import type { PhysicsObject } from "./physics";
 import type { PhysicsParams } from "./physics";
 import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
+import type { Projectile, ProjectileModifier } from "../combat/projectile";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
 }
 
-export class Cannonball implements Tickable, Renderable {
+export class Cannonball implements Tickable, Renderable, Projectile {
   public game: PlayState;
   public instigator: Ship;
   public phys: PhysicsObject;
   public dying: boolean;
   public predictedFall: Victor | null = null;
   public type = "cannonball";
+  public modifiers: Set<ProjectileModifier> = new Set();
 
   constructor(
     game: PlayState,

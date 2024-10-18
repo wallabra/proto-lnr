@@ -43,6 +43,7 @@ import { FOODDEFS } from "../shop/fooddefs";
 import type { Class, Optional } from "utility-types";
 import { MAKEDEFS } from "../shop/makedefs";
 import { arrayCounter } from "../util";
+import { addModifiersToAmmo } from "../combat/projectile";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -2134,68 +2135,71 @@ export class IntermissionState extends Superstate {
   }
 
   private generateShopItems(): ShipItem[] {
-    return (
-      [
-        ...PARTDEFS.engine
-          .map((d) =>
-            Array(d.shopRepeat)
-              .fill(0)
-              .map(() => instantiatePart(d, "engine")),
-          )
-          .reduce((a, b) => a.concat(b), []),
-        ...PARTDEFS.cannon
-          .map((d) =>
-            Array(d.shopRepeat)
-              .fill(0)
-              .map(() => instantiatePart(d, "cannon")),
-          )
-          .reduce((a, b) => a.concat(b), []),
-        ...PARTDEFS.vacuum
-          .map((d) =>
-            Array(d.shopRepeat)
-              .fill(0)
-              .map(() => instantiatePart(d, "vacuum")),
-          )
-          .reduce((a, b) => a.concat(b), []),
-        ...this.fuelItems()
-          .map((p) => {
-            const item = {
-              name: p.type,
-              ...FUEL_PROPS[p.type],
-              amount: p.amount,
-            } as FuelItemArgs;
-            return Array(p.repeat)
-              .fill(0)
-              .map(() => Object.assign({}, item));
-          })
-          .reduce((a, b) => a.concat(b), [])
-          .map((def) => new FuelItem(def)),
-        new CannonballAmmo(4, 15),
-        new CannonballAmmo(4, 15),
-        new CannonballAmmo(4, 15),
-        new CannonballAmmo(4, 30),
-        new CannonballAmmo(4, 30),
-        new CannonballAmmo(4, 40),
-        new CannonballAmmo(5.5, 15),
-        new CannonballAmmo(5.5, 15),
-        new CannonballAmmo(5.5, 15),
-        new CannonballAmmo(5.5, 15),
-        new CannonballAmmo(5.5, 30),
-        new CannonballAmmo(5.5, 30),
-        new CannonballAmmo(6.2, 5),
-        new CannonballAmmo(6.2, 5),
-        new CannonballAmmo(6.2, 15),
-        new CannonballAmmo(6.2, 15),
-        new CannonballAmmo(7.5, 10),
-        new CannonballAmmo(7.5, 10),
-        ...FOODDEFS.map((f) =>
-          Array(f.shopRepeat)
+    return [
+      ...PARTDEFS.engine
+        .map((d) =>
+          Array(d.shopRepeat)
             .fill(0)
-            .map(() => new FoodItem(f)),
-        ).reduce((a, b) => a.concat(b), []),
-        ...CREWDEFS.map((c) => new Crew(c)),
-      ] as ShipItem[]
-    ).filter((i) => i.shopChance == null || Math.random() < i.shopChance);
+            .map(() => instantiatePart(d, "engine")),
+        )
+        .reduce((a, b) => a.concat(b), []),
+      ...PARTDEFS.cannon
+        .map((d) =>
+          Array(d.shopRepeat)
+            .fill(0)
+            .map(() => instantiatePart(d, "cannon")),
+        )
+        .reduce((a, b) => a.concat(b), []),
+      ...PARTDEFS.vacuum
+        .map((d) =>
+          Array(d.shopRepeat)
+            .fill(0)
+            .map(() => instantiatePart(d, "vacuum")),
+        )
+        .reduce((a, b) => a.concat(b), []),
+      ...this.fuelItems()
+        .map((p) => {
+          const item = {
+            name: p.type,
+            ...FUEL_PROPS[p.type],
+            amount: p.amount,
+          } as FuelItemArgs;
+          return Array(p.repeat)
+            .fill(0)
+            .map(() => Object.assign({}, item));
+        })
+        .reduce((a, b) => a.concat(b), [])
+        .map((def) => new FuelItem(def)),
+      new CannonballAmmo(4, 15),
+      new CannonballAmmo(4, 15),
+      new CannonballAmmo(4, 15),
+      new CannonballAmmo(4, 30),
+      new CannonballAmmo(4, 30),
+      new CannonballAmmo(4, 40),
+      new CannonballAmmo(5.5, 15),
+      new CannonballAmmo(5.5, 15),
+      new CannonballAmmo(5.5, 15),
+      new CannonballAmmo(5.5, 15),
+      new CannonballAmmo(5.5, 30),
+      new CannonballAmmo(5.5, 30),
+      new CannonballAmmo(6.2, 5),
+      new CannonballAmmo(6.2, 5),
+      new CannonballAmmo(6.2, 15),
+      new CannonballAmmo(6.2, 15),
+      new CannonballAmmo(7.5, 10),
+      new CannonballAmmo(7.5, 10),
+      ...FOODDEFS.map((f) =>
+        Array(f.shopRepeat)
+          .fill(0)
+          .map(() => new FoodItem(f)),
+      ).reduce((a, b) => a.concat(b), []),
+      ...CREWDEFS.map((c) => new Crew(c)),
+    ]
+      .map((item: ShipItem) => {
+        if (item instanceof CannonballAmmo) addModifiersToAmmo(item);
+        return item;
+      })
+      .filter((i) => i.shopChance == null || Math.random() < i.shopChance);
   }
 
   private statsRows(): StatRowOptions[] {
