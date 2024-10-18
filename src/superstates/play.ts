@@ -60,22 +60,18 @@ export function isPhysicable(other: object): other is Physicable {
 
 export class PlayState extends Superstate {
   terrain: Terrain | null;
-  tickables: Tickable[];
-  physicables: Physicable[];
-  renderables: Renderable[];
-  allObjects: GameObject[];
-  renderer: GameRenderer;
-  physics: PhysicsSimulation;
+  tickables: Tickable[] = [];
+  physicables: Physicable[] = [];
+  renderables: Renderable[] = [];
+  allObjects: GameObject[] = [];
+  renderer: GameRenderer = new GameRenderer(this);
+  physics: PhysicsSimulation = new PhysicsSimulation(this);
   public sfx: SoundEngine | null;
   continuousSpawnTimer: number | null = null;
 
   constructor(game: Game, terraDef: TerraDef) {
     super(game);
-    this.physics = new PhysicsSimulation(this);
     this.setTerrain(new Terrain(terraDef));
-    this.tickables = [];
-    this.renderables = [];
-    this.renderer = new GameRenderer(this);
     this.reloadSoundEngine();
   }
 
