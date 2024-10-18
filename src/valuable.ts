@@ -1,6 +1,6 @@
 import type { ShipItem } from "./inventory";
 import type { RandomRange, WeightedItem } from "./util";
-import { maybeRange, rwc } from "./util";
+import { maybeRangeInt, rwc } from "./util";
 import random from "random";
 
 export interface ValuableArgs {
@@ -22,7 +22,7 @@ export class ValuableItem implements ShipItem {
   constructor(args: ValuableArgs) {
     this.name = args.name;
     this.cost = args.cost;
-    this.amount = Math.round(maybeRange(args.amount ?? 1));
+    this.amount = Math.round(maybeRangeInt(args.amount ?? 1));
     this.weight = args.weight ?? 20;
   }
 

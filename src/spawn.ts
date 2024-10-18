@@ -3,7 +3,7 @@
 import type { Optional } from "utility-types";
 import type { ShipMake } from "./objects/shipmakeup";
 import type { RandomRange, WeightedItem } from "./util";
-import { maybeRange, maybeWeighted, rwc } from "./util";
+import { maybeRange, maybeRangeInt, maybeWeighted, rwc } from "./util";
 import random from "random";
 import type { PlayState } from "./superstates/play";
 import Victor from "victor";
@@ -107,7 +107,7 @@ export class SpawnClass {
     return [
       pollRandomParam(this.head),
       ...([] as number[])
-        .fill(0, 0, maybeRange(this.squadSize))
+        .fill(0, 0, maybeRangeInt(this.squadSize))
         .map(() => pollRandomParam(maybeWeighted(this.squad))),
     ];
   }

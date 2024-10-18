@@ -115,6 +115,12 @@ export interface RandomRange {
   max: number;
 }
 
+export function maybeRangeInt(val: number | RandomRange): number {
+  return typeof val === "number"
+    ? Math.round(val)
+    : random.uniformInt(Math.floor(val.min), Math.ceil(val.max))();
+}
+
 export function maybeRange(val: number | RandomRange): number {
-  return typeof val === "number" ? val : random.uniformInt(val.min, val.max)();
+  return typeof val === "number" ? val : random.uniform(val.min, val.max)();
 }
