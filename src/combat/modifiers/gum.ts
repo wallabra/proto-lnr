@@ -1,3 +1,4 @@
+import type { ShipRenderContext } from "../../objects/ship";
 import { Ship } from "../../objects/ship";
 import type { ObjectRenderInfo } from "../../render";
 import type { Damageable } from "../damageable";
@@ -17,6 +18,25 @@ class PropellerGumModifier implements ProjectileModifier {
     target.effects.push({
       duration: SLOWNESS_DURATION,
       thrustMultiplier: SLOWNESS_FACTOR,
+      render: (sctx: ShipRenderContext) => {
+        const { info, ship, ctx } = sctx;
+
+        const pos = info.toScreen(ship.phys.pos);
+        const size = ship.phys.size * ship.lateralCrossSection;
+
+        ctx.setLineDash([10, 8]);
+        ctx.strokeStyle = "#B5B8";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, size * 1.8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#00B5";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, size * 1.8 + 6, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      },
     });
   }
 

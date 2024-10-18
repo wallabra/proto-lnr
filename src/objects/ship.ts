@@ -38,6 +38,7 @@ export interface ShipEffect {
   thrustMultiplier?: number;
   damagePerSecond?: number;
   instigator?: Ship;
+  render?: (ctx: ShipRenderContext) => void;
 }
 
 export type TickActionFunction<T> = (deltaTime: number) => T;
@@ -125,7 +126,7 @@ export function closestCircle(
     );
 }
 
-class ShipRenderContext {
+export class ShipRenderContext {
   ship: Ship;
   ctx: CanvasRenderingContext2D;
   drawPos: Victor;
@@ -143,7 +144,7 @@ class ShipRenderContext {
     this.ship = ship;
   }
 
-  update(info: ObjectRenderInfo) {
+  private update(info: ObjectRenderInfo) {
     const { ship } = this;
     this.info = info;
     this.ctx = info.ctx;
@@ -184,7 +185,7 @@ class ShipRenderContext {
     });
   }
 
-  drawBody() {
+  private drawBody() {
     const { ctx, drawPos, ship, isPlayer, isPlayerFleet, scale, size, shoffs } =
       this;
 
@@ -249,13 +250,14 @@ class ShipRenderContext {
     ctx.stroke();
   }
 
-  drawName() {
+  private drawName() {
     const { ctx, drawPos, ship } = this;
     const namePos = drawPos
       .clone()
       .addScalarY(ship.size * ship.lateralCrossSection + 15);
     const name = ship.makeup.name;
 
+    ctx.globalCompositeOperation = "hard-light";
     ctx.font = "bold 12px sans-serif";
     const { width } = ctx.measureText(name);
 
@@ -266,9 +268,10 @@ class ShipRenderContext {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(name, namePos.x, namePos.y);
+    ctx.globalCompositeOperation = "source-over";
   }
 
-  drawDamageBar() {
+  private drawDamageBar() {
     const { ctx, drawPos, ship, drawScale } = this;
 
     const maxDmg = ship.maxDmg;
@@ -298,7 +301,7 @@ class ShipRenderContext {
     );
   }
 
-  drawDebug() {
+  private drawDebug() {
     const { ctx, info, ship, scale } = this;
 
     const from = ship.pos
@@ -344,7 +347,7 @@ class ShipRenderContext {
     }
   }
 
-  drawCannon(cannon: Cannon, offs: Victor) {
+  private drawCannon(cannon: Cannon, offs: Victor) {
     const { ctx, ship, drawPos, scale } = this;
     const width = (0.1 + scale * cannon.caliber) / 2;
     const length = (width * (0.4 * Math.PI)) / cannon.spread;
@@ -372,7 +375,7 @@ class ShipRenderContext {
     ctx.restore();
   }
 
-  drawCannons() {
+  private drawCannons() {
     const cannons = this.ship.makeup.getPartsOf("cannon") as Cannon[];
 
     cannons.forEach((cannon, idx) => {
@@ -399,7 +402,7 @@ class ShipRenderContext {
     });
   }
 
-  drawCrosshair(cannon: Cannon) {
+  private drawCrosshair(cannon: Cannon) {
     const { ctx, ship, isPlayer, info, game } = this;
 
     if (!isPlayer) return;
@@ -436,7 +439,7 @@ class ShipRenderContext {
     ctx.stroke();
   }
 
-  drawCrosshairs() {
+  private drawCrosshairs() {
     const { ship } = this;
 
     const cannon = ship.makeup.nextReadyCannon;
@@ -445,7 +448,7 @@ class ShipRenderContext {
     this.drawCrosshair(cannon);
   }
 
-  drawFollowLine() {
+  private drawFollowLine() {
     const { ship, info, ctx } = this;
     const following = ship.following;
 
@@ -480,7 +483,15 @@ class ShipRenderContext {
     ctx.setLineDash([]);
   }
 
-  draw(info: ObjectRenderInfo) {
+  private renderEffects() {
+    for (const effect of this.ship.effects) {
+      if (effect.render != null) {
+        effect.render(this);
+      }
+    }
+  }
+
+  public draw(info: ObjectRenderInfo) {
     this.update(info);
 
     this.drawFollowLine();
@@ -491,6 +502,7 @@ class ShipRenderContext {
     this.drawCannons();
     this.drawDamageBar();
     this.drawName();
+    this.renderEffects();
     this.drawCrosshairs();
 
     // DEBUG

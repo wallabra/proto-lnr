@@ -59,6 +59,7 @@ class HomingModifier implements ProjectileModifier {
 
     if (to instanceof Ship) chSize *= to.lateralCrossSection;
 
+    ctx.globalCompositeOperation = "hard-light";
     ctx.strokeStyle = "#F204";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -72,6 +73,7 @@ class HomingModifier implements ProjectileModifier {
     ctx.moveTo(targetPos.x - chSize - 15, targetPos.y);
     ctx.lineTo(targetPos.x + chSize + 15, targetPos.y);
     ctx.stroke();
+    ctx.globalCompositeOperation = "source-over";
   }
 
   tick(deltaTime: number, projectile: Projectile): void {
