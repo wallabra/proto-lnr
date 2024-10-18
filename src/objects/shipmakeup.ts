@@ -16,7 +16,7 @@ import {
   DEFAULT_VACUUM,
   OARS,
 } from "../shop/partdefs";
-import { arrayCounter } from "../util";
+import { arrayCounter, stripWeights } from "../util";
 import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
@@ -27,7 +27,7 @@ import type { PlayState } from "../superstates/play";
 import randomParts from "../shop/randomparts";
 import { DEFAULT_MAKE } from "../shop/makedefs";
 import type { ProjectileModifier } from "../combat/projectile";
-import { addModifiersToAmmo } from "../combat/projectile";
+import { addModifiersToAmmo, ALL_MODIFIERS } from "../combat/projectile";
 
 export function slots(make: ShipMake): Map<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
@@ -975,6 +975,10 @@ export class ShipMakeup {
       this.inventory.addItem(this.addPart(vacuum));
       this.addDefaultDependencies(vacuum);
     }
+
+    this.ammo.forEach((ammo) => {
+      ammo.modifiers = new Set(stripWeights(ALL_MODIFIERS));
+    });
 
     return this;
   }

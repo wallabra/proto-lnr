@@ -48,6 +48,10 @@ export interface WeightedItem<T> {
   weight: number;
 }
 
+export function stripWeights<T>(items: WeightedItem<T>[]): T[] {
+  return items.map((item) => item.item);
+}
+
 export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
   const candidates = items.map((item) => item.item);
   const weights = items.map((item) => item.weight);
