@@ -92,7 +92,11 @@ class HomingModifier implements ProjectileModifier {
     if (projectile instanceof Cannonball) {
       const fallAt = projectile.predictFall();
       const fallDist = fallAt.clone().subtract(projectile.phys.pos).length();
-      const beyond = fallDist - target.offs.length() + target.obj.phys.size + projectile.phys.size;
+      const beyond =
+        fallDist -
+        target.offs.length() +
+        target.obj.phys.size +
+        projectile.phys.size;
 
       if (beyond > 0) {
         projectile.phys.applyForce(
