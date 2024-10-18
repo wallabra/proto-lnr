@@ -5,6 +5,7 @@ import type { ObjectRenderInfo } from "../render";
 import type { Physicable } from "../superstates/play";
 import { PlayState } from "../superstates/play";
 import { randomChance, rwc, type WeightedItem } from "../util";
+import { EXPLOSIVES } from "./modifiers/explosive";
 import { PROPELLER_GUM } from "./modifiers/gum";
 import { NOXIOUS_GAS } from "./modifiers/noxious";
 import { REPULSION_DISC } from "./modifiers/repulsion";
@@ -58,6 +59,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: PROPELLER_GUM, weight: 4 },
   { item: NOXIOUS_GAS, weight: 1.5 },
   { item: REPULSION_DISC, weight: 3 },
+  { item: EXPLOSIVES, weight: 2 },
 ];
 
 const MAX_MODIFIERS = 3;

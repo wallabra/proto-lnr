@@ -37,7 +37,7 @@ class NoxiousGasModifier implements ProjectileModifier {
       ).rotate(Math.random() * Math.PI * 2),
     );
 
-    ctx.fillStyle = "#0A07";
+    ctx.fillStyle = "#2B09";
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
     ctx.fill();
