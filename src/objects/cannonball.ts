@@ -8,6 +8,7 @@ import {
   projApplyDestroyModifiers,
   projApplyHitModifiers,
   projRenderModifiers,
+  projTickModifiers,
   type Projectile,
   type ProjectileModifier,
 } from "../combat/projectile";
@@ -151,11 +152,13 @@ export class Cannonball implements Tickable, Renderable, Projectile {
     }
   }
 
-  public tick() {
+  public tick(deltaTime: number) {
     if (this.phys.age > 50) {
       this.destroy();
       return;
     }
+
+    projTickModifiers(deltaTime, this);
     this.checkTerrainCollision();
     this.checkShipCollisions();
   }

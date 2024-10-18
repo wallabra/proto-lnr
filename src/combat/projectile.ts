@@ -7,6 +7,7 @@ import { PlayState } from "../superstates/play";
 import { randomChance, rwc, type WeightedItem } from "../util";
 import { EXPLOSIVES } from "./modifiers/explosive";
 import { PROPELLER_GUM } from "./modifiers/gum";
+import { HOMING } from "./modifiers/homing";
 import { INCENDIARY } from "./modifiers/incendiary";
 import { NOXIOUS_GAS } from "./modifiers/noxious";
 import { REPULSION_DISC } from "./modifiers/repulsion";
@@ -49,9 +50,18 @@ export function projRenderModifiers(
   });
 }
 
+export function projTickModifiers(deltaTime: number, projectile: Projectile) {
+  projectile.modifiers.forEach((mod) => {
+    if (mod.tick != null) {
+      mod.tick(deltaTime, projectile);
+    }
+  });
+}
+
 export interface ProjectileModifier {
   onDestroy(projectile: Projectile): void;
   onHit(projectile: Projectile, target: Damageable): void;
+  tick?(deltaTime: number, projectile: Projectile): void;
   render?(info: ObjectRenderInfo, projectile: Projectile): void;
   infoString: string;
 }
@@ -62,6 +72,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: REPULSION_DISC, weight: 3 },
   { item: EXPLOSIVES, weight: 2 },
   { item: INCENDIARY, weight: 2 },
+  { item: HOMING, weight: 1 },
 ];
 
 const MAX_MODIFIERS = 3;
