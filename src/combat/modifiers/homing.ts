@@ -10,7 +10,7 @@ import { getPlayStateFromProj } from "../projectile";
 import type Victor from "victor";
 
 const HOMING_RANGE = 600;
-const HOMING_TURN_PER_SEC = Math.PI / 2;
+const HOMING_TURN_PER_SEC = Math.PI / 8;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 1.5;
 const HOMING_SLOWDOWN_PER_SEC = 150;
 
@@ -79,9 +79,13 @@ class HomingModifier implements ProjectileModifier {
 
     if (target == null) return;
 
-    projectile.phys.vel.rotateBy(
-      HOMING_TURN_PER_SEC * Math.sign(target.angleOffs),
+    console.log(
+      (HOMING_TURN_PER_SEC * deltaTime * Math.sign(target.angleOffs)) / Math.PI,
     );
+
+    projectile.phys.vel = projectile.phys.vel
+      .clone()
+      .rotate(HOMING_TURN_PER_SEC * -Math.sign(target.angleOffs) * deltaTime);
 
     if (projectile instanceof Cannonball) {
       const fallAt = projectile.predictFall();
