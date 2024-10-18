@@ -161,6 +161,30 @@ export class ShipPart implements ShipItem {
   getItemLabel(): string {
     return `${this.type} ${this.name}`;
   }
+
+  public strictBetterThan(_other: this): boolean {
+    return false;
+  }
+
+  protected betterThan(_other: this): boolean {
+    return false;
+  }
+
+  protected partAutoResell(this: ShipPart, makeup: ShipMakeup): boolean {
+    const installed = makeup.parts.filter((p) => p instanceof this.constructor);
+
+    return (
+      (makeup.make.slots[this.type] ?? 0) <= installed.length &&
+      installed.filter((p) => this.betterThan(p)).length === 0
+    );
+  }
+
+  public autoResell(makeup: ShipMakeup): boolean {
+    // cannot autoresell installed parts
+    if (makeup.parts.indexOf(this) !== -1) return false;
+
+    return this.partAutoResell(makeup);
+  }
 }
 
 export type ShipPartArgsSuper = Omit<ShipPartArgs, "type">;
@@ -261,6 +285,13 @@ export class Crew implements ShipItem {
                 : "idle",
           ]),
     ];
+  }
+
+  autoResell(makeup: ShipMakeup): boolean {
+    return (
+      this.manningPart == null &&
+      makeup.parts.filter((p) => !p.alreadyManned()).length === 0
+    );
   }
 
   isHungry(): boolean {
@@ -406,6 +437,14 @@ export class CannonballAmmo implements ShipItem {
     );
   }
 
+  public autoResell(makeup: ShipMakeup): boolean {
+    return (
+      makeup.parts
+        .filter((p) => p instanceof Cannon)
+        .filter((c) => c.caliber === this.caliber).length === 0
+    );
+  }
+
   specialImpact(_cannonball: Cannonball, _victimShip: Ship) {}
 }
 
@@ -531,6 +570,26 @@ export class Cannon extends ShipPart {
   tick(deltaTime: number) {
     this.coolDown(deltaTime);
   }
+
+  public override strictBetterThan(other: Cannon) {
+    return (
+      this.caliber > other.caliber ||
+      (this.caliber === other.caliber &&
+        (this.shootRate < other.shootRate ||
+          (this.range > other.range && this.spread <= other.spread) ||
+          (this.spread < other.spread && this.range >= other.range)))
+    );
+  }
+
+  protected override betterThan(other: Cannon) {
+    return (
+      this.caliber >= other.caliber &&
+      (this.caliber > other.caliber ||
+        this.shootRate < other.shootRate ||
+        this.spread < other.spread ||
+        this.range > other.range)
+    );
+  }
 }
 
 export interface VacuumArgs
@@ -607,6 +666,21 @@ export class Vacuum extends ShipPart implements VacuumArgs {
   tick(deltaTime: number, owner: Ship): void {
     this.suckCrates(deltaTime, owner);
   }
+
+  public override strictBetterThan(other: Vacuum) {
+    return (
+      this.suckRadius > other.suckRadius &&
+      this.suckStrength > other.suckStrength
+    );
+  }
+
+  protected override betterThan(other: Vacuum) {
+    return (
+      this.suckRadius > other.suckRadius ||
+      (this.suckRadius === other.suckRadius &&
+        this.suckStrength > other.suckStrength)
+    );
+  }
 }
 
 export interface EngineArgs
@@ -670,6 +744,25 @@ export class Engine extends ShipPart {
 
   static oars(): Engine {
     return new Engine(OARS);
+  }
+
+  public override strictBetterThan(other: Engine) {
+    return (
+      this.thrust > other.thrust ||
+      (this.thrust === other.thrust &&
+        ((!this.manned && typeof other.manned === "number") ||
+          (this.fuelType == null && other.fuelType != null) ||
+          (other.fuelType != null && this.fuelCost < other.fuelCost)))
+    );
+  }
+
+  protected override betterThan(other: Engine) {
+    return (
+      this.thrust > other.thrust ||
+      (!this.manned && typeof other.manned === "number") ||
+      (this.fuelType == null && other.fuelType != null) ||
+      (other.fuelType != null && this.fuelCost < other.fuelCost)
+    );
   }
 }
 
@@ -871,6 +964,20 @@ export class ShipMakeup {
 
   setMake(make: ShipMake) {
     this.make = make;
+  }
+
+  public tryRepairHull(player: Player) {
+    if (this.hullDamage === 0) return;
+
+    const cost = this.hullRepairCost();
+
+    if (player.money < cost) {
+      this.hullDamage -= player.money / this.make.repairCostScale;
+      player.money = 0;
+    } else {
+      player.money -= cost;
+      this.hullDamage = 0;
+    }
   }
 
   addDefaultFuel(part: ShipPart, ammoFactor = 1, fuelFactor = 1) {

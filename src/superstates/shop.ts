@@ -52,7 +52,7 @@ interface PaneArgs {
   player?: Player;
 }
 
-export const DFAULT_RESELL_FACTOR = 0.6;
+export const DEFAULT_RESELL_FACTOR = 0.6;
 
 function weightInfo(item: ShipItem) {
   const amount = item.amount ?? 1;
@@ -143,7 +143,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
   private details: CanvasUIGroup;
   private damageMeter: CanvasProgressBar;
   private damageLabel: CanvasLabel;
-  private repairButton: CanvasButton;
+  private repairButton: CanvasButton | null;
   private assignCrewButton: CanvasButton | null;
   private assignCrewLabel: CanvasLabel | null;
   private buttonArgs: Partial<CanvasButtonArgs>;
@@ -294,8 +294,9 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
 
   private tryRepair() {
     this.part.tryRepair(this.player);
-    if (this.part.damage === 0) {
+    if (this.part.damage === 0 && this.repairButton != null) {
       this.repairButton.remove();
+      this.repairButton = null;
     }
   }
 
@@ -354,6 +355,13 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     }
   }
 
+  private checkRemoveRepairButton() {
+    if (this.repairButton != null && this.part.damage === 0) {
+      this.repairButton.remove();
+      this.repairButton = null;
+    }
+  }
+
   public update() {
     this.label.label = this.part.getInventoryLabel(this.makeup);
     this.damageMeter.setProgress(this.part.damage / this.part.maxDamage);
@@ -366,6 +374,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     }
     this.updateCrewButton();
     this.updateCrewButtonLabel();
+    this.checkRemoveRepairButton();
   }
 }
 
@@ -1627,6 +1636,7 @@ class PaneDrydockShip extends Pane<
 
     this.buildPartsPane(shipManager);
     this.buildInventoryPane(shipManager);
+    this.buildAutoManagementPane(shipManager);
 
     this.hullDamageMeter = new CanvasProgressBar({
       parent: shipManager,
@@ -1725,7 +1735,7 @@ class PaneDrydockShip extends Pane<
       parent: parent,
       dockX: "center",
       fillX: true,
-      resellFactor: DFAULT_RESELL_FACTOR,
+      resellFactor: DEFAULT_RESELL_FACTOR,
       state: this.state,
       makeup: this.makeup,
       childOrdering: "vertical",
@@ -1733,6 +1743,136 @@ class PaneDrydockShip extends Pane<
       childFill: 2,
       bgColor: "#0006",
     });
+  }
+
+  private buildAutoManagementPane(parent: CanvasUIElement) {
+    const group = new CanvasUIGroup({
+      parent: parent,
+      dockX: "center",
+      fillX: true,
+      paddingX: 4,
+      childOrdering: "vertical",
+      childMargin: 5,
+      height: 80,
+      bgColor: "#0002",
+    });
+
+    new CanvasButton({
+      parent: group,
+      childOrdering: "vertical",
+      bgColor: "#AAF5",
+      callback: () => {
+        this.autoInstall();
+      },
+    }).label("Auto-Install", {
+      color: "#ccdd",
+      height: 12,
+      autoFont: true,
+      font: "bold $Hpx solid sans-serif",
+    });
+
+    new CanvasButton({
+      parent: group,
+      childOrdering: "vertical",
+      bgColor: "#AAF5",
+      callback: () => {
+        this.autoRepair();
+      },
+    }).label("Auto-Repair", {
+      color: "#ccdd",
+      height: 12,
+      autoFont: true,
+      font: "bold $Hpx solid sans-serif",
+    });
+
+    new CanvasButton({
+      parent: group,
+      childOrdering: "vertical",
+      bgColor: "#AAF5",
+      callback: () => {
+        this.autoResell();
+      },
+    }).label("Auto-Resell", {
+      color: "#ccdd",
+      height: 12,
+      autoFont: true,
+      font: "bold $Hpx solid sans-serif",
+    });
+  }
+
+  private autoInstall() {
+    let surplusStrength = this.makeup.inventory.items
+      .filter((i) => i instanceof Crew && i.manningPart == null)
+      .map((c) => (c as Crew).strength)
+      .reduce((a, b) => a + b, 0);
+
+    for (const item of this.makeup.inventory.items) {
+      if (!(item instanceof ShipPart) || this.makeup.parts.indexOf(item) !== -1)
+        continue;
+
+      if (
+        this.makeup.make.slots[item.type] >
+          this.makeup.parts.filter((p) => p.type === item.type).length &&
+        !(typeof item.manned === "number" && surplusStrength < item.manned)
+      ) {
+        this.makeup.addPart(item);
+        this.makeup.assignCrewTo(item);
+        surplusStrength -= item.mannedBy
+          .map((c) => c.strength)
+          .reduce((a, b) => a + b, 0);
+        continue;
+      }
+
+      const replaceCandidates = this.makeup.parts
+        .filter(
+          (p) =>
+            p instanceof item.constructor &&
+            item.strictBetterThan(p) &&
+            surplusStrength + (typeof p.manned === "number" ? p.manned : 0) >
+              (typeof item.manned === "number" ? item.manned : 0),
+        )
+        .sort((a, b) => (b.strictBetterThan(a) ? 1 : -1));
+
+      if (replaceCandidates.length === 0) continue;
+
+      replaceCandidates[0].unassignCrew();
+      this.makeup.removePart(replaceCandidates[0]);
+      this.makeup.addPart(item);
+      this.makeup.assignCrewTo(item);
+
+      // not worth trying to check which crew was idle before being assigned and which was assigned to previous part
+      surplusStrength = this.makeup.inventory.items
+        .filter((i) => i instanceof Crew && i.manningPart == null)
+        .map((c) => (c as Crew).strength)
+        .reduce((a, b) => a + b, 0);
+    }
+  }
+
+  private autoRepair() {
+    if (this.makeup.hullDamage > 0) {
+      if (this.player.money === 0) return;
+      this.makeup.tryRepairHull(this.player);
+    }
+
+    for (const part of this.makeup.parts.sort(
+      (a, b) => +(a.type === "engine") - +(b.type === "engine"),
+    )) {
+      if (part.damage > 0) {
+        if (this.player.money === 0) return;
+        part.tryRepair(this.player);
+      }
+    }
+  }
+
+  private autoResell() {
+    for (const item of this.makeup.inventory.items) {
+      if (item.autoResell == null || !item.autoResell(this.makeup)) continue;
+
+      this.makeup.inventory.removeItem(item);
+
+      if (!(item instanceof Crew))
+        this.player.money += computeResellCost(item, DEFAULT_RESELL_FACTOR);
+    }
   }
 
   private addPartItem(part: ShipPart) {
@@ -1889,18 +2029,7 @@ class PaneDrydockShip extends Pane<
   }
 
   doRepairHull() {
-    if (this.makeup.hullDamage === 0) return;
-
-    const player = this.player;
-    const cost = this.repairCost();
-
-    if (player.money < cost) {
-      this.makeup.hullDamage -= player.money / this.makeup.make.repairCostScale;
-      player.money = 0;
-    } else {
-      player.money -= cost;
-      this.makeup.hullDamage = 0;
-    }
+    this.makeup.tryRepairHull(this.player);
     this.updateRepairLabel();
   }
 

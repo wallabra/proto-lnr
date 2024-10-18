@@ -1,6 +1,6 @@
-import type { ShipMakeup } from "./objects/shipmakeup";
+import { Engine, type ShipMakeup } from "./objects/shipmakeup";
 import type { Player } from "./player";
-import { DFAULT_RESELL_FACTOR } from "./superstates/shop";
+import { DEFAULT_RESELL_FACTOR } from "./superstates/shop";
 
 export interface InventoryItem {
   name: string;
@@ -22,6 +22,7 @@ export interface InventoryItem {
 export interface ShipItem extends InventoryItem {
   type: string;
   getItemLabel: () => string;
+  autoResell?(makeup: ShipMakeup): boolean;
 }
 
 export class ShipInventory {
@@ -93,7 +94,7 @@ export interface FuelItemArgs {
 
 export function computeResellCost(
   item: ShipItem,
-  resellFactor = DFAULT_RESELL_FACTOR,
+  resellFactor = DEFAULT_RESELL_FACTOR,
 ): number {
   let repairFactor = 0;
   const damageableItem = item as ShipItem & {
@@ -139,6 +140,15 @@ export class FuelItem implements ShipItem {
 
   getItemLabel() {
     return `fuel ${this.name}`;
+  }
+
+  autoResell(makeup: ShipMakeup): boolean {
+    return (
+      makeup.parts.filter(
+        (p) =>
+          p instanceof Engine && p.fuelType != null && p.fuelType === this.name,
+      ).length === 0
+    );
   }
 }
 
@@ -197,5 +207,9 @@ export class FoodItem implements ShipItem {
 
   getItemLabel() {
     return `food ${this.name}`;
+  }
+
+  autoResell(makeup: ShipMakeup): boolean {
+    return makeup.crew.length === 0;
   }
 }
