@@ -1748,18 +1748,20 @@ class PaneDrydockShip extends Pane<
   private buildAutoManagementPane(parent: CanvasUIElement) {
     const group = new CanvasPanel({
       parent: parent,
-      dockX: "center",
       fillX: true,
       paddingX: 4,
       childOrdering: "vertical",
       childMargin: 5,
-      height: 80,
+      height: 22,
       bgColor: "#0002",
     });
 
     new CanvasButton({
       parent: group,
-      childOrdering: "vertical",
+      childOrdering: "horizontal",
+      childFill: 1,
+      childMargin: 5,
+      fillY: true,
       bgColor: "#AAF5",
       callback: () => {
         this.autoInstall();
@@ -1773,7 +1775,10 @@ class PaneDrydockShip extends Pane<
 
     new CanvasButton({
       parent: group,
-      childOrdering: "vertical",
+      childOrdering: "horizontal",
+      childFill: 1,
+      childMargin: 5,
+      fillY: true,
       bgColor: "#AAF5",
       callback: () => {
         this.autoRepair();
@@ -1787,7 +1792,10 @@ class PaneDrydockShip extends Pane<
 
     new CanvasButton({
       parent: group,
-      childOrdering: "vertical",
+      childOrdering: "horizontal",
+      childFill: 1,
+      childMargin: 5,
+      fillY: true,
       bgColor: "#AAF5",
       callback: () => {
         this.autoResell();
