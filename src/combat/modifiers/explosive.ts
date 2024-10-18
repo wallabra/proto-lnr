@@ -5,6 +5,7 @@ import {
   type Projectile,
   type ProjectileModifier,
 } from "../projectile";
+import Victor from "victor";
 
 class ExplosiveModifier implements ProjectileModifier {
   infoString = "explosives";
@@ -35,11 +36,9 @@ class ExplosiveModifier implements ProjectileModifier {
 
     for (const angle of [1, 3, 5, 7].map((fac) => (fac * Math.PI) / 4)) {
       ctx.beginPath();
+      const tgt = pos.clone().add(new Victor(size, 0).rotate(angle));
       ctx.moveTo(pos.x, pos.y);
-      ctx.lineTo(
-        pos.x + Math.cos(angle) * size * 2,
-        pos.y * Math.sin(angle) * size * 2,
-      );
+      ctx.lineTo(tgt.x, tgt.y);
       ctx.stroke();
     }
   }
