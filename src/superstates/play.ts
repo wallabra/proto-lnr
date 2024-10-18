@@ -25,6 +25,7 @@ import { getRandomSpawnClass } from "../spawn";
 export interface GameObject {
   dying: boolean;
   type: string;
+  state: PlayState;
 }
 
 export interface Tickable extends GameObject {
@@ -39,8 +40,10 @@ export function isGameObject(other: object): other is GameObject {
   return (
     "dying" in other &&
     "type" in other &&
+    "state" in other &&
     typeof other.dying === "boolean" &&
-    typeof other.type === "string"
+    typeof other.type === "string" &&
+    other.state instanceof PlayState
   );
 }
 
