@@ -1818,7 +1818,7 @@ class PaneDrydockShip extends Pane<
       this.makeup.inventory.items.filter(
         (a) => a instanceof ShipPart && this.makeup.parts.indexOf(a) === -1,
       ) as ShipPart[]
-    ).sort((a, b) => (a.strictBetterThan(b) ? 1 : -1))) {
+    ).sort((a, b) => (b.strictBetterThan(a) ? 1 : -1))) {
       if (
         this.makeup.make.slots[item.type] >
           this.makeup.parts.filter((p) => p.type === item.type).length &&
