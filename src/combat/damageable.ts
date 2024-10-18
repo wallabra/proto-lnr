@@ -14,3 +14,7 @@ export function isDamageable(other: object): other is Damageable {
     typeof other.getMaxDamage === "function"
   );
 }
+
+export function damageOutOfMax(damageable: Damageable): number {
+  return damageable.getDamage() / damageable.getMaxDamage();
+}

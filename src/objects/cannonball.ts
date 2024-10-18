@@ -4,7 +4,13 @@ import type { PhysicsObject } from "./physics";
 import type { PhysicsParams } from "./physics";
 import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
-import type { Projectile, ProjectileModifier } from "../combat/projectile";
+import {
+  projApplyDestroyModifiers,
+  projApplyHitModifiers,
+  projRenderModifiers,
+  type Projectile,
+  type ProjectileModifier,
+} from "../combat/projectile";
 
 export interface CannonballParams extends PhysicsParams {
   speed: number;
@@ -82,6 +88,7 @@ export class Cannonball implements Tickable, Renderable, Projectile {
   }
 
   public destroy() {
+    projApplyDestroyModifiers(this);
     this.dying = true;
     this.phys.dying = true;
   }
@@ -109,6 +116,8 @@ export class Cannonball implements Tickable, Renderable, Projectile {
         damageScale *
         0.0235,
     );
+    projApplyHitModifiers(this, ship);
+
     if (ship.dying) {
       this.instigator.scoreKill();
     }
@@ -232,6 +241,9 @@ export class Cannonball implements Tickable, Renderable, Projectile {
     ctx.beginPath();
     ctx.arc(drawPos.x, drawPos.y, size, 0, 2 * Math.PI);
     ctx.fill();
+
+    // apply render modifiers
+    projRenderModifiers(info, this);
 
     // debug
     // TODO: remove when no longer needed

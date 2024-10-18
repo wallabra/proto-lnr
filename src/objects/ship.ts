@@ -17,6 +17,7 @@ import { pickByRarity } from "../shop/rarity";
 import { Wave } from "./fx/wave";
 import { Smoke } from "./fx/smoke";
 import type { Nullish } from "utility-types";
+import type { Damageable } from "../combat/damageable";
 
 const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
   coal: "engine_coal",
@@ -498,7 +499,7 @@ class ShipRenderContext {
 
 const CHASE_LOCK_RANGE = Math.pow(1200, 2);
 
-export class Ship implements Tickable, Renderable {
+export class Ship implements Tickable, Renderable, Damageable {
   game: Game;
   phys: PhysicsObject;
   dying: boolean;
@@ -519,6 +520,14 @@ export class Ship implements Tickable, Renderable {
   followers = new Set<Ship>();
   type = "ship";
   effects: ShipEffect[] = [];
+
+  getDamage(): number {
+    return this.makeup.hullDamage;
+  }
+
+  getMaxDamage(): number {
+    return this.makeup.make.maxDamage;
+  }
 
   public follow(other: Ship) {
     if (this.following != null) this.unfollow();
