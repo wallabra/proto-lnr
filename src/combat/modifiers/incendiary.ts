@@ -5,7 +5,7 @@ import type { Damageable } from "../damageable";
 import type { Projectile, ProjectileModifier } from "../projectile";
 
 const BURN_DURATION = { min: 4, max: 12 };
-const BURN_DAMAGE = 25;
+const BURN_DAMAGE = 150;
 
 class IncendiaryModifier implements ProjectileModifier {
   infoString = "incendiary phosphorus";
