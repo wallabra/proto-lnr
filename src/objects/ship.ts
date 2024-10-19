@@ -311,9 +311,7 @@ export class ShipRenderContext {
           ship.angle,
         ),
       );
-    const fromDraw = info.base
-      .clone()
-      .add(from.clone().subtract(info.cam).multiplyScalar(scale));
+    const fromDraw = info.toScreen(from);
     const angmom = ship.phys.orbitalVelocityAt(from).multiplyScalar(scale);
 
     // Draw angular velocity
@@ -332,10 +330,10 @@ export class ShipRenderContext {
     ctx.stroke();
 
     // Draw drag vector
-    ctx.strokeStyle = "#2ef6";
+    ctx.strokeStyle = "#6f26";
     ctx.beginPath();
     ctx.moveTo(fromDraw.x, fromDraw.y);
-    const drag = info.toScreen(ship.phys.dragVector().add(ship.phys.pos));
+    const drag = info.toScreen(ship.phys.dragVector().multiplyScalar(15).add(from));
     ctx.lineTo(drag.x, drag.y);
     ctx.stroke();
 
@@ -778,12 +776,9 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   protected dragMixin() {
     this.phys.dragVector = function (this: Ship) {
-      const alpha = Math.abs(
-        new Victor(1, 0).rotateBy(this.angle).dot(this.vel.norm()),
-      );
       const res = new Victor(
-        1 - alpha,
-        alpha * this.lateralCrossSection,
+        1,
+        this.lateralCrossSection,
       ).rotate(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
     }.bind(this) as () => Victor;
