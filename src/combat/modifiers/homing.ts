@@ -27,7 +27,10 @@ function getHomingTarget(
       (obj) =>
         isDamageable(obj.obj) &&
         obj.obj !== proj.instigator &&
-        (fallDistSq == null || obj.offs.lengthSq() < fallDistSq),
+        (fallDistSq == null ||
+          obj.offs
+            .add(obj.obj.phys.vel.clone().multiplyScalar(proj.airtime()))
+            .lengthSq() < fallDistSq),
     )
     .map((item) => ({
       ...item,
