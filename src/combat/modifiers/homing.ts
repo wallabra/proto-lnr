@@ -12,7 +12,7 @@ import type Victor from "victor";
 const HOMING_RANGE = 900;
 const HOMING_TURN_PER_SEC = Math.PI / 6;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 1.5;
-const HOMING_SLOWDOWN_PER_SEC = 20;
+const HOMING_SLOWDOWN_PER_SEC = 60;
 
 function getHomingTarget(
   proj: Projectile,
