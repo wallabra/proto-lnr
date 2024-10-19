@@ -12,7 +12,6 @@ class ExplosiveModifier implements ProjectileModifier {
   infoString = "explosives";
 
   onDestroy(projectile: Projectile): void {
-    console.log("Doing repulsion");
     aoeExplosion(
       getPlayStateFromProj(projectile),
       projectile.phys.pos,
