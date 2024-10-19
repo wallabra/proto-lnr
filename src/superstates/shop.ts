@@ -1817,11 +1817,6 @@ class PaneDrydockShip extends Pane<
   }
 
   private autoInstall() {
-    let surplusStrength = this.makeup.inventory.items
-      .filter((i) => i instanceof Crew && i.manningPart == null)
-      .map((c) => (c as Crew).strength)
-      .reduce((a, b) => a + b, 0);
-
     for (const item of (
       this.makeup.inventory.items.filter(
         (a) => a instanceof ShipPart && this.makeup.parts.indexOf(a) === -1,
@@ -1829,6 +1824,11 @@ class PaneDrydockShip extends Pane<
     ).sort((a, b) =>
       b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
     )) {
+      const surplusStrength = this.makeup.inventory.items
+        .filter((i) => i instanceof Crew && i.manningPart == null)
+        .map((c) => (c as Crew).strength)
+        .reduce((a, b) => a + b, 0);
+      
       if (
         this.makeup.make.slots[item.type] >
           this.makeup.parts.filter((p) => p.type === item.type).length &&
@@ -1836,9 +1836,6 @@ class PaneDrydockShip extends Pane<
       ) {
         this.makeup.addPart(item);
         this.makeup.assignCrewTo(item);
-        surplusStrength -= item.mannedBy
-          .map((c) => c.strength)
-          .reduce((a, b) => a + b, 0);
         continue;
       }
 
@@ -1859,12 +1856,6 @@ class PaneDrydockShip extends Pane<
       this.makeup.removePart(replaceCandidates[0]);
       this.makeup.addPart(item);
       this.makeup.assignCrewTo(item);
-
-      // not worth trying to check which crew was idle before being assigned and which was assigned to previous part
-      surplusStrength = this.makeup.inventory.items
-        .filter((i) => i instanceof Crew && i.manningPart == null)
-        .map((c) => (c as Crew).strength)
-        .reduce((a, b) => a + b, 0);
     }
 
     this.inventoryWidget.update();
