@@ -13,7 +13,7 @@ import SPRITE_GRASS from "data-url:../../sprites/grass.png";
 import SPRITE_ROCK from "data-url:../../sprites/rock.png";
 import SPRITE_FLAG from "data-url:../../sprites/flag.png";
 
-const SPRITES: { [filename: string]: { src: string; angleRandom: boolean } } = {
+const SPRITES: Record<string, { src: string; angleRandom: boolean }> = {
   "grass.png": { src: SPRITE_GRASS, angleRandom: true },
   "rock.png": { src: SPRITE_ROCK, angleRandom: true },
   "flag.png": { src: SPRITE_FLAG, angleRandom: false },

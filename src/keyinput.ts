@@ -10,7 +10,7 @@ interface KeyRegister {
 export abstract class KeyHandler {
   registry: KeyRegister[] = [];
   game: Game;
-  heldKeys: Map<string, () => void> = new Map();
+  heldKeys = new Map<string, () => void>();
 
   constructor(game: Game) {
     this.game = game;

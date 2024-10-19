@@ -126,8 +126,10 @@ export class SpawnClass {
 
     const difficultyBonus = state.game.difficulty * 2;
 
+    const [headDef, ...squadDefs] = defs;
+
     const head = spawnShipOnDef(
-      defs.shift() as IndividualSpawn,
+      headDef,
       state,
       pos,
       args,
@@ -139,12 +141,11 @@ export class SpawnClass {
     let attempts = 0;
     const squadSize = defs.length;
 
-    while (defs.length > 0) {
+    let nextDef;
+    while ((nextDef = squadDefs.shift()) !== undefined) {
       if (attempts > 3 * squadSize) {
         break;
       }
-
-      const nextDef = defs[0];
 
       const shipPos = new Victor(
         nextDef.make.size * nextDef.make.lateralCrossSection * 2 +
@@ -164,8 +165,7 @@ export class SpawnClass {
       );
 
       if (
-        state.player != null &&
-        state.player.possessed != null &&
+        state.player?.possessed != null &&
         ship.pos.clone().subtract(state.player.possessed.pos).length() <
           ship.size * ship.lateralCrossSection +
             state.player.possessed.size *
@@ -185,7 +185,6 @@ export class SpawnClass {
 
       ship.follow(head);
       squad.push(ship);
-      defs.shift();
     }
 
     for (const ship of squad) {
@@ -258,7 +257,7 @@ function findMake(name: string): ShipMake {
   return MAKEDEFS.find((def) => def.name === name) ?? MAKEDEFS[0];
 }
 
-export const SPAWN_CLASSES: { [name: string]: WeightedItem<SpawnClass> } = {
+export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
   LONE_MERCHANT: {
     item: new SpawnClass({
       head: {

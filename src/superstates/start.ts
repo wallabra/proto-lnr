@@ -14,7 +14,7 @@ import { GAME_VERSION } from "../info";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;
-  states: Map<string, CanvasUIElement> = new Map();
+  states = new Map<string, CanvasUIElement>();
   stateStack: string[] = [];
 
   private setState(stateName: string) {

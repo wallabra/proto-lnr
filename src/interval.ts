@@ -1,6 +1,4 @@
-export interface Callback {
-  (): void;
-}
+export type Callback = () => void;
 
 export interface CallbackRegister {
   when: number;
@@ -11,8 +9,8 @@ export interface CallbackRegister {
 
 export class IntervalLoop {
   private nextCallbacks: CallbackRegister[] = [];
-  private idCounter: number = 0;
-  private timeCounter: number = 0;
+  private idCounter = 0;
+  private timeCounter = 0;
 
   private sortCallbacks() {
     this.nextCallbacks = this.nextCallbacks.sort((a) => a.when);
@@ -32,7 +30,7 @@ export class IntervalLoop {
   public setInterval(
     callback: Callback,
     interval: number,
-    immediateCallback: boolean = false,
+    immediateCallback = false,
   ): number {
     const id = this.idCounter;
 

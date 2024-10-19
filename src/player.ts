@@ -45,8 +45,8 @@ export class Player {
 
   public updateMoneyFromFleet() {
     this.money = this.fleet
-      .filter((m) => m.ship != null)
-      .reduce((a, b) => a + (b.ship as Ship).money, 0);
+      .filter((m): m is FleetMember & { ship: Ship } => m.ship != null)
+      .reduce((a, b) => a + b.ship.money, 0);
   }
 
   public totalSalary() {

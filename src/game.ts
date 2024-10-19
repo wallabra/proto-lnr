@@ -195,7 +195,7 @@ export class Game {
   public setInterval(
     callback: Callback,
     interval: number,
-    immediateCallback: boolean = false,
+    immediateCallback = false,
   ): number {
     return this.intervalLoop.setInterval(callback, interval, immediateCallback);
   }

@@ -52,7 +52,7 @@ export function stripWeights<T>(items: WeightedItem<T>[]): T[] {
   return items.map((item) => item.item);
 }
 
-export function rwc<T>(items: WeightedItem<T>[], temperature: number = 0): T {
+export function rwc<T>(items: WeightedItem<T>[], temperature = 0): T {
   const candidates = items.map((item) => item.item);
   const weights = items.map((item) => item.weight);
 
@@ -89,7 +89,7 @@ export function randomChance(chance: number): boolean {
 }
 
 export function arrayCounter<T>(arr: T[]): Map<T, number> {
-  const counted: Map<T, number> = new Map();
+  const counted = new Map<T, number>();
 
   for (const item of arr) {
     const count = counted.get(item);

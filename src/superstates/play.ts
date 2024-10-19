@@ -76,7 +76,7 @@ export class PlayState extends Superstate {
   }
 
   reloadSoundEngine() {
-    if (this.player == null || this.player.possessed == null) {
+    if (this.player?.possessed == null) {
       this.sfx = null;
       return false;
     }
@@ -137,7 +137,7 @@ export class PlayState extends Superstate {
   }
 
   setupNPCs(numNPCs: number) {
-    if (this.player == null || this.player.possessed == null) {
+    if (this.player?.possessed == null) {
       throw new Error(
         "setupNPCs can only be called when a player ship already exists",
       );
@@ -388,7 +388,7 @@ export class PlayState extends Superstate {
   }
 
   public cameraPos(): Victor {
-    if (this.player != null && this.player.possessed != null) {
+    if (this.player?.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
       return new Victor(0, 0);
@@ -473,7 +473,7 @@ export class PlayState extends Superstate {
     this.game.setMouseHandler(PlayMouseHandler);
     this.game.setKeyboardHandler(PlayKeyHandler);
 
-    if (this.player != null && this.player.possessed != null) {
+    if (this.player?.possessed != null) {
       this.addShip(this.player.possessed);
     }
 

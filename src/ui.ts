@@ -609,13 +609,15 @@ export class CanvasRoot extends CanvasUIElement<{ game: Game }> {
   }
 }
 
+export type UICallback = (e: UIEvent) => void;
+
 export interface CanvasButtonArgs extends CanvasUIArgs {
   label?: string;
-  callback: (e: UIEvent) => void;
+  callback: UICallback;
 }
 
 export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
-  callback: (e: UIEvent) => void;
+  callback: UICallback;
   private _label: CanvasLabel | null;
   bgColor: string | null;
 

@@ -399,7 +399,7 @@ export class CannonballAmmo implements ShipItem {
   constructor(
     caliber: number,
     amount = 15,
-    modifiers: Set<ProjectileModifier> = new Set(),
+    modifiers = new Set<ProjectileModifier>(),
   ) {
     this.caliber = caliber;
     this.amount = amount;
@@ -693,9 +693,10 @@ export interface EngineArgs
   thrust: number;
 }
 
-export const FUEL_PROPS: {
-  [fuelType: string]: { cost: number; weight: number } | undefined;
-} = {
+export const FUEL_PROPS: Record<
+  string,
+  { cost: number; weight: number } | undefined
+> = {
   coal: {
     cost: 3,
     weight: 8,
@@ -723,8 +724,8 @@ export class Engine extends ShipPart {
   constructor(args: EngineArgs) {
     super({ type: "engine", maxDamage: 6, vulnerability: 0.03, ...args });
     this.thrust = args.thrust;
-    this.fuelType = (args.fuel && args.fuel.type) || null;
-    this.fuelCost = (args.fuel && args.fuel.cost) || 0.02;
+    this.fuelType = args.fuel?.type || null;
+    this.fuelCost = args.fuel?.cost || 0.02;
   }
 
   getThrust(): number {

@@ -19,7 +19,7 @@ import { Smoke } from "./fx/smoke";
 import type { Nullish } from "utility-types";
 import type { Damageable } from "../combat/damageable";
 
-const ENGINE_SFX_BY_TYPE: { [fuelType: string]: string } = {
+const ENGINE_SFX_BY_TYPE: Record<string, string> = {
   coal: "engine_coal",
   diesel: "engine_diesel",
 };
@@ -47,7 +47,7 @@ export type TickActionCallback<T> = (action: T) => void;
 export class TickAction<T> {
   private action: TickActionFunction<T>;
   private result: T | null = null;
-  private done: boolean = false;
+  private done = false;
   private callbacks: TickActionCallback<T>[] = [];
 
   constructor(action: TickActionFunction<T>) {
@@ -550,8 +550,11 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   private totalThrustMultiplier(): number {
     return this.effects
-      .filter((e) => e.thrustMultiplier != null)
-      .map((e) => e.thrustMultiplier as number)
+      .filter(
+        (e): e is ShipEffect & { thrustMultiplier: number } =>
+          e.thrustMultiplier != null,
+      )
+      .map((e) => e.thrustMultiplier)
       .reduce((a, b) => a * b, 1);
   }
 

@@ -39,13 +39,13 @@ export default function randomParts(
 ): ShipPart[] {
   let available = allocRarity;
 
-  let makeSlots: Map<string, number> = new Map();
+  let makeSlots = new Map<keyof typeof PARTDEFS, number>();
 
   if (forMake != null) {
-    makeSlots = slots(forMake);
+    makeSlots = slots(forMake) as Map<keyof typeof PARTDEFS, number>;
   } else {
     for (const partType in PARTDEFS) {
-      makeSlots.set(partType, NaN);
+      makeSlots.set(partType as keyof typeof PARTDEFS, NaN);
     }
   }
 
@@ -54,9 +54,9 @@ export default function randomParts(
     .map((k) => makeSlots.get(k) as number)
     .reduce((a, b) => a + b, 0);
 
-  const smallestRarity: Map<string, number> = new Map();
+  const smallestRarity = new Map<string, number>();
 
-  makeSlots.forEach((_, parttype: keyof typeof PARTDEFS) => {
+  makeSlots.forEach((_, parttype) => {
     const defs = PARTDEFS[parttype] as AnyPartDef[];
     const smallest = Math.min(
       ...defs.map((def) => def.rarity).filter((rarity) => rarity !== "always"),
@@ -65,8 +65,10 @@ export default function randomParts(
   });
 
   // Start with the parts of rarity 'always'
-  const res = Object.keys(PARTDEFS).reduce(
-    (a: ShipPart[], b: keyof typeof PARTDEFS) =>
+  const res = (Object.keys(PARTDEFS) as (keyof typeof PARTDEFS)[]).reduce<
+    ShipPart[]
+  >(
+    (a: ShipPart[], b) =>
       a.concat(
         (PARTDEFS[b] as AnyPartDef[])
           .filter((p) => p.rarity === "always")
@@ -89,9 +91,7 @@ export default function randomParts(
         ),
       )
   ) {
-    const type = random.choice(Array.from(makeSlots.keys())) as
-      | keyof typeof PARTDEFS
-      | undefined;
+    const type = random.choice(Array.from(makeSlots.keys()));
     if (type === undefined) break;
 
     if (available < (smallestRarity.get(type) ?? 0)) continue;

@@ -23,6 +23,7 @@ import type {
   CanvasLabelArgs,
   CanvasUIElement,
   CanvasUIArgs,
+  UICallback,
 } from "../ui";
 import {
   CanvasButton,
@@ -68,8 +69,7 @@ function itemLabel(
 ) {
   return (
     (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(2) + " " : "") +
-    ((makeup && item.getInventoryLabel && item.getInventoryLabel(makeup)) ??
-      item.getItemLabel()) +
+    ((makeup && item.getInventoryLabel?.(makeup)) ?? item.getItemLabel()) +
     (priceFactor == null
       ? ""
       : ` (${moneyString(item.cost * priceFactor * (item.amount || 1))})`)
@@ -213,7 +213,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
       this.repairButton = new CanvasButton({
         ...this.buttonArgs,
         parent: this.buttonList,
-        callback: this.tryRepair.bind(this) as typeof this.tryRepair,
+        callback: this.tryRepair.bind(this) as UICallback,
         bgColor: "#2020f0c0",
       });
       this.repairButton.label("Repair", this.labelArgs);
@@ -224,7 +224,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     new CanvasButton({
       ...this.buttonArgs,
       parent: this.buttonList,
-      callback: this.tryUninstall.bind(this) as typeof this.tryUninstall,
+      callback: this.tryUninstall.bind(this) as UICallback,
       bgColor: "#f02020c0",
     }).label("Uninstall", this.labelArgs);
   }
@@ -235,9 +235,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
         this.assignCrewButton = new CanvasButton({
           ...this.buttonArgs,
           parent: this.buttonList,
-          callback: this.crewButtonAction.bind(
-            this,
-          ) as typeof this.crewButtonAction,
+          callback: this.crewButtonAction.bind(this) as UICallback,
           bgColor: "#2040f0c0",
         });
         this.assignCrewLabel = this.assignCrewButton.label("", this.labelArgs);
@@ -501,7 +499,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !this.letResellHalf(),
-      callback: this.resellHalf.bind(this) as typeof this.resellHalf,
+      callback: this.resellHalf.bind(this) as UICallback,
     });
     this.resellHalfLabel = this.resellHalfButton.label("-", labelArgs);
 
@@ -553,7 +551,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       fillX: true,
       height: 12,
       hidden: !this.canCaptain(),
-      callback: this.setCaptain.bind(this) as typeof this.setCaptain,
+      callback: this.setCaptain.bind(this) as UICallback,
     });
     this.setCaptainButton.label("Appoint to Captainship", labelArgs);
 
@@ -566,7 +564,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         childFill: 1,
         fillX: true,
         height: 12,
-        callback: this.installPart.bind(this) as typeof this.installPart,
+        callback: this.installPart.bind(this) as UICallback,
       }).label("Install Part", labelArgs);
     }
   }
@@ -827,7 +825,7 @@ function updateList<
   }
 
   for (const item of remaining) {
-    if (shouldSkip == null || !shouldSkip(item)) {
+    if (!shouldSkip?.(item)) {
       add(item);
     }
   }
@@ -976,7 +974,7 @@ class ShopItemWidget extends Pane<
     });
 
     const detailLines: string[] = [
-      ...((this.item.shopInfo && this.item.shopInfo()) ?? []),
+      ...(this.item.shopInfo?.() ?? []),
       ...(this.item instanceof ShipPart ? manningRequirements(this.item) : []),
     ];
 
@@ -1884,7 +1882,7 @@ class PaneDrydockShip extends Pane<
 
   private autoResell() {
     for (const item of Array.from(this.makeup.inventory.items)) {
-      if (item.autoResell == null || !item.autoResell(this.makeup)) continue;
+      if (!item.autoResell?.(this.makeup)) continue;
 
       this.makeup.inventory.removeItem(item);
 
