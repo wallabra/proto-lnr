@@ -11,6 +11,7 @@ import { HOMING } from "./modifiers/homing";
 import { INCENDIARY } from "./modifiers/incendiary";
 import { NOXIOUS_GAS } from "./modifiers/noxious";
 import { REPULSION_DISC } from "./modifiers/repulsion";
+import { SPIN_CHARGE } from "./modifiers/spincharge";
 
 export interface Projectile extends Physicable {
   game: Game | PlayState;
@@ -72,6 +73,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: PROPELLER_GUM, weight: 4 },
   { item: NOXIOUS_GAS, weight: 1.5 },
   { item: REPULSION_DISC, weight: 3 },
+  { item:SPIN_CHARGE, weight: 2.5 },
   { item: EXPLOSIVES, weight: 2 },
   { item: INCENDIARY, weight: 2 },
   { item: HOMING, weight: 1 },
