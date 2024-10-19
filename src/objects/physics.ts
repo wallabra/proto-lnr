@@ -17,6 +17,8 @@ export interface PhysicsParams {
   gravity: number;
   buoyancy: number;
   restitution: number;
+  frozen?: boolean;
+  immovable?: boolean;
 }
 
 export class PhysicsSimulation {
@@ -59,6 +61,7 @@ export class PhysicsObject {
   public play: PlayState;
   public lastFloor: { age: number; floor: number } | null = null;
   public frozen = false;
+  public immovable = false;
   public size: number;
   public angle: number;
   public pos: Victor;
@@ -99,6 +102,8 @@ export class PhysicsObject {
     this.gravity = params.gravity ?? 1.5;
     this.buoyancy = params.buoyancy ?? 0.06;
     this.restitution = params.restitution ?? 0.5;
+    this.frozen = params.frozen ?? false;
+    this.immovable = params.immovable ?? false;
   }
 
   setPos(newPos: Victor) {
@@ -183,10 +188,12 @@ export class PhysicsObject {
   }
 
   set vel(vel: Victor) {
+    if (this.immovable) return;
     this.lastPos = this.pos.clone().subtract(vel);
   }
 
   applyTorque(deltaTime: number | null, torque: number) {
+    if (this.immovable) return;
     if (deltaTime == null) deltaTime = 1;
     const factor = deltaTime / this.angularInertia();
     const offs = torque * factor;
@@ -194,6 +201,7 @@ export class PhysicsObject {
   }
 
   applyTorqueAt(deltaTime: number | null, pos: Victor, force: Victor) {
+    if (this.immovable) return;
     const arm = pos.clone().subtract(this.pos);
     const torque =
       arm
@@ -204,6 +212,7 @@ export class PhysicsObject {
   }
 
   applyForce(deltaTime: number | null, force: Victor) {
+    if (this.immovable) return;
     if (deltaTime == null) deltaTime = 1;
     const factor = -deltaTime / this.weight;
     const offs = force.clone().multiplyScalar(factor);

@@ -138,6 +138,9 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
       this.destroy();
       return;
     }
+    if (this.phys.tickAge === 1) {
+      this.phys.immovable = false;
+    }
     this.bob(deltaTime);
     this.checkShipCollisions(deltaTime);
   }

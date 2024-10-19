@@ -967,6 +967,7 @@ export class Ship implements Tickable, Renderable, Damageable {
       ),
       vspeed: 0.7,
       height: this.height + random.uniform(0.1, 0.3)(),
+      immovable: true,
     };
   }
 
