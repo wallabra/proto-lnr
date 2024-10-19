@@ -83,10 +83,6 @@ class HomingModifier implements ProjectileModifier {
 
     if (target == null) return;
 
-    console.log(
-      (HOMING_TURN_PER_SEC * deltaTime * Math.sign(target.angleOffs)) / Math.PI,
-    );
-
     projectile.phys.vel = projectile.phys.vel
       .clone()
       .rotate(HOMING_TURN_PER_SEC * -Math.sign(target.angleOffs) * deltaTime);
