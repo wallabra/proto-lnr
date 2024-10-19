@@ -10,11 +10,11 @@ export type PartRarity = number | "always";
 export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
   name: "Oars",
   cost: 30,
-  thrust: 24576.0,
+  thrust: 40000.0,
   vulnerability: 0.002,
   maxDamage: 20,
   rarity: 1,
-  manned: 25,
+  manned: 30,
   weight: 3,
   shopRepeat: 6,
   shopChance: 0.55,
