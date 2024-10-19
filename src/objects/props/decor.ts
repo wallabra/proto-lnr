@@ -44,7 +44,7 @@ export class Decor implements Renderable, Tickable {
     this.drawScale = args.drawScale ??= 0.5;
     this.spritePath = args.sprite ??= randomDecor();
     this.args = args;
-    if (args.angle == null) args.angle = Math.random() * Math.PI * 2;
+    if (args.angle == null && SPRITES[this.spritePath].angleRandom) args.angle = Math.random() * Math.PI * 2;
     this.preloadSprite();
     delete this.args;
     this.phys = play.makePhysObj(pos, args);
