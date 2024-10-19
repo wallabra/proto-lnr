@@ -2,6 +2,7 @@ import Victor from "victor";
 import type { PlayState } from "../superstates/play";
 import type { Ship } from "./ship";
 import type { ObjectRenderInfo } from "../render";
+import { lerp } from "../util";
 
 export interface PhysicsParams {
   size: number;
@@ -309,9 +310,7 @@ export class PhysicsObject {
   }
 
   physDrag(deltaTime: number) {
-    const inWater = this.inWater();
-
-    const drag = inWater ? this.waterDrag() : this.airDrag();
+    const drag = lerp(this.airDrag(), this.waterDrag(), this.submersion());
 
     const dragForce = this.vel
       .clone()
