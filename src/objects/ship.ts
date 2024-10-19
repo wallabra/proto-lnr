@@ -541,6 +541,8 @@ export class Ship implements Tickable, Renderable, Damageable {
   followers = new Set<Ship>();
   type = "ship";
   effects: ShipEffect[] = [];
+  private thrustIntention = 0;
+  private steerIntention = 0;
 
   public getDamage(): number {
     return this.makeup.hullDamage;
@@ -1091,6 +1093,14 @@ export class Ship implements Tickable, Renderable, Damageable {
     );
   }
 
+  public tryThrustForward(amount: number) {
+    this.thrustIntention += amount;
+  }
+
+  public trySteer(amount: number) {
+    this.steerIntention += amount;
+  }
+
   thrustForward(deltaTime: number, amount: number) {
     if (amount > 1) {
       amount = 1;
@@ -1411,6 +1421,27 @@ export class Ship implements Tickable, Renderable, Damageable {
     if (Math.random() < 0.3) this.phys.playSound("waterimpact", 0.1);
   }
 
+  private applyThrustIntention(deltaTime: number) {
+    if (this.thrustIntention !== 0) {
+      this.thrustForward(
+        deltaTime,
+        Math.min(1, Math.max(-1, this.thrustIntention)),
+      );
+      this.thrustIntention = 0;
+    }
+  }
+
+  private applySteerIntention(deltaTime: number) {
+    if (this.steerIntention !== 0) {
+      this.steer(
+        deltaTime,
+        this.phys.angle +
+          (Math.min(1, Math.max(-1, this.steerIntention)) * Math.PI) / 2,
+      );
+      this.steerIntention = 0;
+    }
+  }
+
   public tick(deltaTime: number) {
     if (this.pos.length() > 15000 && !this.isPlayer) {
       // Despawn NPC ships too far from land
@@ -1419,6 +1450,8 @@ export class Ship implements Tickable, Renderable, Damageable {
       return;
     }
     this.updateWeight();
+    this.applyThrustIntention(deltaTime);
+    this.applySteerIntention(deltaTime);
     this.tickApplyEffects(deltaTime);
     this.processTickActions(deltaTime);
     this.makeup.tick(deltaTime, this);
