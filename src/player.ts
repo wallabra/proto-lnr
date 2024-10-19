@@ -5,7 +5,7 @@ import type { Game } from "./game";
 import { IntermissionState } from "./superstates/shop";
 import { PlayState } from "./superstates/play";
 import { ShipMakeup } from "./objects/shipmakeup";
-import { lerp } from "./util";
+import { angDiff, lerp } from "./util";
 import { DEFAULT_MAKE } from "./shop/makedefs";
 
 export type PlayerAction = (deltaTime: number) => void;
@@ -91,7 +91,8 @@ export class Player {
 
   steer(offs: Victor) {
     if (this.possessed == null) throw new Error("Player has no ship");
-    const targ = ((offs.angle() - this.possessed.phys.angle) * 2) / Math.PI;
+    const targ =
+      (angDiff(this.possessed.phys.angle, offs.angle()) * 2) / Math.PI;
     this.possessed.trySteer(targ);
   }
 
