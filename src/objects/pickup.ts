@@ -17,6 +17,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   phys: PhysicsObject;
   mainColor = "#6a4000";
   type = "pickup";
+  private shrink = 0;
 
   constructor(play: PlayState, pos?: Victor, params?: Partial<P>) {
     if (params == null) params = {} as P;
@@ -65,7 +66,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     const hdist = camheight - this.phys.height / 2;
     const proximityScale = camheight / new Victor(hdist, cdist).length();
     const size =
-      (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
+      (1 - this.shrink) * (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
 
     if (hdist < 0.1) {
       return;
@@ -138,6 +139,9 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     if (this.phys.age > 300) {
       this.destroy();
       return;
+    }
+    if (this.phys.age > 285) {
+      this.shrink = (this.phys.age - 285) / 15;
     }
     if (this.phys.tickAge === 1) {
       this.phys.immovable = false;
