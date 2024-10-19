@@ -73,7 +73,12 @@ export class Decor implements Renderable, Tickable {
   }
 
   render(info: ObjectRenderInfo): void {
-    if (!this.sprite.complete || !this.phys.isVisible(info)) return;
+    if (!this.sprite.complete) return;
+
+    // use Pythagoras to get minimum radius to encircle the rectangular sprite
+    this.phys.size = Math.sqrt(Math.pow(this.sprite.width / 2, 2) + Math.pow(this.sprite.height / 2, 2));
+    
+    if (!this.phys.isVisible(info)) return;
 
     const { ctx, scale } = info;
     const { sprite } = this;
