@@ -852,6 +852,8 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   public takeDamage(damage: number) {
     damage = Math.max(0, damage);
+    if (damage === 0) return;
+    
     const die = this.makeup.damageShip(damage);
 
     if (this.game.player != null && this.game.player.possessed === this) {
