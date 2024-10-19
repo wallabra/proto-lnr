@@ -35,6 +35,8 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
   /// Callback for when this crate item is collected.
   protected abstract collect(ship: Ship): void;
 
+  public init(_ship: Ship): void {}
+
   private drawBox(
     ctx: CanvasRenderingContext2D,
     drawPos: Victor,
@@ -90,7 +92,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.phys.dying = true;
   }
 
-  private checkShipCollision(deltaTime: number, ship: Ship): boolean {
+  private checkShipCollision(_deltaTime: number, ship: Ship): boolean {
     const closeness = this.phys.touchingShip(ship);
     if (closeness <= 0) {
       return false;
@@ -125,7 +127,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
       deltaTime,
       new Victor(Math.random() * 1, 0)
         .rotateBy(Math.random() * Math.PI * 2)
-        .add(this.phys.vel.multiplyScalar(0.6)),
+        .add(this.phys.vel.multiplyScalar(0.3)),
     );
 
     this.phys.angVel += ((Math.random() * Math.PI) / 4) * deltaTime;
@@ -166,6 +168,10 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
   constructor(game: PlayState, pos: Victor, params: ItemPickupParams<I>) {
     super(game, pos, params);
     this.item = params.item;
+  }
+
+  public override init(): void {
+    this.phys.weight += this.item.weight * (this.item.amount ?? 1);
   }
 
   protected override collect(ship: Ship): void {

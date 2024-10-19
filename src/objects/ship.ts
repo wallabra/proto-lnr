@@ -969,7 +969,7 @@ export class Ship implements Tickable, Renderable, Damageable {
     if (this.money <= 0) {
       return;
     }
-    const cash = this.play.spawn<CashPickup, CashPickupParams>(
+    const pickup = this.play.spawn<CashPickup, CashPickupParams>(
       CashPickup,
       this.pickupSpawnPos(),
       {
@@ -977,6 +977,7 @@ export class Ship implements Tickable, Renderable, Damageable {
         ...this.pickupParams(),
       },
     );
+    pickup.init(this);
     this.setMoney(0);
   }
 
@@ -990,19 +991,20 @@ export class Ship implements Tickable, Renderable, Damageable {
         continue;
       if (item.amount != null)
         item.amount = Math.ceil(item.amount * Math.random());
-      const pickup = this.spawnDroppedItem(item);
+      this.spawnDroppedItem(item);
     }
   }
 
   spawnDroppedItem(item: ShipItem): ItemPickup<ShipItem> {
-    return this.play.spawn<ItemPickup<ShipItem>, ItemPickupParamType<ShipItem>>(
-      ItemPickup,
-      this.pickupSpawnPos(),
-      {
-        item: item,
-        ...this.pickupParams(),
-      },
-    );
+    const pickup = this.play.spawn<
+      ItemPickup<ShipItem>,
+      ItemPickupParamType<ShipItem>
+    >(ItemPickup, this.pickupSpawnPos(), {
+      item: item,
+      ...this.pickupParams(),
+    });
+    pickup.init();
+    return pickup;
   }
 
   spawnDrops() {
