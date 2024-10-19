@@ -1828,7 +1828,7 @@ class PaneDrydockShip extends Pane<
         .filter((i) => i instanceof Crew && i.manningPart == null)
         .map((c) => (c as Crew).strength)
         .reduce((a, b) => a + b, 0);
-      
+
       if (
         this.makeup.make.slots[item.type] >
           this.makeup.parts.filter((p) => p.type === item.type).length &&

@@ -10,7 +10,6 @@ class RepulsionDiscModifier implements ProjectileModifier {
   infoString = "repulsion disc";
 
   onDestroy(projectile: Projectile): void {
-    console.log("Doing repulsion");
     aoeExplosion(
       getPlayStateFromProj(projectile),
       projectile.phys.pos,
