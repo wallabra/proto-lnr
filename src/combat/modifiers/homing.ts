@@ -68,19 +68,22 @@ class HomingModifier implements ProjectileModifier {
 
     if (to instanceof Ship) chSize *= to.lateralCrossSection;
 
+    const crossOffCos = Math.cos(projectile.phys.age * Math.PI) * (chSize + 15);
+    const crossOffSin = Math.sin(projectile.phys.age * Math.PI) * (chSize + 15);
+
     ctx.globalCompositeOperation = "hard-light";
-    ctx.strokeStyle = "#F204";
+    ctx.strokeStyle = "#F403";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(targetPos.x, targetPos.y, chSize, 0, Math.PI * 2);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(targetPos.x, targetPos.y + chSize + 15);
-    ctx.lineTo(targetPos.x, targetPos.y - chSize - 15);
+    ctx.moveTo(targetPos.x + crossOffCos, targetPos.y + crossOffSin);
+    ctx.lineTo(targetPos.x - crossOffCos, targetPos.y - crossOffSin);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(targetPos.x - chSize - 15, targetPos.y);
-    ctx.lineTo(targetPos.x + chSize + 15, targetPos.y);
+    ctx.moveTo(targetPos.x - crossOffSin, targetPos.y + crossOffCos);
+    ctx.lineTo(targetPos.x + crossOffSin, targetPos.y - crossOffCos);
     ctx.stroke();
     ctx.globalCompositeOperation = "source-over";
   }

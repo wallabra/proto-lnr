@@ -963,10 +963,10 @@ export class Ship implements Tickable, Renderable, Damageable {
   private pickupParams(): Partial<PhysicsParams> {
     return {
       vel: this.vel.add(
-        new Victor(15, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
+        new Victor(20, 0).rotateBy(random.uniform(0, Math.PI * 2)()),
       ),
       vspeed: 0.7,
-      height: this.height + 0.1,
+      height: this.height + random.uniform(0.1, 0.3)(),
     };
   }
 
