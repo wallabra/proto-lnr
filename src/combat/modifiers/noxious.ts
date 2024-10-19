@@ -6,7 +6,7 @@ import type { Projectile, ProjectileModifier } from "../projectile";
 import random from "random";
 import Victor from "victor";
 
-const KILL_CHANCE = 0.05;
+const KILL_CHANCE = 0.4;
 
 class NoxiousGasModifier implements ProjectileModifier {
   infoString = "anti-personnel noxious gas";
