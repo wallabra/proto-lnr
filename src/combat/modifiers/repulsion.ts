@@ -13,9 +13,9 @@ class RepulsionDiscModifier implements ProjectileModifier {
     aoeExplosion(
       getPlayStateFromProj(projectile),
       projectile.phys.pos,
-      400,
+      600,
       0,
-      1000,
+      2000,
       (obj) => obj !== projectile && obj !== projectile.instigator,
       (obj) => Math.pow(obj.phys.weight, 0.9),
     );
