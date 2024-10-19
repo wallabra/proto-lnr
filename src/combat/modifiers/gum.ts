@@ -5,7 +5,7 @@ import type { Damageable } from "../damageable";
 import type { Projectile, ProjectileModifier } from "../projectile";
 
 const SLOWNESS_DURATION = 15;
-const SLOWNESS_FACTOR = 0.3;
+const SLOWNESS_FACTOR = 0.2;
 
 class PropellerGumModifier implements ProjectileModifier {
   infoString = "propeller gum";
