@@ -333,7 +333,9 @@ export class ShipRenderContext {
     ctx.strokeStyle = "#6f26";
     ctx.beginPath();
     ctx.moveTo(fromDraw.x, fromDraw.y);
-    const drag = info.toScreen(ship.phys.dragVector().multiplyScalar(15).add(from));
+    const drag = info.toScreen(
+      ship.phys.dragVector().multiplyScalar(15).add(from),
+    );
     ctx.lineTo(drag.x, drag.y);
     ctx.stroke();
 
@@ -776,10 +778,7 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   protected dragMixin() {
     this.phys.dragVector = function (this: Ship) {
-      const res = new Victor(
-        1,
-        this.lateralCrossSection,
-      ).rotate(this.angle);
+      const res = new Victor(1, this.lateralCrossSection).rotate(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
     }.bind(this) as () => Victor;
   }
