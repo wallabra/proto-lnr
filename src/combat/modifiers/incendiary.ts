@@ -7,8 +7,8 @@ import type { Projectile, ProjectileModifier } from "../projectile";
 import random from "random";
 import Victor from "victor";
 
-const BURN_DURATION = { min: 4, max: 12 };
-const BURN_DAMAGE = 150;
+const BURN_DURATION = { min: 6, max: 15 };
+const BURN_DAMAGE = 200;
 
 class IncendiaryModifier implements ProjectileModifier {
   infoString = "incendiary phosphorus";
