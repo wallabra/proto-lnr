@@ -73,7 +73,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: PROPELLER_GUM, weight: 4 },
   { item: NOXIOUS_GAS, weight: 1.5 },
   { item: REPULSION_DISC, weight: 3 },
-  { item:SPIN_CHARGE, weight: 2.5 },
+  { item: SPIN_CHARGE, weight: 2.5 },
   { item: EXPLOSIVES, weight: 2 },
   { item: INCENDIARY, weight: 2 },
   { item: HOMING, weight: 1 },
