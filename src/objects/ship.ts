@@ -331,6 +331,14 @@ export class ShipRenderContext {
     ctx.lineTo(vto.x, vto.y);
     ctx.stroke();
 
+    // Draw drag vector
+    ctx.strokeStyle = "#2ef6";
+    ctx.beginPath();
+    ctx.moveTo(fromDraw.x, fromDraw.y);
+    const drag = info.toScreen(ship.phys.dragVector().add(ship.phys.pos));
+    ctx.lineTo(drag.x, drag.y);
+    ctx.stroke();
+
     // Draw collision circles
     const circles = ship.collisionCircles();
 
