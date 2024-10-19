@@ -9,8 +9,8 @@ import type { Projectile, ProjectileModifier } from "../projectile";
 import { getPlayStateFromProj } from "../projectile";
 import type Victor from "victor";
 
-const HOMING_RANGE = 600;
-const HOMING_TURN_PER_SEC = Math.PI / 8;
+const HOMING_RANGE = 900;
+const HOMING_TURN_PER_SEC = Math.PI / 6;
 const HOMING_MAX_ANGLE_OFF = Math.PI / 1.5;
 const HOMING_SLOWDOWN_PER_SEC = 20;
 
