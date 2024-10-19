@@ -36,7 +36,7 @@ const SPRITES: Record<
   "flag.png": {
     src: SPRITE_FLAG,
     angleRandom: false,
-    offset: [0, -0.5],
+    offset: [0, 0.5],
     drawScale: { min: 0.3, max: 0.5 },
   },
 };
