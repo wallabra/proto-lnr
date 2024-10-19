@@ -13,10 +13,13 @@ import SPRITE_GRASS from "data-url:../../sprites/grass.png";
 import SPRITE_ROCK from "data-url:../../sprites/rock.png";
 import SPRITE_FLAG from "data-url:../../sprites/flag.png";
 
-const SPRITES: Record<string, { src: string; angleRandom: boolean }> = {
+const SPRITES: Record<
+  string,
+  { src: string; angleRandom: boolean; offset?: [number, number] }
+> = {
   "grass.png": { src: SPRITE_GRASS, angleRandom: true },
   "rock.png": { src: SPRITE_ROCK, angleRandom: true },
-  "flag.png": { src: SPRITE_FLAG, angleRandom: false },
+  "flag.png": { src: SPRITE_FLAG, angleRandom: false, offset: [0, -0.5] },
 };
 
 const SPRITE_CACHE = new Map<string, HTMLImageElement>();
@@ -44,7 +47,8 @@ export class Decor implements Renderable, Tickable {
     this.drawScale = args.drawScale ??= 0.5;
     this.spritePath = args.sprite ??= randomDecor();
     this.args = args;
-    if (args.angle == null && SPRITES[this.spritePath].angleRandom) args.angle = Math.random() * Math.PI * 2;
+    if (args.angle == null && SPRITES[this.spritePath].angleRandom)
+      args.angle = Math.random() * Math.PI * 2;
     this.preloadSprite();
     delete this.args;
     this.phys = play.makePhysObj(pos, args);
@@ -76,8 +80,22 @@ export class Decor implements Renderable, Tickable {
     if (!this.sprite.complete) return;
 
     // use Pythagoras to get minimum radius to encircle the rectangular sprite
-    this.phys.size = Math.sqrt(Math.pow(this.sprite.width / 2 * this.drawScale, 2) + Math.pow(this.sprite.height / 2 * this.drawScale, 2));
-    
+    const def = SPRITES[this.spritePath];
+    this.phys.size = Math.sqrt(
+      Math.pow(
+        this.sprite.width *
+          (0.5 + Math.abs(def.offset != null ? def.offset[0] : 0)) *
+          this.drawScale,
+        2,
+      ) +
+        Math.pow(
+          this.sprite.height *
+            (0.5 + Math.abs(def.offset != null ? def.offset[1] : 0)) *
+            this.drawScale,
+          2,
+        ),
+    );
+
     if (!this.phys.isVisible(info)) return;
 
     const { ctx, scale } = info;
@@ -90,8 +108,15 @@ export class Decor implements Renderable, Tickable {
     ctx.rotate(this.phys.angle);
     ctx.scale(scale * this.drawScale, scale * this.drawScale);
 
+    const offScaleX = 0.5 + (def.offset != null ? def.offset[0] : 0);
+    const offScaleY = 0.5 + (def.offset != null ? def.offset[1] : 0);
+
     try {
-      ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
+      ctx.drawImage(
+        sprite,
+        -sprite.width * offScaleX,
+        -sprite.height * offScaleY,
+      );
     } catch (e) {
       const error: Error = e as Error;
       console.warn(`Can't draw sprite ${this.spritePath}: ${error.toString()}`);
