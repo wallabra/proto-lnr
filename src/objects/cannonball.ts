@@ -167,8 +167,9 @@ export class Cannonball implements Tickable, Renderable, Projectile {
     const vspeed = this.phys.vspeed;
     const altitude = this.phys.height - this.game.waterLevel;
     const airtime =
-      (vspeed + Math.sqrt(vspeed * vspeed + 2 * altitude * this.phys.gravity)) /
-      this.phys.gravity;
+      (vspeed +
+        Math.sqrt(vspeed * vspeed + 2 * altitude * (this.phys.gravity * 0.3))) /
+      (this.phys.gravity * 0.3);
     return airtime;
   }
 

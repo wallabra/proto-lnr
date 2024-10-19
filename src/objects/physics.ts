@@ -19,6 +19,7 @@ export interface PhysicsParams {
   restitution: number;
   frozen?: boolean;
   immovable?: boolean;
+  capBuoyancy?: boolean;
 }
 
 export class PhysicsSimulation {
@@ -80,6 +81,9 @@ export class PhysicsObject {
   public dying = false;
   public restitution: number;
   public displacement = 0;
+  public capBuoyancy: boolean;
+
+  private cachedVolume: number | null = null;
 
   constructor(play: PlayState, pos: Victor, params?: Partial<PhysicsParams>) {
     if (params == null) params = {};
@@ -99,11 +103,68 @@ export class PhysicsObject {
     this.baseDrag = params.baseDrag ?? 0.5;
     this.baseFriction = params.baseFriction ?? 0.007;
     this.angleDrag = params.angleDrag ?? 0.05;
-    this.gravity = params.gravity ?? 1.5;
+    this.gravity = params.gravity ?? 9.7;
     this.buoyancy = params.buoyancy ?? 0.06;
     this.restitution = params.restitution ?? 0.5;
     this.frozen = params.frozen ?? false;
     this.immovable = params.immovable ?? false;
+    this.capBuoyancy = params.capBuoyancy ?? false;
+  }
+
+  public verticalSize(): number {
+    return this.size * 0.001;
+  }
+
+  /// How submerged this object is in water, between 0 and 1.
+  public submersion(): number {
+    if (!this.inWater()) return 0;
+
+    const vsize = this.verticalSize();
+    return Math.max(
+      0,
+      Math.min(1, (this.play.waterLevel - this.height + vsize) / (vsize * 2)),
+    );
+  }
+
+  /// How much water by kg is currently being displaced by this object.
+  public currentWaterDisplacementKg(): number {
+    const submersion = this.submersion();
+    const submergedVolDm3 =
+      ((Math.PI * submersion * submersion * (3 - submersion)) / 3) *
+      this.sphericalVolume();
+    return submergedVolDm3 * 0.997; // 1 dm³ of water = 0.997 kg, conveniently
+  }
+
+  /// Whether this object is submerged to the very top.
+  public isSubmerged(): boolean {
+    return this.height + this.verticalSize() < this.play.waterLevel;
+  }
+
+  public isOnLand(): boolean {
+    const floor = this.floor;
+    return (
+      floor > this.play.waterLevel &&
+      this.height - this.verticalSize() < floor + 0.02
+    );
+  }
+
+  /// The force, in N, that water makes on this object upward from displacement.
+  public buoyantForce(): number {
+    if (!this.inWater()) {
+      return 0;
+    }
+
+    return this.currentWaterDisplacementKg() * this.gravity;
+  }
+
+  /// Theoretical spherical volume of this object.
+  public sphericalVolume(): number {
+    if (this.cachedVolume != null) return this.cachedVolume;
+    return (this.cachedVolume = this._sphericalVolume());
+  }
+
+  _sphericalVolume(): number {
+    return (4 * Math.PI * Math.pow(this.size, 3)) / 3;
   }
 
   setPos(newPos: Victor) {
@@ -155,8 +216,7 @@ export class PhysicsObject {
   }
 
   slideDownLand(deltaTime: number) {
-    const floor = this.floor;
-    if (floor <= this.play.waterLevel || this.height > floor + 0.1) {
+    if (!this.isOnLand()) {
       return;
     }
     const dHeight = this.heightGradient();
@@ -240,7 +300,7 @@ export class PhysicsObject {
   inWater() {
     return (
       this.floor <= this.play.waterLevel &&
-      this.height <= this.play.waterLevel + 0.05
+      this.height - this.verticalSize() <= this.play.waterLevel
     );
   }
 
@@ -305,7 +365,7 @@ export class PhysicsObject {
   physFriction(deltaTime: number) {
     const floor = this.floor;
 
-    if (this.height > this.floor + 0.01) {
+    if (this.height > this.floor + 0.001) {
       return;
     }
 
@@ -348,17 +408,20 @@ export class PhysicsObject {
     const floor = this.floor;
     const inWater = this.inWater();
 
-    if (this.height < floor) {
-      this.height = floor;
+    if (this.height - this.verticalSize() < floor) {
+      this.height = floor + this.verticalSize();
       this.vspeed = 0;
       return;
     }
 
-    if (inWater && this.height < this.play.waterLevel) {
-      this.vspeed += this.buoyancy * deltaTime;
-    } else {
-      this.vspeed -= this.gravity * deltaTime;
+    if (inWater && this.height < this.play.waterLevel + this.verticalSize()) {
+      let buoyancy = (this.buoyancy * this.buoyantForce()) / this.weight;
+      if (buoyancy > this.gravity * 2 && this.capBuoyancy)
+        buoyancy = this.gravity * 2;
+      this.vspeed += buoyancy * deltaTime * 0.3;
     }
+
+    this.vspeed -= this.gravity * 0.3 * deltaTime;
   }
 
   physAngle(deltaTime: number) {

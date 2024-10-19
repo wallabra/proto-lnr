@@ -428,7 +428,8 @@ export class PlayState extends Superstate {
         .add(ship.vel);
     if (params.size == null) params.size = 3.5;
     if (params.vspeed == null) params.vspeed = 2;
-    if (params.height == null) params.height = ship.height + 0.2;
+    if (params.height == null)
+      params.height = ship.height + ship.size * 0.01 + 0.2;
     if (params.buoyancy == null) params.buoyancy = 0;
 
     const cball = new Cannonball(this, ship, params);

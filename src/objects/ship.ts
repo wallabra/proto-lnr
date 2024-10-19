@@ -157,7 +157,7 @@ export class ShipRenderContext {
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
-    const hdist = camheight - ship.height / 2;
+    const hdist = camheight - ship.height * 0.1;
     const proximityScale = camheight / new Victor(hdist, cdist).length();
     const scale = proximityScale * info.scale;
     const size = ship.size * scale;
@@ -168,7 +168,7 @@ export class ShipRenderContext {
       return;
     }
 
-    const hoffs = ship.height * 20 + ship.phys.size / 2.5;
+    const hoffs = ship.phys.height * 20 + (ship.phys.verticalSize() * 10) / 3;
     const shoffs = Math.max(
       0,
       hoffs - Math.max(ship.phys.floor, ship.play.waterLevel) * 20,
@@ -312,7 +312,32 @@ export class ShipRenderContext {
         ),
       );
     const fromDraw = info.toScreen(from);
+    const fromDrawBack = info.toScreen(
+      from
+        .clone()
+        .subtract(
+          new Victor(ship.size * ship.lateralCrossSection * 2, 0).rotateBy(
+            ship.angle,
+          ),
+        ),
+    );
     const angmom = ship.phys.orbitalVelocityAt(from).multiplyScalar(scale);
+
+    // Draw buoyancy & submersion
+    ctx.strokeStyle = "#F00";
+    ctx.beginPath();
+    ctx.moveTo(fromDrawBack.x, fromDrawBack.y);
+    ctx.lineTo(
+      fromDrawBack.x,
+      fromDrawBack.y - ship.phys.buoyantForce() / ship.phys.weight,
+    );
+    ctx.stroke();
+
+    ctx.strokeStyle = "#08F";
+    ctx.beginPath();
+    ctx.moveTo(fromDrawBack.x, fromDrawBack.y);
+    ctx.lineTo(fromDrawBack.x, fromDrawBack.y + ship.phys.submersion() * 50);
+    ctx.stroke();
 
     // Draw angular velocity
     ctx.strokeStyle = "#fa09";
@@ -514,7 +539,7 @@ export class ShipRenderContext {
     this.drawCrosshairs();
 
     // DEBUG
-    //this.drawDebug();
+    // this.drawDebug();
   }
 }
 
@@ -702,10 +727,10 @@ export class Ship implements Tickable, Renderable, Damageable {
     if (params.size == null) params.size = 14;
 
     this.game = game;
-    this.phys = (game.state as PlayState).makePhysObj(
-      pos || new Victor(0, 0),
-      params,
-    );
+    this.phys = (game.state as PlayState).makePhysObj(pos || new Victor(0, 0), {
+      buoyancy: 1.2,
+      ...params,
+    });
 
     this.initMakeup(params);
     this.dying = false;
@@ -720,8 +745,11 @@ export class Ship implements Tickable, Renderable, Damageable {
           this.makeup.make.cost * random.uniform(0.0008, 0.005)(),
     );
 
-    this.dragMixin();
+    this.physicsMixins();
     this.updateWeight();
+    this.phys.height =
+      Math.max(this.play.waterLevel, this.phys.floor) +
+      this.phys.verticalSize() * 0.2;
 
     this.drawer = new ShipRenderContext(this);
   }
@@ -778,11 +806,34 @@ export class Ship implements Tickable, Renderable, Damageable {
     this.phys.baseDrag = makeup.make.drag;
   }
 
-  protected dragMixin() {
-    this.phys.dragVector = function (this: Ship) {
+  protected physicsMixins() {
+    this.phys.dragVector = () => {
       const res = new Victor(1, this.lateralCrossSection).rotate(this.angle);
       return new Victor(Math.abs(res.x), Math.abs(res.y));
-    }.bind(this) as () => Victor;
+    };
+
+    this.phys._sphericalVolume = () => {
+      const circles = this.collisionCircles();
+      if (circles.length > 0) {
+        return this.collisionCircles()
+          .map((colCircle) => (Math.PI * Math.pow(colCircle.radius, 3) * 4) / 3)
+          .reduce((a, b) => a + b, 0);
+      } else {
+        return (
+          (Math.PI *
+            Math.pow(
+              this.phys.size * (1 + (this.lateralCrossSection * 2) / 3),
+              3,
+            ) *
+            4) /
+          3
+        );
+      }
+    };
+
+    this.phys.verticalSize = () => {
+      return (this.phys.size + (this.lateralCrossSection * 2) / 3) * 0.01;
+    };
   }
 
   public maxSpread() {
@@ -1062,6 +1113,8 @@ export class Ship implements Tickable, Renderable, Damageable {
   }
 
   steer(deltaTime: number, angleTarg: number) {
+    if (!this.phys.inWater()) return;
+
     let angOffs = angDiff(this.angle, angleTarg);
     const steerForce = this.steerForce;
     const steerCompensate = angDiff(
@@ -1102,6 +1155,8 @@ export class Ship implements Tickable, Renderable, Damageable {
   }
 
   thrustForward(deltaTime: number, amount: number) {
+    if (!this.phys.inWater()) return;
+
     if (amount > 1) {
       amount = 1;
     } else if (amount < -1) {
@@ -1352,8 +1407,14 @@ export class Ship implements Tickable, Renderable, Damageable {
   }
 
   checkTerrainDamage(deltaTime: number) {
-    if (this.phys.floor > this.play.waterLevel) {
+    if (this.phys.isOnLand()) {
       this.takeDamage(1000 * deltaTime);
+    }
+  }
+
+  checkSubmergedDamage(deltaTime: number) {
+    if (this.phys.isSubmerged()) {
+      this.takeDamage(200 * deltaTime);
     }
   }
 
@@ -1457,6 +1518,7 @@ export class Ship implements Tickable, Renderable, Damageable {
     this.makeup.tick(deltaTime, this);
     this.checkShipCollisions(deltaTime);
     this.checkTerrainDamage(deltaTime);
+    this.checkSubmergedDamage(deltaTime);
     this.pruneDeadInstigator();
     this.pruneDeadPointers();
     this.makeup.inventory.pruneItems();

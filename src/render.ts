@@ -6,7 +6,7 @@ import {
   SECTOR_REAL_SIZE,
   SECTOR_RES,
 } from "./terrain";
-import type { PlayState } from "./superstates/play";
+import { isPhysicable, type PlayState } from "./superstates/play";
 import { rgbString, interpColor, lerp, moneyString, unlerp } from "./util";
 import type {
   CanvasLabelArgs,
@@ -96,7 +96,15 @@ export class ObjectRenderer {
     for (const obj of this.game.renderables.sort(
       (a, b) => renderOrderOf(a) - renderOrderOf(b),
     )) {
-      if (!obj.dying) obj.render(info);
+      if (obj.dying) continue;
+
+      if (isPhysicable(obj) && obj.phys.isSubmerged()) {
+        ctx.globalAlpha = 0.3;
+        ctx.filter = "brightness(0.8) contrast(0.5)";
+      }
+      obj.render(info);
+      ctx.globalAlpha = 1;
+      ctx.filter = "none";
     }
   }
 }
@@ -1176,10 +1184,43 @@ class HudCounters {
     return labels;
   }
 
-  update() {
+  private update() {
     for (const updater of this.updaters) {
       updater();
     }
+  }
+
+  tick() {
+    this.update();
+  }
+}
+
+class Sinkometer {
+  private player: Player;
+  private panel: CanvasPanel;
+
+  constructor(player: Player, parent: CanvasUIElement) {
+    this.player = player;
+    this.panel = new CanvasPanel({
+      parent: parent,
+      bgColor: "#00F6",
+      fillX: 0.8,
+      paddingX: 0,
+      paddingY: 0,
+      dockMarginX: 0,
+      dockMarginY: 0,
+      childMargin: 0,
+      childOrdering: "vertical",
+      dockY: "end",
+      height: 10,
+      dockX: "center",
+    });
+  }
+
+  private update() {
+    if (this.player.possessed == null || this.panel.parent == null) return;
+
+    this.panel.fillY = this.player.possessed.phys.submersion();
   }
 
   tick() {
@@ -1204,6 +1245,7 @@ class Hud extends CanvasPanel {
   fuelList: HudFuelList;
   ammoList: HudAmmoList;
   counters: HudCounters;
+  sinkometer: Sinkometer;
   delayedInit: null | (() => void);
 
   toggleHud() {
@@ -1344,6 +1386,13 @@ class Hud extends CanvasPanel {
         },
         { childFill: 1.2 },
       );
+
+      addPanel(
+        (panel: CanvasUIElement) => {
+          this.sinkometer = new Sinkometer(this.player, panel);
+        },
+        { childFill: 0.02 },
+      );
     };
   }
 
@@ -1374,6 +1423,7 @@ class Hud extends CanvasPanel {
     this.fuelList.tick();
     this.ammoList.tick();
     this.counters.tick();
+    this.sinkometer.tick();
   }
 }
 

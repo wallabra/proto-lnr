@@ -1375,9 +1375,15 @@ export class ShipMakeup {
     return this.nextReadyCannon.range;
   }
 
-  totalWeight() {
+  public hullWeight() {
+    const volumeDm3 = (Math.PI * Math.pow(this.make.size, 3) * 4) / 3;
+    const waterWeight = volumeDm3 * 0.997;
+    return waterWeight * this.make.weight;
+  }
+
+  public totalWeight() {
     return (
-      this.make.weight +
+      this.hullWeight() +
       this.inventory.items
         .map((item) => item.weight * (item.amount ?? 1))
         .reduce((a, b) => a + b, 0)
