@@ -20,6 +20,7 @@ class ExplosiveModifier implements ProjectileModifier {
       500,
       (obj) => obj !== projectile && obj !== projectile.instigator,
       (obj) => Math.pow(obj.phys.weight, 0.3),
+      projectile.instigator instanceof Ship ? projectile.instigator : null
     );
   }
 
