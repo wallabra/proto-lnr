@@ -120,6 +120,7 @@ export class Decor implements Renderable, Tickable {
     const offScaleX = 0.5 + (def.offset != null ? def.offset[0] : 0);
     const offScaleY = 0.5 + (def.offset != null ? def.offset[1] : 0);
 
+    ctx.imageSmoothingEnabled = false;
     try {
       ctx.drawImage(
         sprite,
