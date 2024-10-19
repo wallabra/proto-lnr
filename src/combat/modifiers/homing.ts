@@ -97,9 +97,10 @@ class HomingModifier implements ProjectileModifier {
         fallDist -
         target.offs
           .add(to.phys.vel.clone().multiplyScalar(projectile.airtime()))
-          .length() +
-        to.phys.size * (to instanceof Ship ? to.lateralCrossSection : 1) +
-        projectile.phys.size;
+          .length() -
+        to.phys.size * (to instanceof Ship ? to.lateralCrossSection : 1) -
+        projectile.phys.size -
+        20;
 
       if (beyond > 0) {
         projectile.phys.applyForce(
