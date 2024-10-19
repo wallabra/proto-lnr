@@ -173,6 +173,10 @@ export class ShipPart implements ShipItem {
     return false;
   }
 
+  public canAutoInstall(_makeup: ShipMakeup): boolean {
+    return true;
+  }
+
   protected partAutoResell(this: ShipPart, makeup: ShipMakeup): boolean {
     const installed = makeup.parts.filter((p) => p instanceof this.constructor);
 
@@ -595,6 +599,10 @@ export class Cannon extends ShipPart {
         this.range > other.range)
     );
   }
+
+  public override canAutoInstall(makeup: ShipMakeup): boolean {
+    return makeup.hasAmmo(this.caliber);
+  }
 }
 
 export interface VacuumArgs
@@ -766,6 +774,10 @@ export class Engine extends ShipPart {
       (!this.manned && typeof other.manned === "number") ||
       (this.fuelType == null && other.fuelType != null)
     );
+  }
+
+  public override canAutoInstall(makeup: ShipMakeup): boolean {
+    return this.fuelType == null || makeup.hasFuel(this.fuelType);
   }
 }
 

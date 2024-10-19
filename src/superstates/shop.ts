@@ -1815,13 +1815,16 @@ class PaneDrydockShip extends Pane<
   }
 
   private autoInstall() {
-    for (const item of (
-      this.makeup.inventory.items.filter(
-        (a) => a instanceof ShipPart && this.makeup.parts.indexOf(a) === -1,
-      ) as ShipPart[]
-    ).sort((a, b) =>
-      b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
-    )) {
+    for (const item of this.makeup.inventory.items
+      .filter(
+        (a): a is ShipPart =>
+          a instanceof ShipPart &&
+          this.makeup.parts.indexOf(a) === -1 &&
+          a.canAutoInstall(this.makeup),
+      )
+      .sort((a, b) =>
+        b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
+      )) {
       const surplusStrength = this.makeup.inventory.items
         .filter((i) => i instanceof Crew && i.manningPart == null)
         .map((c) => (c as Crew).strength)
