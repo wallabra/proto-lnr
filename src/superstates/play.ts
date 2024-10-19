@@ -147,7 +147,7 @@ export class PlayState extends Superstate {
     let radiusBonus = 0;
     let attempts = 0;
 
-    while (toSpawn) {
+    while (toSpawn > 0) {
       if (attempts >= 10) {
         attempts = 0;
         radiusBonus += 50;
@@ -246,7 +246,6 @@ export class PlayState extends Superstate {
     }
 
     const pos = new Victor(1600, 0).rotateBy(Math.PI * 2 * Math.random());
-    console.log("Player position:", pos);
 
     let playerShip: Ship | null = null;
 
