@@ -45,6 +45,7 @@ document.addEventListener("click", preloader);
 export interface SoundObject {
   pos: Victor;
   angle: number;
+  height?: number;
 }
 
 class SoundSource {
@@ -76,7 +77,7 @@ class SoundSource {
       console.log("Caught NaN in sound object: ", from);
       return;
     }
-    soundSrc.pos(from.pos.x, 0, from.pos.y, soundId);
+    soundSrc.pos(from.pos.x, from.height ?? 0, from.pos.y, soundId);
   }
 
   public isDone() {
@@ -120,7 +121,7 @@ export class SoundEngine {
     const dx = Math.cos(persp.angle);
     const dy = Math.sin(persp.angle);
     Howler.orientation(dx, 0, dy, 0, 1, 0);
-    Howler.pos(persp.pos.x, 0, persp.pos.y);
+    Howler.pos(persp.pos.x, persp.height ?? 0, persp.pos.y);
   }
 
   private cullSources() {
