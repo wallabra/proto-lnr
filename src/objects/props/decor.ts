@@ -76,7 +76,7 @@ export class Decor implements Renderable, Tickable {
     if (!this.sprite.complete) return;
 
     // use Pythagoras to get minimum radius to encircle the rectangular sprite
-    this.phys.size = Math.sqrt(Math.pow(this.sprite.width / 2, 2) + Math.pow(this.sprite.height / 2, 2));
+    this.phys.size = Math.sqrt(Math.pow(this.sprite.width / 2 * this.drawScale, 2) + Math.pow(this.sprite.height / 2 * this.drawScale, 2));
     
     if (!this.phys.isVisible(info)) return;
 
@@ -86,13 +86,12 @@ export class Decor implements Renderable, Tickable {
     const pos = info.toScreen(this.phys.pos);
 
     ctx.save();
-    ctx.translate(pos.x + sprite.width / 2, pos.y + sprite.height / 2);
+    ctx.translate(pos.x, pos.y);
     ctx.rotate(this.phys.angle);
-    ctx.translate(-sprite.width / 2, -sprite.height / 2);
     ctx.scale(scale * this.drawScale, scale * this.drawScale);
 
     try {
-      ctx.drawImage(this.sprite, 0, 0);
+      ctx.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
     } catch (e) {
       const error: Error = e as Error;
       console.warn(`Can't draw sprite ${this.spritePath}: ${error.toString()}`);
@@ -103,6 +102,18 @@ export class Decor implements Renderable, Tickable {
 
     ctx.stroke();
     ctx.restore();
+
+    // DEBUG
+    // ctx.strokeStyle = '#F00';
+    // ctx.lineWidth = 2;
+    // ctx.beginPath();
+    // ctx.arc(pos.x, pos.y, this.phys.size, 0, Math.PI * 2);
+    // ctx.stroke();
+    // ctx.strokeStyle = '#0F0';
+    // ctx.lineWidth = 1;
+    // ctx.beginPath();
+    // ctx.arc(pos.x, pos.y, Math.min(sprite.width, sprite.height) * this.drawScale, 0, Math.PI * 2);
+    // ctx.stroke();
   }
 
   tick(_deltaTime: number): void {}
