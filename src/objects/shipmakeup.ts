@@ -579,8 +579,9 @@ export class Cannon extends ShipPart {
       this.caliber > other.caliber ||
       (this.caliber === other.caliber &&
         (this.shootRate < other.shootRate ||
+          (this.shootRate === other.shootRate &&
           (this.range > other.range && this.spread <= other.spread) ||
-          (this.spread < other.spread && this.range >= other.range)))
+          (this.spread < other.spread && this.range >= other.range))))
     );
   }
 
@@ -679,9 +680,8 @@ export class Vacuum extends ShipPart implements VacuumArgs {
 
   protected override betterThan(other: Vacuum) {
     return (
-      this.suckRadius > other.suckRadius ||
-      (this.suckRadius === other.suckRadius &&
-        this.suckStrength > other.suckStrength)
+      this.suckRadius > other.suckRadius &&
+      this.suckStrength > other.suckStrength
     );
   }
 }
@@ -755,8 +755,7 @@ export class Engine extends ShipPart {
       this.thrust > other.thrust ||
       (this.thrust === other.thrust &&
         ((!this.manned && typeof other.manned === "number") ||
-          (this.fuelType == null && other.fuelType != null) ||
-          (other.fuelType != null && this.fuelCost < other.fuelCost)))
+          (this.fuelType == null && other.fuelType != null)))
     );
   }
 
@@ -764,8 +763,7 @@ export class Engine extends ShipPart {
     return (
       this.thrust > other.thrust ||
       (!this.manned && typeof other.manned === "number") ||
-      (this.fuelType == null && other.fuelType != null) ||
-      (other.fuelType != null && this.fuelCost < other.fuelCost)
+      (this.fuelType == null && other.fuelType != null)
     );
   }
 }
