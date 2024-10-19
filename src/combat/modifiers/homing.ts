@@ -30,7 +30,7 @@ function getHomingTarget(
         (fallDistSq == null ||
           obj.offs
             .add(obj.obj.phys.vel.clone().multiplyScalar(proj.airtime()))
-            .lengthSq() < fallDistSq),
+            .lengthSq() < fallDistSq + 20),
     )
     .map((item) => ({
       ...item,
