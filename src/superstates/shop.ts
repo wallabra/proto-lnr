@@ -1830,7 +1830,7 @@ class PaneDrydockShip extends Pane<
         .reduce((a, b) => a + b, 0);
 
       if (
-        this.makeup.make.slots[item.type] >
+        this.makeup.make.slots.filter((s) => s.type === item.type).length >
           this.makeup.parts.filter((p) => p.type === item.type).length &&
         !(typeof item.manned === "number" && surplusStrength < item.manned)
       ) {
@@ -2209,7 +2209,7 @@ export class IntermissionState extends Superstate {
   private paneTabs: CanvasTabPanel;
   private cashCounter: CanvasLabel;
 
-  public init() {
+  public override init() {
     this.game.setMouseHandler(GUIMouseHandler);
     this.game.setKeyboardHandler(GUIKeyHandler);
     this.panes = [];

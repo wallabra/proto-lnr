@@ -469,7 +469,7 @@ export class PlayState extends Superstate {
     return res;
   }
 
-  init() {
+  override init() {
     this.game.setMouseHandler(PlayMouseHandler);
     this.game.setKeyboardHandler(PlayKeyHandler);
 
@@ -483,7 +483,7 @@ export class PlayState extends Superstate {
     this.startContinuousSpawns();
   }
 
-  deinit() {
+  override deinit() {
     this.stopContinuousSpawns();
   }
 

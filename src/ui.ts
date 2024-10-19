@@ -708,7 +708,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     // do nothing
   }
 
-  computeWidth(): number {
+  override computeWidth(): number {
     return Math.max(this.textWidth || 0, super.computeWidth() || 0);
   }
 
@@ -835,7 +835,7 @@ export class CanvasSplitPanel extends CanvasPanel {
     // do nothing
   }
 
-  computePos() {
+  override computePos() {
     const pos = super.pos();
 
     pos.x += this.margin;
@@ -854,7 +854,7 @@ export class CanvasSplitPanel extends CanvasPanel {
     return pos;
   }
 
-  computeWidth(): number {
+  override computeWidth(): number {
     if (this.parent == null) return 0;
 
     let width: number;
@@ -868,7 +868,7 @@ export class CanvasSplitPanel extends CanvasPanel {
     return width - this.margin * 2;
   }
 
-  computeHeight(): number {
+  override computeHeight(): number {
     if (this.parent == null) return 0;
 
     let height: number;
@@ -922,7 +922,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
   barColor: string;
   barPadding: number;
 
-  inheritedOffset(): Point {
+  override inheritedOffset(): Point {
     return { x: 0, y: 0 };
   }
 
@@ -982,13 +982,13 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
     }
   }
 
-  computeWidth() {
+  override computeWidth() {
     if (this.scroller.axis === "vertical") return this.thickness;
     if (this.parent == null) return 0;
     return this.parent.innerWidth;
   }
 
-  computeHeight() {
+  override computeHeight() {
     if (this.scroller.axis === "horizontal") return this.thickness;
     if (this.parent == null) return 0;
     return this.parent.innerHeight;
@@ -1057,11 +1057,11 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
 }
 
 class CanvasScrollerContentPane extends CanvasUIElement {
-  parent: CanvasScroller;
+  override parent: CanvasScroller;
   measuring = false;
   private updatingParent = false;
 
-  updateCache(): void {
+  override updateCache(): void {
     super.updateCache();
     if (this.updatingParent) return;
     this.updatingParent = true;
@@ -1069,24 +1069,24 @@ class CanvasScrollerContentPane extends CanvasUIElement {
     this.updatingParent = false;
   }
 
-  inheritedOffset(): Point {
+  override inheritedOffset(): Point {
     return { x: 0, y: 0 };
   }
 
-  computePos() {
+  override computePos() {
     return this.parent.innerPos();
   }
 
-  childrenOffset(): { x: number; y: number } {
+  override childrenOffset(): { x: number; y: number } {
     if (!this.measuring) return this.parent.childrenOffset();
     return { x: 0, y: 0 };
   }
 
-  computeWidth() {
+  override computeWidth() {
     return this.parent.contentWidth();
   }
 
-  computeHeight() {
+  override computeHeight() {
     return this.parent.contentHeight();
   }
 
@@ -1133,12 +1133,12 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
     this.updateCache();
   }
 
-  public addChild(item: CanvasUIElement): CanvasUIElement {
+  public override addChild(item: CanvasUIElement): CanvasUIElement {
     this.contentPane.addChild(item);
     return this.contentPane;
   }
 
-  childrenOffset() {
+  override childrenOffset() {
     return {
       x:
         this.axis !== "horizontal"
@@ -1353,11 +1353,11 @@ export class CanvasUIGroup extends CanvasUIElement {
     });
   }
 
-  isInside(x: number, y: number): boolean {
+  override isInside(x: number, y: number): boolean {
     return super.isInside(x, y) || this.children.some((c) => c.isInside(x, y));
   }
 
-  isHidden() {
+  override isHidden() {
     return this.hidden || this.children.every((e) => e.isHidden());
   }
 
@@ -1407,7 +1407,7 @@ export class CanvasUIGroup extends CanvasUIElement {
     };
   }
 
-  computeWidth() {
+  override computeWidth() {
     if (this.measuring > 1) return super.computeWidth();
     return Math.max(
       super.computeWidth(),
@@ -1415,7 +1415,7 @@ export class CanvasUIGroup extends CanvasUIElement {
     );
   }
 
-  computeHeight() {
+  override computeHeight() {
     if (this.measuring > 1) return super.computeHeight();
     return Math.max(
       super.computeHeight(),
@@ -1462,7 +1462,7 @@ export class CanvasTab extends CanvasUIGroup {
   label: CanvasLabel;
   protected active: boolean;
   colors: { inactive: string; active: string };
-  parent: CanvasTabRow;
+  override parent: CanvasTabRow;
   tabName: string;
 
   constructor(args: CanvasTabArgs) {
@@ -1511,7 +1511,7 @@ export class CanvasTab extends CanvasUIGroup {
     this.activate();
   }
 
-  event(e: UIEvent) {
+  override event(e: UIEvent) {
     if (e.name === "click") {
       this.onClick();
       e.consumed = true;
@@ -1526,8 +1526,8 @@ export interface CanvasTabRowArgs extends CanvasUIGroupArgs {
 }
 
 export class CanvasTabRow extends CanvasUIGroup {
-  children: CanvasTab[];
-  parent: CanvasTabPanel;
+  override children: CanvasTab[];
+  override parent: CanvasTabPanel;
   tabOptions?: Optional<CanvasTabArgs, "label" | "parent" | "content">;
 
   constructor(args: CanvasTabRowArgs) {

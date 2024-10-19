@@ -10,7 +10,7 @@ export interface CashPickupParams extends PhysicsParams {
 
 export class CashPickup extends Pickup<CashPickupParams> {
   cash: number;
-  mainColor = "#406220";
+  override mainColor = "#406220";
 
   constructor(
     game: PlayState,

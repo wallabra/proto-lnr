@@ -201,7 +201,7 @@ export class MainMenuState extends Superstate {
     this.game.restart(gamemode);
   }
 
-  public init() {
+  public override init() {
     this.game.setMouseHandler(GUIMouseHandler);
     this.game.setKeyboardHandler(GUIKeyHandler);
 

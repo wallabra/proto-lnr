@@ -4,6 +4,8 @@
     "esModuleInterop": true,
     "lib": ["ES2015", "DOM"],
     "target": "es2015",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "noImplicitOverride": true,
+    "noImplicitAny": true,
   }
 }

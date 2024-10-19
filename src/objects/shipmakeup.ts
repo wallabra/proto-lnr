@@ -177,7 +177,8 @@ export class ShipPart implements ShipItem {
     const installed = makeup.parts.filter((p) => p instanceof this.constructor);
 
     return (
-      (makeup.make.slots[this.type] ?? 0) <= installed.length &&
+      makeup.make.slots.filter((slot) => slot.type === this.type).length <=
+        installed.length &&
       installed.filter((p) => this.betterThan(p)).length === 0
     );
   }
@@ -463,11 +464,11 @@ export class Cannon extends ShipPart {
   shootRate: number;
   spread: number;
 
-  protected _available(makeup: ShipMakeup): boolean {
+  protected override _available(makeup: ShipMakeup): boolean {
     return makeup.hasAmmo(this.caliber) && this.cooldown === 0;
   }
 
-  shopInfo(): string[] {
+  override shopInfo(): string[] {
     return [
       "caliber: " + (this.caliber * 10).toFixed(0) + "mm",
       "max SPM:" + (60 / this.shootRate).toFixed(2),
@@ -485,7 +486,7 @@ export class Cannon extends ShipPart {
     this.spread = args.spread || 0;
   }
 
-  endLevelUpdate(_player: Player): void {
+  override endLevelUpdate(_player: Player): void {
     this.cooldown = 0;
   }
 
@@ -567,7 +568,7 @@ export class Cannon extends ShipPart {
     return new Cannon(DEFAULT_CANNON);
   }
 
-  tick(deltaTime: number) {
+  override tick(deltaTime: number) {
     this.coolDown(deltaTime);
   }
 
@@ -612,7 +613,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     this.suckStrength = args.suckStrength;
   }
 
-  shopInfo(): string[] {
+  override shopInfo(): string[] {
     return [
       "item attract range: " + (this.suckRadius / 10).toFixed(0) + "m",
       "item attract strength: " + (this.suckStrength / 10).toFixed(2),
@@ -663,7 +664,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
       this.suckCrate(deltaTime, ship, crate);
   }
 
-  tick(deltaTime: number, owner: Ship): void {
+  override tick(deltaTime: number, owner: Ship): void {
     this.suckCrates(deltaTime, owner);
   }
 
@@ -715,7 +716,7 @@ export class Engine extends ShipPart {
   fuelCost: number;
   thrust: number;
 
-  protected _available(makeup: ShipMakeup): boolean {
+  protected override _available(makeup: ShipMakeup): boolean {
     return this.fuelType == null || makeup.hasFuel(this.fuelType);
   }
 
@@ -730,7 +731,7 @@ export class Engine extends ShipPart {
     return this.thrust * (1 - (0.5 * this.damage) / this.maxDamage);
   }
 
-  shopInfo(): string[] {
+  override shopInfo(): string[] {
     return [
       this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
       "fuel cost: " + (this.fuelCost * 60).toFixed(2) + "/min",
