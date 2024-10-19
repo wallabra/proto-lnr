@@ -1,3 +1,4 @@
+import Victor from "victor";
 import type { Damageable } from "../combat/damageable";
 import type { Game } from "../game";
 import type { CannonballAmmo } from "../objects/shipmakeup";
@@ -19,6 +20,7 @@ export interface Projectile extends Physicable {
   instigator?: Physicable & Damageable;
 
   airtime(): number;
+  predictFall?(): Victor;
 }
 
 export function getPlayStateFromProj(proj: Projectile): PlayState {

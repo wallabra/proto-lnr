@@ -17,9 +17,11 @@ const HOMING_SLOWDOWN_PER_SEC = 20;
 function getHomingTarget(
   proj: Projectile,
 ): { obj: Damageable & Physicable; angleOffs: number; offs: Victor } | null {
+  const fallDistSq = proj.predictFall != null ? proj.predictFall().clone().subtract(proj.phys.pos).lengthSq() : null;
+  
   const targets = getPlayStateFromProj(proj)
     .objectsInRadius(proj.phys.pos, HOMING_RANGE)
-    .filter((obj) => isDamageable(obj.obj) && obj.obj !== proj.instigator)
+    .filter((obj) => isDamageable(obj.obj) && obj.obj !== proj.instigator && (fallDistSq == null || obj.offs.lengthSq() < fallDistSq))
     .map((item) => ({
       ...item,
       obj: item.obj as Damageable & Physicable,
@@ -89,29 +91,29 @@ class HomingModifier implements ProjectileModifier {
       .clone()
       .rotate(HOMING_TURN_PER_SEC * -Math.sign(target.angleOffs) * deltaTime);
 
-    if (projectile instanceof Cannonball) {
-      const fallAt = projectile.computePredictedFall();
-      const fallDist = fallAt.clone().subtract(projectile.phys.pos).length();
-      const to = target.obj;
-      const beyond =
-        fallDist -
-        target.offs
-          .add(to.phys.vel.clone().multiplyScalar(projectile.airtime()))
-          .length() -
-        to.phys.size * (to instanceof Ship ? to.lateralCrossSection : 1) -
-        projectile.phys.size -
-        20;
+    if (projectile.predictFall == null) return;
 
-      if (beyond > 0) {
-        projectile.phys.applyForce(
-          deltaTime,
-          projectile.vel
-            .clone()
-            .invert()
-            .norm()
-            .multiplyScalar(HOMING_SLOWDOWN_PER_SEC * projectile.phys.weight),
-        );
-      }
+    const fallAt = projectile.predictFall();
+    const fallDist = fallAt.clone().subtract(projectile.phys.pos).length();
+    const to = target.obj;
+    const beyond =
+      fallDist -
+      target.offs
+        .add(to.phys.vel.clone().multiplyScalar(projectile.airtime()))
+        .length() -
+      to.phys.size * (to instanceof Ship ? to.lateralCrossSection : 1) -
+      projectile.phys.size -
+      20;
+
+    if (beyond > 0) {
+      projectile.phys.applyForce(
+        deltaTime,
+        projectile.phys.vel
+          .clone()
+          .invert()
+          .norm()
+          .multiplyScalar(HOMING_SLOWDOWN_PER_SEC * projectile.phys.weight),
+      );
     }
   }
 }
