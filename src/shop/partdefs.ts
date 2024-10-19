@@ -18,6 +18,7 @@ export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
   weight: 3,
   shopRepeat: 6,
   shopChance: 0.55,
+  dropChance: 0.6,
 };
 
 export const DEFAULT_ENGINE = {
