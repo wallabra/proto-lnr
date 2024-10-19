@@ -585,8 +585,7 @@ export class Cannon extends ShipPart {
         (this.shootRate < other.shootRate ||
           (this.shootRate === other.shootRate &&
             this.range > other.range &&
-            this.spread <= other.spread) ||
-          (this.spread < other.spread && this.range >= other.range)))
+            this.spread < other.spread)))
     );
   }
 
@@ -595,8 +594,7 @@ export class Cannon extends ShipPart {
       this.caliber >= other.caliber &&
       (this.caliber > other.caliber ||
         this.shootRate < other.shootRate ||
-        this.spread < other.spread ||
-        this.range > other.range)
+        (this.spread < other.spread && this.range > other.range))
     );
   }
 
