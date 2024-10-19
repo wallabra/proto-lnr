@@ -1,3 +1,4 @@
+import { Ship } from "../../objects/ship";
 import type { ObjectRenderInfo } from "../../render";
 import { aoeExplosion } from "../explosion";
 import {
@@ -20,7 +21,7 @@ class ExplosiveModifier implements ProjectileModifier {
       500,
       (obj) => obj !== projectile && obj !== projectile.instigator,
       (obj) => Math.pow(obj.phys.weight, 0.3),
-      projectile.instigator instanceof Ship ? projectile.instigator : null
+      projectile.instigator instanceof Ship ? projectile.instigator : null,
     );
   }
 
