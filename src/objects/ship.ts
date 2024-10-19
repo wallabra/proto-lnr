@@ -471,7 +471,7 @@ export class ShipRenderContext {
     );
 
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "rgba(170, 190, 170, 0.5)";
+    ctx.strokeStyle = "rgba(170, 190, 170, 0.075)";
     ctx.lineDashOffset = 5;
     ctx.setLineDash([30, 10]);
 
