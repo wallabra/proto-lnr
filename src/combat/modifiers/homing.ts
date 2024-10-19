@@ -1,4 +1,3 @@
-import { Cannonball } from "../../objects/cannonball";
 import { Ship } from "../../objects/ship";
 import type { ObjectRenderInfo } from "../../render";
 import type { Physicable } from "../../superstates/play";
@@ -17,11 +16,19 @@ const HOMING_SLOWDOWN_PER_SEC = 60;
 function getHomingTarget(
   proj: Projectile,
 ): { obj: Damageable & Physicable; angleOffs: number; offs: Victor } | null {
-  const fallDistSq = proj.predictFall != null ? proj.predictFall().clone().subtract(proj.phys.pos).lengthSq() : null;
-  
+  const fallDistSq =
+    proj.predictFall != null
+      ? proj.predictFall().clone().subtract(proj.phys.pos).lengthSq()
+      : null;
+
   const targets = getPlayStateFromProj(proj)
     .objectsInRadius(proj.phys.pos, HOMING_RANGE)
-    .filter((obj) => isDamageable(obj.obj) && obj.obj !== proj.instigator && (fallDistSq == null || obj.offs.lengthSq() < fallDistSq))
+    .filter(
+      (obj) =>
+        isDamageable(obj.obj) &&
+        obj.obj !== proj.instigator &&
+        (fallDistSq == null || obj.offs.lengthSq() < fallDistSq),
+    )
     .map((item) => ({
       ...item,
       obj: item.obj as Damageable & Physicable,

@@ -1,4 +1,4 @@
-import Victor from "victor";
+import type Victor from "victor";
 import type { Damageable } from "../combat/damageable";
 import type { Game } from "../game";
 import type { CannonballAmmo } from "../objects/shipmakeup";
