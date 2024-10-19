@@ -179,7 +179,9 @@ export class ShipPart implements ShipItem {
     return (
       makeup.make.slots.filter((slot) => slot.type === this.type).length <=
         installed.length &&
-      installed.filter((p) => this.betterThan(p)).length === 0
+      installed.filter(
+        (p) => p instanceof this.constructor && this.betterThan(p),
+      ).length === 0
     );
   }
 
