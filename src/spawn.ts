@@ -104,10 +104,11 @@ export class SpawnClass {
    * The first element of the list is always the head of the squad.
    */
   produce_defs(): IndividualSpawn[] {
+    const squadSize = maybeRangeInt(this.squadSize);
     return [
       pollRandomParam(this.head),
-      ...([] as number[])
-        .fill(0, 0, maybeRangeInt(this.squadSize))
+      ...(new Array(squadSize) as number[])
+        .fill(0)
         .map(() => pollRandomParam(maybeWeighted(this.squad))),
     ];
   }
@@ -146,7 +147,9 @@ export class SpawnClass {
       const nextDef = defs[0];
 
       const shipPos = new Victor(
-        100 + (300 + radiusBonus) * Math.sqrt(Math.random()),
+        nextDef.make.size * nextDef.make.lateralCrossSection * 2 +
+          400 +
+          radiusBonus * Math.sqrt(Math.random()),
         0,
       )
         .rotateBy(Math.random() * Math.PI * 2)
@@ -189,7 +192,13 @@ export class SpawnClass {
       state.makeAIFor(ship);
 
       //-- fun mode 1: instant shower of death
-      // ship.aggro(this.player.possessed);
+      // if (
+      //   state.player != null &&
+      //   state.player.possessed != null &&
+      //   ship.makeup.nextReadyCannon != null
+      // ) {
+      //   ship.aggro(state.player.possessed);
+      // }
 
       //-- fun mode 2: everyone loves you & protects you to death
       // if (
