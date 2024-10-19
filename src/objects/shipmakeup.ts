@@ -760,20 +760,11 @@ export class Engine extends ShipPart {
   }
 
   public override strictBetterThan(other: Engine) {
-    return (
-      this.thrust > other.thrust ||
-      (this.thrust === other.thrust &&
-        ((!this.manned && typeof other.manned === "number") ||
-          (this.fuelType == null && other.fuelType != null)))
-    );
+    return this.thrust > other.thrust;
   }
 
   protected override betterThan(other: Engine) {
-    return (
-      this.thrust > other.thrust ||
-      (!this.manned && typeof other.manned === "number") ||
-      (this.fuelType == null && other.fuelType != null)
-    );
+    return this.thrust > other.thrust;
   }
 
   public override canAutoInstall(makeup: ShipMakeup): boolean {
