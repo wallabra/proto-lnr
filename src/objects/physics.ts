@@ -433,7 +433,10 @@ export class PhysicsObject {
   physAngle(deltaTime: number) {
     this.angle += this.angVel * deltaTime;
     this.angVel -= this.angVel * this.angleDrag * deltaTime;
-    this.angle = this.angle % (Math.PI * 2);
+
+    // clamp between 0 and 2*pi
+    while (this.angle < 0) this.angle += Math.PI * 2;
+    while (this.angle > Math.PI * 2) this.angle -= Math.PI * 2;
   }
 
   get angNorm() {
