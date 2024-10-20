@@ -15,9 +15,9 @@ class ExplosiveModifier implements ProjectileModifier {
     aoeExplosion(
       getPlayStateFromProj(projectile),
       projectile.phys.pos,
-      400,
-      3000,
-      500,
+      250,
+      10000,
+      100,
       (obj) => obj !== projectile && obj !== projectile.instigator,
       (obj) => Math.pow(obj.phys.weight, 0.3),
       projectile.instigator instanceof Ship ? projectile.instigator : null,
