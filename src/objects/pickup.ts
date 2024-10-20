@@ -63,7 +63,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     const camheight = 4;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
-    const hdist = camheight - this.phys.height / 2;
+    const hdist = camheight - this.phys.height - this.phys.verticalSize() / 2;
     const proximityScale = camheight / new Victor(hdist, cdist).length();
     const size =
       ((1 - this.shrink) * (this.phys.size * proximityScale * info.scale)) /
@@ -73,7 +73,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
       return;
     }
 
-    const hoffs = this.phys.height * 20 + this.phys.size / 2;
+    const hoffs = this.phys.height * 20 + this.phys.verticalSize();
     const shoffs = Math.max(
       0,
       hoffs - Math.max(this.phys.floor, this.play.waterLevel) * 20,
