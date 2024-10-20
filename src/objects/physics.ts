@@ -420,6 +420,8 @@ export class PhysicsObject {
       return;
     }
 
+    if (this.frozen) return;
+
     if (inWater && this.height < this.play.waterLevel + this.verticalSize()) {
       let buoyancy = this.buoyancy * this.buoyantForce();
       if (buoyancy > this.weight * this.gravity * 2 && this.capBuoyancy)
