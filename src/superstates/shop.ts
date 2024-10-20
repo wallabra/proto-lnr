@@ -84,7 +84,7 @@ function itemLabel(
   priceFactor: number | null = 1,
 ) {
   return (
-    (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(2) + " " : "") +
+    (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(item.integerAmounts ? 0 : 2) + " " : "") +
     ((makeup && item.getInventoryLabel?.(makeup)) ?? item.getItemLabel()) +
     (priceFactor == null
       ? ""
