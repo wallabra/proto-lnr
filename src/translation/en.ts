@@ -228,7 +228,7 @@ export const TR_EN: TranslationTable = {
     "cannonball.plural": "{{caliber}} cannonballs",
 
     "food.spoiled": "(spoiled)",
-    "food.info.shelfLfe": "days until spoiled: {{spoilDays}}",
+    "food.info.shelfLife": "days until spoiled: {{spoilDays}}",
 
     "intermission.moneyCounter": "Money: {{money}}", // i18n TODO
     "intermission.drydock": "Drydock", // i18n TODO
@@ -237,8 +237,8 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.part.action.uninstall": "Uninstall", // i18n TODO
     "intermission.drydock.part.action.assignCrew": "Assign Crew", // i18n TODO
     "intermission.drydock.part.action.unassignCrew": "Unassign Crew", // i18n TODO
-    "intermission.drydock.part.manned": "manned by: {{mannedBy}}",
-    "intermission.drydock.part.unmanned": "(not manned!)",
+    "intermission.drydock.part.info.manned": "manned by: {{mannedBy}}",
+    "intermission.drydock.part.info.unmanned": "(not manned!)",
     "intermission.drydock.part.damaged":
       "{{percent}}% damaged (cost to fix: {{repairCost}})", // i18n TODO
     "intermission.drydock.part.notDamaged": "Intact", // i18n TODO
@@ -315,6 +315,7 @@ export const TR_EN: TranslationTable = {
     "intermission.shop.buy": "Buy", // i18n TODO
     "intermission.shop.hire": "Hire", // i18n TODO
     "intermission.harbor": "Harbor", // i18n TODO
+    "intermission.harbor.slots": "Slots:",
     "intermission.harbor.ship.hp": "Max HP: {{maxDamage}}", // i18n TODO
     "intermission.harbor.ship.size": "Size: {{size}} x {{lateralSize}}", // i18n TODO
     "intermission.harbor.ship.slots": "Slots:", // i18n TODO

@@ -671,7 +671,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
   override shopInfo(): string[] {
     return [
       i18next.t("shopinfo.vacuum.range", {
-        rangeMeters: (this.suckRadius / 10).toFixed(0) + "m",
+        suckRadiusMeters: (this.suckRadius / 10).toFixed(0) + "m",
       }),
       i18next.t("shopinfo.vacuum.strength", {
         strength: (this.suckStrength / 1000).toFixed(2),

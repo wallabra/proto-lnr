@@ -226,7 +226,7 @@ export const TR_PT_BR: TranslationTable = {
     "cannonball.plural": "bolas de canhão calibre {{caliber}}",
 
     "food.spoiled": "(spoiled)",
-    "food.info.shelfLfe": "days until spoiled: {{spoilDays}}",
+    "food.info.shelfLife": "days until spoiled: {{spoilDays}}",
 
     "lootdefs.vase": "Vaso da Monarquia",
     "lootdefs.gold": "Barra de Ouro",
@@ -247,8 +247,8 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.part.action.unassignCrew": "Remover Operador",
     "intermission.drydock.part.damaged": "{{percent}}% danificado/a",
     "intermission.drydock.part.notDamaged": "Intacto/a",
-    "intermission.drydock.part.manned": "operado por: {{mannedBy}}",
-    "intermission.drydock.part.unmanned": "(não operado!)",
+    "intermission.drydock.part.info.manned": "operado por: {{mannedBy}}",
+    "intermission.drydock.part.info.unmanned": "(não operado!)",
     "intermission.drydock.slots": "Encaixes: ",
     "intermission.drydock.inventory": "Inventário",
     "intermission.drydock.item.weight": "peso: {{weight}}", // i18n TODO
@@ -323,6 +323,7 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.shop.buy": "Comprar",
     "intermission.shop.hire": "Contratar",
     "intermission.harbor": "Porto",
+    "intermission.harbor.slots": "Encaixes:",
     "intermission.harbor.ship.hp": "HP Máx.: {{maxDamage}}",
     "intermission.harbor.ship.size": "Tamanho: {{size}} x {{lateralSize}}",
     "intermission.harbor.ship.slots": "Encaixes:",

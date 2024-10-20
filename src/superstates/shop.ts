@@ -1061,8 +1061,7 @@ class ShopItemWidget extends Pane<
       childMargin: 3,
       height: 24,
     }).label(
-      "intermission.shop." +
-        i18next.t(this.item.type === "crew" ? "hire" : "buy"),
+        i18next.t("intermission.shop." + (this.item.type === "crew" ? "hire" : "buy")),
       {
         font: "bold $Hpx sans-serif",
         color: "#fff",
@@ -2151,7 +2150,7 @@ class PaneDrydockShip extends Pane<
     } else {
       this.repairHullButtonLabel.label = i18next.t(
         "intermission.drydock.repair.damaged",
-        { cost: moneyString(this.repairCost()) },
+        { repairCost: moneyString(this.repairCost()) },
       );
     }
     this.hullDamageMeter.setProgress(
