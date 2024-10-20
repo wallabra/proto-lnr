@@ -184,7 +184,7 @@ export class PhysicsObject {
     return this.play.sfx.play(this, name, volume);
   }
 
-  touchingShip(ship: Ship, verticalFactor = 1) {
+  touchingShip(ship: Ship, verticalFactor = 2) {
     if (
       Math.abs(this.height - ship.height) >
       (this.verticalSize() + ship.phys.verticalSize()) * verticalFactor + 0.01
