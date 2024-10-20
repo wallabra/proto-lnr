@@ -1776,24 +1776,7 @@ class PaneDrydockShip extends Pane<
       color: "#ccdd",
       height: 12,
       autoFont: true,
-      font: "bold $Hpx solid sans-serif",
-    });
-
-    new CanvasButton({
-      parent: group,
-      childOrdering: "horizontal",
-      childFill: 1,
-      childMargin: 5,
-      fillY: true,
-      bgColor: "#AAF5",
-      callback: () => {
-        this.autoRepair();
-      },
-    }).label("Auto-Repair", {
-      color: "#ccdd",
-      height: 12,
-      autoFont: true,
-      font: "bold $Hpx solid sans-serif",
+      font: "bold $Hpx sans-serif",
     });
 
     new CanvasButton({
@@ -1810,7 +1793,24 @@ class PaneDrydockShip extends Pane<
       color: "#ccdd",
       height: 12,
       autoFont: true,
-      font: "bold $Hpx solid sans-serif",
+      font: "bold $Hpx sans-serif",
+    });
+
+    new CanvasButton({
+      parent: group,
+      childOrdering: "horizontal",
+      childFill: 1,
+      childMargin: 5,
+      fillY: true,
+      bgColor: "#AAF5",
+      callback: () => {
+        this.autoRepair();
+      },
+    }).label("Auto-Repair", {
+      color: "#ccdd",
+      height: 12,
+      autoFont: true,
+      font: "bold $Hpx sans-serif",
     });
   }
 
