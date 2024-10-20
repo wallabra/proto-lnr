@@ -227,7 +227,7 @@ export class MainMenuState extends Superstate {
       
       const scroller = new CanvasScroller({
         parent: holder,
-        bgColor: '#4444',
+        bgColor: '#08080899',
         axis: "vertical",
         dockX: 'center',
         fillX: 0.8,
@@ -294,25 +294,52 @@ export class MainMenuState extends Superstate {
         });
       };
 
+      const addSpacer = (space = 1) => {
+        const spacer = new CanvasPanel({
+          parent: scroller.contentPane,
+          fillX: true,
+          height: Math.exp(space - 1) * 15, // fancy e^n spacing :3
+          childOrdering: 'vertical',
+          bgColor: '#0000',
+        });
+
+        new CanvasPanel({
+          parent: spacer,
+          height: 2,
+          fillX: 0.5,
+          dockX: "center",
+          dockY: "center",
+          alignX: "center",
+          alignY: "center",
+          bgColor: '#fff4',
+        });
+      }
+
       addRow("Move and steer with WASD or by holding the left mouse button.");
       addRow("Move near items to vacuum them up!");
       addRow("Use Spacebar or RMB to shoot!");
       addRow("Spacebar shoots one at a time; RMB to burst fire all cannons.", 1);
       addRow("Use the mouse to control the aim distance!", 1);
+      addSpacer();
       addRow("Press H to toggle the HUD.")
       addRow("Press R to reset the game, or M to come back to the main menu.");
-      addRow("Once far enough from the island, press L to leave to the intermission screen!");
+      addSpacer(2);
+      addRow("Once far enough from the island, press L to leave to the intermission screen!", 0, { color: '#FFA' });
+      addSpacer()
       addRow("In the Drydock you can manage your inventory and installed parts.", 1);
       addRow("If in doubt, just use Auto-Install, Auto-Resell, and Auto-Repair, in that order!", 2);
       addRow("Always use the info blurbs on the right side of the Drydock to orient yourself.", 2);
       addRow("Double-check if you have ammo for all cannons and fuel for all engines!", 3);
+      addSpacer()
       addRow("You can buy stuff like parts, ammo and fuel at the Shop.", 1);
       addRow("Things won't always be available at the shop! Try checking it on diffeerent days.", 2);
+      addSpacer()
       addRow("Once you're racked up cash aplenty, visit the Harbor to get a shiny new ship.", 1);
       addRow("Just like the Shop, not all ships wil be available. Some have a small chance to appear!", 2);
       addRow("When you buy a ship, you can either switch to it as yours, or assign a crewmate as its subcaptain.", 2);
       addRow("Ships in your fleet follow you around and help you, and have their own inventory.", 3);
       addRow("You can move items between different fleet ships in the Drydock.", 3);
+      addSpacer()
       addRow("When you're done managing stuff, use the Cartography tab to move on to the next island!", 1, { color: '#FFA' });
 
       return null;
