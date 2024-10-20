@@ -331,7 +331,7 @@ export const PARTDEFS: {
       vulnerability: 0.0012,
     },
     {
-      name: "Toblerone",
+      name: "Whirlpool",
       cost: 320,
       suckRadius: 200,
       suckStrength: 80000000,
