@@ -579,22 +579,26 @@ export class Cannon extends ShipPart {
   }
 
   public override strictBetterThan(other: Cannon) {
+    const thisDPS = Math.pow(this.caliber, 2) / this.shootRate;
+    const otherDPS = Math.pow(other.caliber, 2) / other.shootRate;
+
     return (
-      this.caliber > other.caliber ||
-      (this.caliber === other.caliber &&
-        (this.shootRate < other.shootRate ||
-          (this.shootRate === other.shootRate &&
-            this.range > other.range &&
-            this.spread < other.spread)))
+      thisDPS > otherDPS ||
+      (thisDPS > otherDPS * 0.5 &&
+        this.range > other.range &&
+        this.spread < other.spread)
     );
   }
 
   protected override betterThan(other: Cannon) {
+    const thisDPS = Math.pow(this.caliber, 2) / this.shootRate;
+    const otherDPS = Math.pow(other.caliber, 2) / other.shootRate;
+
     return (
-      this.caliber >= other.caliber &&
-      (this.caliber > other.caliber ||
-        this.shootRate < other.shootRate ||
-        (this.spread < other.spread && this.range > other.range))
+      thisDPS > otherDPS ||
+      (thisDPS > otherDPS * 0.5 &&
+        this.range > other.range &&
+        this.spread < other.spread)
     );
   }
 
