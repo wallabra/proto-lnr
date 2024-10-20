@@ -303,10 +303,11 @@ export class MainMenuState extends Superstate {
           bgColor: '#0000',
         });
 
+        // spacer horizontal ruler
         new CanvasPanel({
           parent: spacer,
           height: 2,
-          fillX: 0.5,
+          fillX: 0.33 * Math.log(1 + space),
           dockX: "center",
           dockY: "center",
           alignX: "center",
