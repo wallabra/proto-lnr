@@ -495,6 +495,9 @@ export class Cannon extends ShipPart {
 
   override endLevelUpdate(_player: Player): void {
     this.cooldown = 0;
+
+    // always unlock cannons at end of day
+    this.locked = false;
   }
 
   cannonballSphericalVolume() {
