@@ -103,7 +103,7 @@ export class PhysicsObject {
     this.weight = params.weight ?? 1;
     this.baseDrag = params.baseDrag ?? 0.5;
     this.baseFriction = params.baseFriction ?? 0.007;
-    this.angleDrag = params.angleDrag ?? 0.05;
+    this.angleDrag = params.angleDrag ?? 0.1;
     this.gravity = params.gravity ?? 9.7;
     this.buoyancy = params.buoyancy ?? 0.06;
     this.restitution = params.restitution ?? 0.5;
@@ -316,13 +316,23 @@ export class PhysicsObject {
     return new Victor(1, 1);
   }
 
-  physDrag(deltaTime: number) {
-    const drag = lerp(this.airDrag(), this.waterDrag(), this.submersion());
+  public currentDrag(): number {
+    return lerp(this.airDrag(), this.waterDrag(), this.submersion());
+  }
+
+  public dragForce(): Victor {
+    const drag = this.currentDrag();
 
     const dragForce = this.vel
       .clone()
       .multiplyScalar(-drag)
       .multiply(this.dragVector());
+
+    return dragForce;
+  }
+
+  physDrag(deltaTime: number) {
+    const dragForce = this.dragForce();
     this.applyForce(deltaTime, dragForce);
   }
 
@@ -434,7 +444,7 @@ export class PhysicsObject {
 
   physAngle(deltaTime: number) {
     this.angle += this.angVel * deltaTime;
-    this.angVel -= this.angVel * this.angleDrag * deltaTime;
+    this.angVel -= this.angVel * this.angleDrag * this.currentDrag() * deltaTime;
 
     // clamp between 0 and 2*pi
     while (this.angle < 0) this.angle += Math.PI * 2;
