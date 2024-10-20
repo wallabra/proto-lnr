@@ -298,7 +298,7 @@ export class PhysicsObject {
   }
 
   waterDrag() {
-    return this.size * this.baseDrag * 3;
+    return this.size * this.baseDrag * 6.5;
   }
 
   airDrag() {
