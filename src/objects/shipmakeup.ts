@@ -388,7 +388,7 @@ export class Crew implements ShipItem {
   }
 }
 
-export const CANNONBALL_DENSITY = 0.065;
+export const CANNONBALL_DENSITY = 0.3;
 
 export class CannonballAmmo implements ShipItem {
   type = "ammo";
@@ -410,7 +410,7 @@ export class CannonballAmmo implements ShipItem {
     this.caliber = caliber;
     this.amount = amount;
     this.type = "ammo";
-    this.weight = this.sphericalVolume() * CANNONBALL_DENSITY;
+    this.weight = this.sphericalVolume() * CANNONBALL_DENSITY / 50;
     this.cost = this.estimateCost();
     this.name = `${(this.caliber * 10).toFixed(0)}mm cannonball ammo`;
     this.dying = false;
@@ -427,7 +427,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   sphericalVolume() {
-    return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
+    return (4 / 3) * Math.PI * Math.pow(this.caliber, 3);
   }
 
   estimateCost() {
