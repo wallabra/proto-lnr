@@ -97,6 +97,20 @@ export const PARTDEFS: {
       shopChance: 0.4,
     },
     {
+      name: "Blast Furnace",
+      thrust: 175000.0,
+      cost: 1350,
+      maxDamage: 300,
+      fuel: {
+        type: "coal",
+        cost: 0.05,
+      },
+      shopRepeat: 1,
+      rarity: 6,
+      weight: 69,
+      shopChance: 0.2,
+    },
+    {
       name: "Piston Boy",
       maxDamage: 130,
       thrust: 151552.0,
