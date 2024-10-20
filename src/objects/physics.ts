@@ -185,7 +185,7 @@ export class PhysicsObject {
   }
 
   touchingShip(ship: Ship) {
-    if (Math.abs(this.height - ship.height) > 0.6) {
+    if (Math.abs(this.height - ship.height) > this.verticalSize() + ship.phys.verticalSize() + 0.01) {
       return 0;
     }
 
