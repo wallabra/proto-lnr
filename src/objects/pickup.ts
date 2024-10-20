@@ -66,7 +66,8 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     const hdist = camheight - this.phys.height / 2;
     const proximityScale = camheight / new Victor(hdist, cdist).length();
     const size =
-      (1 - this.shrink) * (this.phys.size * proximityScale * info.scale) / Math.pow(2, 1 / 4);
+      ((1 - this.shrink) * (this.phys.size * proximityScale * info.scale)) /
+      Math.pow(2, 1 / 4);
 
     if (hdist < 0.1) {
       return;
