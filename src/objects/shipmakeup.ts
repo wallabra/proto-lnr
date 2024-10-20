@@ -663,7 +663,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
           Math.max(
             300,
             ship.pos.distanceSq(crate.phys.pos) -
-              (ship.lateralCrossSection * ship.size),
+              ship.lateralCrossSection * ship.size,
           ),
         ),
     );
