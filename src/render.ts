@@ -1410,8 +1410,7 @@ class Hud extends CanvasPanel {
     }
 
     this.leaveIslandLabel.hidden =
-      !this.player.inShopRange() ||
-      this.player.possessed.dying;
+      !this.player.inShopRange() || this.player.possessed.dying;
     this.leaveIslandLabel.label = this.player.possessed.inDanger()
       ? "You cannot leave the island; someone's chasing you!"
       : "Press L to leave island.";
