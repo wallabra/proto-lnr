@@ -18,6 +18,12 @@ export class CashPickup extends Pickup<CashPickupParams> {
     params?: Partial<CashPickupParams>,
   ) {
     if (params == null) params = {};
+    params = {
+      weight: 5,
+      buoyancy: 0.2,
+      size: 3,
+      ...params,
+    };
     super(game, pos, params);
     this.cash = params.cash ?? 10;
   }

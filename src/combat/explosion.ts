@@ -39,6 +39,9 @@ export function aoeExplosion(
         ),
     );
 
-    obj.phys.applyForceVert(null, power * knockback * Math.sqrt(obj.phys.weight) / 100);
+    obj.phys.applyForceVert(
+      null,
+      (power * knockback * Math.sqrt(obj.phys.weight)) / 100,
+    );
   }
 }

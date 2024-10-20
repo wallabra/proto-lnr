@@ -410,7 +410,7 @@ export class CannonballAmmo implements ShipItem {
     this.caliber = caliber;
     this.amount = amount;
     this.type = "ammo";
-    this.weight = this.sphericalVolume() * CANNONBALL_DENSITY / 50;
+    this.weight = (this.sphericalVolume() * CANNONBALL_DENSITY) / 50;
     this.cost = this.estimateCost();
     this.name = `${(this.caliber * 10).toFixed(0)}mm cannonball ammo`;
     this.dying = false;
