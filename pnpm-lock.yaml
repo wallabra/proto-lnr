@@ -11,6 +11,9 @@ importers:
       '@types/victor':
         specifier: ^1.1.5
         version: 1.1.5
+      '@unly/universal-language-detector':
+        specifier: ^2.0.3
+        version: 2.0.3
       howler:
         specifier: ^2.2.4
         version: 2.2.4
@@ -969,8 +972,20 @@ packages:
     resolution: {integrity: sha512-Ht4y38ubk4L5/U8xKUBfKNYGmvKvA1CANoxiTRMM+tOLk3lbF3DvzZCxJCRSE+2GdCMSh6zq9VZJc3asc1XuAA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@unly/iso3166-1@1.0.2':
+    resolution: {integrity: sha512-aL/7cmcfjpwOaKFr9XHcWP/Z7lQjKLm5NMcjncT96aeSJxfblmPLnH/8lnX0GrWWFA2/CseCxnA73u5eiZcClA==}
+
+  '@unly/universal-language-detector@2.0.3':
+    resolution: {integrity: sha512-UMmZIQS2XfJko8/GOrJc9ojO4UIF9HJM59NyQgcH+Ncrb0WBHL2L7EZ/7iZ/YcdoRnioonRECUQmmUELWt9z5Q==}
+
+  '@unly/utils@1.0.3':
+    resolution: {integrity: sha512-QTRknIDX56FvzGcIpBum5D/oRSlX3dkZ+l1op1jsFlYCTd925OGUb991V7zsFv3ePcqFfvfqfR5cNVv+w4JAOw==}
+
   abortcontroller-polyfill@1.7.5:
     resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
+
+  accept-language-parser@1.5.0:
+    resolution: {integrity: sha512-QhyTbMLYo0BBGg1aWbeMG4ekWtds/31BrEU+DONOg/7ax23vxpL03Pb7/zBmha2v7vdD3AyzZVWBVGEZxKOXWw==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1500,6 +1515,12 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
+  i18next-browser-languagedetector@4.0.1:
+    resolution: {integrity: sha512-RxSoX6mB8cab0CTIQ+klCS764vYRj+Jk621cnFVsINvcdlb/cdi3vQFyrPwmnowB7ReUadjHovgZX+RPIzHVQQ==}
+
+  i18next@19.0.2:
+    resolution: {integrity: sha512-fBa43Ann2udP1CQAz3IQpOZ1dGAkmi3mMfzisOhH17igneSRbvZ7P2RNbL+L1iRYKMufBmVwnC7G3gqcyviZ9g==}
+
   i18next@23.16.2:
     resolution: {integrity: sha512-dFyxwLXxEQK32f6tITBMaRht25mZPJhQ0WbC0p3bO2mWBal9lABTMqSka5k+GLSRWLzeJBKDpH7BeIA9TZI7Jg==}
 
@@ -1847,6 +1868,12 @@ packages:
   locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
+
+  lodash.get@4.4.2:
+    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+
+  lodash.includes@4.3.0:
+    resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -3655,7 +3682,23 @@ snapshots:
       '@typescript-eslint/types': 8.9.0
       eslint-visitor-keys: 3.4.3
 
+  '@unly/iso3166-1@1.0.2': {}
+
+  '@unly/universal-language-detector@2.0.3':
+    dependencies:
+      '@unly/iso3166-1': 1.0.2
+      '@unly/utils': 1.0.3
+      accept-language-parser: 1.5.0
+      i18next: 19.0.2
+      i18next-browser-languagedetector: 4.0.1
+      lodash.get: 4.4.2
+      lodash.includes: 4.3.0
+
+  '@unly/utils@1.0.3': {}
+
   abortcontroller-polyfill@1.7.5: {}
+
+  accept-language-parser@1.5.0: {}
 
   acorn-jsx@5.3.2(acorn@8.13.0):
     dependencies:
@@ -4173,6 +4216,14 @@ snapshots:
 
   human-signals@2.1.0: {}
 
+  i18next-browser-languagedetector@4.0.1:
+    dependencies:
+      '@babel/runtime': 7.25.7
+
+  i18next@19.0.2:
+    dependencies:
+      '@babel/runtime': 7.25.7
+
   i18next@23.16.2:
     dependencies:
       '@babel/runtime': 7.25.7
@@ -4678,6 +4729,10 @@ snapshots:
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
+
+  lodash.get@4.4.2: {}
+
+  lodash.includes@4.3.0: {}
 
   lodash.merge@4.6.2: {}
 

@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import random from "random";
 
 export const umod = (a: number, b: number): number => ((a % b) + b) % b;
@@ -34,6 +35,14 @@ export function moneyString(cash: number) {
   if (cash < 0) cashStr = "-" + cashStr;
 
   return cashStr;
+}
+
+export function costString(cost: number) {
+  if (cost === 0) return i18next.t("nocost", { defaultValue: "free" });
+
+  const costStr = (cost > 0 ? "-" : "+") + "$" + Math.abs(cost).toFixed(2);
+
+  return costStr;
 }
 
 export function weightString(weight: number) {

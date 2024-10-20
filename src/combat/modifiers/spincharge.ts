@@ -5,6 +5,7 @@ import type { Projectile, ProjectileModifier } from "../projectile";
 import Victor from "victor";
 
 class SpinChargeModifier implements ProjectileModifier {
+  name = "spin";
   infoString = "spin charges";
 
   onHit(_projectile: Projectile, target: Damageable): void {

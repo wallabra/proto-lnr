@@ -1,6 +1,11 @@
 import { Engine, type ShipMakeup } from "./objects/shipmakeup";
 import type { Player } from "./player";
 import { DEFAULT_RESELL_FACTOR } from "./superstates/shop";
+import {
+  translateFoodName,
+  translateFuelType,
+  translateItemType,
+} from "./internationalization";
 
 export interface InventoryItem {
   name: string;
@@ -139,7 +144,7 @@ export class FuelItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `fuel ${this.name}`;
+    return `${translateItemType("fuel")} ${translateFuelType(this.name)}`;
   }
 
   autoResell(makeup: ShipMakeup): boolean {
@@ -206,7 +211,7 @@ export class FoodItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `food ${this.name}`;
+    return `${translateItemType("food")} ${translateFoodName(this)}`;
   }
 
   autoResell(makeup: ShipMakeup): boolean {

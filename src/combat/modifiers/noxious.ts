@@ -9,6 +9,7 @@ import Victor from "victor";
 const KILL_CHANCE = 0.4;
 
 class NoxiousGasModifier implements ProjectileModifier {
+  name = "noxious";
   infoString = "anti-personnel noxious gas";
 
   onDestroy(): void {}

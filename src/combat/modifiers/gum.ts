@@ -8,6 +8,7 @@ const SLOWNESS_DURATION = 15;
 const SLOWNESS_FACTOR = 0.2;
 
 class PropellerGumModifier implements ProjectileModifier {
+  name = "gum";
   infoString = "propeller gum";
 
   onDestroy(): void {}

@@ -8,7 +8,7 @@ import type {
 export type PartRarity = number | "always";
 
 export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
-  name: "Oars",
+  name: "oars",
   cost: 30,
   thrust: 40000.0,
   vulnerability: 0.002,
@@ -22,7 +22,7 @@ export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
 };
 
 export const DEFAULT_ENGINE = {
-  name: "Steamy",
+  name: "steamy",
   cost: 350,
   thrust: 102400.0,
   maxDamage: 100,
@@ -34,7 +34,7 @@ export const DEFAULT_ENGINE = {
 };
 
 export const DEFAULT_CANNON = {
-  name: "Shooty",
+  name: "shooty",
   cost: 500,
   caliber: 4,
   range: 900,
@@ -49,7 +49,7 @@ export const DEFAULT_CANNON = {
 };
 
 export const DEFAULT_VACUUM: PartDef<VacuumArgs> = {
-  name: "Slurpman",
+  name: "slurpman",
   cost: 120,
   suckRadius: 90,
   suckStrength: 20000000,
@@ -82,7 +82,7 @@ export const PARTDEFS: {
     OARS,
     DEFAULT_ENGINE,
     {
-      name: "Hot Betty",
+      name: "hotBetty",
       thrust: 143360.0,
       cost: 700,
       maxDamage: 180,
@@ -97,7 +97,7 @@ export const PARTDEFS: {
       shopChance: 0.4,
     },
     {
-      name: "Blast Furnace",
+      name: "blastFurnace",
       thrust: 175000.0,
       cost: 1350,
       maxDamage: 300,
@@ -111,7 +111,7 @@ export const PARTDEFS: {
       shopChance: 0.2,
     },
     {
-      name: "Piston Boy",
+      name: "pistonBoy",
       maxDamage: 130,
       thrust: 151552.0,
       cost: 1200,
@@ -125,7 +125,7 @@ export const PARTDEFS: {
       shopChance: 0.5,
     },
     {
-      name: "Oilytron",
+      name: "oilytron",
       thrust: 172032.0,
       cost: 1440,
       maxDamage: 200,
@@ -138,7 +138,7 @@ export const PARTDEFS: {
       shopChance: 0.3,
     },
     {
-      name: "Howitzer",
+      name: "howitzer",
       maxDamage: 280,
       thrust: 212992.0,
       cost: 2100,
@@ -151,7 +151,7 @@ export const PARTDEFS: {
       shopChance: 0.15,
     },
     {
-      name: "V-Star",
+      name: "vstar",
       thrust: 327680.0,
       maxDamage: 400,
       cost: 3370,
@@ -165,7 +165,7 @@ export const PARTDEFS: {
       shopChance: 0.1,
     },
     {
-      name: "Relic Rotator",
+      name: "relicRotator",
       thrust: 245760.0,
       maxDamage: 320,
       cost: 2770,
@@ -182,7 +182,7 @@ export const PARTDEFS: {
   cannon: [
     DEFAULT_CANNON,
     {
-      name: "WX Hefty",
+      name: "wxHefty",
       caliber: 5.5,
       range: 600,
       cost: 700,
@@ -196,7 +196,7 @@ export const PARTDEFS: {
       shopChance: 0.25,
     },
     {
-      name: "WX Hefty Mk-II",
+      name: "wxHefty2",
       caliber: 5.5,
       range: 700,
       cost: 820,
@@ -210,7 +210,7 @@ export const PARTDEFS: {
       shopChance: 0.2,
     },
     {
-      name: "Juggernaut",
+      name: "juggernaut",
       caliber: 7.5,
       range: 550,
       cost: 2100,
@@ -223,7 +223,7 @@ export const PARTDEFS: {
       shopChance: 0.08,
     },
     {
-      name: "Speedy",
+      name: "speedy",
       caliber: 4,
       range: 800,
       cost: 650,
@@ -237,7 +237,7 @@ export const PARTDEFS: {
       shopChance: 0.25,
     },
     {
-      name: "Chain Cannon",
+      name: "chainCannon",
       caliber: 4,
       range: 600,
       cost: 2300,
@@ -250,7 +250,7 @@ export const PARTDEFS: {
       shopChance: 0.06,
     },
     {
-      name: "Déluge",
+      name: "deluge",
       caliber: 4,
       range: 800,
       cost: 4000,
@@ -263,7 +263,7 @@ export const PARTDEFS: {
       shopChance: 0.02,
     },
     {
-      name: "Viper-I",
+      name: "viper1",
       caliber: 6.2,
       range: 600,
       cost: 1100,
@@ -277,7 +277,7 @@ export const PARTDEFS: {
       shopRepeat: 2,
     },
     {
-      name: "Viper-II",
+      name: "viper2",
       caliber: 6.2,
       range: 800,
       cost: 1320,
@@ -290,7 +290,7 @@ export const PARTDEFS: {
       shopChance: 0.3,
     },
     {
-      name: "Viper-III",
+      name: "viper3",
       caliber: 6.2,
       range: 900,
       cost: 1600,
@@ -303,7 +303,7 @@ export const PARTDEFS: {
       shopChance: 0.2,
     },
     {
-      name: "Titanium Ted",
+      name: "titaniumTed",
       caliber: 4,
       range: 2000,
       cost: 1400,
@@ -317,7 +317,7 @@ export const PARTDEFS: {
       shopRepeat: 2,
     },
     {
-      name: "Longshot",
+      name: "longshot",
       caliber: 5.5,
       range: 1800,
       cost: 1800,
@@ -330,7 +330,7 @@ export const PARTDEFS: {
       shopChance: 0.1,
     },
     {
-      name: "Seraphim's Shot",
+      name: "seraphimShot",
       caliber: 6.2,
       range: 1700,
       cost: 2100,
@@ -346,7 +346,7 @@ export const PARTDEFS: {
   vacuum: [
     DEFAULT_VACUUM,
     {
-      name: "Courier",
+      name: "courier",
       cost: 200,
       suckRadius: 130,
       suckStrength: 50000000,
@@ -358,15 +358,26 @@ export const PARTDEFS: {
       vulnerability: 0.0012,
     },
     {
-      name: "Whirlpool",
+      name: "whirlpool",
       cost: 320,
-      suckRadius: 200,
+      suckRadius: 220,
       suckStrength: 80000000,
       weight: 90,
       shopChance: 0.2,
-      rarity: 4.5,
+      rarity: 5,
       maxDamage: 20,
       vulnerability: 0.0014,
+    },
+    {
+      name: "vortex",
+      cost: 800,
+      suckRadius: 450,
+      suckStrength: 120000000,
+      weight: 230,
+      shopChance: 0.09,
+      rarity: 11,
+      maxDamage: 90,
+      vulnerability: 0.002,
     },
   ],
 };

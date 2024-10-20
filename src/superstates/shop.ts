@@ -35,7 +35,7 @@ import {
   CanvasProgressBar,
   CanvasTabPanel,
 } from "../ui";
-import { moneyString, weightString } from "../util";
+import { costString, moneyString, weightString } from "../util";
 import { Superstate } from "./base";
 import { PARTDEFS } from "../shop/partdefs";
 import { instantiatePart } from "../shop/randomparts";
@@ -45,6 +45,8 @@ import type { Class, Optional } from "utility-types";
 import { MAKEDEFS } from "../shop/makedefs";
 import { arrayCounter } from "../util";
 import { addModifiersToAmmo } from "../combat/projectile";
+import i18next from "i18next";
+import { translateShipMakeName } from "../internationalization";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -1082,9 +1084,9 @@ class PaneShop extends Pane<PaneShopArgs> {
     this.shopItems = this.shopItems.filter(
       (item) => this.player.makeup.inventory.items.indexOf(item) === -1,
     );
+
     if (this.shopItems.length === this.itemList.contentPane.children.length)
       return;
-    console.log("Update shop listings");
 
     updateList(
       this.shopItems,
@@ -1262,7 +1264,7 @@ class ShipMakeWidget extends Pane<
       autoFont: true,
       font: "bold $Hpx sans-serif",
       color: "#fff",
-      label: this.make.name,
+      label: translateShipMakeName(this.make),
       fillY: true,
       height: 13.5,
       childOrdering: "horizontal",
@@ -1361,12 +1363,16 @@ class ShipMakeWidget extends Pane<
 
   private constructSwitchLabel() {
     const cost = this.getSwitchCost();
-    return `Buy & Switch to Make (${cost < 0 ? "+" : "-"}${moneyString(Math.abs(cost))}))`;
+    return i18next.t("intermission.harbor.ship.action.switch", {
+      cost: costString(cost),
+    });
   }
 
   private constructBuyLabel() {
     const cost = this.getCost();
-    return `Buy Make & Add to Fleet (${moneyString(Math.abs(cost))}))`;
+    return i18next.t("intermission.harbor.ship.action.buy", {
+      cost: costString(cost),
+    });
   }
 
   private tryBuy() {
@@ -1375,7 +1381,9 @@ class ShipMakeWidget extends Pane<
     const cost = this.getCost();
 
     if (this.player.money < cost) {
-      this.statusLabel.label = "Not enough money!";
+      this.statusLabel.label = i18next.t(
+        "intermission.harbor.ship.status.cannotAfford",
+      );
       return;
     }
 
@@ -1387,14 +1395,18 @@ class ShipMakeWidget extends Pane<
     this.statusLabel.label = "";
 
     if (this.makeup.parts.length > 0) {
-      this.statusLabel.label = "Uninstall every ship part first!";
+      this.statusLabel.label = i18next.t(
+        "intermission.harbor.ship.status.mustUninstall",
+      );
       return;
     }
 
     const cost = this.getSwitchCost();
 
     if (this.player.money < cost) {
-      this.statusLabel.label = "Not enough money!";
+      this.statusLabel.label = i18next.t(
+        "intermission.harbor.ship.status.cannotAfford",
+      );
       return;
     }
 
@@ -1424,9 +1436,15 @@ class ShipMakeWidget extends Pane<
 
   private populateDetail(): void {
     const info = [
-      "Max HP: " + this.make.maxDamage.toFixed(1),
-      `Size: ${((this.make.size * this.make.lateralCrossSection) / 10).toFixed(2)}m x ${(this.make.size / 10).toFixed(2)}m`,
-      "Drag: " + this.make.drag.toFixed(2),
+      i18next.t("intermission.harbor.ship.hp", {
+        maxDamage: this.make.maxDamage.toFixed(1),
+      }),
+      i18next.t("intermission.harbor.ship.size", {
+        size:
+          ((this.make.size * this.make.lateralCrossSection) / 10).toFixed(2) +
+          "m",
+        lateralSize: (this.make.size / 10).toFixed(2) + "m",
+      }),
     ];
 
     const info2 = ["Slots:", ...this.make.slots.map((s) => this.slotInfo(s))];
@@ -1483,7 +1501,7 @@ class PaneHarbor extends Pane<PaneHarborArgs> {
       autoFont: true,
       height: 30,
       font: "bold $Hpx sans-serif",
-      label: "Harbor",
+      label: i18next.t("intermission.harbor"),
       color: "#fff",
     });
 
@@ -2529,7 +2547,7 @@ export class IntermissionState extends Superstate {
 
   buildUI() {
     this.paneDrydock = this.addPane<PaneDrydock, PaneDrydockArgs>(
-      "Drydock",
+      i18next.t("intermission.drydock"),
       PaneDrydock,
       {
         paddingX: 20,
@@ -2537,19 +2555,27 @@ export class IntermissionState extends Superstate {
         stats: this.statsRows(),
       },
     );
-    this.addPane<PaneShop, PaneShopArgs>("Shop", PaneShop, {
-      paddingX: 20,
-      bgColor: "#2222",
-      shopItems: this.generateShopItems(),
-    });
-    this.addPane<PaneHarbor, PaneHarborArgs>("Harbor", PaneHarbor, {
-      paddingX: 20,
-      bgColor: "#2222",
-      makes: MAKEDEFS.filter(
-        (make) => make.shopChance == null || Math.random() < make.shopChance,
-      ),
-    });
-    this.addPane("Cartography", PaneCartography, {
+    this.addPane<PaneShop, PaneShopArgs>(
+      i18next.t("intermission.shop"),
+      PaneShop,
+      {
+        paddingX: 20,
+        bgColor: "#2222",
+        shopItems: this.generateShopItems(),
+      },
+    );
+    this.addPane<PaneHarbor, PaneHarborArgs>(
+      i18next.t("intermission.harbor"),
+      PaneHarbor,
+      {
+        paddingX: 20,
+        bgColor: "#2222",
+        makes: MAKEDEFS.filter(
+          (make) => make.shopChance == null || Math.random() < make.shopChance,
+        ),
+      },
+    );
+    this.addPane(i18next.t("intermission.cartography"), PaneCartography, {
       paddingX: 20,
       bgColor: "#2222",
     });

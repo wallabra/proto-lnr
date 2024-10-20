@@ -9,6 +9,7 @@ import {
 import Victor from "victor";
 
 class ExplosiveModifier implements ProjectileModifier {
+  name = "explosive";
   infoString = "explosives";
 
   onDestroy(projectile: Projectile): void {

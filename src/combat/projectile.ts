@@ -64,6 +64,7 @@ export function projTickModifiers(deltaTime: number, projectile: Projectile) {
 }
 
 export interface ProjectileModifier {
+  name: string;
   onDestroy(projectile: Projectile): void;
   onHit(projectile: Projectile, target: Damageable): void;
   tick?(deltaTime: number, projectile: Projectile): void;

@@ -1,19 +1,25 @@
-export const TR_EN = {
+import type { TranslationTable } from "../internationalization";
+
+export const TR_EN: TranslationTable = {
   translation: {
-    "main.title": "Loot & Roam", // i18n TODO
-    "main.version": "Prototype v{{game_version}}", // i18n TODO
+    "main.title": "Loot & Roam",
+    "main.version": "Prototype v{{gameVersion}}",
 
     // Main menu & submenus
-    "menu.newgame": "New Game", // i18n TODO
-    "menu.help": "Help", // i18n TODO
+    "menu.newgame": "New Game",
+    "menu.help": "Help",
 
-    "submenu.newgame.title": "New Game", // i18n TODO
-    "submenu.newgame.gamemode": "Select a Game Mode", // i18n TODO
-    "submenu.newgame.freeplay": "Free Play", // i18n TODO
-    "submeun.newgame.comingsoon": "(Other gamemodes coming very soon!)", // i18n TODO
+    "submenu.newgame.title": "New Game",
+    "submenu.newgame.gamemode": "Select a Game Mode",
+    "submenu.newgame.freeplay": "Free Play",
+    "submenu.newgame.comingsoon": "(Other gamemodes coming very soon!)",
 
-    "submenu.help.title": "Tips & Help", // i18n TODO
-    "submenu.help.rows": [ // i18n TODO
+    strike: "(on strike for ({{reason}}))",
+    "strike.reason.food": "hunger",
+    "strike.reason.wage": "wage withholding",
+
+    "submenu.help.title": "Tips & Help",
+    "submenu.help.rows": [
       "Move and steer with WASD or by holding the left mouse button.",
       "Move near items to vacuum them up!",
       "Use Spacebar or RMB to shoot!",
@@ -21,16 +27,17 @@ export const TR_EN = {
         "Spacebar shoots one at a time; RMB to burst-fire all cannons.",
         "Use the mouse to control the aim distance.",
         "Press a number key to lock/unlock a cannon from firing.",
-        [
-          "By default, the game always fires the highest caliber cannon first!"
-        ],
+        ["By default, the game always fires the highest caliber cannon first!"],
       ],
       1,
       "Press H to toggle the HUD.",
       "Press R to reset the game.",
       "Press M to come back to the main menu. (This ends your game!)",
       2,
-      { text: "Once you're far enough from the island, press L to enter the Intermission Screen!", color: "#FFA" },
+      {
+        text: "Once you're far enough from the island, press L to enter the Intermission Screen!",
+        color: "#FFA",
+      },
       2,
       [
         "In the Drydock you can manage your ships, and their inventories and installed parts.",
@@ -38,13 +45,13 @@ export const TR_EN = {
           "If in doubt, just click Auto-Install, Auto-Resell, and Auto-Repair, in that order!",
           "Always use the info blurbs on the right side to orient yourself.",
           [
-            "Double-check if you have ammo for all cannons and fuel for all engines!"
-          ]
+            "Double-check if you have ammo for all cannons and fuel for all engines!",
+          ],
         ],
         1,
         "You can buy stuff like parts, ammo and fuel, and hire crew, at the Shop.",
         [
-          "Things won't always be on sale; try checking the shop on different days."
+          "Things won't always be on sale; try checking the shop on different days.",
         ],
         1,
         "Once you've racked up cash aplenty, visit the Harbor to get a shiny new ship!",
@@ -55,24 +62,27 @@ export const TR_EN = {
             [
               "Any idle crew member can become a subcaptain, regardless of their stats.",
               "Subcaptains cannot operate parts.",
-              "Subordinate ships follow you around the map and will help fight your enemies!"
+              "Subordinate ships follow you around the map and will help fight your enemies!",
             ],
             "You can manage your fleet ships separately in the Drydock.",
-            [
-              "Each of them has its own info blurb, so be aware!"
-            ],
+            ["Each of them has its own info blurb, so be aware!"],
             "Just like the Shop, not all ships will be available in all days.",
-          ]
+          ],
         ],
         1,
-        "Once you're done managing stuff, use the Cartography tab to move on to the next island! Yarr harr!"
+        "Once you're done managing stuff, use the Cartography tab to move on to the next island! Yarr harr!",
       ],
     ],
 
-    "hud.cannons": "Cannons", // i18n TODO
-    "hud.engines": "Engines", // i18n TODO
-    "hud.fuel": "Fuel", // i18n TODO
-    "hud.ammo": "Ammo", // i18n TODO
+    "hud.cannons": "Cannons",
+    "hud.cannon.locked": "(Locked)",
+    "hud.cannon.noCrew": "(No Crew!)",
+    "hud.cannon.noAmmo": "(No Ammo!)",
+    "hud.engines": "Engines",
+    "hud.engine.noCrew": "(No Crew!)",
+    "hud.engine.noFuel": "(No Fuel!)",
+    "hud.fuel": "Fuel",
+    "hud.ammo": "Ammo",
     "hud.hull": "Hull: {{percent}}%", // i18n TODO
     "hud.info.finance": "Financial", // i18n TODO
     "hud.info.finance.cash": "Cash", // i18n TODO
@@ -89,7 +99,7 @@ export const TR_EN = {
     "hud.status.leave": "Press L to leave the island", // i18n TODO
     "hud.status.leaveChase": "Cannot leave - someone is chasing you!", // i18n TODO
     "hud.status.rip": "rip", // i18n TODO
-    "hud.status.ripPrompt": "(Press R to reset, or M to go to menu!)", // i18n TODO
+    "hud.status.tryAgain": "(Press R to reset, or M to go to menu!)", // i18n TODO
     "hud.toggleHud": "Press H to toggle this HUD.", // i18n TODO
 
     "partdefs.engine": "Engine", // i18n TODO
@@ -123,6 +133,7 @@ export const TR_EN = {
     "partdefs.vacuum.slurpman": "Slurpman", // i18n TODO
     "partdefs.vacuum.courier": "Courier", // i18n TODO
     "partdefs.vacuum.whirlpool": "Whirlpool", // i18n TODO
+    "partdefs.vacuum.vortex": "Vortex",
 
     "makedefs.dependableDave": "Dependable Dave", // i18n TODO
     "makedefs.fisherman": "Fisherman", // i18n TODO
@@ -157,11 +168,22 @@ export const TR_EN = {
     "fooddefs.tuna": "tuna", // i18n TODO
     "fooddefs.sardines": "sarines", // i18n TODO
 
+    "lootdefs.vase": "Royal Vase",
+    "lootdefs.gold": "Gold Bar",
+    "lootdefs.jar": "Spice Jar",
+    "lootdefs.ores": "Mineral Ores",
+    "lootdefs.lamp": "Golden Lamp",
+    "lootdefs.flutes": "Tribal Flutes",
+    "lootdefs.chalice": "Golden Chalice",
+    "lootdefs.statuette": "Golden Statuette",
+    "lootdefs.statue": "Tribal Statue",
+
     "shopinfo.manning.needsInterp": "needs {{manned}} total manning strength", // i18n TODO
     "shopinfo.manning.needsAny": "needs to be manned", // i18n TODO
     "shopinfo.manning.needs": "needs to be manned", // i18n TODO
     "shopinfo.manning.min": " (min. crew strength {{manned}})", // i18n TODO
-    "shopinfo.crew.salary": "next day's salary: {{salary}}", // i18n TODO
+    "shopinfo.crew.salary": "daily salary: {{salary}}", // i18n TODO
+    "shopinfo.crew.salaryTomorrow": "next day's salary: {{salary}}", // i18n TODO
     "shopinfo.crew.foodIntake": "daily food intake: {{foodIntake}}", // i18n TODO
     "shopinfo.crew.strength": "manning strength: {{strength}}", // i18n TODO
     "shopinfo.crew.manning": "manning a: {{manningType}}", // i18n TODO
@@ -170,10 +192,10 @@ export const TR_EN = {
     "shopinfo.projectileModifier": "fitted with {{modifierName}}", // i18n TODO
     "shopinfo.cannon.caliber": "caliber: {{caliber}}", // i18n TODO
     "shopinfo.cannon.shootRate": "shots per minute: {{spm}}", // i18n TODO
-    "shopinfo.cannon.spread": "spread (°): {{spread}}", // i18n TODO
-    "shopinfo.cannon.range": "max. range (m): {{rangeMeters}}", // i18n TODO
-    "shopinfo.vacuum.range": "attract range (m): {{suckRadiusMeters}}", // i18n TODO
-    "shopinfo.vacuum.strength": "attract power (N/sqrt(m)): {{suckStrengthMeters}}", // i18n TODO
+    "shopinfo.cannon.spread": "spread: {{spread}}", // i18n TODO
+    "shopinfo.cannon.range": "max. range: {{rangeMeters}}", // i18n TODO
+    "shopinfo.vacuum.range": "attract range: {{suckRadiusMeters}}", // i18n TODO
+    "shopinfo.vacuum.strength": "attract power: {{strength}} N/sqrt(m)", // i18n TODO
     "shopinfo.engine.noFuel": "manual", // i18n TODO
     "shopinfo.engine.fuelType": "fuel type: {{fuelType}}", // i18n TODO
     "shopinfo.engine.fuelCost": "fuel cost: {{fuelCost}} kg/min", // i18n TODO
@@ -200,6 +222,10 @@ export const TR_EN = {
     "itemtype.vacuum": "vacuum", // i18n TODO
     "itemtype.cannonballAmmo": "cannonball", // i18n TODO
     "itemtype.fuel": "fuel", // i18n TODO
+    "itemtype.valuable": "loot", // i18n TODO
+
+    cannonball: "{{caliber}} cannonball",
+    "cannonball.plural": "{{caliber}} cannonballs",
 
     "intermission.moneyCounter": "Money: {{money}}", // i18n TODO
     "intermission.drydock": "Drydock", // i18n TODO
@@ -222,7 +248,8 @@ export const TR_EN = {
     "intermission.drydock.autoResell": "Auto-Resell", // i18n TODO
     "intermission.drydock.autoRepair": "Auto-Repair", // i18n TODO
     "intermission.drydock.repair.healthy": "Ship hull is fine",
-    "intermission.drydock.repair.damaged": "Ship hull is damaged ({{repairCost}})",
+    "intermission.drydock.repair.damaged":
+      "Ship hull is damaged ({{repairCost}})",
     "intermission.drydock.stats": "Stats", // i18n TODO
     "intermission.drydock.stats.salary.name": "Salary:", // i18n TODO
     "intermission.drydock.stats.food.name": "Food:", // i18n TODO
@@ -232,22 +259,38 @@ export const TR_EN = {
     "intermission.drydock.stats.fuel.name": "Fuel:", // i18n TODO
     "intermission.drydock.stats.ammo.name": "Ammunition:", // i18n TODO
     "intermission.drydock.stats.manned.name": "Manned Parts:", // i18n TODO
-    "intermission.drydock.stats.salary.info.insufficient": "You need {{money}} to meet salaries tomorrow, at {{salary}}/day. Or else, crew may refuse to work in {{strikesIn}} days.", // i18n TODO
-    "intermission.drydock.stats.salary.info.sufficient": "You have enough money to meet all salary demands, at {{salary}}/day.", // i18n TODO
-    "intermission.drydock.stats.food.info.head": "You have {{food}} food points, and your crew consumes {{totalIntake}} a day.", // i18n TODO
-    "intermission.drydock.stats.food.info.insufficient": "You do not have enough, and your crew WILL refuse to work.", // i18n TODO
-    "intermission.drydock.stats.food.info.sufficient": "You have enough for {{days}} days.", // i18n TODO
-    "intermission.drydock.stats.repairs.info.intact": "Your ship is completely fine and needs no repairs.", // i18n TODO
-    "intermission.drydock.stats.repairs.info.damaged.insufficient": "Your ship has damages, and you will need {{missingMoney}} more to fix everything, at {{totalCost}}.", // i18n TODO
-    "intermission.drydock.stats.repairs.info.damaged.sufficient": "Your ship has damages, and you have enough money to fix everything - it will cost you {{totalCost}}.", // i18n TODO
-    "intermission.drydock.stats.weight.info": "Your ship weights {{totalWeight}}; {{hullWeight}} of that is the hull.", // i18n TODO
-    "intermission.drydock.stats.engines.info": "Your ship, with its current engine situation, can output up to {{totalThrust}} kN/s.", // i18n TODO
-    "intermission.drydock.stats.engines.info.none": "Your ship has no functioning engines. Check fuel and manning.", // i18n TODO
-    "intermission.drydock.stats.fuel.info.head": "{{which}} of your {{numEngines}} installed engines have fuel.", // i18n TODO
-    "intermission.drydock.stats.fuel.info.need": "You need more: {{missingFuelTypes}}", // i18n TODO
-    "intermission.drydock.stats.ammo.info.head": "{{which}} of your {{numCannons}} cannons have ammo.", // i18n TODO
-    "intermission.drydock.stats.ammo.info.need": "You need more of the following calibers: {{missingCalibers}}", // i18n TODO
-    "intermission.drydock.stats.manned.info": "Of your ship's {{numParts}} installed parts, {{numNeedManned}} are manually operated. Of them, {{numManned}} have crew operating them.", // i18n TODO
+    "intermission.drydock.stats.salary.info.insufficient":
+      "You need {{money}} to meet salaries tomorrow, at {{salary}}/day. Or else, crew may refuse to work in {{strikesIn}} days.", // i18n TODO
+    "intermission.drydock.stats.salary.info.sufficient":
+      "You have enough money to meet all salary demands, at {{salary}}/day.", // i18n TODO
+    "intermission.drydock.stats.food.info.head":
+      "You have {{food}} food points, and your crew consumes {{totalIntake}} a day.", // i18n TODO
+    "intermission.drydock.stats.food.info.insufficient":
+      "You do not have enough, and your crew WILL refuse to work.", // i18n TODO
+    "intermission.drydock.stats.food.info.sufficient":
+      "You have enough for {{days}} days.", // i18n TODO
+    "intermission.drydock.stats.repairs.info.intact":
+      "Your ship is completely fine and needs no repairs.", // i18n TODO
+    "intermission.drydock.stats.repairs.info.damaged.insufficient":
+      "Your ship has damages, and you will need {{missingMoney}} more to fix everything, at {{totalCost}}.", // i18n TODO
+    "intermission.drydock.stats.repairs.info.damaged.sufficient":
+      "Your ship has damages, and you have enough money to fix everything - it will cost you {{totalCost}}.", // i18n TODO
+    "intermission.drydock.stats.weight.info":
+      "Your ship weights {{totalWeight}}; {{hullWeight}} of that is the hull.", // i18n TODO
+    "intermission.drydock.stats.engines.info":
+      "Your ship, with its current engine situation, can output up to {{totalThrust}} kN/s.", // i18n TODO
+    "intermission.drydock.stats.engines.info.none":
+      "Your ship has no functioning engines. Check fuel and manning.", // i18n TODO
+    "intermission.drydock.stats.fuel.info.head":
+      "{{which}} of your {{numEngines}} installed engines have fuel.", // i18n TODO
+    "intermission.drydock.stats.fuel.info.need":
+      "You need more: {{missingFuelTypes}}", // i18n TODO
+    "intermission.drydock.stats.ammo.info.head":
+      "{{which}} of your {{numCannons}} cannons have ammo.", // i18n TODO
+    "intermission.drydock.stats.ammo.info.need":
+      "You need more of the following calibers: {{missingCalibers}}", // i18n TODO
+    "intermission.drydock.stats.manned.info":
+      "Of your ship's {{numParts}} installed parts, {{numNeedManned}} are manually operated. Of them, {{numManned}} have crew operating them.", // i18n TODO
     "intermission.shop": "Shop", // i18n TODO
     "intermission.shop.buy": "Buy", // i18n TODO
     "intermission.shop.hire": "Hire", // i18n TODO
@@ -257,7 +300,10 @@ export const TR_EN = {
     "intermission.harbor.ship.slots": "Slots:", // i18n TODO
     "intermission.harbor.ship.action.switch": "Buy & Switch to Make ({{cost}})", // i18n TODO
     "intermission.harbor.ship.action.buy": "Buy & Add to Fleet ({{cost}})", // i18n TODO
+    "intermission.harbor.ship.status.cannotAfford": "Not enough money!",
+    "intermission.harbor.ship.status.mustUninstall":
+      "Uninstall every part of your main ship first!",
     "intermission.cartography": "Cartography", // i18n TODO
     "intermission.cartography.invade": "Invade Next Island!", // i18n TODO
-  }
-}
+  },
+};

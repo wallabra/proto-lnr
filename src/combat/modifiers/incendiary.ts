@@ -11,6 +11,7 @@ const BURN_DURATION = { min: 6, max: 15 };
 const BURN_DAMAGE = 200;
 
 class IncendiaryModifier implements ProjectileModifier {
+  name = "incendiary";
   infoString = "incendiary phosphorus";
 
   onDestroy(): void {}

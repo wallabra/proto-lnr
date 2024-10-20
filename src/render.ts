@@ -25,6 +25,12 @@ import {
 import type { Optional } from "utility-types";
 import type { Player } from "./player";
 import type { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
+import i18next from "i18next";
+import {
+  translateEngineFuelType,
+  translateFuelType,
+  translatePartName,
+} from "./internationalization";
 
 export interface ObjectRenderInfo {
   scale: number;
@@ -376,11 +382,10 @@ class HudDamageBar {
   }
 
   protected updateLabel() {
-    this.label.label =
-      "Hull: " +
-      (this.makeup.hullDamage === 0
-        ? `100%`
-        : `${Math.floor(100 * (1 - this.damageProgress())).toString()}%${this.damageProgress() < 0.985 ? "" : "!"}`);
+    const progress = this.damageProgress();
+    this.label.label = i18next.t("hud.hull", {
+      percent: (100 - 100 * progress).toFixed(1) + (progress < 0.95 ? "" : "!"),
+    });
   }
 
   protected damageProgress() {
@@ -451,7 +456,7 @@ class HudCannon {
       dockMarginX: 10,
       paddingY: 4,
       maxHeight: 15,
-      label: this.cannon.name,
+      label: "-",
       color: "#fff",
     });
 
@@ -466,17 +471,17 @@ class HudCannon {
 
   protected updateHasAmmo() {
     if (this.makeup.hasAmmo(this.cannon.caliber)) return;
-    this.alert("No Ammo!");
+    this.alert(i18next.t("hud.cannon.noAmmo"));
   }
 
   protected updateHasCrew() {
     if (this.cannon.alreadyManned()) return;
-    this.alert("No Crew!");
+    this.alert(i18next.t("hud.cannon.noCrew"));
   }
 
   protected updateLocked() {
     if (!this.cannon.locked) return;
-    this.label.label += " (Locked)";
+    this.label.label += " " + i18next.t("hud.cannon.locked");
     this.label.color = "#ee4";
     this.pane.bgColor = "#aa25";
     this.pane.border = { color: "#FF0B", width: 2.5, dashes: [4, 2] };
@@ -491,7 +496,7 @@ class HudCannon {
   }
 
   protected resetLabel() {
-    this.label.label = this.cannon.name;
+    this.label.label = translatePartName(this.cannon);
     this.label.color = "#fff";
   }
 
@@ -552,7 +557,7 @@ class HudCannonList {
       height: 16.5,
       autoFont: true,
       font: "bold $Hpx sans-serif",
-      label: "Cannons",
+      label: i18next.t("hud.cannons"),
       color: "#fff",
     });
 
@@ -650,7 +655,7 @@ class HudEngine {
   }
 
   protected getLabel() {
-    return `${this.engine.name}  (${this.engine.fuelType ?? "manual"})`;
+    return `${translatePartName(this.engine)}  (${translateEngineFuelType(this.engine)})`;
   }
 
   protected alert(message: string) {
@@ -662,12 +667,12 @@ class HudEngine {
   protected updateHasFuel() {
     if (this.engine.fuelType == null) return;
     if (this.makeup.hasFuel(this.engine.fuelType)) return;
-    this.alert("No Fuel!");
+    this.alert(i18next.t("hud.engine.noFuel"));
   }
 
   protected updateHasCrew() {
     if (this.engine.alreadyManned()) return;
-    this.alert("No Crew!");
+    this.alert(i18next.t("hud.engine.noCrew"));
   }
 
   protected updateDamage() {
@@ -733,7 +738,7 @@ class HudEngineList {
       height: 16.5,
       autoFont: true,
       font: "bold $Hpx sans-serif",
-      label: "Engines",
+      label: i18next.t("hud.engines"),
       color: "#fff",
     });
 
@@ -813,7 +818,7 @@ class HudFuel {
 
     new CanvasLabel({
       ...labelOpts,
-      label: this.fuelType,
+      label: translateFuelType(this.fuelType),
     });
 
     this.label = new CanvasLabel({
@@ -876,7 +881,7 @@ class HudFuelList {
       autoFont: true,
       font: "bold $Hpx sans-serif",
       height: 16.5,
-      label: "Fuel",
+      label: i18next.t("hud.fuel"),
       childOrdering: "vertical",
       childMargin: 5,
     });
@@ -1012,7 +1017,7 @@ class HudAmmoList {
       autoFont: true,
       font: "bold $Hpx sans-serif",
       height: 16.5,
-      label: "Ammo",
+      label: i18next.t("hud.ammo"),
       childOrdering: "vertical",
       childMargin: 5,
     });
@@ -1096,36 +1101,39 @@ class HudCounters {
       this.addRow(name, ...financialStatRow(value));
     };
 
-    this.addRow(
-      "Financial",
-      "Current",
-      "- Salary",
-      "- Hull Repair",
-      "- Other Repair",
+    const headers: string[] = [
+      "finance",
+      "finance.current",
+      "finance.minusSalary",
+      "finance.minusHullRepair",
+      "finance.minusOtherRepair",
+    ].map((n) => i18next.t("hud.info." + n));
+    this.addRow(headers[0], ...headers.slice(1));
+    addStat(i18next.t("hud.info.finance.cash"), (player) => player.money);
+    addStat(i18next.t("hud.info.finance.inventoryValue"), (player) =>
+      player.totalInventoryValue(),
     );
-    addStat("Cash", (player) => player.money);
-    addStat("Inventory Value", (player) => player.totalInventoryValue());
 
     let initialAccrued: null | number = null;
-    addStat("Day Profit", (player) => {
+    addStat(i18next.t("hud.info.finance.dayProfit"), (player) => {
       const accrued = player.money + player.totalInventoryValue();
       if (initialAccrued == null) initialAccrued = accrued;
       return accrued - initialAccrued;
     });
-    addStat("Expenditures", () => 0);
+    addStat(i18next.t("hud.info.finance.expenditures"), () => 0);
 
     this.addRow("---");
-    this.addRow("Velocity", (label, player) => {
+    this.addRow(i18next.t("hud.info.velocity"), (label, player) => {
       if (player.possessed == null) return;
       label.label = `${(player.possessed.vel.length() / 10).toFixed(2)} m/s`;
     });
-    this.addRow("Thrust & Weight", (label, player) => {
+    this.addRow(i18next.t("hud.info.thrust"), (label, player) => {
       const thrust = player.makeup.maxEngineThrust();
       const weight = player.makeup.totalWeight();
       const accel = thrust / weight;
       label.label = `${(thrust / 1000).toFixed(2)} kN  /  ${(weight / 1000).toFixed(2)} t  =>  ${accel.toFixed(2)} m/s²`;
     });
-    this.addRow("Kills", (label, player) => {
+    this.addRow(i18next.t("hud.info.kills"), (label, player) => {
       label.label = player.kills.toString();
     });
   }
@@ -1305,7 +1313,7 @@ class Hud extends CanvasPanel {
         childOrdering: "vertical",
         childMargin: 2,
         color: "#ffac",
-        label: "Press H to toggle this HUD.",
+        label: i18next.t("hud.toggleHud"),
       });
 
       this.leaveIslandLabel = new CanvasLabel({
@@ -1317,7 +1325,7 @@ class Hud extends CanvasPanel {
         font: "bold $Hpx sans-serif",
         dockMarginY: 90,
         color: "#fecd",
-        label: "Press L to leave the island.",
+        label: i18next.t("hud.leaveIsland"),
       });
 
       this.damageBar = new HudDamageBar({
@@ -1422,8 +1430,8 @@ class Hud extends CanvasPanel {
     this.leaveIslandLabel.hidden =
       !this.player.inShopRange() || this.player.possessed.dying;
     this.leaveIslandLabel.label = this.player.possessed.inDanger()
-      ? "You cannot leave the island; someone's chasing you!"
-      : "Press L to leave island.";
+      ? i18next.t("hud.status.leaveChase")
+      : i18next.t("hud.status.leave");
     this.leaveIslandLabel.color = this.player.possessed.inDanger()
       ? "#f82d"
       : "#fecb";
@@ -1500,11 +1508,11 @@ class HudRenderer {
     ctx.font = "60px serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("rip", game.width / 2, game.height / 2);
+    ctx.fillText(i18next.t("hud.status.rip"), game.width / 2, game.height / 2);
     ctx.font = "18px sans-serif";
     ctx.textBaseline = "top";
     ctx.fillText(
-      "(Press R to start a new game)",
+      i18next.t("hud.status.tryAgain"),
       game.width / 2,
       game.height / 4 + 55,
     );

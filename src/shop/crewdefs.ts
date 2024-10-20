@@ -1,12 +1,12 @@
 import type { CrewArgs } from "../objects/shipmakeup";
 
 export const CREWDEFS: CrewArgs[] = [
-  { name: "Hicks", salary: 75, weight: 70, shopChance: 0.8 },
-  { name: "Jason", salary: 80, weight: 72, shopChance: 0.5 },
-  { name: "Robert", salary: 80, weight: 73, shopChance: 0.4 },
-  { name: "Philbert", salary: 80, weight: 75, shopChance: 0.35 },
+  { name: "hicks", salary: 75, weight: 70, shopChance: 0.8 },
+  { name: "jason", salary: 80, weight: 72, shopChance: 0.5 },
+  { name: "robert", salary: 80, weight: 73, shopChance: 0.4 },
+  { name: "philbert", salary: 80, weight: 75, shopChance: 0.35 },
   {
-    name: "Mortimer",
+    name: "mortimer",
     salary: 82.5,
     strength: 12,
     caloricIntake: 5.5,
@@ -14,7 +14,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.3,
   },
   {
-    name: "Hudson",
+    name: "hudson",
     salary: 85,
     strength: 13,
     caloricIntake: 6,
@@ -22,7 +22,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.3,
   },
   {
-    name: "Rodrick",
+    name: "rodrick",
     salary: 87.5,
     strength: 14,
     caloricIntake: 6.5,
@@ -30,7 +30,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.27,
   },
   {
-    name: "Malcolm",
+    name: "malcolm",
     salary: 90,
     strength: 15,
     caloricIntake: 7.5,
@@ -38,7 +38,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.25,
   },
   {
-    name: "Jacklin",
+    name: "jacklin",
     salary: 95,
     strength: 18,
     caloricIntake: 8,
@@ -46,7 +46,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.22,
   },
   {
-    name: "Guterrez",
+    name: "guterrez",
     salary: 130,
     strength: 24,
     caloricIntake: 10,
@@ -54,7 +54,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.17,
   },
   {
-    name: "Chaplain",
+    name: "chaplain",
     salary: 140,
     strength: 25,
     caloricIntake: 10.5,
@@ -62,7 +62,7 @@ export const CREWDEFS: CrewArgs[] = [
     shopChance: 0.13,
   },
   {
-    name: "Mr. Conk",
+    name: "mrConk",
     salary: 160,
     strength: 29,
     caloricIntake: 11,

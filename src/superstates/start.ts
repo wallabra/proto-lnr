@@ -18,6 +18,8 @@ import { GUIMouseHandler } from "../mouse";
 import type { GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
+import i18next from "i18next";
+import type { HelpCommand } from "../internationalization";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;
@@ -113,7 +115,7 @@ export class MainMenuState extends Superstate {
         childOrdering: "vertical",
         childFill: 0.15,
         maxHeight: 80,
-        label: "Loot & Roam",
+        label: i18next.t("main.title"),
         autoFont: true,
         font: "$Hpx bold serif",
         color: "#fed", // ong fed! :v
@@ -128,7 +130,7 @@ export class MainMenuState extends Superstate {
         childOrdering: "vertical",
         childFill: 0.08,
         maxHeight: 50,
-        label: "Prototype v" + GAME_VERSION,
+        label: i18next.t("main.version", { gameVersion: GAME_VERSION }),
         color: "#AAD",
         autoFont: true,
         font: "$Hpx bold serif",
@@ -141,7 +143,7 @@ export class MainMenuState extends Superstate {
           this.switchState("new game");
         },
       });
-      newGameButton.label("New Game", { ...buttonLabelArgs });
+      newGameButton.label(i18next.t("menu.newgame"), { ...buttonLabelArgs });
 
       const helpButton = new CanvasButton({
         ...buttonArgs,
@@ -150,7 +152,7 @@ export class MainMenuState extends Superstate {
           this.switchState("help");
         },
       });
-      helpButton.label("Help", { ...buttonLabelArgs });
+      helpButton.label(i18next.t("menu.help"), { ...buttonLabelArgs });
 
       return null;
     });
@@ -167,7 +169,7 @@ export class MainMenuState extends Superstate {
         childOrdering: "vertical",
         childFill: 0.1,
         maxHeight: 65,
-        label: "New Game",
+        label: i18next.t("submenu.newgame.title"),
         autoFont: true,
         font: "$Hpx bold serif",
         color: "#fff",
@@ -182,7 +184,7 @@ export class MainMenuState extends Superstate {
         childOrdering: "vertical",
         childFill: 0.04,
         maxHeight: 35,
-        label: "Select a Game Mode",
+        label: i18next.t("submenu.newgame.gamemode"),
         autoFont: true,
         font: "$Hpx sans-serif",
         color: "#ddd",
@@ -195,7 +197,7 @@ export class MainMenuState extends Superstate {
         callback: () => {
           this.a_newGame("freeplay");
         },
-      }).label("Free Play", { ...buttonLabelArgs });
+      }).label(i18next.t("submenu.newgame.freeplay"), { ...buttonLabelArgs });
 
       new CanvasLabel({
         parent: holder,
@@ -204,7 +206,7 @@ export class MainMenuState extends Superstate {
         childMargin: 20,
         childOrdering: "vertical",
         childFill: 0.02,
-        label: "(Other gamemodes coming very soon!)",
+        label: i18next.t("submenu.newgame.comingsoon"),
         autoFont: true,
         font: "$Hpx serif",
         maxHeight: 16,
@@ -226,7 +228,7 @@ export class MainMenuState extends Superstate {
         childOrdering: "vertical",
         childFill: 0.1,
         maxHeight: 65,
-        label: "Help Info",
+        label: i18next.t("submenu.help.title"),
         autoFont: true,
         font: "$Hpx bold serif",
         color: "#fff",
@@ -323,78 +325,29 @@ export class MainMenuState extends Superstate {
         });
       };
 
-      addRow("Move and steer with WASD or by holding the left mouse button.");
-      addRow("Move near items to vacuum them up!");
-      addRow("Use Spacebar or RMB to shoot!");
-      addRow(
-        "Spacebar shoots one at a time; RMB to burst fire all cannons.",
-        1,
-      );
-      addRow("Use the mouse to control the aim distance!", 1);
-      addRow("Press a number key to lock/unlock a cannon from firing.", 1);
-      addRow(
-        "By default, the game always fires the highest caliber cannon first!",
-        2,
-      );
-      addSpacer();
-      addRow("Press H to toggle the HUD.");
-      addRow("Press R to reset the game, or M to come back to the main menu.");
-      addSpacer(2);
-      addRow(
-        "Once far enough from the island, press L to leave to the intermission screen!",
-        0,
-        { color: "#FFA" },
-      );
-      addSpacer();
-      addRow(
-        "In the Drydock you can manage your inventory and installed parts.",
-        1,
-      );
-      addRow(
-        "If in doubt, just use Auto-Install, Auto-Resell, and Auto-Repair, in that order!",
-        2,
-      );
-      addRow(
-        "Always use the info blurbs on the right side of the Drydock to orient yourself.",
-        2,
-      );
-      addRow(
-        "Double-check if you have ammo for all cannons and fuel for all engines!",
-        3,
-      );
-      addSpacer();
-      addRow("You can buy stuff like parts, ammo and fuel at the Shop.", 1);
-      addRow(
-        "Things won't always be available at the shop! Try checking it on diffeerent days.",
-        2,
-      );
-      addSpacer();
-      addRow(
-        "Once you're racked up cash aplenty, visit the Harbor to get a shiny new ship.",
-        1,
-      );
-      addRow(
-        "Just like the Shop, not all ships wil be available. Some have a small chance to appear!",
-        2,
-      );
-      addRow(
-        "When you buy a ship, you can either switch to it as yours, or assign a crewmate as its subcaptain.",
-        2,
-      );
-      addRow(
-        "Ships in your fleet follow you around and help you, and have their own inventory.",
-        3,
-      );
-      addRow(
-        "You can move items between different fleet ships in the Drydock.",
-        3,
-      );
-      addSpacer();
-      addRow(
-        "When you're done managing stuff, use the Cartography tab to move on to the next island!",
-        1,
-        { color: "#FFA" },
-      );
+      const processCommands = (commands: HelpCommand[], indent = 0) => {
+        for (const command of commands) {
+          if (typeof command === "number") {
+            addSpacer(command);
+          } else if (typeof command === "string") {
+            addRow(command, indent);
+          } else if (Array.isArray(command)) {
+            processCommands(command, indent + 1);
+          } else if (
+            "text" in command &&
+            "color" in command &&
+            typeof command.text === "string" &&
+            typeof command.color === "string"
+          ) {
+            addRow(command.text, indent, command.color);
+          }
+        }
+      };
+
+      const helpCommands = i18next.t("submenu.help.rows", {
+        returnObjects: true,
+      }) as HelpCommand[];
+      processCommands(helpCommands);
 
       return null;
     });

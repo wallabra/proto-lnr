@@ -54,6 +54,7 @@ function getHomingTarget(
 }
 
 class HomingModifier implements ProjectileModifier {
+  name = "homing";
   infoString = "homing fins";
 
   onDestroy(): void {}

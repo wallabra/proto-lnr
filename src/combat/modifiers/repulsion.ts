@@ -7,6 +7,7 @@ import {
 } from "../projectile";
 
 class RepulsionDiscModifier implements ProjectileModifier {
+  name = "repulsion";
   infoString = "repulsion disc";
 
   onDestroy(projectile: Projectile): void {

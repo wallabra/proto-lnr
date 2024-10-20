@@ -16,7 +16,7 @@ import {
   DEFAULT_VACUUM,
   OARS,
 } from "../shop/partdefs";
-import { arrayCounter, stripWeights } from "../util";
+import { arrayCounter, moneyString, stripWeights } from "../util";
 import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
@@ -28,6 +28,12 @@ import randomParts from "../shop/randomparts";
 import { DEFAULT_MAKE } from "../shop/makedefs";
 import type { ProjectileModifier } from "../combat/projectile";
 import { addModifiersToAmmo, ALL_MODIFIERS } from "../combat/projectile";
+import {
+  translateCrewName,
+  translateEngineFuelType,
+  translateItemType,
+} from "../internationalization";
+import i18next from "i18next";
 
 export function slots(make: ShipMake): Map<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
@@ -162,7 +168,7 @@ export class ShipPart implements ShipItem {
   }
 
   getItemLabel(): string {
-    return `${this.type} ${this.name}`;
+    return `${translateItemType(this.type)} ${this.name}`;
   }
 
   public strictBetterThan(_other: this): boolean {
@@ -233,7 +239,9 @@ export class Crew implements ShipItem {
     const which =
       makeup.crew.filter((c) => c.name === this.name).indexOf(this) + 1;
 
-    return this.name + (which === 1 ? "" : " " + which.toString());
+    return (
+      translateCrewName(this) + (which === 1 ? "" : " " + which.toString())
+    );
   }
 
   maxSalaryWithhold(): number {
@@ -281,18 +289,24 @@ export class Crew implements ShipItem {
 
   shopInfo(makeup?: ShipMakeup): string[] {
     return [
-      (makeup == null ? "daily salary: " : "next day's salary: ") +
-        this.nextSalary().toString(),
-      "daily food intake: " + this.caloricIntake.toString(),
-      "manning strength: " + this.strength.toString(),
+      i18next.t(
+        makeup == null
+          ? "shopinfo.crew.salary"
+          : "shopinfo.crew.salaryTomorrow",
+        { salary: moneyString(this.nextSalary()) },
+      ),
+      i18next.t("shopinfo.crew.foodIntake", this.caloricIntake.toFixed(0)),
+      i18next.t("shopinfo.crew.strength", this.strength.toFixed(0)),
       ...(makeup == null
         ? []
         : [
             this.manningPart != null
-              ? "manning a " + this.manningPart.getItemLabel()
+              ? i18next.t("shopinfo.crew.manning", {
+                  manningType: this.manningPart.getItemLabel(),
+                })
               : makeup.captain === this
-                ? "captaining this ship"
-                : "idle",
+                ? i18next.t("shopinfo.crew.captain")
+                : i18next.t("shopinfo.crew.idle"),
           ]),
     ];
   }
@@ -316,7 +330,7 @@ export class Crew implements ShipItem {
   strikeReason(): string {
     const reasons: string[] = [];
     if (this.isHungry()) reasons.push("hunger");
-    if (this.isUnderpaid()) reasons.push("wage withholding");
+    if (this.isUnderpaid()) reasons.push("wage");
     return reasons.join(" and ");
   }
 
@@ -326,7 +340,12 @@ export class Crew implements ShipItem {
 
   getInventoryLabel(makeup: ShipMakeup): string {
     let res = this.nameInDeck(makeup);
-    if (!this.isHappy()) res += ` (on strike for ${this.strikeReason()})`;
+    if (!this.isHappy())
+      res +=
+        " " +
+        i18next.t("strike", {
+          reason: i18next.t("strike.reason." + this.strikeReason()),
+        });
     return res;
   }
 
@@ -435,12 +454,17 @@ export class CannonballAmmo implements ShipItem {
   }
 
   getItemLabel() {
-    return `${(this.caliber * 10).toFixed(0)}mm cannonball${this.amount > 1 ? "s" : ""}`;
+    return i18next.t(
+      this.amount === 1 ? "cannonball" : ["cannonball.plural", "cannonball"],
+      { caliber: (this.caliber * 10).toFixed(0) + "mm" },
+    );
   }
 
   shopInfo(): string[] {
-    return Array.from(this.modifiers).map(
-      (mod) => "fitted with " + mod.infoString,
+    return Array.from(this.modifiers).map((mod) =>
+      i18next.t("shopinfo.projectileModifier", {
+        modifierName: i18next.t("projectile.modifier." + mod.name),
+      }),
     );
   }
 
@@ -477,10 +501,18 @@ export class Cannon extends ShipPart {
 
   override shopInfo(): string[] {
     return [
-      "caliber: " + (this.caliber * 10).toFixed(0) + "mm",
-      "max SPM:" + (60 / this.shootRate).toFixed(2),
-      "max range: " + (this.range / 10).toFixed(1) + "m",
-      "spread (°): " + ((this.spread * 360) / Math.PI).toFixed(1),
+      i18next.t("shopinfo.cannon.caliber", {
+        caliber: (this.caliber * 10).toFixed(0) + "mm",
+      }),
+      i18next.t("shopinfo.cannon.shootRate", {
+        spm: (60 / this.shootRate).toFixed(2) + "/min",
+      }),
+      i18next.t("shopinfo.cannon.range", {
+        rangeMeters: (this.range / 10).toFixed(1) + "m",
+      }),
+      i18next.t("shopinfo.cannon.spread", {
+        spread: ((this.spread * 360) / Math.PI).toFixed(1) + "°",
+      }),
     ];
   }
 
@@ -633,8 +665,12 @@ export class Vacuum extends ShipPart implements VacuumArgs {
 
   override shopInfo(): string[] {
     return [
-      "item attract range: " + (this.suckRadius / 10).toFixed(0) + "m",
-      "item attract strength: " + (this.suckStrength / 10).toFixed(2),
+      i18next.t("shopinfo.vacuum.range", {
+        rangeMeters: (this.suckRadius / 10).toFixed(0) + "m",
+      }),
+      i18next.t("shopinfo.vacuum.strength", {
+        strength: (this.suckStrength / 1000).toFixed(2),
+      }),
     ];
   }
 
@@ -751,9 +787,22 @@ export class Engine extends ShipPart {
 
   override shopInfo(): string[] {
     return [
-      this.fuelType == null ? "no fuel" : "fuel type: " + this.fuelType,
-      "fuel cost: " + (this.fuelCost * 60).toFixed(2) + "/min",
-      "thrust: " + (this.thrust / 10000).toFixed(2) + "kN",
+      i18next.t(
+        this.fuelType == null
+          ? "shopinfo.engine.noFuel"
+          : "shopinfo.engine.fuelType",
+        { fuelType: translateEngineFuelType(this) },
+      ),
+      ...(this.fuelType == null
+        ? []
+        : [
+            i18next.t("shopinfo.engine.fuelCost", {
+              fuelCost: (this.fuelCost * 60).toFixed(2),
+            }),
+          ]),
+      i18next.t("shopinfo.engine.thrust", {
+        thrust: (this.thrust / 10000).toFixed(2),
+      }),
     ];
   }
 

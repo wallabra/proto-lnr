@@ -30,7 +30,7 @@ export const DEFAULT_MAKE: ShipMakeDef = {
 
 export const MAKEDEFS: ShipMakeDef[] = [
   {
-    name: "Fisherman",
+    name: "fisherman",
     cost: 350,
     slots: [{ type: "engine" }],
     maxDamage: 800,
@@ -43,7 +43,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.8,
   },
   {
-    name: "Patroller",
+    name: "patroller",
     cost: 900,
     slots: [{ type: "cannon" }, { type: "engine" }],
     maxDamage: 2000,
@@ -56,7 +56,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.6,
   },
   {
-    name: "Queen Bee",
+    name: "queenBee",
     cost: 1400,
     slots: [
       { type: "cannon" },
@@ -75,7 +75,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.5,
   },
   {
-    name: "Hubris",
+    name: "hubris",
     cost: 1700,
     slots: [
       { type: "cannon" },
@@ -95,7 +95,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
   },
   DEFAULT_MAKE,
   {
-    name: "Wisp o' the Morning",
+    name: "wispOfTheMorning",
     cost: 4000,
     slots: [
       { type: "cannon" },
@@ -116,7 +116,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.3,
   },
   {
-    name: "High Harpooner",
+    name: "highHarpooner",
     cost: 6000,
     slots: [
       { type: "cannon" },
@@ -138,7 +138,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.25,
   },
   {
-    name: "High Seas Roberts",
+    name: "highSeasRoberts",
     cost: 7700,
     slots: [
       { type: "cannon" },
@@ -161,7 +161,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.2,
   },
   {
-    name: "Jasper",
+    name: "jasper",
     cost: 10000,
     slots: [
       { type: "cannon" },
@@ -186,7 +186,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.15,
   },
   {
-    name: "Marie Antoniette",
+    name: "marieAntoniette",
     cost: 14000,
     slots: [
       { type: "cannon" },
@@ -215,7 +215,7 @@ export const MAKEDEFS: ShipMakeDef[] = [
     shopChance: 0.115,
   },
   {
-    name: "Vicky Victorious",
+    name: "vickyVictorious",
     cost: 19000,
     slots: [
       { type: "cannon" },

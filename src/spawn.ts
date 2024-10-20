@@ -263,19 +263,19 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       head: {
         make: [
           {
-            item: findMake("Patroller"),
+            item: findMake("patroller"),
             weight: 5,
           },
           {
-            item: findMake("Queen Bee"),
+            item: findMake("queenBee"),
             weight: 5,
           },
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 4,
           },
           {
-            item: findMake("Dependable Dave"),
+            item: findMake("dependableDave"),
             weight: 1.25,
           },
         ],
@@ -296,15 +296,15 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       head: {
         make: [
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 6,
           },
           {
-            item: findMake("Dependable Dave"),
+            item: findMake("dependableDave"),
             weight: 4,
           },
           {
-            item: findMake("Wisp o' the Morning"),
+            item: findMake("wispOfTheMorning"),
             weight: 3,
           },
         ],
@@ -316,11 +316,11 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       squad: {
         make: [
           {
-            item: findMake("Patroller"),
+            item: findMake("patroller"),
             weight: 3,
           },
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 1,
           },
         ],
@@ -339,15 +339,15 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       head: {
         make: [
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 4,
           },
           {
-            item: findMake("Dependable Dave"),
+            item: findMake("dependableDave"),
             weight: 3,
           },
           {
-            item: findMake("Wisp o' the Morning"),
+            item: findMake("wispOfTheMorning"),
             weight: 1.25,
           },
         ],
@@ -360,11 +360,11 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       squad: {
         make: [
           {
-            item: findMake("Patroller"),
+            item: findMake("patroller"),
             weight: 2,
           },
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 1,
           },
         ],
@@ -382,7 +382,7 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
   FISHER: {
     item: new SpawnClass({
       head: {
-        make: findMake("Fisherman"),
+        make: findMake("fisherman"),
         armed: false,
         foodFactor: 1.5,
         extraLoot: 0.2,
@@ -399,15 +399,15 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       head: {
         make: [
           {
-            item: findMake("Jasper"),
+            item: findMake("jasper"),
             weight: 10,
           },
           {
-            item: findMake("Marie Antoniette"),
+            item: findMake("marieAntoniette"),
             weight: 9,
           },
           {
-            item: findMake("Vicky Victorious"),
+            item: findMake("vickyVictorious"),
             weight: 6,
           },
         ],
@@ -421,19 +421,19 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       squad: {
         make: [
           {
-            item: findMake("Patroller"),
+            item: findMake("patroller"),
             weight: 4,
           },
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 3,
           },
           {
-            item: findMake("High Harpooner"),
+            item: findMake("highHarpooner"),
             weight: 3,
           },
           {
-            item: findMake("High Seas Roberts"),
+            item: findMake("highSeasRoberts"),
             weight: 2,
           },
         ],
@@ -453,19 +453,19 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       head: {
         make: [
           {
-            item: findMake("High Harpooner"),
+            item: findMake("highHarpooner"),
             weight: 8,
           },
           {
-            item: findMake("High Seas Roberts"),
+            item: findMake("highSeasRoberts"),
             weight: 6,
           },
           {
-            item: findMake("Wisp o' the Morning"),
+            item: findMake("wispOfTheMorning"),
             weight: 8,
           },
           {
-            item: findMake("Jasper"),
+            item: findMake("jasper"),
             weight: 3,
           },
         ],
@@ -479,11 +479,11 @@ export const SPAWN_CLASSES: Record<string, WeightedItem<SpawnClass>> = {
       squad: {
         make: [
           {
-            item: findMake("Hubris"),
+            item: findMake("hubris"),
             weight: 4,
           },
           {
-            item: findMake("Queen Bee"),
+            item: findMake("queenBee"),
             weight: 7,
           },
         ],
