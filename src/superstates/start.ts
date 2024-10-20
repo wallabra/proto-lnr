@@ -6,7 +6,7 @@ import type {
   UIDrawContext,
   UIEvent,
 } from "../ui";
-import { CanvasButton, CanvasLabel, CanvasRoot, CanvasUIGroup } from "../ui";
+import { CanvasButton, CanvasLabel, CanvasPanel, CanvasRoot, CanvasScroller, CanvasUIGroup } from "../ui";
 import { GUIMouseHandler } from "../mouse";
 import type { GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";
@@ -52,6 +52,8 @@ export class MainMenuState extends Superstate {
       parent: null,
       fillX: true,
       fillY: true,
+      paddingX: 20,
+      paddingY: 30,
     });
     this.addState(stateName, stateBuilder(holder) ?? holder);
   }
@@ -89,7 +91,7 @@ export class MainMenuState extends Superstate {
         },
       }).label("\u2190", {
         color: "#FFF",
-        font: "$Hpx bold sans-serif",
+        font: "bold $Hpx sans-serif",
         fillY: 0.9,
       });
     };
@@ -134,9 +136,18 @@ export class MainMenuState extends Superstate {
       });
       newGameButton.label("New Game", { ...buttonLabelArgs });
 
+      const helpButton = new CanvasButton({
+        ...buttonArgs,
+        parent: holder,
+        callback: () => {
+          this.switchState('help');
+        },
+      });
+      helpButton.label("Help", { ...buttonLabelArgs });
+
       return null;
     });
-
+    
     this.buildState("new game", (holder: CanvasUIGroup) => {
       addBackButton(holder);
 
@@ -195,6 +206,117 @@ export class MainMenuState extends Superstate {
 
       return null;
     });
+
+    this.buildState("help", (holder) => {
+      addBackButton(holder);
+
+      new CanvasLabel({
+        // help screen label
+        parent: holder,
+        dockX: "center",
+        alignX: "center",
+        childMargin: 50,
+        childOrdering: "vertical",
+        childFill: 0.1,
+        maxHeight: 65,
+        label: "Help Info",
+        autoFont: true,
+        font: "$Hpx bold serif",
+        color: "#fff",
+      });
+      
+      const scroller = new CanvasScroller({
+        parent: holder,
+        bgColor: '#4444',
+        axis: "vertical",
+        dockX: 'center',
+        fillX: 0.8,
+        childOrdering: 'vertical',
+        childFill: 1,
+        scrollbarOpts: {
+          thickness: 8,
+          barColor: '#aafb',
+          barPadding: 2,
+          bgColor: '#0008'
+        },
+      });
+        
+      const addRow = (myString: string, indent = 0, extraOpts = {}) => {
+        const row = new CanvasPanel({
+          parent: scroller.contentPane,
+          dockX: "start",
+          childMargin: 25,
+          childOrdering: "vertical",
+          childFill: 1,
+          fillX: true,
+          height: 40,
+          bgColor: '#0001',
+        });
+
+        // indentation
+        if (indent > 0) {
+          new CanvasPanel({
+            parent: row,
+            childOrdering: 'horizontal',
+            width: 40 * indent,
+            bgColor: '#0000',
+            height: 1
+          })
+        }
+
+        // bullet
+        new CanvasLabel({
+          parent: row,
+          childOrdering: 'horizontal',
+          childMargin: 25,
+          label: "•",
+          height: 20,
+          autoFont: true,
+          font: "$Hpx bold",
+          color: "#88F",
+          dockY: 'center',
+          alignY: 'center',
+        });
+
+        // help text
+        new CanvasLabel({
+          parent: row,
+          childOrdering: 'horizontal',
+          childFill: 1,
+          label: myString,
+          height: 18,
+          autoFont: true,
+          font: "bold $Hpx sans-serif",
+          color: "#ddd",
+          dockY: 'center',
+          alignY: 'center',
+          ...extraOpts,
+        });
+      };
+
+      addRow("Move and steer with WASD or by holding the left mouse button.");
+      addRow("Move near items to vacuum them up!");
+      addRow("Use Spacebar or RMB to shoot!");
+      addRow("Spacebar shoots one at a time; RMB to burst fire all cannons.", 1);
+      addRow("Use the mouse to control the aim distance!", 1);
+      addRow("Press H to toggle the HUD.")
+      addRow("Press R to reset the game, or M to come back to the main menu.");
+      addRow("Once far enough from the island, press L to leave to the intermission screen!");
+      addRow("In the Drydock you can manage your inventory and installed parts.", 1);
+      addRow("If in doubt, just use Auto-Install, Auto-Resell, and Auto-Repair, in that order!", 2);
+      addRow("Always use the info blurbs on the right side of the Drydock to orient yourself.", 2);
+      addRow("Double-check if you have ammo for all cannons and fuel for all engines!", 3);
+      addRow("You can buy stuff like parts, ammo and fuel at the Shop.", 1);
+      addRow("Things won't always be available at the shop! Try checking it on diffeerent days.", 2);
+      addRow("Once you're racked up cash aplenty, visit the Harbor to get a shiny new ship.", 1);
+      addRow("Just like the Shop, not all ships wil be available. Some have a small chance to appear!", 2);
+      addRow("When you buy a ship, you can either switch to it as yours, or assign a crewmate as its subcaptain.", 2);
+      addRow("Ships in your fleet follow you around and help you, and have their own inventory.", 3);
+      addRow("You can move items between different fleet ships in the Drydock.", 3);
+      addRow("When you're done managing stuff, use the Cartography tab to move on to the next island!", 1, { color: '#FFA' });
+
+      return null;
+    })
   }
 
   private a_newGame(gamemode: string) {
