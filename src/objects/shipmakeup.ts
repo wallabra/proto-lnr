@@ -661,10 +661,10 @@ export class Vacuum extends ShipPart implements VacuumArgs {
         .multiplyScalar(this.suckStrength)
         .divideScalar(
           Math.max(
-            0,
+            300,
             ship.pos.distanceSq(crate.phys.pos) -
-              ship.lateralCrossSection * ship.size,
-          ) + 1,
+              (ship.lateralCrossSection * ship.size),
+          ),
         ),
     );
   }
