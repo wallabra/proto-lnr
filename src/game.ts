@@ -129,7 +129,7 @@ export class Game {
       this.restart();
     }
 
-    if (name === 'MENU') {
+    if (name === "MENU") {
       this.mainMenu();
     }
 

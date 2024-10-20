@@ -109,6 +109,32 @@ export interface Rectangle {
   height: number;
 }
 
+export interface UIBorder {
+  width: number;
+  color: string;
+  dashes?: number[];
+}
+
+function drawBorder(
+  element: CanvasUIElement & { border: UIBorder | null },
+  ctx: CanvasRenderingContext2D,
+  pos: Point,
+) {
+  if (element.border != null) {
+    const width = element.border.width;
+    ctx.strokeStyle = element.border.color;
+    ctx.lineWidth = width;
+    if (element.border.dashes) ctx.setLineDash(element.border.dashes);
+    ctx.strokeRect(
+      pos.x + width / 2,
+      pos.y + width / 2,
+      element.realWidth - width,
+      element.realHeight - width,
+    );
+    ctx.setLineDash([]);
+  }
+}
+
 export type CachedInfo = {
   last: Date;
   dims: Rectangle;
@@ -584,6 +610,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 export class CanvasRoot extends CanvasUIElement<{ game: Game }> {
   game: Game;
   bgColor: string | null;
+  border = null;
 
   constructor(game: Game, bgColor = "#0000") {
     super({ parent: null, game: game, x: 0, y: 0 });
@@ -614,17 +641,20 @@ export type UICallback = (e: UIEvent) => void;
 export interface CanvasButtonArgs extends CanvasUIArgs {
   label?: string;
   callback: UICallback;
+  border?: UIBorder | null;
 }
 
 export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
   callback: UICallback;
   private _label: CanvasLabel | null;
   bgColor: string | null;
+  border: UIBorder | null;
 
   constructor(args: CanvasButtonArgs) {
     super(args);
     this.callback = args.callback;
-    this.bgColor = "#aaa";
+    this.bgColor = args.bgColor ?? "#aaa";
+    this.border = args.border ?? null;
     this._label = null;
   }
 
@@ -666,6 +696,7 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
 
     ctx.fillStyle = "#222";
     ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+    drawBorder(this, ctx, pos);
   }
 }
 
@@ -778,14 +809,17 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
 
 export interface CanvasPanelArgs extends CanvasUIArgs {
   bgColor: string | null;
+  border?: UIBorder | null;
 }
 
 export class CanvasPanel extends CanvasUIElement<CanvasPanelArgs> {
   bgColor: string | null;
+  border: UIBorder | null;
 
   constructor(args: CanvasPanelArgs) {
     super(args);
     this.bgColor = args.bgColor;
+    this.border = args.border ?? null;
   }
 
   preChildrenRender() {
@@ -801,6 +835,8 @@ export class CanvasPanel extends CanvasUIElement<CanvasPanelArgs> {
 
     ctx.fillStyle = this.bgColor ?? "#000";
     ctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+
+    drawBorder(this, ctx, pos);
   }
 
   event() {
@@ -1340,17 +1376,20 @@ export class CanvasImage extends CanvasUIElement {
 
 export interface CanvasUIGroupArgs extends CanvasUIArgs {
   bgColor?: string | null;
+  border?: UIBorder | null;
 }
 
 export class CanvasUIGroup extends CanvasUIElement {
   private measuring = 0;
   bgColor: string | null;
+  border: UIBorder | null;
 
   constructor(args: CanvasUIGroupArgs) {
     super({
       paddingY: 2,
       paddingX: 2,
       bgColor: args.bgColor ?? null,
+      border: args.border ?? null,
       ...args,
     });
   }
@@ -1437,6 +1476,8 @@ export class CanvasUIGroup extends CanvasUIElement {
     const pctx = ctx.ctx;
     pctx.fillStyle = this.bgColor;
     pctx.fillRect(pos.x, pos.y, width, height);
+
+    drawBorder(this, pctx, pos);
   }
   preChildrenRender() {
     // do nothing
@@ -1608,20 +1649,23 @@ export class CanvasTabPanel extends CanvasPanel {
 
 export interface CanvasProgressBarArgs extends CanvasUIArgs {
   bgColor?: string | null;
+  border?: UIBorder | null;
   progressColor?: string;
   progress?: number;
 }
 
 export class CanvasProgressBar extends CanvasUIElement {
   bgColor: string | null;
+  border: UIBorder | null;
   progressColor: string;
   progress: number;
 
   constructor(args: CanvasProgressBarArgs) {
     super(args);
-    this.bgColor = args.bgColor || "#222222D8";
-    this.progressColor = args.progressColor || "#A22A";
-    this.progress = args.progress || 0;
+    this.bgColor = args.bgColor ?? "#222222D8";
+    this.border = args.border ?? null;
+    this.progressColor = args.progressColor ?? "#A22A";
+    this.progress = args.progress ?? 0;
   }
 
   setProgress(progress: number) {
@@ -1629,11 +1673,7 @@ export class CanvasProgressBar extends CanvasUIElement {
     this.modified = true;
   }
 
-  _render(ctx: UIDrawContext): void {
-    const pctx = ctx.ctx;
-    const pos = this.pos();
-    pctx.fillStyle = this.bgColor ?? "#000";
-    pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+  private drawProgress(pctx: CanvasRenderingContext2D, pos: Point) {
     if (!this.progress) return;
     pctx.fillStyle = this.progressColor;
     pctx.fillRect(
@@ -1642,6 +1682,17 @@ export class CanvasProgressBar extends CanvasUIElement {
       this.realWidth * this.progress,
       this.realHeight,
     );
+  }
+
+  _render(ctx: UIDrawContext): void {
+    const pctx = ctx.ctx;
+    const pos = this.pos();
+
+    pctx.fillStyle = this.bgColor ?? "#000";
+    pctx.fillRect(pos.x, pos.y, this.realWidth, this.realHeight);
+    this.drawProgress(pctx, pos);
+
+    drawBorder(this, pctx, pos);
   }
 
   override preChildrenRender() {

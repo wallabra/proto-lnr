@@ -4,6 +4,7 @@ import type { PlayMouseHandler } from "./mouse";
 import type { Game } from "./game";
 import { IntermissionState } from "./superstates/shop";
 import { PlayState } from "./superstates/play";
+import type { Cannon } from "./objects/shipmakeup";
 import { ShipMakeup } from "./objects/shipmakeup";
 import { angDiff, lerp } from "./util";
 import { DEFAULT_MAKE } from "./shop/makedefs";
@@ -117,6 +118,17 @@ export class Player {
   inputEvent(name: string, _event: InputEvent) {
     if (this.possessed == null || this.possessed.dying) {
       return;
+    }
+
+    if (name.startsWith("cannon lock ")) {
+      const whichStr = name.replace(/^cannon lock /, "");
+      if (!whichStr.match(/^\d+$/)) return;
+      const which = parseInt(whichStr, 10);
+
+      const cannons = this.possessed.makeup.getPartsOf("cannon") as Cannon[];
+      if (which >= cannons.length) return;
+      const whichCannon = cannons[which];
+      whichCannon.locked = !whichCannon.locked;
     }
 
     if (name == "shoot") {

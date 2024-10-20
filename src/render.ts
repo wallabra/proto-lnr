@@ -474,6 +474,14 @@ class HudCannon {
     this.alert("No Crew!");
   }
 
+  protected updateLocked() {
+    if (!this.cannon.locked) return;
+    this.label.label += " (Locked)";
+    this.label.color = "#ee4";
+    this.pane.bgColor = "#aa25";
+    this.pane.border = { color: "#FF0B", width: 2.5, dashes: [4, 2] };
+  }
+
   protected updateCooldown() {
     this.pane.progress = this.cannon.cooldown / this.cannon.shootRate;
   }
@@ -489,6 +497,7 @@ class HudCannon {
 
   protected resetBgColor() {
     this.pane.bgColor = "#2224";
+    this.pane.border = null;
   }
 
   protected checkDestroyed(): boolean {
@@ -503,6 +512,7 @@ class HudCannon {
     this.resetLabel();
     this.resetBgColor();
     this.updateCooldown();
+    this.updateLocked();
     this.updateHasAmmo();
     this.updateHasCrew();
     this.updateDamage();

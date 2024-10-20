@@ -80,7 +80,7 @@ export class PlayKeyHandler extends KeyHandler {
       this.game.inputHandler.bind(this.game, "RESTART") as InputCallback,
     );
     this.registerKey(
-      'm',
+      "m",
       this.game.inputHandler.bind(this.game, "MENU") as InputCallback,
     );
     this.registerKey(
@@ -115,6 +115,17 @@ export class PlayKeyHandler extends KeyHandler {
       "d",
       this.game.inputHandler.bind(this.game, "steerRight") as InputCallback,
     );
+
+    // cannon lock
+    for (let number = 1; number <= 9; number++) {
+      this.registerKey(
+        number.toString(),
+        this.game.inputHandler.bind(
+          this.game,
+          "cannon lock " + (number - 1).toString(),
+        ) as InputCallback,
+      );
+    }
   }
 }
 

@@ -469,9 +469,10 @@ export class Cannon extends ShipPart {
   range: number;
   shootRate: number;
   spread: number;
+  public locked = false;
 
   protected override _available(makeup: ShipMakeup): boolean {
-    return makeup.hasAmmo(this.caliber) && this.cooldown === 0;
+    return makeup.hasAmmo(this.caliber) && this.cooldown === 0 && !this.locked;
   }
 
   override shopInfo(): string[] {
