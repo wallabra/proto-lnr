@@ -28,7 +28,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.phys = this.play.makePhysObj(pos || new Victor(0, 0), {
       weight: 30,
       baseDrag: 8,
-      buoyancy: 0.9,
+      buoyancy: 0.7,
       ...params,
     });
     this.dying = false;
