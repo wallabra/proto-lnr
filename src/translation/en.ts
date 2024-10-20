@@ -191,7 +191,7 @@ export const TR_EN: TranslationTable = {
     "shopinfo.crew.idle": "idle", // i18n TODO
     "shopinfo.projectileModifier": "fitted with {{modifierName}}", // i18n TODO
     "shopinfo.cannon.caliber": "caliber: {{caliber}}", // i18n TODO
-    "shopinfo.cannon.shootRate": "shots per minute: {{spm}}", // i18n TODO
+    "shopinfo.cannon.shootRate": "shots per minute: {{spm}}/min", // i18n TODO
     "shopinfo.cannon.spread": "spread: {{spread}}", // i18n TODO
     "shopinfo.cannon.range": "max. range: {{rangeMeters}}", // i18n TODO
     "shopinfo.vacuum.range": "attract range: {{suckRadiusMeters}}", // i18n TODO
@@ -215,7 +215,7 @@ export const TR_EN: TranslationTable = {
     "fueltype.coal": "coal", // i18n TODO
     "fueltype.diesel": "diesel", // i18n TODO
 
-    "itemtype.crew": "crewmate", // i18n TODO
+    "itemtype.crewmate": "crewmate", // i18n TODO
     "itemtype.food": "food", // i18n TODO
     "itemtype.cannon": "cannon", // i18n TODO
     "itemtype.engine": "engine", // i18n TODO
@@ -242,7 +242,7 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.part.damaged":
       "{{percent}}% damaged (cost to fix: {{repairCost}})", // i18n TODO
     "intermission.drydock.part.notDamaged": "Intact", // i18n TODO
-    "intermission.drydock.slots": "Slots: ", // i18n TODO
+    "intermission.drydock.slots": "Slots: {{- slots}}", // i18n TODO
     "intermission.drydock.inventory": "Inventory", // i18n TODO
     "intermission.drydock.item.weight": "weight: {{weight}}", // i18n TODO
     "intermission.drydock.item.damage":

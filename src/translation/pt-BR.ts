@@ -189,7 +189,7 @@ export const TR_PT_BR: TranslationTable = {
     "shopinfo.crew.idle": "ocioso",
     "shopinfo.projectileModifier": "equipado com {{modifierName}}",
     "shopinfo.cannon.caliber": "calibre: {{caliber}}",
-    "shopinfo.cannon.shootRate": "tiros por minuto: {{spm}}",
+    "shopinfo.cannon.shootRate": "tiros por minuto: {{- spm}}/min",
     "shopinfo.cannon.spread": "imprecisão: {{spread}}",
     "shopinfo.cannon.range": "alcance máx.: {{rangeMeters}}",
     "shopinfo.vacuum.range": "alcance de aspiração: {{suckRadiusMeters}}",
@@ -213,7 +213,7 @@ export const TR_PT_BR: TranslationTable = {
     "fueltype.coal": "carvão",
     "fueltype.diesel": "díesel",
 
-    "itemtype.crew": "marujo",
+    "itemtype.crewmate": "marujo",
     "itemtype.food": "comida",
     "itemtype.cannon": "canhão",
     "itemtype.engine": "motor",
@@ -249,7 +249,7 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.part.notDamaged": "Intacto/a",
     "intermission.drydock.part.info.manned": "operado por: {{mannedBy}}",
     "intermission.drydock.part.info.unmanned": "(não operado!)",
-    "intermission.drydock.slots": "Encaixes: ",
+    "intermission.drydock.slots": "Encaixes: {{- slots}}",
     "intermission.drydock.inventory": "Inventário",
     "intermission.drydock.item.weight": "peso: {{weight}}", // i18n TODO
     "intermission.drydock.item.damage":

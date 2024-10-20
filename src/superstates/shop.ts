@@ -84,7 +84,9 @@ function itemLabel(
   priceFactor: number | null = 1,
 ) {
   return (
-    (item.amount && item.amount > 1 ? "x" + item.amount.toFixed(item.integerAmounts ? 0 : 2) + " " : "") +
+    (item.amount && item.amount > 1
+      ? "x" + item.amount.toFixed(item.integerAmounts ? 0 : 2) + " "
+      : "") +
     ((makeup && item.getInventoryLabel?.(makeup)) ?? item.getItemLabel()) +
     (priceFactor == null
       ? ""
@@ -1061,7 +1063,9 @@ class ShopItemWidget extends Pane<
       childMargin: 3,
       height: 24,
     }).label(
-        i18next.t("intermission.shop." + (this.item.type === "crew" ? "hire" : "buy")),
+      i18next.t(
+        "intermission.shop." + (this.item.type === "crew" ? "hire" : "buy"),
+      ),
       {
         font: "bold $Hpx sans-serif",
         color: "#fff",
@@ -2621,7 +2625,7 @@ export class IntermissionState extends Superstate {
             quickest:
               quickest == null ? null : translateFuelType(quickest.type),
             quickestDuration:
-              quickest == null ? null : quickest.duration.toString() + "s",
+              quickest == null ? null : quickest.duration.toFixed(1) + "s",
           };
 
           return [

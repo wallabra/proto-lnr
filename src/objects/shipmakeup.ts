@@ -510,7 +510,7 @@ export class Cannon extends ShipPart {
         caliber: (this.caliber * 10).toFixed(0) + "mm",
       }),
       i18next.t("shopinfo.cannon.shootRate", {
-        spm: (60 / this.shootRate).toFixed(2) + "/min",
+        spm: (60 / this.shootRate).toFixed(2),
       }),
       i18next.t("shopinfo.cannon.range", {
         rangeMeters: (this.range / 10).toFixed(1) + "m",
