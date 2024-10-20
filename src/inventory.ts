@@ -6,6 +6,7 @@ import {
   translateFuelType,
   translateItemType,
 } from "./internationalization";
+import i18next from "i18next";
 
 export interface InventoryItem {
   name: string;
@@ -191,7 +192,7 @@ export class FoodItem implements ShipItem {
 
   private spoil() {
     this.amount = 0;
-    this.name += " (spoiled)";
+    this.name += " " + i18next.t("food.spoiled");
     this.dying = true;
   }
 
@@ -207,7 +208,11 @@ export class FoodItem implements ShipItem {
   }
 
   shopInfo(): string[] {
-    return ["days until spoiled: " + Math.ceil(this.spoilDays).toString()];
+    return [
+      i18next.t("food.info.shelfLife", {
+        spoilDays: Math.ceil(this.spoilDays).toString(),
+      }),
+    ];
   }
 
   getItemLabel() {

@@ -187,7 +187,7 @@ export const TR_PT_BR: TranslationTable = {
     "shopinfo.crew.manning": "operando um: {{manningType}}",
     "shopinfo.crew.captain": "capitão desse nau",
     "shopinfo.crew.idle": "ocioso",
-    "shopinfo.projectileModifier": " {{modifierName}}",
+    "shopinfo.projectileModifier": "equipado com {{modifierName}}",
     "shopinfo.cannon.caliber": "calibre: {{caliber}}",
     "shopinfo.cannon.shootRate": "tiros por minuto: {{spm}}",
     "shopinfo.cannon.spread": "imprecisão: {{spread}}",
@@ -225,6 +225,9 @@ export const TR_PT_BR: TranslationTable = {
     cannonball: "bola de canhão calibre {{caliber}}",
     "cannonball.plural": "bolas de canhão calibre {{caliber}}",
 
+    "food.spoiled": "(spoiled)",
+    "food.info.shelfLfe": "days until spoiled: {{spoilDays}}",
+
     "lootdefs.vase": "Vaso da Monarquia",
     "lootdefs.gold": "Barra de Ouro",
     "lootdefs.jar": "Jarro de Especiarias",
@@ -244,14 +247,24 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.part.action.unassignCrew": "Remover Operador",
     "intermission.drydock.part.damaged": "{{percent}}% danificado/a",
     "intermission.drydock.part.notDamaged": "Intacto/a",
+    "intermission.drydock.part.manned": "operado por: {{mannedBy}}",
+    "intermission.drydock.part.unmanned": "(não operado!)",
     "intermission.drydock.slots": "Encaixes: ",
     "intermission.drydock.inventory": "Inventário",
+    "intermission.drydock.item.weight": "peso: {{weight}}", // i18n TODO
+    "intermission.drydock.item.damage":
+      "{{damagePerc}}% avariado ({{repairCost}} para consertar)", // i18n TODO
     "intermission.drydock.item.action.fireCrew": "Demitir",
-    "intermission.drydock.item.action.resell": "Revender",
-    "intermission.drydock.item.action.resellHalf": "Revender Metade",
+    "intermission.drydock.item.action.resell": "Revender ({{value}})",
+    "intermission.drydock.item.action.resellHalf":
+      "Revender Metade ({{value}})",
     "intermission.drydock.item.action.fleetMove": "Mover ao...",
     "intermission.drydock.item.action.fleetMoveHalf": "Mover Metade ao...",
-    "intermission.drydock.item.action.install": "Installar",
+    "intermission.drydock.item.action.fleetMove.dropdown.to":
+      "para {{shipName}}", // i18n TODO
+    "intermission.drydock.item.action.fleetMove.dropdown.cancel": "cancelar", // i18n TODO
+    "intermission.drydock.item.action.appoint": "Nomear Capitão", // i18n TODO
+    "intermission.drydock.item.action.install": "Instalar Parte",
     "intermission.drydock.autoInstall": "Auto-Instalar",
     "intermission.drydock.autoResell": "Auto-Revender",
     "intermission.drydock.autoRepair": "Auto-Consertar",
@@ -266,11 +279,17 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.stats.fuel.name": "Combustível:",
     "intermission.drydock.stats.ammo.name": "Munição:",
     "intermission.drydock.stats.manned.name": "Operação das Partes:",
+    "intermission.drydock.stats.salary.info.strikeSoon":
+      "Senão, os marujos poderão grevear daqui a {{strikesIn}} dias.",
     "intermission.drydock.stats.salary.info.insufficient":
-      "Você precisa de {{money}} para pagar os salários amanhã, sendo {{salary}}/dia. Senão, os marujos poderão grevear daqui a {{strikesIn}} dias.",
+      "Você precisa de {{money}} para pagar os salários amanhã, sendo {{salary}}/dia.",
     "intermission.drydock.stats.salary.info.sufficient":
-      "Você tem dinheiro o suficiente para cobrir as demandas salariais de {{salary}}/dia.",
+      "Você tem dinheiro o suficiente para cobrir as demandas salariais de {{salary}}/dia por {{days}} dia.",
+    "intermission.drydock.stats.salary.info.sufficient.pluralDays":
+      "Você tem dinheiro o suficiente para cobrir as demandas salariais de {{salary}}/dia por {{days}} dias.",
     "intermission.drydock.stats.food.info.head":
+      "Você tem {{food}} ponto de comida; sua tripulação consome {{totalIntake}}/dia.",
+    "intermission.drydock.stats.food.info.head.plural":
       "Você tem {{food}} pontos de comida; sua tripulação consome {{totalIntake}}/dia.",
     "intermission.drydock.stats.food.info.insufficient":
       "Se você não tratar essa crise de fome, sua tripulação inteira VAI grevear!",
@@ -281,7 +300,7 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.stats.repairs.info.damaged.insufficient":
       "Seu navio está danificado, e você vai precisar de mais {{missingMoney}} para consertar tudo, o que custará {{totalCost}}.",
     "intermission.drydock.stats.repairs.info.damaged.sufficient":
-      "Seu navio está danificado, e você tem dinheiro o suficiente para todos os consertos - que juntos custarão {{totalCost}}.",
+      "Seu navio está danificado, e você tem dinheiro o suficiente para todos os consertos - que juntos custarão {{totalCost}}, e te sobrará {{remaining}}.",
     "intermission.drydock.stats.weight.info":
       "Seu navio pesa, ao todo, {{totalWeight}}; {{hullWeight}} disso é o casco.",
     "intermission.drydock.stats.engines.info":
@@ -289,11 +308,13 @@ export const TR_PT_BR: TranslationTable = {
     "intermission.drydock.stats.engines.info.none":
       "Seu navio está sem motores funcionais. Verifique o combustível e a operação dos marujos.",
     "intermission.drydock.stats.fuel.info.head":
-      "{{which}} de seus {{numEngines}} motores instalados têm combustível.",
+      "{{fueled}} de seus {{numEngines}} motores instalados têm combustível.",
     "intermission.drydock.stats.fuel.info.need":
       "Você vai precisar de mais: {{missingFuelTypes}}",
+    "intermission.drydock.stats.fuel.info.quickest":
+      "O combustível que você vai esgotar primeiro é {{quickest}}, após {{quickestDuration}}.",
     "intermission.drydock.stats.ammo.info.head":
-      "{{which}} de seus {{numCannons}} canhões estão munidos.",
+      "{{loaded}} de seus {{numCannons}} canhões estão munidos.",
     "intermission.drydock.stats.ammo.info.need":
       "Você precisa de mais bolas de canhão dos calibres: {{missingCalibers}}",
     "intermission.drydock.stats.manned.info":
@@ -314,5 +335,8 @@ export const TR_PT_BR: TranslationTable = {
       "Desinstale todas as partes do seu navio principal primeiro!",
     "intermission.cartography": "Cartografia",
     "intermission.cartography.invade": "Invadir a Próxima Ilha!",
+
+    all: "Todos",
+    none: "Nenhum",
   },
 };

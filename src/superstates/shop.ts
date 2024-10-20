@@ -46,7 +46,11 @@ import { MAKEDEFS } from "../shop/makedefs";
 import { arrayCounter } from "../util";
 import { addModifiersToAmmo } from "../combat/projectile";
 import i18next from "i18next";
-import { translateShipMakeName } from "../internationalization";
+import {
+  translateFuelType,
+  translateItemType,
+  translateShipMakeName,
+} from "../internationalization";
 
 interface PaneArgs {
   state: IntermissionState;
@@ -57,11 +61,21 @@ interface PaneArgs {
 
 export const DEFAULT_RESELL_FACTOR = 0.6;
 
+function allOrNone(amount: number, outOf: number) {
+  return amount >= outOf
+    ? i18next.t("all")
+    : amount === 0
+      ? i18next.t("none")
+      : amount.toString();
+}
+
 function weightInfo(item: ShipItem) {
   const amount = item.amount ?? 1;
   const weight = amount * item.weight;
 
-  return "weight: " + weightString(weight);
+  return i18next.t("intermission.drydock.item.weight", {
+    weight: weightString(weight),
+  });
 }
 
 function itemLabel(
@@ -82,9 +96,13 @@ function manningRequirements(part: ShipPart) {
   if (!part.manned) return [];
 
   if (typeof part.manned !== "number") {
-    return ["Needs to be manned"];
+    return [i18next.t("shopinfo.manning.needs")];
   } else {
-    return [`Needs min. ${part.manned.toFixed(0)} total manning strength`];
+    return [
+      i18next.t("shopinfo.manning.needsInterp", {
+        manned: part.manned.toFixed(0),
+      }),
+    ];
   }
 }
 
@@ -228,7 +246,10 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
       parent: this.buttonList,
       callback: this.tryUninstall.bind(this) as UICallback,
       bgColor: "#f02020c0",
-    }).label("Uninstall", this.labelArgs);
+    }).label(
+      i18next.t("intermission.drydock.part.action.uninstall"),
+      this.labelArgs,
+    );
   }
 
   private updateCrewButton() {
@@ -253,9 +274,10 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
 
   private updateCrewButtonLabel() {
     if (this.assignCrewButton == null || this.assignCrewLabel == null) return;
-    this.assignCrewLabel.label = this.part.alreadyManned()
-      ? "Unassign Crew"
-      : "Assign Crew";
+    this.assignCrewLabel.label = i18next.t(
+      "intermission.drydock.part.action." +
+        (this.part.alreadyManned() ? "unassignCrew" : "assignCrew"),
+    );
   }
 
   private tryAssignCrew() {
@@ -308,13 +330,14 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     if (!this.part.manned) return [];
 
     if (!this.part.alreadyManned()) {
-      return ["(Not Manned)"];
+      return [i18next.t("intermission.drydock.part.info.unmanned")];
     } else {
       return [
-        "Manned by: " +
-          this.part.mannedBy
+        i18next.t("intermission.drydock.part.info.manned", {
+          mannedBy: this.part.mannedBy
             .map((c) => c.getInventoryLabel(this.makeup))
             .join(", "),
+        }),
       ];
     }
   }
@@ -367,8 +390,12 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     this.damageMeter.setProgress(this.part.damage / this.part.maxDamage);
     this.damageLabel.label =
       this.part.damage <= 0
-        ? "Not damaged"
-        : `${((100 * this.part.damage) / this.part.maxDamage).toFixed(0)}% damaged (${moneyString(this.part.repairCost())})`;
+        ? i18next.t("intermission.drydock.part.notDamaged")
+        : i18next.t("intermission.drydock.part.damaged", {
+            percent:
+              ((100 * this.part.damage) / this.part.maxDamage).toFixed(0) + "%",
+            repairCost: costString(this.part.repairCost()),
+          });
     if (this.details.isVisible()) {
       this.updateDetails();
     }
@@ -471,7 +498,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
           color: "#fff",
           childOrdering: "vertical",
           childMargin: 2,
-          label: `${(100 * this.damageFactor()).toFixed(0)}% damaged (${moneyString(this.item.repairCost())} to repair)`,
+          label: i18next.t("intermission.drydock.item.damage", {
+            damagePerc: (100 * this.damageFactor()).toFixed(0) + "%",
+            repairCost: moneyString(this.item.repairCost()),
+          }),
         });
     }
 
@@ -529,7 +559,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       hidden: !this.canMove(),
       callback: this.openMoveDropdown.bind(this, false) as () => void,
     });
-    this.moveButton.label("Move to Ship...", labelArgs);
+    this.moveButton.label(
+      i18next.t("intermission.drydock.item.action.fleetMove"),
+      labelArgs,
+    );
 
     this.moveHalfButton = new CanvasButton({
       parent: this.buttonList,
@@ -542,7 +575,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       hidden: !(this.canMove() && this.letResellHalf()),
       callback: this.openMoveDropdown.bind(this, true) as () => void,
     });
-    this.moveHalfButton.label("Move Half to Ship...", labelArgs);
+    this.moveHalfButton.label(
+      i18next.t("intermission.drydock.item.action.fleetMoveHalf"),
+      labelArgs,
+    );
 
     this.setCaptainButton = new CanvasButton({
       parent: this.buttonList,
@@ -555,7 +591,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       hidden: !this.canCaptain(),
       callback: this.setCaptain.bind(this) as UICallback,
     });
-    this.setCaptainButton.label("Appoint to Captainship", labelArgs);
+    this.setCaptainButton.label(
+      i18next.t("intermission.drydock.item.action.appoint"),
+      labelArgs,
+    );
 
     if (this.item instanceof ShipPart) {
       new CanvasButton({
@@ -567,7 +606,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         fillX: true,
         height: 12,
         callback: this.installPart.bind(this) as UICallback,
-      }).label("Install Part", labelArgs);
+      }).label(
+        i18next.t("intermission.drydock.item.action.install"),
+        labelArgs,
+      );
     }
   }
 
@@ -611,7 +653,10 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         this.killDropdown();
       },
     });
-    nevermindButton.label("Cancel move", { color: "#ffa", height: 12 });
+    nevermindButton.label(
+      i18next.t("intermission.drydock.item.action.fleetMove.dropdown.cancel"),
+      { color: "#ffa", height: 12 },
+    );
 
     for (const member of this.player.fleet) {
       if (member.makeup === this.makeup) continue;
@@ -626,10 +671,15 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         bgColor: "#aac3",
         callback: this.moveCallback.bind(this, member, half) as () => void,
       });
-      moveButton.label("to " + member.makeup.name, {
-        color: "#fff",
-        height: 12,
-      });
+      moveButton.label(
+        i18next.t("intermission.drydock.item.action.fleetMove.dropdown.to", {
+          shipName: member.makeup.name,
+        }),
+        {
+          color: "#fff",
+          height: 12,
+        },
+      );
     }
   }
 
@@ -790,9 +840,14 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
     this.itemLabel.label = itemLabel(this.item, this.makeup);
     this.resellLabel.label =
       this.item.type === "crew"
-        ? "Fire"
-        : `Resell (${moneyString(this.resellCost())})`;
-    this.resellHalfLabel.label = `Resell Half (${moneyString(this.resellCost(0.5))})`;
+        ? i18next.t("intermission.drydock.item.action.fireCrew")
+        : i18next.t("intermission.drydock.item.action.resell", {
+            value: costString(-this.resellCost()),
+          }); //`Resell (${moneyString(this.resellCost())})`;
+    this.resellHalfLabel.label = i18next.t(
+      "intermission.drydock.item.action.resellHalf",
+      { value: costString(-this.resellCost(0.5)) },
+    );
     this.updateResellAction();
     this.updateDetails();
     this.moveHalfButton.hidden = !(this.canMove() && this.letResellHalf());
@@ -850,7 +905,7 @@ class DrydockInventoryWidget extends Pane<DrydockInventoryWidgetArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: "Inventory",
+      label: i18next.t("intermission.drydock.inventory"),
       height: 20,
       autoFont: true,
       color: "#fddc",
@@ -1005,14 +1060,18 @@ class ShopItemWidget extends Pane<
       childOrdering: "vertical",
       childMargin: 3,
       height: 24,
-    }).label(this.item.type === "crew" ? "Hire" : "Buy", {
-      font: "bold $Hpx sans-serif",
-      color: "#fff",
-      fillY: 1.0,
-      height: 12,
-      dockY: "center",
-      autoFont: true,
-    });
+    }).label(
+      "intermission.shop." +
+        i18next.t(this.item.type === "crew" ? "hire" : "buy"),
+      {
+        font: "bold $Hpx sans-serif",
+        color: "#fff",
+        fillY: 1.0,
+        height: 12,
+        dockY: "center",
+        autoFont: true,
+      },
+    );
   }
 
   public update() {}
@@ -1042,7 +1101,7 @@ class PaneShop extends Pane<PaneShopArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: "Shop",
+      label: i18next.t("intermission.shop"),
       color: "#e8e8ff",
       dockX: "center",
       height: 30,
@@ -1189,7 +1248,7 @@ class PaneStats extends Pane<PaneStatsArgs> {
   private _buildPane(args: PaneStatsArgs) {
     new CanvasLabel({
       parent: this.pane,
-      label: "Stats",
+      label: i18next.t("intermission.drydock.stats"),
       autoFont: true,
       height: 30,
       font: "bold $Hpx sans-serif",
@@ -1431,7 +1490,7 @@ class ShipMakeWidget extends Pane<
   }
 
   private slotInfo(slot: PartSlot) {
-    return " *  " + slot.type;
+    return " *  " + translateItemType(slot.type);
   }
 
   private populateDetail(): void {
@@ -1447,7 +1506,10 @@ class ShipMakeWidget extends Pane<
       }),
     ];
 
-    const info2 = ["Slots:", ...this.make.slots.map((s) => this.slotInfo(s))];
+    const info2 = [
+      i18next.t("intermission.harbor.slots"),
+      ...this.make.slots.map((s) => this.slotInfo(s)),
+    ];
 
     for (const line of info) {
       new CanvasLabel({
@@ -1716,7 +1778,7 @@ class PaneDrydockShip extends Pane<
 
     new CanvasLabel({
       parent: partsPane,
-      label: "Parts",
+      label: i18next.t("intermission.drydock.parts"),
       color: "#fddc",
       font: "$Hpx sans-serif",
       height: 20,
@@ -1790,7 +1852,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoInstall();
       },
-    }).label("Auto-Install", {
+    }).label(i18next.t("intermission.drydock.autoInstall"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -1807,7 +1869,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoResell();
       },
-    }).label("Auto-Resell", {
+    }).label(i18next.t("intermission.drydock.autoResell"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -1824,7 +1886,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoRepair();
       },
-    }).label("Auto-Repair", {
+    }).label(i18next.t("intermission.drydock.autoRepair"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -2048,11 +2110,13 @@ class PaneDrydockShip extends Pane<
 
     for (const name of makeSlots.keys()) {
       labelParts.push(
-        `${name} (${(partTypes.get(name) ?? 0).toString() || "0"}/${(makeSlots.get(name) as number).toString()})`,
+        `${translateItemType(name)} (${(partTypes.get(name) ?? 0).toString() || "0"}/${(makeSlots.get(name) as number).toString()})`,
       );
     }
 
-    this.slotsLabel.label = "Slots: " + labelParts.join(", ");
+    this.slotsLabel.label = i18next.t("intermission.drydock.slots", {
+      slots: labelParts.join(", "),
+    });
   }
 
   public update() {
@@ -2081,9 +2145,14 @@ class PaneDrydockShip extends Pane<
 
   private updateRepairLabel() {
     if (this.makeup.hullDamage === 0) {
-      this.repairHullButtonLabel.label = "Ship is healthy";
+      this.repairHullButtonLabel.label = i18next.t(
+        "intermission.drydock.repair.healthy",
+      );
     } else {
-      this.repairHullButtonLabel.label = `Repair Ship (${moneyString(this.repairCost())})`;
+      this.repairHullButtonLabel.label = i18next.t(
+        "intermission.drydock.repair.damaged",
+        { cost: moneyString(this.repairCost()) },
+      );
     }
     this.hullDamageMeter.setProgress(
       this.makeup.hullDamage / this.makeup.make.maxDamage,
@@ -2112,7 +2181,7 @@ class PaneCartography extends Pane {
     this.pane = new CanvasPanel(args);
     new CanvasLabel({
       parent: this.pane,
-      label: "Cartography",
+      label: i18next.t("intermission.cartography"),
       color: "#e8e8ff",
       font: "25px sans-serif",
       dockX: "center",
@@ -2127,7 +2196,7 @@ class PaneCartography extends Pane {
       height: 100,
       callback: this.doNextLevel.bind(this) as () => void,
     });
-    nextLevelButton.label("Invade Next Island", {
+    nextLevelButton.label(i18next.t("intermission.cartography.invade"), {
       color: "#ccd",
       height: 18,
       autoFont: true,
@@ -2153,7 +2222,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: "Drydock",
+      label: i18next.t("intermission.drydock"),
       color: "#e8e8ff",
       dockX: "center",
       height: 30,
@@ -2396,7 +2465,7 @@ export class IntermissionState extends Superstate {
   private statsRows(): StatRowOptions[] {
     return [
       {
-        name: "Salary",
+        name: i18next.t("intermission.drydock.stats.salary.name"),
         stat: function (this: StatRow) {
           const totalSalary = this.makeup.totalSalary();
           if (this.player.money < totalSalary) {
@@ -2407,19 +2476,32 @@ export class IntermissionState extends Superstate {
               ),
             );
             return (
-              `You need +${moneyString(totalSalary - this.player.money)} to meet salaries tomorrow, at ${moneyString(totalSalary)}/day. ` +
+              i18next.t("intermission.drydock.stats.salary.info.insufficient", {
+                money: costString(this.player.money - totalSalary),
+                salary: moneyString(totalSalary),
+              }) +
               (hasUnhappy
                 ? ""
-                : `Or else, some crew may refuse to work in ${soonestRevolt.toString()} days.`)
+                : i18next.t(
+                    "intermission.drydock.stats.salary.info.strikeSoon",
+                    { strikesIn: soonestRevolt.toString() },
+                  ))
             );
           } else {
             const salaryDays = Math.floor(this.player.money / totalSalary);
-            return `You have enough money to pay ${salaryDays.toString()} day${salaryDays === 1 ? "" : "s"} worth of salary for your crew, at ${moneyString(totalSalary)}/day.`;
+            return i18next.t(
+              "intermission.drydock.stats.salary.info.sufficient" +
+                (salaryDays === 1 ? "" : ".pluralDays"),
+              {
+                days: salaryDays,
+                salary: moneyString(totalSalary),
+              },
+            );
           }
         },
       },
       {
-        name: "Food",
+        name: i18next.t("intermission.drydock.stats.food.name"),
         stat: function (this: StatRow) {
           const totalConsumption = this.makeup.crew
             .map((c) => c.caloricIntake)
@@ -2428,52 +2510,75 @@ export class IntermissionState extends Superstate {
             .map((f) => f.amount)
             .reduce((a, b) => a + b, 0);
 
-          const message = [
-            `You have ${totalAvailable.toFixed(1)} food points, and your crew consumes ${totalConsumption.toFixed(1)} a day.`,
-          ];
+          const info = {
+            food: totalAvailable.toFixed(1),
+            totalIntake: totalConsumption.toFixed(1),
+            days: Math.floor(totalAvailable / totalConsumption).toString(),
+          };
 
-          if (totalAvailable < totalConsumption) {
-            message.push(
-              `You won't have enough for the end of the next day, unless you loot some.`,
-            );
-          } else {
-            message.push(
-              `You have enough for ${Math.floor(totalAvailable / totalConsumption).toString()} days, not counting food spoilage.`,
-            );
-          }
+          const message = [
+            i18next.t(
+              "intermission.drydock.stats.food.info.head" +
+                (totalAvailable === 1 ? "" : ".plural"),
+              info,
+            ),
+            i18next.t(
+              "intermission.drydock.stats.food.info." +
+                (totalAvailable < totalConsumption
+                  ? "insufficient"
+                  : "sufficient"),
+              info,
+            ),
+          ];
 
           return message.join(" ");
         },
       },
       {
-        name: "Repairs",
+        name: i18next.t("intermission.drydock.stats.repairs.name"),
         stat: function (this: StatRow) {
           const totalRepairCost = this.makeup.totalRepairCost();
 
           if (totalRepairCost === 0)
-            return "Your ship is completely fixed and needs no repairs.";
+            return i18next.t("intermission.drydock.stats.repairs.info.intact");
 
-          if (totalRepairCost > this.player.money) {
-            return `You need ${moneyString(totalRepairCost - this.player.money)} more to fix the ship completely.`;
-          } else {
-            return `After all fixes, you'll have ${moneyString(this.player.money - totalRepairCost)} left.`;
-          }
+          return i18next.t(
+            "intermission.drydock.stats.repair.info." +
+              (totalRepairCost > this.player.money
+                ? "insufficient"
+                : "sufficient"),
+            {
+              cost: costString(totalRepairCost),
+              missingMoney: moneyString(totalRepairCost - this.player.money),
+              remaining: moneyString(this.player.money - totalRepairCost),
+            },
+          );
         },
       },
       {
-        name: "Weight",
+        name: i18next.t("intermission.drydock.stats.weight.name"),
         stat: function (this: StatRow) {
-          return `Your ship weights ${weightString(this.makeup.totalWeight())}; ${weightString(this.makeup.make.weight)} of that is the hull.`;
+          return i18next.t("intermission.drydock.stats.weight.info", {
+            totalWeight: weightString(this.makeup.totalWeight()),
+            hullWeight: weightString(this.makeup.hullWeight()),
+          });
         },
       },
       {
-        name: "Engine Capability",
+        name: i18next.t("intermission.drydock.stats.engines.name"),
         stat: function (this: StatRow) {
-          return `Your ship, with its current engine arrangement, crew and fuel situation, can output ${(this.makeup.maxEngineThrust() / 1000).toFixed(2)} kN/s.`;
+          const thrust = this.makeup.maxEngineThrust();
+          return i18next.t(
+            "intermission.drydock.stats.engines.info" +
+              (thrust === 0 ? ".none" : ""),
+            {
+              totalThrust: (thrust / 1000).toFixed(2),
+            },
+          );
         },
       },
       {
-        name: "Fuel",
+        name: i18next.t("intermission.drydock.stats.fuel.name"),
         stat: function (this: StatRow) {
           const engines = this.makeup.getPartsOf("engine") as Engine[];
           const fueled = engines.filter(
@@ -2493,6 +2598,10 @@ export class IntermissionState extends Superstate {
               }),
               {},
             );
+          const needMore = engines
+            .map((engine) => engine.fuelType)
+            .filter((fuelType) => fuelType != null)
+            .filter((fuelType) => !this.makeup.hasFuel(fuelType));
           const quickest = Object.keys(consumption)
             .map((fuelType) => ({
               type: fuelType,
@@ -2503,43 +2612,71 @@ export class IntermissionState extends Superstate {
                 a == null || a.duration > b.duration ? b : a,
               null,
             );
-          return (
-            `${fueled.length === engines.length ? "All" : fueled.length === 0 ? "None" : fueled.length.toString()} out of your ${engines.length.toString()} currently installed engines have fuel.` +
-            (quickest == null
-              ? ""
-              : ` The fuel you'll first run out of is ${quickest.type}, at ${quickest.duration.toFixed(1)}s.`)
-          );
+
+          const info = {
+            fueled: allOrNone(fueled.length, engines.length),
+            numEngines: engines.length.toString(),
+            missingFuelTypes: needMore
+              .map((fuelType) => translateFuelType(fuelType))
+              .join(", "),
+            quickest:
+              quickest == null ? null : translateFuelType(quickest.type),
+            quickestDuration:
+              quickest == null ? null : quickest.duration.toString() + "s",
+          };
+
+          return [
+            i18next.t("intermission.drydock.stats.fuel.info.head", info),
+            i18next.t("intermission.drydock.stats.fuel.info.quickest", info),
+            ...(fueled.length === engines.length
+              ? []
+              : [i18next.t("intermission.drydock.stats.fuel.info.need", info)]),
+          ].join(" ");
         },
       },
       {
-        name: "Ammunition",
+        name: i18next.t("intermission.drydock.stats.ammo.name"),
         stat: function (this: StatRow) {
           const cannons = this.makeup.getPartsOf("cannon") as Cannon[];
           const loaded = cannons.filter((c) => this.makeup.hasAmmo(c.caliber));
           const missingCalibers = cannons
             .filter((c) => !this.makeup.hasAmmo(c.caliber))
-            .reduce((set, can) => (set.add(can.caliber), set), new Set());
+            .reduce(
+              (set, can) => (set.add(can.caliber), set),
+              new Set<number>(),
+            );
 
-          return (
-            `${loaded.length === cannons.length ? "All" : loaded.length === 0 ? "None" : loaded.length.toString()} out of your ${cannons.length.toString()} cannons have ammo.` +
-            (missingCalibers.size === 0
-              ? ""
-              : ` You need these calibers:  ${Array.from(missingCalibers.keys()).join(", ")}`)
-          );
+          const info = {
+            loaded: allOrNone(loaded.length, cannons.length),
+            numCannons: cannons.length.toString(),
+            missingCalibers:
+              missingCalibers.size === 0
+                ? ""
+                : Array.from(missingCalibers.keys())
+                    .map((caliber) => (caliber * 10).toFixed(0) + "mm")
+                    .join(", "),
+          };
+
+          return [
+            i18next.t("intermission.drydock.stats.ammo.info.head", info),
+            ...(missingCalibers.size === 0
+              ? []
+              : i18next.t("intermission.drydock.stats.ammo.info.need", info)),
+          ].join(" ");
         },
       },
       {
-        name: "Manned Parts",
+        name: i18next.t("intermission.drydock.stats.manned.name"),
         stat: function (this: StatRow) {
           const parts = this.makeup.parts;
           const manned = parts.filter((p) => p.manned !== false);
           const satisfied = manned.filter((p) => p.alreadyManned());
-          return (
-            `Of your ship's ${parts.length.toString()} currently installed part, ${manned.length === parts.length ? "all" : manned.length === 0 ? "none" : manned.length.toString()} are manned.` +
-            (manned.length === 0
-              ? ""
-              : ` Of these, ${satisfied.length === manned.length ? "all" : satisfied.length === 0 ? "none" : satisfied.length.toString()} have crew manning them.`)
-          );
+
+          return i18next.t("intermission.drydock.stats.manned.info", {
+            numParts: parts.length.toString(),
+            numNeedManned: allOrNone(manned.length, parts.length).toLowerCase(),
+            numManned: allOrNone(satisfied.length, manned.length).toLowerCase(),
+          });
         },
       },
     ];
@@ -2614,7 +2751,9 @@ export class IntermissionState extends Superstate {
       this.cashCounter.label = "";
       return;
     }
-    this.cashCounter.label = `Money: ${moneyString(this.player.money)}`;
+    this.cashCounter.label = i18next.t("intermission.moneyCounter", {
+      money: moneyString(this.player.money),
+    });
   }
 
   mouseEvent(event: MouseEvent & GameMouseInfo) {

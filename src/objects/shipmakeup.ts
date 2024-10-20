@@ -32,6 +32,7 @@ import {
   translateCrewName,
   translateEngineFuelType,
   translateItemType,
+  translatePartName,
 } from "../internationalization";
 import i18next from "i18next";
 
@@ -168,7 +169,7 @@ export class ShipPart implements ShipItem {
   }
 
   getItemLabel(): string {
-    return `${translateItemType(this.type)} ${this.name}`;
+    return `${translateItemType(this.type)} ${translatePartName(this)}`;
   }
 
   public strictBetterThan(_other: this): boolean {
@@ -295,8 +296,12 @@ export class Crew implements ShipItem {
           : "shopinfo.crew.salaryTomorrow",
         { salary: moneyString(this.nextSalary()) },
       ),
-      i18next.t("shopinfo.crew.foodIntake", this.caloricIntake.toFixed(0)),
-      i18next.t("shopinfo.crew.strength", this.strength.toFixed(0)),
+      i18next.t("shopinfo.crew.foodIntake", {
+        foodIntake: this.caloricIntake.toFixed(0),
+      }),
+      i18next.t("shopinfo.crew.strength", {
+        strength: this.strength.toFixed(0),
+      }),
       ...(makeup == null
         ? []
         : [
@@ -349,8 +354,8 @@ export class Crew implements ShipItem {
     return res;
   }
 
-  getItemLabel(): string {
-    return `crewmate ${this.name}`;
+  public getItemLabel(): string {
+    return `${translateItemType("crewmate")} ${translateCrewName(this)}`;
   }
 
   assignToPart(makeup: ShipMakeup, part: ShipPart): boolean {

@@ -227,6 +227,9 @@ export const TR_EN: TranslationTable = {
     cannonball: "{{caliber}} cannonball",
     "cannonball.plural": "{{caliber}} cannonballs",
 
+    "food.spoiled": "(spoiled)",
+    "food.info.shelfLfe": "days until spoiled: {{spoilDays}}",
+
     "intermission.moneyCounter": "Money: {{money}}", // i18n TODO
     "intermission.drydock": "Drydock", // i18n TODO
     "intermission.drydock.parts": "Parts", // i18n TODO
@@ -234,16 +237,25 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.part.action.uninstall": "Uninstall", // i18n TODO
     "intermission.drydock.part.action.assignCrew": "Assign Crew", // i18n TODO
     "intermission.drydock.part.action.unassignCrew": "Unassign Crew", // i18n TODO
-    "intermission.drydock.part.damaged": "{{percent}}% damaged", // i18n TODO
+    "intermission.drydock.part.manned": "manned by: {{mannedBy}}",
+    "intermission.drydock.part.unmanned": "(not manned!)",
+    "intermission.drydock.part.damaged":
+      "{{percent}}% damaged (cost to fix: {{repairCost}})", // i18n TODO
     "intermission.drydock.part.notDamaged": "Intact", // i18n TODO
     "intermission.drydock.slots": "Slots: ", // i18n TODO
     "intermission.drydock.inventory": "Inventory", // i18n TODO
+    "intermission.drydock.item.weight": "weight: {{weight}}", // i18n TODO
+    "intermission.drydock.item.damage":
+      "{{damagePerc}}% damaged ({{repairCost}} to repair)", // i18n TODO
     "intermission.drydock.item.action.fireCrew": "Fire", // i18n TODO
-    "intermission.drydock.item.action.resell": "Resell", // i18n TODO
-    "intermission.drydock.item.action.resellHalf": "Resell Half", // i18n TODO
+    "intermission.drydock.item.action.resell": "Resell ({{value}})", // i18n TODO
+    "intermission.drydock.item.action.resellHalf": "Resell Half ({{value}})", // i18n TODO
     "intermission.drydock.item.action.fleetMove": "Move to...", // i18n TODO
     "intermission.drydock.item.action.fleetMoveHalf": "Move Half to...", // i18n TODO
-    "intermission.drydock.item.action.install": "Install", // i18n TODO
+    "intermission.drydock.item.action.fleetMove.dropdown.to": "to {{shipName}}", // i18n TODO
+    "intermission.drydock.item.action.fleetMove.dropdown.cancel": "cancel", // i18n TODO
+    "intermission.drydock.item.action.appoint": "Appoint to Captainship", // i18n TODO
+    "intermission.drydock.item.action.install": "Install Part", // i18n TODO
     "intermission.drydock.autoInstall": "Auto-Install", // i18n TODO
     "intermission.drydock.autoResell": "Auto-Resell", // i18n TODO
     "intermission.drydock.autoRepair": "Auto-Repair", // i18n TODO
@@ -259,14 +271,20 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.stats.fuel.name": "Fuel:", // i18n TODO
     "intermission.drydock.stats.ammo.name": "Ammunition:", // i18n TODO
     "intermission.drydock.stats.manned.name": "Manned Parts:", // i18n TODO
+    "intermission.drydock.stats.salary.info.strikeSoon":
+      "Or else, crew may refuse to work in {{strikesIn}} days.",
     "intermission.drydock.stats.salary.info.insufficient":
-      "You need {{money}} to meet salaries tomorrow, at {{salary}}/day. Or else, crew may refuse to work in {{strikesIn}} days.", // i18n TODO
+      "You need {{money}} to meet salaries tomorrow, at {{salary}}/day.", // i18n TODO
     "intermission.drydock.stats.salary.info.sufficient":
-      "You have enough money to meet all salary demands, at {{salary}}/day.", // i18n TODO
+      "You have enough money to meet all salary demands for {{days}} day, at {{salary}}/day.", // i18n TODO
+    "intermission.drydock.stats.salary.info.sufficient.pluralDays":
+      "You have enough money to meet all salary demands for {{days}} days, at {{salary}}/day.", // i18n TODO
     "intermission.drydock.stats.food.info.head":
+      "You have {{food}} food point, and your crew consumes {{totalIntake}} a day.", // i18n TODO
+    "intermission.drydock.stats.food.info.head.plural":
       "You have {{food}} food points, and your crew consumes {{totalIntake}} a day.", // i18n TODO
     "intermission.drydock.stats.food.info.insufficient":
-      "You do not have enough, and your crew WILL refuse to work.", // i18n TODO
+      "You do not have enough, and your crew WILL refuse to work!", // i18n TODO
     "intermission.drydock.stats.food.info.sufficient":
       "You have enough for {{days}} days.", // i18n TODO
     "intermission.drydock.stats.repairs.info.intact":
@@ -274,7 +292,7 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.stats.repairs.info.damaged.insufficient":
       "Your ship has damages, and you will need {{missingMoney}} more to fix everything, at {{totalCost}}.", // i18n TODO
     "intermission.drydock.stats.repairs.info.damaged.sufficient":
-      "Your ship has damages, and you have enough money to fix everything - it will cost you {{totalCost}}.", // i18n TODO
+      "Your ship has damages, and you have enough money to fix everything - it will cost you {{totalCost}}, leaving you with {{remaining}}.", // i18n TODO
     "intermission.drydock.stats.weight.info":
       "Your ship weights {{totalWeight}}; {{hullWeight}} of that is the hull.", // i18n TODO
     "intermission.drydock.stats.engines.info":
@@ -282,11 +300,13 @@ export const TR_EN: TranslationTable = {
     "intermission.drydock.stats.engines.info.none":
       "Your ship has no functioning engines. Check fuel and manning.", // i18n TODO
     "intermission.drydock.stats.fuel.info.head":
-      "{{which}} of your {{numEngines}} installed engines have fuel.", // i18n TODO
+      "{{fueled}} of your {{numEngines}} installed engines have fuel.", // i18n TODO
     "intermission.drydock.stats.fuel.info.need":
       "You need more: {{missingFuelTypes}}", // i18n TODO
+    "intermission.drydock.stats.fuel.info.quickest":
+      "The fuel you'll first run out of is {{quickest}}, after {{quickestDuration}}.",
     "intermission.drydock.stats.ammo.info.head":
-      "{{which}} of your {{numCannons}} cannons have ammo.", // i18n TODO
+      "{{loaded}} of your {{numCannons}} cannons have ammo.", // i18n TODO
     "intermission.drydock.stats.ammo.info.need":
       "You need more of the following calibers: {{missingCalibers}}", // i18n TODO
     "intermission.drydock.stats.manned.info":
@@ -305,5 +325,8 @@ export const TR_EN: TranslationTable = {
       "Uninstall every part of your main ship first!",
     "intermission.cartography": "Cartography", // i18n TODO
     "intermission.cartography.invade": "Invade Next Island!", // i18n TODO
+
+    all: "All",
+    none: "None",
   },
 };
