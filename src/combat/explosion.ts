@@ -19,7 +19,7 @@ export function aoeExplosion(
     const dist = offs.length();
     const norm = offs.clone().norm();
 
-    // inverse square damage relationship
+    // inverse square root damage relationship
     const power = 1 / (1 + Math.sqrt(dist));
 
     if (damage > 0 && isDamageable(obj)) {

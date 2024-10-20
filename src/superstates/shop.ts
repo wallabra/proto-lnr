@@ -1815,48 +1815,62 @@ class PaneDrydockShip extends Pane<
   }
 
   private autoInstall() {
-    for (const item of this.makeup.inventory.items
-      .filter(
-        (a): a is ShipPart =>
-          a instanceof ShipPart &&
-          this.makeup.parts.indexOf(a) === -1 &&
-          a.canAutoInstall(this.makeup),
-      )
-      .sort((a, b) =>
-        b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
-      )) {
-      const surplusStrength = this.makeup.inventory.items
-        .filter((i) => i instanceof Crew && i.manningPart == null)
-        .map((c) => (c as Crew).strength)
-        .reduce((a, b) => a + b, 0);
+    // keep doing passes until no change occur
+    let passes = 100;
 
-      if (
-        this.makeup.make.slots.filter((s) => s.type === item.type).length >
-          this.makeup.parts.filter((p) => p.type === item.type).length &&
-        !(typeof item.manned === "number" && surplusStrength < item.manned)
-      ) {
+    while (passes > 0) {
+      let changed = false;
+      passes--;
+
+      for (const item of this.makeup.inventory.items
+        .filter(
+          (a): a is ShipPart =>
+            a instanceof ShipPart &&
+            this.makeup.parts.indexOf(a) === -1 &&
+            a.canAutoInstall(this.makeup),
+        )
+        .sort((a, b) =>
+          b.type !== a.type ? 0 : b.strictBetterThan(a) ? 1 : -1,
+        )) {
+        const surplusStrength = this.makeup.inventory.items
+          .filter((i) => i instanceof Crew && i.manningPart == null)
+          .map((c) => (c as Crew).strength)
+          .reduce((a, b) => a + b, 0);
+
+        if (
+          this.makeup.make.slots.filter((s) => s.type === item.type).length >
+            this.makeup.parts.filter((p) => p.type === item.type).length &&
+          !(typeof item.manned === "number" && surplusStrength < item.manned)
+        ) {
+          this.makeup.addPart(item);
+          this.makeup.assignCrewTo(item);
+          changed = true;
+          continue;
+        }
+
+        const replaceCandidates = this.makeup.parts
+          .filter(
+            (p) =>
+              p.type === item.type &&
+              p instanceof item.constructor &&
+              item.strictBetterThan(p) &&
+              surplusStrength + (typeof p.manned === "number" ? p.manned : 0) >=
+                (typeof item.manned === "number" ? item.manned : 0),
+          )
+          .sort((a, b) => (b.strictBetterThan(a) ? 1 : -1));
+
+        if (replaceCandidates.length === 0) continue;
+
+        replaceCandidates[0].unassignCrew();
+        this.makeup.removePart(replaceCandidates[0]);
         this.makeup.addPart(item);
         this.makeup.assignCrewTo(item);
-        continue;
+        changed = true;
       }
 
-      const replaceCandidates = this.makeup.parts
-        .filter(
-          (p) =>
-            p.type === item.type &&
-            p instanceof item.constructor &&
-            item.strictBetterThan(p) &&
-            surplusStrength + (typeof p.manned === "number" ? p.manned : 0) >=
-              (typeof item.manned === "number" ? item.manned : 0),
-        )
-        .sort((a, b) => (b.strictBetterThan(a) ? 1 : -1));
-
-      if (replaceCandidates.length === 0) continue;
-
-      replaceCandidates[0].unassignCrew();
-      this.makeup.removePart(replaceCandidates[0]);
-      this.makeup.addPart(item);
-      this.makeup.assignCrewTo(item);
+      if (changed) {
+        break;
+      }
     }
 
     this.inventoryWidget.update();
