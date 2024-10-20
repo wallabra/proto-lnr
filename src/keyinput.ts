@@ -80,6 +80,10 @@ export class PlayKeyHandler extends KeyHandler {
       this.game.inputHandler.bind(this.game, "RESTART") as InputCallback,
     );
     this.registerKey(
+      'm',
+      this.game.inputHandler.bind(this.game, "MENU") as InputCallback,
+    );
+    this.registerKey(
       " ",
       this.game.inputHandler.bind(this.game, "shoot") as InputCallback,
     );

@@ -120,9 +120,17 @@ export class Game {
     return res;
   }
 
+  public mainMenu() {
+    this.setState(MainMenuState);
+  }
+
   inputHandler(name: string, event: InputEvent) {
     if (name === "RESTART") {
       this.restart();
+    }
+
+    if (name === 'MENU') {
+      this.mainMenu();
     }
 
     if (this.player == null) {
