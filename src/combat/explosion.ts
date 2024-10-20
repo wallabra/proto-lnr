@@ -38,5 +38,7 @@ export function aoeExplosion(
             (knockbackModifier == null ? 1 : knockbackModifier(obj)),
         ),
     );
+
+    obj.phys.applyForceVert(null, power * knockback);
   }
 }

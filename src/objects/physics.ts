@@ -280,6 +280,13 @@ export class PhysicsObject {
     this.lastPos.add(offs);
   }
 
+  applyForceVert(deltaTime: number | null, force: number) {
+    if (this.immovable) return;
+    if (deltaTime == null) deltaTime = 1;
+    const factor = (0.3 * deltaTime) / this.weight;
+    this.vspeed += force * factor;
+  }
+
   physVel(deltaTime: number) {
     const offs = this.pos
       .clone()
@@ -414,13 +421,13 @@ export class PhysicsObject {
     }
 
     if (inWater && this.height < this.play.waterLevel + this.verticalSize()) {
-      let buoyancy = (this.buoyancy * this.buoyantForce()) / this.weight;
-      if (buoyancy > this.gravity * 2 && this.capBuoyancy)
-        buoyancy = this.gravity * 2;
-      this.vspeed += buoyancy * deltaTime * 0.3;
+      let buoyancy = this.buoyancy * this.buoyantForce();
+      if (buoyancy > this.weight * this.gravity * 2 && this.capBuoyancy)
+        buoyancy = this.weight * this.gravity * 2;
+      this.applyForceVert(deltaTime, buoyancy);
     }
 
-    this.vspeed -= this.gravity * 0.3 * deltaTime;
+    this.applyForceVert(deltaTime, -this.gravity * this.weight);
   }
 
   physAngle(deltaTime: number) {

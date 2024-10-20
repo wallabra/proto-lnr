@@ -116,7 +116,7 @@ export class Cannonball implements Tickable, Renderable, Projectile {
       this.damageFactor *
         this.phys.kineticEnergyRelativeTo(ship.phys) *
         damageScale *
-        0.0235,
+        0.01,
     );
     projApplyHitModifiers(this, ship);
 
