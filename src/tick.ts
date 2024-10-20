@@ -18,10 +18,13 @@ export function tickLoop(game: Game, current: number) {
   let deltaTime = (+current - +lastTime) / 1000;
   lastTime = current;
 
-  if (deltaTime > frameDuration * 20) {
+  requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
+
+  if (deltaTime > frameDuration * 5) {
     console.warn(
       `Skipping tick due to huge lagspike: ${deltaTime.toFixed(0)}ms`,
     );
+    return;
   } else if (deltaTime > frameDuration) {
     console.warn(
       `Compensating for lag: ${(deltaTime - frameDuration).toFixed(0)}ms behind target framerate!`,
@@ -32,8 +35,6 @@ export function tickLoop(game: Game, current: number) {
     processTick(game, frameDuration);
     deltaTime -= frameDuration;
   }
-
-  requestAnimationFrame(tickLoop.bind(null, game) as (current: number) => void);
 
   try {
     processTick(game, deltaTime);
