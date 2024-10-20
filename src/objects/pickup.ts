@@ -97,7 +97,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
   private checkShipCollision(_deltaTime: number, ship: Ship): boolean {
     const closeness = this.phys.touchingShip(ship);
-    if (closeness <= 0) {
+    if (closeness <= this.phys.size) {
       return false;
     }
 
