@@ -570,7 +570,7 @@ export class Cannon extends ShipPart {
 
     cball.predictFall();
 
-    if (ammo != null) cball.modifiers = new Set(ammo.modifiers);
+    if (ammo != null) cball.modifiers = new Set();
 
     return cball;
   }
