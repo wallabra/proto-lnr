@@ -710,7 +710,10 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   public inDanger(): boolean {
     return Array.from(this.chasers).some(
-      (chaser) => chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE,
+      (chaser) =>
+        chaser.makeup.nextReadyCannon != null &&
+        !chaser.makeup.shouldFlee() &&
+        chaser.phys.pos.distanceSq(this.phys.pos) < CHASE_LOCK_RANGE,
     );
   }
 

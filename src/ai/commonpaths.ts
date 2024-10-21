@@ -10,9 +10,7 @@ export function commonPaths(args: AITickArgs): AIJump | null {
 
     if (
       ship.makeup.nextReadyCannon != null &&
-      !(
-        target.makeup.nextReadyCannon != null && ship.damage > 0.7 * ship.maxDmg
-      )
+      !(target.makeup.nextReadyCannon != null && ship.makeup.shouldFlee())
     )
       return {
         next: "engage",

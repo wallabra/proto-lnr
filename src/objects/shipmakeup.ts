@@ -857,11 +857,11 @@ export interface ShipMake {
 const DEFAULT_FUEL_FACTOR = 800;
 
 function generateShipName() {
-  const namegen = i18next.t('ship.namegen', { returnObjects: true }) as {
-    adjectives: string[],
-    titles: string[],
-    cores: string[],
-    suffixes: string[],
+  const namegen = i18next.t("ship.namegen", { returnObjects: true }) as {
+    adjectives: string[];
+    titles: string[];
+    cores: string[];
+    suffixes: string[];
   };
   const parts: (string | undefined)[] = [];
 
@@ -1326,6 +1326,10 @@ export class ShipMakeup {
 
   get drag() {
     return this.make.drag;
+  }
+
+  public shouldFlee(): boolean {
+    return this.hullDamage > 0.7 * this.make.maxDamage;
   }
 
   get nextReadyCannon(): Cannon | null {
