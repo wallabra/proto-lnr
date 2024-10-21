@@ -455,7 +455,7 @@ export class CannonballAmmo implements ShipItem {
   }
 
   estimateCost() {
-    return 0.004 * this.sphericalVolume() * this.amount;
+    return 0.0004 * this.sphericalVolume() * this.amount;
   }
 
   getItemLabel() {
