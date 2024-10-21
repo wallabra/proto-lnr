@@ -47,7 +47,11 @@ export function commonPaths(args: AITickArgs): AIJump | null {
 
   // instigate / flee from chasers
   if (ship.chasers.size > 0) {
-    const instigate = Array.from(ship.chasers).sort((a, b) => +(a.makeup.nextReadyCannon == null) - +(b.makeup.nextReadyCannon == null))[0];
+    const instigate = Array.from(ship.chasers).sort(
+      (a, b) =>
+        +(a.makeup.nextReadyCannon == null) -
+        +(b.makeup.nextReadyCannon == null),
+    )[0];
 
     ship.aggro(instigate);
     return { next: "engage" };

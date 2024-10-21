@@ -2664,7 +2664,7 @@ export class IntermissionState extends Superstate {
             i18next.t("intermission.drydock.stats.ammo.info.head", info),
             ...(missingCalibers.size === 0
               ? []
-              : i18next.t("intermission.drydock.stats.ammo.info.need", info)),
+              : [i18next.t("intermission.drydock.stats.ammo.info.need", info)]),
           ].join(" ");
         },
       },

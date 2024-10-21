@@ -625,7 +625,7 @@ export class Cannon extends ShipPart {
 
     return (
       thisDPS > otherDPS ||
-        (thisDPS / otherDPS < this.range / other.range / 0.5  &&
+      (thisDPS / otherDPS < this.range / other.range / 0.5 &&
         this.spread < other.spread)
     );
   }
@@ -636,7 +636,7 @@ export class Cannon extends ShipPart {
 
     return (
       thisDPS > otherDPS ||
-        (thisDPS / otherDPS < this.range / other.range &&
+      (thisDPS / otherDPS < this.range / other.range &&
         this.spread < other.spread)
     );
   }
