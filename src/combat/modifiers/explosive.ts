@@ -17,7 +17,7 @@ class ExplosiveModifier implements ProjectileModifier {
       getPlayStateFromProj(projectile),
       projectile.phys.pos,
       250,
-      10000,
+      8000,
       100,
       (obj) => obj !== projectile && obj !== projectile.instigator,
       (obj) => Math.pow(obj.phys.weight, 0.3),
