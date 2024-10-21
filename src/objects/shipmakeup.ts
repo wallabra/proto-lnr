@@ -856,94 +856,19 @@ export interface ShipMake {
 
 const DEFAULT_FUEL_FACTOR = 800;
 
-const shipNameAdjectives = [
-  "Venerable",
-  "Ancient",
-  "Perennial",
-  "Indubitable",
-  "Infallible",
-  "Invincible",
-  "Indestructible",
-  "Beautiful",
-  "Excellent",
-  "Brilliant",
-  "Shining",
-  "Gleaming",
-  "Powerful",
-  "Forward",
-  "Sweet",
-  "Royal",
-  "Perfect",
-  "Immaculate",
-  "Proud",
-  "Long",
-];
-const shipNameTitles = [
-  "Monarch",
-  "Senator",
-  "Ruler",
-  "Divine",
-  "Leader",
-  "Excellence",
-  "Doctor",
-  "Golden",
-  "Pink",
-  "Red",
-  "Black",
-  "White",
-  "Gray",
-  "Silver",
-];
-const shipNameCores = [
-  "Mary",
-  "James",
-  "Marius",
-  "Philius",
-  "Edgar",
-  "Ruth",
-  "Vicky",
-  "Lennard",
-  "Sarutobian",
-  "Julian",
-  "Asparginensis",
-  "Grum",
-  "William",
-  "Pyotr",
-  "Nestor",
-  "Phillipp",
-  "Geraldius",
-  "Johnson",
-  "Becker",
-  "Packard",
-  "Zucarius",
-  "Yiro",
-];
-const shipNameSuffixes = [
-  "II",
-  "III",
-  "IV",
-  "V",
-  "VI",
-  "VII",
-  "VIII",
-  "IX",
-  "Maximus",
-  "the Pure",
-  "the Vicious",
-  "the Loving",
-  "the Only",
-  "the Unique",
-  "the Last",
-  "of the Court",
-];
-
 function generateShipName() {
+  const namegen = i18next.t('ship.namegen', { returnObjects: true }) as {
+    adjectives: string[],
+    titles: string[],
+    cores: string[],
+    suffixes: string[],
+  };
   const parts: (string | undefined)[] = [];
 
-  if (Math.random() < 0.5) parts.push(random.choice(shipNameAdjectives));
-  if (Math.random() < 0.4) parts.push(random.choice(shipNameTitles));
-  parts.push(random.choice(shipNameCores));
-  if (Math.random() < 0.25) parts.push(random.choice(shipNameSuffixes));
+  if (Math.random() < 0.5) parts.push(random.choice(namegen.adjectives));
+  if (Math.random() < 0.4) parts.push(random.choice(namegen.titles));
+  parts.push(random.choice(namegen.cores));
+  if (Math.random() < 0.25) parts.push(random.choice(namegen.suffixes));
 
   return parts.filter((part) => part != null).join(" ");
 }

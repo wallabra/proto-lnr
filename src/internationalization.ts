@@ -17,6 +17,7 @@ export type TranslationTable = {
   translation:
     | {
         "submenu.help.rows": HelpCommand[];
+        "ship.namegen": Record<string, string[]>;
       }
     | Record<string, string>;
 };
