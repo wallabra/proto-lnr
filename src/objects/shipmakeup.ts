@@ -16,7 +16,7 @@ import {
   DEFAULT_VACUUM,
   OARS,
 } from "../shop/partdefs";
-import { arrayCounter, moneyString, stripWeights } from "../util";
+import { arrayCounter, moneyString } from "../util";
 import match from "rustmatchjs";
 import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
@@ -27,7 +27,7 @@ import type { PlayState } from "../superstates/play";
 import randomParts from "../shop/randomparts";
 import { DEFAULT_MAKE } from "../shop/makedefs";
 import type { ProjectileModifier } from "../combat/projectile";
-import { addModifiersToAmmo, ALL_MODIFIERS } from "../combat/projectile";
+import { addModifiersToAmmo } from "../combat/projectile";
 import {
   translateCrewName,
   translateEngineFuelType,
@@ -585,7 +585,7 @@ export class Cannon extends ShipPart {
 
     cball.predictFall();
 
-    if (ammo != null) cball.modifiers = new Set();
+    if (ammo != null) cball.modifiers = new Set(ammo.modifiers);
 
     return cball;
   }
@@ -1066,7 +1066,7 @@ export class ShipMakeup {
     }
 
     this.ammo.forEach((ammo) => {
-      ammo.modifiers = new Set(stripWeights(ALL_MODIFIERS));
+      ammo.modifiers = new Set(/*stripWeights(ALL_MODIFIERS)*/);
     });
 
     return this;
@@ -1171,6 +1171,13 @@ export class ShipMakeup {
     const compatible = this.ammo
       .filter((a) => a.caliber === caliber)
       .sort((a, b) => b.modifiers.size - a.modifiers.size);
+
+    // DEBUG
+    // console.log(
+    //   compatible.map(
+    //     (a) => a.getItemLabel() + " (" + a.modifiers.size + " mods)",
+    //   ),
+    // );
 
     return compatible[0] ?? null;
   }
