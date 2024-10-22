@@ -1,5 +1,6 @@
 import match from "rustmatchjs";
 import type {
+  ArmorArgs,
   CannonArgs,
   EngineArgs,
   ShipMake,
@@ -7,7 +8,7 @@ import type {
   ShipPartArgsSuper,
   VacuumArgs,
 } from "../objects/shipmakeup";
-import { Cannon, Engine, Vacuum, slots } from "../objects/shipmakeup";
+import { Armor, Cannon, Engine, Vacuum, slots } from "../objects/shipmakeup";
 import type { AnyPartDef, PartDef } from "./partdefs";
 import { PARTDEFS } from "./partdefs";
 import random from "random";
@@ -25,6 +26,7 @@ export function instantiatePart(def: AnyPartDef, type: string): ShipPart {
       new Engine(def as PartDef<EngineArgs & ShipPartArgsSuper>),
     ),
     match.val("vacuum", new Vacuum(def as PartDef<VacuumArgs>)),
+    match.val("armor", new Armor(def as PartDef<ArmorArgs>)),
     match._(() => {
       throw new Error("Can't handle unknown part type: " + type);
     }),

@@ -2399,27 +2399,17 @@ export class IntermissionState extends Superstate {
 
   private generateShopItems(): ShipItem[] {
     return [
-      ...PARTDEFS.engine
-        .map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "engine")),
+      ...(Object.keys(PARTDEFS) as (keyof typeof PARTDEFS)[])
+        .map((partType) =>
+          PARTDEFS[partType]
+            .map((def) =>
+              Array(def.shopRepeat)
+                .fill(0)
+                .map(() => instantiatePart(def, partType)),
+            )
+            .reduce((a, b) => a.concat(b), []),
         )
-        .reduce((a, b) => a.concat(b), []),
-      ...PARTDEFS.cannon
-        .map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "cannon")),
-        )
-        .reduce((a, b) => a.concat(b), []),
-      ...PARTDEFS.vacuum
-        .map((d) =>
-          Array(d.shopRepeat)
-            .fill(0)
-            .map(() => instantiatePart(d, "vacuum")),
-        )
-        .reduce((a, b) => a.concat(b), []),
+        .reduce((a, b) => a.concat(b)),
       ...this.fuelItems()
         .map((p) => {
           const item = {

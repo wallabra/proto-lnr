@@ -1,4 +1,5 @@
 import type {
+  ArmorArgs,
   CannonArgs,
   EngineArgs,
   ShipPartArgsSuper,
@@ -77,7 +78,60 @@ export const PARTDEFS: {
   ["engine"]: PartDef<EngineDef>[];
   ["cannon"]: PartDef<CannonDef>[];
   ["vacuum"]: PartDef<VacuumArgs>[];
+  ["armor"]: PartDef<ArmorArgs>[];
 } = {
+  armor: [
+    {
+      name: "basicIronCladding",
+      maxDamage: 900,
+      defenseFactor: 0.35,
+      rarity: 2,
+      weight: 300,
+      cost: 1200,
+      overwhelmFactor: 0.3,
+    },
+    {
+      name: "basicSteelCladding",
+      maxDamage: 1500,
+      defenseFactor: 0.6,
+      rarity: 5,
+      weight: 700,
+      cost: 1600,
+      overwhelmFactor: 0.45,
+    },
+    {
+      name: "flangedCladding",
+      maxDamage: 1100,
+      defenseFactor: 0.4,
+      rarity: 4.5,
+      weight: 600,
+      cost: 1500,
+      overwhelmFactor: 0.35,
+      deflectFactor: 0.15,
+      wearFactor: 0.4,
+    },
+    {
+      name: "reinforcedCladding",
+      maxDamage: 2500,
+      defenseFactor: 0.65,
+      rarity: 6,
+      weight: 1200,
+      cost: 2400,
+      overwhelmFactor: 0.8,
+      wearFactor: 0.03,
+    },
+    {
+      name: "paddedCladding",
+      maxDamage: 1200,
+      defenseFactor: 0.8,
+      rarity: 4,
+      weight: 500,
+      cost: 1350,
+      overwhelmFactor: 0.4,
+      wearFactor: 0.3,
+    },
+  ],
+
   engine: [
     OARS,
     DEFAULT_ENGINE,

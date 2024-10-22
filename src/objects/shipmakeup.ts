@@ -87,6 +87,10 @@ export class ShipPart implements ShipItem {
     this.mannedBy = [];
   }
 
+  public durability(): number {
+    return this.maxDamage - this.damage;
+  }
+
   onRemove(): void {
     this.unassignCrew();
   }
@@ -132,6 +136,10 @@ export class ShipPart implements ShipItem {
 
   repairCost() {
     return (this.damage * this.cost * this.repairCostScale) / this.maxDamage;
+  }
+
+  takeDamage(damage: number) {
+    this.damagePart(damage * this.vulnerability * Math.random());
   }
 
   damagePart(damage: number) {
@@ -733,6 +741,122 @@ export class Vacuum extends ShipPart implements VacuumArgs {
   }
 }
 
+export interface ArmorArgs extends ShipPartArgsSuper {
+  /**
+   * Fraction of incoming damage which is absorbed by the armor.
+   */
+  defenseFactor: number;
+
+  /**
+   * Factor of the base pool beyond which damage overwhelms the defenses.
+   *
+   * The base pool is the minimum of the armor's and the ship hull's
+   * durabilities.
+   */
+  overwhelmFactor?: number;
+
+  /**
+   * Fraction of absorbed damage which incurs a hit on the armor's durability.
+   *
+   * This stacks with vulnerability.
+   */
+  wearFactor?: number;
+
+  /**
+   * Fraction of the base pool below which attacks are completely nullified.
+   *
+   * The base pool is the minimum of the armor's and the ship hull's
+   * durabilities.
+   */
+  deflectFactor?: number;
+}
+
+export class Armor extends ShipPart implements Required<ArmorArgs> {
+  defenseFactor: number;
+  wearFactor: number;
+  deflectFactor: number;
+  overwhelmFactor: number;
+  override dropChance = 0.15;
+  override manned = false;
+  override vulnerability = 0.45;
+  override repairCostScale = 1.8;
+
+  constructor(args: ArmorArgs) {
+    super({ type: "armor", ...args });
+    this.defenseFactor = args.defenseFactor;
+    this.wearFactor = args.wearFactor ?? 0.2;
+    this.deflectFactor = args.deflectFactor ?? 0.05;
+    this.overwhelmFactor = args.overwhelmFactor ?? 0.5;
+  }
+
+  protected basePool(makeup: ShipMakeup): number {
+    return Math.min(
+      this.maxDamage - this.damage,
+      makeup.make.maxDamage - makeup.hullDamage,
+    );
+  }
+
+  public override rateSelf(): number {
+    return (
+      (this.maxDamage - this.damage) *
+      this.defenseFactor *
+      (1 + this.deflectFactor - this.wearFactor / 4)
+    );
+  }
+
+  /** Modify the incoming damage based on the armor's properties. */
+  public modifyDamage(
+    makeup: ShipMakeup,
+    incomingDamage: number,
+  ): { outDamage: number; extraWear: number } {
+    const pool = this.basePool(makeup);
+
+    if (incomingDamage < pool * this.deflectFactor) {
+      return { outDamage: 0, extraWear: incomingDamage * this.wearFactor };
+    }
+
+    const durability = this.durability();
+    const overwhelm = Math.max(
+      0,
+      Math.min(incomingDamage - pool * this.overwhelmFactor, durability),
+    );
+
+    if (overwhelm === durability) {
+      return {
+        outDamage: incomingDamage - durability * this.defenseFactor,
+        extraWear: overwhelm,
+      };
+    }
+
+    const newDurability = durability - overwhelm;
+    const absorbable = Math.min(
+      incomingDamage - overwhelm,
+      newDurability / this.defenseFactor / this.wearFactor,
+    );
+    const absorption = absorbable * this.defenseFactor;
+
+    return {
+      outDamage: incomingDamage - absorption + overwhelm,
+      extraWear: absorption * this.wearFactor + overwhelm,
+    };
+  }
+
+  override shopInfo(): string[] {
+    const info = {
+      defenseFactor: this.defenseFactor,
+      deflectFactor: this.deflectFactor,
+      wearFactor: this.wearFactor,
+      overwhelmFactor: this.overwhelmFactor,
+    };
+    return [
+      i18next.t("shopinfo.armor.absorption", info),
+      i18next.t("shopinfo.armor.deflection", info),
+      i18next.t("shopinfo.armor.wear", info),
+      i18next.t("shopinfo.armor.overwhelm", info),
+    ];
+  }
+}
+
 export interface EngineArgs
   extends Optional<ShipPartArgsSuper, "maxDamage" | "vulnerability"> {
   fuel?: {
@@ -997,6 +1121,9 @@ export class ShipMakeup {
         // TODO: add fuel required by vacuum, if any
         return null;
       }),
+      match.val("armor", () => {
+        return null;
+      }),
       match._(() => {
         throw new Error(
           "Cannot add default item for part of type: " + part.type,
@@ -1210,8 +1337,8 @@ export class ShipMakeup {
 
   private damageParts(amount: number) {
     for (const part of this.parts) {
-      const partDamage = Math.random() * amount * part.vulnerability;
-      part.damagePart(partDamage);
+      if (part.type === "armor") continue;
+      part.takeDamage(amount);
     }
   }
 
@@ -1227,6 +1354,17 @@ export class ShipMakeup {
   }
 
   damageShip(amount: number) {
+    // apply armor defenses
+    const armorOnShip = this.getPartsOf("armor") as Armor[];
+    for (const armor of armorOnShip) {
+      armor.takeDamage(amount);
+      const result = armor.modifyDamage(this, amount);
+      amount = result.outDamage;
+      armor.damagePart(result.extraWear);
+    }
+    this.pruneDestroyedParts();
+
+    // damage hull and non-armor parts
     this.hullDamage += amount;
     this.damageParts(amount);
     this.pruneDestroyedParts();

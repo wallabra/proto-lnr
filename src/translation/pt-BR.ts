@@ -317,6 +317,7 @@ export const TR_PT_BR: TranslationTable = {
     "partdefs.engine": "Motor",
     "partdefs.cannon": "Canhão",
     "partdefs.vacuum": "Aspirador",
+    "partdefs.armor": "Blindagem",
 
     "partdefs.engine.steamy": "Mini-Vapor",
     "partdefs.engine.hotBetty": "Maria Fumaça",
@@ -346,6 +347,12 @@ export const TR_PT_BR: TranslationTable = {
     "partdefs.vacuum.courier": "Carteiro",
     "partdefs.vacuum.whirlpool": "Redemoinho",
     "partdefs.vacuum.vortex": "Vórtex",
+
+    "partdefs.armor.basicIronCladding": "Placas de Ferro",
+    "partdefs.armor.basicSteelCladding": "Placas de Aço",
+    "partdefs.armor.flancedCladding": "Placas Sanfonadas",
+    "partdefs.armor.reinforcedCladding": "Placas Reforçadas",
+    "partdefs.armor.paddedCladding": "Placas Forradas",
 
     "makedefs.dependableDave": "Daniel Decente",
     "makedefs.fisherman": "Pesqueirinho Baiano",
@@ -402,6 +409,13 @@ export const TR_PT_BR: TranslationTable = {
     "shopinfo.engine.fuelType": "tipo de combustível: {{fuelType}}",
     "shopinfo.engine.fuelCost": "uso de combustível: {{fuelCost}} kg/min",
     "shopinfo.engine.thrust": "impulso: {{thrust}} kN",
+    "shopinfo.armor.absorption":
+      "absorção: {{defenseFactor, number(style: 'percent')}}",
+    "shopinfo.armor.deflection":
+      "defleção: {{deflectFactor, number(style: 'percent')}}",
+    "shopinfo.armor.wear": "desgaste: {{wearFactor, number(style: 'percent')}}",
+    "shopinfo.armor.overwhelm":
+      "sucumbe acima de {{overwhelmFactor, number(style: 'percent')}}",
 
     "projectile.modifier.homing": "ailerons auto-guiados",
     "projectile.modifier.gum": "emperra-turbinas",
@@ -425,6 +439,7 @@ export const TR_PT_BR: TranslationTable = {
     "itemtype.cannonballAmmo": "bola de canhão",
     "itemtype.fuel": "combustível",
     "itemtype.valuable": "mercadoria",
+    "itemtype.armor": "blindagem",
 
     cannonball: "bola de canhão calibre {{caliber}}",
     "cannonball.plural": "bolas de canhão calibre {{caliber}}",
