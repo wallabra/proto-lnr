@@ -20,6 +20,7 @@ import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
 import i18next from "i18next";
 import type { HelpCommand } from "../internationalization";
+import { Options } from "../options";
 
 export class MainMenuState extends Superstate {
   ui: CanvasRoot;
@@ -145,6 +146,15 @@ export class MainMenuState extends Superstate {
       });
       newGameButton.label(i18next.t("menu.newgame"), { ...buttonLabelArgs });
 
+      const optionsButton = new CanvasButton({
+        ...buttonArgs,
+        parent: holder,
+        callback: () => {
+          this.switchState("options");
+        },
+      });
+      optionsButton.label(i18next.t("menu.options"), { ...buttonLabelArgs });
+
       const helpButton = new CanvasButton({
         ...buttonArgs,
         parent: holder,
@@ -216,6 +226,160 @@ export class MainMenuState extends Superstate {
       return null;
     });
 
+    this.buildState("options", (holder) => {
+      addBackButton(holder);
+
+      new CanvasLabel({
+        // optionsp screen label
+        parent: holder,
+        dockX: "center",
+        alignX: "center",
+        childMargin: 50,
+        childOrdering: "vertical",
+        childFill: 0.1,
+        maxHeight: 65,
+        label: i18next.t("submenu.options.title"),
+        autoFont: true,
+        font: "$Hpx bold serif",
+        color: "#fff",
+      });
+
+      // options scroller
+      const scroller = new CanvasScroller({
+        parent: holder,
+        bgColor: "#08080860",
+        axis: "vertical",
+        dockX: "center",
+        fillX: 0.9,
+        childOrdering: "vertical",
+        childFill: 1,
+        scrollbarOpts: {
+          thickness: 8,
+          barColor: "#aafb",
+          barPadding: 2,
+          bgColor: "#0008",
+        },
+      });
+
+      const addOption = (
+        name: string,
+        initButton: (button: CanvasButton) => void,
+        callback: (e: UIEvent) => void,
+        update: (button: CanvasButton) => void,
+      ) => {
+        const optionRow = new CanvasUIGroup({
+          parent: scroller.contentPane,
+          bgColor: "#001A",
+          dockX: "center",
+          alignX: "center",
+          fillX: 0.9,
+          childOrdering: "vertical",
+          height: 80,
+        });
+
+        const realCallback = (event: UIEvent) => {
+          callback(event);
+          update(button);
+        };
+
+        new CanvasLabel({
+          parent: optionRow,
+          childOrdering: "horizontal",
+          childFill: 1,
+          fillY: 1,
+          maxHeight: 24,
+          label: i18next.t(name),
+          font: "bold $Hpx sans-serif",
+          autoFont: true,
+          color: "#FFF",
+        });
+
+        const button = new CanvasButton({
+          parent: optionRow,
+          childOrdering: "horizontal",
+          fillX: 0.4,
+          fillY: 0.8,
+          dockY: "center",
+          alignY: "center",
+          callback: realCallback,
+        });
+        initButton(button);
+        update(button);
+      };
+
+      const addSwitcherOption = (
+        name: string,
+        modes: { name: string; callback: () => void }[],
+        findWhich?: () => number,
+      ) => {
+        const onColor = "#eef";
+        const offColor = "#876";
+        let which = 0;
+
+        if (findWhich) which = findWhich();
+
+        addOption(
+          name,
+          (button) => {
+            for (const mode of modes) {
+              const space = new CanvasPanel({
+                parent: button,
+                childOrdering: "horizontal",
+                childFill: 1,
+                fillY: 1,
+                bgColor: null,
+              });
+
+              new CanvasLabel({
+                parent: space,
+                dockX: "center",
+                dockY: "center",
+                height: 20,
+                maxHeight: 20,
+                label: i18next.t(mode.name),
+                color: offColor,
+                autoFont: true,
+                font: "bold $Hpx sans-serif",
+              });
+            }
+          },
+          () => {
+            which = (which + 1) % modes.length;
+            modes[which].callback();
+            if (findWhich) which = findWhich();
+          },
+          (button) => {
+            button.children.forEach((c, idx) => {
+              const title = c.children[0] as CanvasLabel;
+
+              title.color = idx === which ? onColor : offColor;
+            });
+          },
+        );
+      };
+
+      addSwitcherOption(
+        "submenu.options.tickMode",
+        [
+          {
+            name: "submenu.options.tickMode.dynamic",
+            callback: () => {
+              Options.staticTickrate = null;
+            },
+          },
+          {
+            name: "submenu.options.tickMode.fixed",
+            callback: () => {
+              Options.staticTickrate = 30;
+            },
+          },
+        ],
+        () => +(Options.staticTickrate != null),
+      );
+
+      return null;
+    });
+
     this.buildState("help", (holder) => {
       addBackButton(holder);
 
@@ -239,7 +403,7 @@ export class MainMenuState extends Superstate {
         bgColor: "#08080899",
         axis: "vertical",
         dockX: "center",
-        fillX: 0.8,
+        fillX: 0.9,
         childOrdering: "vertical",
         childFill: 1,
         scrollbarOpts: {
