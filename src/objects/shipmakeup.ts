@@ -172,12 +172,24 @@ export class ShipPart implements ShipItem {
     return `${translateItemType(this.type)} ${translatePartName(this)}`;
   }
 
-  public strictBetterThan(_other: this): boolean {
-    return false;
+  public strictBetterThan(other: this): boolean {
+    return (
+      this.rateSelf() > other.rateSelf() ||
+      ((this.name === other.name || this.equivalentTo(other)) &&
+        this.damage < other.damage)
+    );
   }
 
-  protected betterThan(_other: this): boolean {
-    return false;
+  public betterThan(other: this): boolean {
+    return this.rateSelf() > other.rateSelf();
+  }
+
+  public equivalentTo(other: this): boolean {
+    return this.rateSelf() === other.rateSelf();
+  }
+
+  public rateSelf(): number {
+    return 0;
   }
 
   public canAutoInstall(_makeup: ShipMakeup): boolean {
@@ -492,6 +504,9 @@ export interface CannonArgs
   spread?: number;
 }
 
+const DPS_CALIBER_EXPONENT = 3;
+const DPS_CALIBER_EXPONENT_INVERSE = 1 / DPS_CALIBER_EXPONENT;
+
 export class Cannon extends ShipPart {
   caliber: number;
   cooldown: number;
@@ -500,7 +515,7 @@ export class Cannon extends ShipPart {
   spread: number;
   public locked = false;
 
-  protected override _available(makeup: ShipMakeup): boolean {
+  public override _available(makeup: ShipMakeup): boolean {
     return makeup.hasAmmo(this.caliber) && this.cooldown === 0 && !this.locked;
   }
 
@@ -619,25 +634,13 @@ export class Cannon extends ShipPart {
     this.coolDown(deltaTime);
   }
 
-  public override strictBetterThan(other: Cannon) {
-    const thisDPS = Math.pow(this.caliber, 2) / this.shootRate;
-    const otherDPS = Math.pow(other.caliber, 2) / other.shootRate;
-
+  public override rateSelf(): number {
     return (
-      thisDPS > otherDPS ||
-      (thisDPS / otherDPS < this.range / other.range / 0.5 &&
-        this.spread < other.spread)
-    );
-  }
-
-  protected override betterThan(other: Cannon) {
-    const thisDPS = Math.pow(this.caliber, 2) / this.shootRate;
-    const otherDPS = Math.pow(other.caliber, 2) / other.shootRate;
-
-    return (
-      thisDPS > otherDPS ||
-      (thisDPS / otherDPS < this.range / other.range &&
-        this.spread < other.spread)
+      Math.pow(
+        Math.pow((4 / 3) * Math.PI * this.caliber, DPS_CALIBER_EXPONENT) /
+          this.shootRate,
+        DPS_CALIBER_EXPONENT_INVERSE,
+      ) + Math.pow((this.range * (Math.PI / 6)) / this.spread, 1 / 4)
     );
   }
 
@@ -725,18 +728,8 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     this.suckCrates(deltaTime, owner);
   }
 
-  public override strictBetterThan(other: Vacuum) {
-    return (
-      this.suckRadius > other.suckRadius &&
-      this.suckStrength > other.suckStrength
-    );
-  }
-
-  protected override betterThan(other: Vacuum) {
-    return (
-      this.suckRadius > other.suckRadius &&
-      this.suckStrength > other.suckStrength
-    );
+  public override rateSelf(): number {
+    return this.suckRadius + this.suckStrength;
   }
 }
 
@@ -773,7 +766,7 @@ export class Engine extends ShipPart {
   fuelCost: number;
   thrust: number;
 
-  protected override _available(makeup: ShipMakeup): boolean {
+  public override _available(makeup: ShipMakeup): boolean {
     return this.fuelType == null || makeup.hasFuel(this.fuelType);
   }
 
@@ -817,12 +810,12 @@ export class Engine extends ShipPart {
     return new Engine(OARS);
   }
 
-  public override strictBetterThan(other: Engine) {
-    return this.thrust > other.thrust;
-  }
-
-  protected override betterThan(other: Engine) {
-    return this.thrust > other.thrust;
+  public override rateSelf(): number {
+    return (
+      this.thrust -
+      (this.manned === false ? 0 : +this.manned * 50) -
+      (this.fuelType == null ? 0 : this.fuelCost * 120)
+    );
   }
 
   public override canAutoInstall(makeup: ShipMakeup): boolean {
