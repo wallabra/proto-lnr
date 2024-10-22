@@ -945,7 +945,7 @@ export interface CanvasScrollerArgs extends CanvasUIArgs {
   axis: UIAxis;
   scrollPos?: number; // between 0 and 1
   scrollbarOpts?: Partial<ScrollbarOptions>;
-    contentPaneOpts?: Partial<CanvasUIArgs>;
+  contentPaneOpts?: Partial<CanvasUIArgs>;
 }
 
 type ScrollbarArgs = CanvasUIArgs &
@@ -1163,7 +1163,7 @@ export class CanvasScroller extends CanvasUIElement<CanvasScrollerArgs> {
       dockMarginX: 0,
       dockMarginY: 0,
       parent: this,
-      ...(args.contentPaneOpts || {})
+      ...(args.contentPaneOpts || {}),
     });
     this.scrollPos = args.scrollPos || 0;
     this.scrollbarOpts = {
