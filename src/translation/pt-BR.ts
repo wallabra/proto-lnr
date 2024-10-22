@@ -421,7 +421,7 @@ export const TR_PT_BR: TranslationTable = {
     "itemtype.food": "comida",
     "itemtype.cannon": "canhão",
     "itemtype.engine": "motor",
-    "itemtype.vacuum": "vácuo",
+    "itemtype.vacuum": "aspirador",
     "itemtype.cannonballAmmo": "bola de canhão",
     "itemtype.fuel": "combustível",
     "itemtype.valuable": "mercadoria",
