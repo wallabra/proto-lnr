@@ -171,10 +171,10 @@ export class SpawnClass {
           ship == null ||
           newShip.makeup.maxAcceleration() > ship.makeup.maxAcceleration()
         ) {
-          if (ship != null) ship.die();
+          if (ship != null) ship.dying = true;
           ship = newShip;
         } else {
-          newShip.die();
+          newShip.dying = true;
         }
         catchupAttempts--;
       } while (
@@ -195,14 +195,14 @@ export class SpawnClass {
             state.player.possessed.lateralCrossSection +
             1200
       ) {
-        ship.die();
+        ship.dying = true;
         attempts++;
         continue;
       }
 
       // do not spawn on the ground
       if (ship.floor > state.waterLevel * 0.5) {
-        ship.die();
+        ship.dying = true;
         attempts++;
         continue;
       }
