@@ -836,7 +836,7 @@ export class Armor extends ShipPart implements Required<ArmorArgs> {
     const absorption = absorbable * this.defenseFactor;
 
     return {
-      outDamage: incomingDamage - absorption + overwhelm,
+      outDamage: incomingDamage - overwhelm - absorption + overwhelm,
       extraWear: absorption * this.wearFactor + overwhelm,
     };
   }
