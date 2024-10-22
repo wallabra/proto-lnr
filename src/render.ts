@@ -465,7 +465,7 @@ class HudCannon {
 
   protected alert(message: string) {
     this.pane.bgColor = "#a776";
-    this.label.label += ` (${message})`;
+    this.label.label += ` ${message}`;
     this.label.color = "#faa";
   }
 
