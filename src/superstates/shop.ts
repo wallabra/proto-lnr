@@ -1951,7 +1951,7 @@ class PaneDrydockShip extends Pane<
         changed = true;
       }
 
-      if (changed) {
+      if (!changed) {
         break;
       }
     }
