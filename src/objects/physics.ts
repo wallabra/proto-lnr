@@ -384,11 +384,7 @@ export class PhysicsObject {
   physFriction(deltaTime: number) {
     const floor = this.floor;
 
-    if (this.height > this.floor + 0.001) {
-      return;
-    }
-
-    if (floor <= this.play.waterLevel) {
+    if (this.height > floor + 0.001) {
       return;
     }
 
