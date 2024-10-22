@@ -83,32 +83,37 @@ export const PARTDEFS: {
   armor: [
     {
       name: "basicIronCladding",
-      maxDamage: 900,
+      maxDamage: 1300,
       defenseFactor: 0.35,
       rarity: 2,
       weight: 300,
-      cost: 1200,
+      cost: 1199,
       overwhelmFactor: 0.3,
+      shopChance: 0.3,
+      shopRepeat: 3,
     },
     {
       name: "basicSteelCladding",
-      maxDamage: 1500,
+      maxDamage: 1900,
       defenseFactor: 0.6,
       rarity: 5,
       weight: 700,
-      cost: 1600,
+      cost: 1630,
       overwhelmFactor: 0.45,
+      shopChance: 0.2,
+      shopRepeat: 2,
     },
     {
       name: "flangedCladding",
-      maxDamage: 1100,
+      maxDamage: 1150,
       defenseFactor: 0.4,
       rarity: 4.5,
       weight: 600,
-      cost: 1500,
+      cost: 1750,
       overwhelmFactor: 0.35,
       deflectFactor: 0.15,
       wearFactor: 0.4,
+      shopChance: 0.25,
     },
     {
       name: "reinforcedCladding",
@@ -116,9 +121,10 @@ export const PARTDEFS: {
       defenseFactor: 0.65,
       rarity: 6,
       weight: 1200,
-      cost: 2400,
+      cost: 3040,
       overwhelmFactor: 0.8,
       wearFactor: 0.03,
+      shopChance: 0.08
     },
     {
       name: "paddedCladding",
@@ -129,6 +135,7 @@ export const PARTDEFS: {
       cost: 1350,
       overwhelmFactor: 0.4,
       wearFactor: 0.3,
+      shopChance: 0.12
     },
   ],
 
