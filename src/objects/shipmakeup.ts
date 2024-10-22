@@ -648,7 +648,11 @@ export class Cannon extends ShipPart {
         Math.pow((4 / 3) * Math.PI * this.caliber, DPS_CALIBER_EXPONENT) /
           this.shootRate,
         DPS_CALIBER_EXPONENT_INVERSE,
-      ) + Math.pow((this.range * (Math.PI / 6)) / this.spread, 1 / 4)
+      ) +
+      Math.pow(
+        (this.range * 0.05 * (Math.PI / 6)) / this.spread,
+        DPS_CALIBER_EXPONENT_INVERSE / 4,
+      )
     );
   }
 

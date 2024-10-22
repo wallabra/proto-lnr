@@ -262,7 +262,7 @@ export class MainMenuState extends Superstate {
         contentPaneOpts: {
           paddingX: 8,
           paddingY: 12,
-        }
+        },
       });
 
       const addOption = (
@@ -293,15 +293,15 @@ export class MainMenuState extends Superstate {
           childOrdering: "horizontal",
           childFill: 1,
           fillY: 1,
-          bgColor: null
+          bgColor: null,
         });
 
         new CanvasLabel({
           parent: nameRect,
-          dockX: 'center',
-          dockY: 'center',
-          alignX: 'center',
-          alignY: 'center',
+          dockX: "center",
+          dockY: "center",
+          alignX: "center",
+          alignY: "center",
           height: 24,
           maxHeight: 24,
           label: i18next.t(name),
