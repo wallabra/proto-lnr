@@ -156,27 +156,52 @@ export class SpawnClass {
         .rotateBy(Math.random() * Math.PI * 2)
         .add(pos);
 
-      const ship = spawnShipOnDef(
-        nextDef,
-        state,
-        shipPos,
-        args,
-        difficultyBonus,
+      // loop until aceelration >= head acceleration (to follow)
+      let ship;
+      let catchupAttempts = 10;
+      do {
+        const newShip = spawnShipOnDef(
+          nextDef,
+          state,
+          shipPos,
+          args,
+          difficultyBonus,
+        );
+        if (
+          ship == null ||
+          newShip.makeup.maxAcceleration() > ship.makeup.maxAcceleration()
+        ) {
+          if (ship != null) ship.die();
+          ship = newShip;
+        }
+        else {
+          newShip.die();
+        }
+        catchupAttempts--;
+      } while (
+        ship.makeup.maxAcceleration() < head.makeup.maxAcceleration() &&
+        catchupAttempts > 0
       );
 
+      // spawn away from player
       if (
         state.player?.possessed != null &&
         ship.pos.clone().subtract(state.player.possessed.pos).length() <
           ship.size * ship.lateralCrossSection +
             state.player.possessed.size *
               state.player.possessed.lateralCrossSection +
-            600
+            1200 &&
+        pos.clone().subtract(state.player.possessed.pos).length() >
+          state.player.possessed.size *
+            state.player.possessed.lateralCrossSection +
+            1200
       ) {
         ship.die();
         attempts++;
         continue;
       }
 
+      // do not spawn on the ground
       if (ship.floor > state.waterLevel * 0.5) {
         ship.die();
         attempts++;

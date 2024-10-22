@@ -1315,6 +1315,16 @@ export class ShipMakeup {
     );
   }
 
+  public maxAcceleration(): number {
+    return (
+      this.maxEngineThrust() /
+      this.totalWeight() /
+      this.drag /
+      this.make.size /
+      (1 + (this.make.lateralCrossSection - 1) / 2)
+    );
+  }
+
   get drag() {
     return this.make.drag;
   }
