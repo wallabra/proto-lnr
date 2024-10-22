@@ -173,8 +173,7 @@ export class SpawnClass {
         ) {
           if (ship != null) ship.die();
           ship = newShip;
-        }
-        else {
+        } else {
           newShip.die();
         }
         catchupAttempts--;
