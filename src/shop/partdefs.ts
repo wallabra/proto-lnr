@@ -124,7 +124,7 @@ export const PARTDEFS: {
       cost: 3040,
       overwhelmFactor: 0.8,
       wearFactor: 0.03,
-      shopChance: 0.08
+      shopChance: 0.08,
     },
     {
       name: "paddedCladding",
@@ -135,7 +135,7 @@ export const PARTDEFS: {
       cost: 1350,
       overwhelmFactor: 0.4,
       wearFactor: 0.3,
-      shopChance: 0.12
+      shopChance: 0.12,
     },
   ],
 

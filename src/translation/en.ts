@@ -1,4 +1,4 @@
-import type { TranslationTable } from "../internationalization";n
+import type { TranslationTable } from "../internationalization";
 
 export const TR_EN: TranslationTable = {
   translation: {
