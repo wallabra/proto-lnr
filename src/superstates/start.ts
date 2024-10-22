@@ -259,6 +259,10 @@ export class MainMenuState extends Superstate {
           barPadding: 2,
           bgColor: "#0008",
         },
+        contentPaneOpts: {
+          paddingX: 8,
+          paddingY: 12,
+        }
       });
 
       const addOption = (
@@ -275,6 +279,8 @@ export class MainMenuState extends Superstate {
           fillX: 0.9,
           childOrdering: "vertical",
           height: 80,
+          paddingY: 2,
+          paddingX: 8,
         });
 
         const realCallback = (event: UIEvent) => {
@@ -282,11 +288,21 @@ export class MainMenuState extends Superstate {
           update(button);
         };
 
-        new CanvasLabel({
+        const nameRect = new CanvasPanel({
           parent: optionRow,
           childOrdering: "horizontal",
           childFill: 1,
           fillY: 1,
+          bgColor: null
+        });
+
+        new CanvasLabel({
+          parent: nameRect,
+          dockX: 'center',
+          dockY: 'center',
+          alignX: 'center',
+          alignY: 'center',
+          height: 24,
           maxHeight: 24,
           label: i18next.t(name),
           font: "bold $Hpx sans-serif",
