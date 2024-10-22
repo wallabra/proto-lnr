@@ -19,7 +19,7 @@ export function commonPaths(args: AITickArgs): AIJump | null {
     else if (
       ship.pos.clone().subtract(target.pos).length() <
         (target.maxShootRange ?? 500) * 2 &&
-      ship.makeup.getPartsOf("cannon").length > 0
+      target.makeup.getPartsOf("cannon").length > 0
     )
       return { next: "flee", args: { target } } as AIJump<FleeStartArgs>;
   }
