@@ -91,11 +91,17 @@ export const TR_EN: TranslationTable = {
     // Main menu & submenus
     "menu.newgame": "New Game",
     "menu.help": "Help",
+    "menu.options": "Options",
 
     "submenu.newgame.title": "New Game",
     "submenu.newgame.gamemode": "Select a Game Mode",
     "submenu.newgame.freeplay": "Free Play",
     "submenu.newgame.comingsoon": "(Other gamemodes coming very soon!)",
+
+    "submenu.options.title": "Options",
+    "submenu.options.tickMode": "Tick Mode",
+    "submenu.options.tickMode.dynamic": "Dynamic",
+    "submenu.options.tickMode.fixed": "Fixed",
 
     strike: "(on strike for ({{reason}}))",
     "strike.reason.food": "hunger",

@@ -212,6 +212,12 @@ export const TR_PT_BR: TranslationTable = {
     // Main menu & submenus
     "menu.newgame": "Novo Jogo",
     "menu.help": "Ajuda",
+    "menu.options": "Opções",
+
+    "submenu.options.title": "Opções",
+    "submenu.options.tickMode": "Modo de Tick",
+    "submenu.options.tickMode.dynamic": "Dinâmico",
+    "submenu.options.tickMode.fixed": "Afixado",
 
     "submenu.newgame.title": "Novo Jogo",
     "submenu.newgame.gamemode": "Selecione um Modo de Jogo",
