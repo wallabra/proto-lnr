@@ -1,4 +1,4 @@
-import type { TranslationTable } from "../internationalization";
+import type { TranslationTable } from "../internationalization";n
 
 export const TR_EN: TranslationTable = {
   translation: {
@@ -227,7 +227,7 @@ export const TR_EN: TranslationTable = {
 
     "partdefs.armor.basicIronCladding": "Basic Iron Cladding",
     "partdefs.armor.basicSteelCladding": "Basic Steel Cladding",
-    "partdefs.armor.flancedCladding": "Flanged Cladding",
+    "partdefs.armor.flangedCladding": "Flanged Cladding",
     "partdefs.armor.reinforcedCladding": "Reinforced Cladding",
     "partdefs.armor.paddedCladding": "Padded Cladding",
 

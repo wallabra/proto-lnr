@@ -356,7 +356,7 @@ export const TR_PT_BR: TranslationTable = {
 
     "partdefs.armor.basicIronCladding": "Placas de Ferro",
     "partdefs.armor.basicSteelCladding": "Placas de Aço",
-    "partdefs.armor.flancedCladding": "Placas Sanfonadas",
+    "partdefs.armor.flangedCladding": "Placas Sanfonadas",
     "partdefs.armor.reinforcedCladding": "Placas Reforçadas",
     "partdefs.armor.paddedCladding": "Placas Forradas",
 
