@@ -24,11 +24,10 @@ export function pickByRarity<T extends Rarity>(
   if (newDefs.length === 0) {
     return null;
   }
-  const max = Math.max(...newDefs.map((d) => d.rarity));
   return newDefs[
     rwc(
       newDefs.map((d, i) => {
-        return { item: i, weight: max / d.rarity };
+        return { item: i, weight: 1 / d.rarity };
       }),
       temperature,
     )

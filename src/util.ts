@@ -96,7 +96,6 @@ export function rwc<T>(items: WeightedItem<T>[], temperature = 0): T {
 export function randomChance(chance: number): boolean {
   return random.uniform(0, 1)() <= chance;
 }
-
 export function arrayCounter<T>(arr: T[]): Map<T, number> {
   const counted = new Map<T, number>();
 

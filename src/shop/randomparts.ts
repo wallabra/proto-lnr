@@ -119,7 +119,7 @@ export default function randomParts(
     availableSlots > 0 &&
     available >
       Math.min(
-        ...Array.from(smallestRarity.keys()).map(
+        ...Array.from(makeSlots.keys()).map(
           (k) => smallestRarity.get(k) as number,
         ),
       )
@@ -143,10 +143,13 @@ export default function randomParts(
     const def = pickByRarity<AnyPartDef>(
       PARTDEFS[type] as AnyPartDef[],
       available,
-      temperature,
+      temperature + extraTemperature,
     );
 
-    if (def == null) throw new Error("Could not pick a definition, when should be guaranteed by smallestRarity");
+    if (def == null)
+      throw new Error(
+        "Could not pick a definition, when should be guaranteed by smallestRarity",
+      );
 
     const part: ShipPart = instantiatePart(def, type);
     // console.log(

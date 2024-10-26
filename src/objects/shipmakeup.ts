@@ -1374,7 +1374,7 @@ export class ShipMakeup {
 
   damageShip(amount: number, deltaTime: number | null = null) {
     // apply armor defenses
-    const origDamage = amount;
+    // const origDamage = amount;
     const armorOnShip = this.getPartsOf("armor") as Armor[];
     for (const armor of armorOnShip) {
       armor.takeDamage(amount);
