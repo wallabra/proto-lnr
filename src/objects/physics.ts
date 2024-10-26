@@ -1,5 +1,5 @@
 import Victor from "victor";
-import type { PlayState } from "../superstates/play";
+import type { Physicable, PlayState } from "../superstates/play";
 import type { Ship } from "./ship";
 import type { ObjectRenderInfo } from "../render";
 import { lerp } from "../util";
@@ -262,6 +262,40 @@ export class PhysicsObject {
     const factor = deltaTime / this.angularInertia();
     const offs = torque * factor;
     this.angVel += offs;
+  }
+
+  posRelTo(other: PhysicsObject | Physicable | { pos: Victor }): Victor {
+    return this.pos
+      .clone()
+      .subtract("phys" in other ? other.phys.pos : other.pos);
+  }
+
+  heightRelTo(other: PhysicsObject | Physicable | { height: number }): number {
+    return this.height - ("phys" in other ? other.phys.height : other.height);
+  }
+
+  dist3D(
+    other: PhysicsObject | Physicable | { pos: Victor; height: number },
+  ): number {
+    const distXY = this.posRelTo(other).length();
+    const distZ = this.heightRelTo(other);
+    return Math.sqrt(distXY * distXY + distZ * distZ);
+  }
+
+  rel3DInfo(
+    other: PhysicsObject | Physicable | { pos: Victor; height: number },
+  ) {
+    const posRel = this.posRelTo(other);
+    const heightRel = this.heightRelTo(other);
+    const len = Math.sqrt(posRel.length() ** 2 + heightRel ** 3);
+
+    return {
+      xy: posRel,
+      z: heightRel,
+      dist: len,
+      normXY: posRel.clone().norm(),
+      normZ: heightRel / len,
+    };
   }
 
   applyTorqueAt(deltaTime: number | null, pos: Victor, force: Victor) {

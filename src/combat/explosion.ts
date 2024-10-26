@@ -12,15 +12,24 @@ export function aoeExplosion(
   filter: null | ((obj: Physicable) => boolean) = null,
   knockbackModifier: null | ((obj: Physicable) => number) = null,
   instigator: Ship | null = null,
+  atHeight: number | null = null,
 ) {
-  for (const { obj, offs } of state.objectsInRadius(at, radius)) {
+  for (const { obj } of state.objectsInRadius(at, radius)) {
     if (filter != null && !filter(obj)) continue;
 
-    const dist = offs.length();
-    const norm = offs.clone().norm();
+    const expInfo = { pos: at, height: atHeight ?? state.waterLevel + 0.001 };
+
+    const rel3D = obj.phys.rel3DInfo(expInfo);
+    const dist = rel3D.dist;
+    const normXY = rel3D.normXY;
+    const normZ = rel3D.normZ;
 
     // inverse square root damage relationship
     const power = 1 / (1 + Math.sqrt(dist));
+    const myKnockback =
+      power *
+      knockback *
+      (knockbackModifier == null ? 1 : knockbackModifier(obj));
 
     if (damage > 0 && isDamageable(obj)) {
       obj.takeDamage(damage * power);
@@ -28,16 +37,9 @@ export function aoeExplosion(
     }
 
     // deal knockback
-    obj.phys.applyForce(
-      null,
-      norm
-        .clone()
-        .multiplyScalar(
-          power *
-            knockback *
-            (knockbackModifier == null ? 1 : knockbackModifier(obj)),
-        ),
-    );
+    obj.phys.applyForce(null, normXY.clone().multiplyScalar(myKnockback));
+
+    obj.phys.applyForceVert(null, normZ * myKnockback);
 
     obj.phys.applyForceVert(
       null,
