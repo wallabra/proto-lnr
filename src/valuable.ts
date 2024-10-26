@@ -41,7 +41,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 200,
-      name: "Royal Vase",
+      name: "vase",
       weight: 3,
       amount: { min: 1, max: 3 },
     },
@@ -50,7 +50,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 1000,
-      name: "Gold Bar",
+      name: "gold",
       weight: 0.1,
       amount: { min: 1, max: 25 },
     },
@@ -59,7 +59,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 60,
-      name: "Spice Jar",
+      name: "jar",
       weight: 3,
       amount: { min: 2, max: 8 },
     },
@@ -68,7 +68,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 30,
-      name: "Mineral Ores",
+      name: "ores",
       weight: 90,
       amount: { min: 3, max: 30 },
     },
@@ -77,7 +77,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 130,
-      name: "Golden Lamp",
+      name: "lamp",
       weight: 0.3,
     },
     weight: 3,
@@ -85,7 +85,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 90,
-      name: "Tribal Flutes",
+      name: "flutes",
       weight: 0.03,
       amount: { min: 1, max: 3 },
     },
@@ -94,7 +94,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 350,
-      name: "Golden Chalice",
+      name: "chalice",
       weight: 0.1,
       amount: { min: 1, max: 3 },
     },
@@ -103,7 +103,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 800,
-      name: "Golden Statuette",
+      name: "statuette",
       weight: 2,
     },
     weight: 6,
@@ -111,7 +111,7 @@ export const VALUABLE_DEFS: WeightedItem<ValuableArgs>[] = [
   {
     item: {
       cost: 500,
-      name: "Tribal Statue",
+      name: "statue",
       weight: 7,
       amount: { min: 1, max: 2 },
     },
