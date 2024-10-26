@@ -14,7 +14,7 @@ export const OARS: PartDef<EngineArgs & ShipPartArgsSuper> = {
   thrust: 40000.0,
   vulnerability: 0.002,
   maxDamage: 20,
-  rarity: 1,
+  rarity: 0.2,
   manned: 30,
   weight: 3,
   shopRepeat: 6,
