@@ -1212,7 +1212,6 @@ export class ShipMakeup {
   ): this {
     const parts = randomParts(
       Math.max(2.5, 3.5 + random.exponential(1.5)() * (10 + bonus)) *
-        random.uniform(0.5, 1)() *
         this.make.slots.length,
       this.make,
     );

@@ -14,6 +14,43 @@ import { PARTDEFS } from "./partdefs";
 import random from "random";
 import { pickByRarity } from "./rarity";
 
+const smallestRarity = new Map<string, number>();
+const meanRarity = new Map<keyof typeof PARTDEFS, number>();
+const maxRarity = new Map<keyof typeof PARTDEFS, number>();
+
+for (const type of Object.keys(PARTDEFS) as (keyof typeof PARTDEFS)[]) {
+  meanRarity.set(
+    type,
+    PARTDEFS[type]
+      .filter(
+        (def): def is AnyPartDef & { rarity: number } =>
+          def.rarity !== "always",
+      )
+      .map((def) => def.rarity)
+      .reduce((a, b) => a + b, 0) / PARTDEFS[type].length,
+  );
+  maxRarity.set(
+    type,
+    PARTDEFS[type]
+      .filter(
+        (def): def is AnyPartDef & { rarity: number } =>
+          def.rarity !== "always",
+      )
+      .map((def) => def.rarity)
+      .reduce((a, b) => (a > b ? a : b), -Infinity),
+  );
+  smallestRarity.set(
+    type,
+    PARTDEFS[type]
+      .filter(
+        (def): def is AnyPartDef & { rarity: number } =>
+          def.rarity !== "always",
+      )
+      .map((def) => def.rarity)
+      .reduce((a, b) => (a < b ? a : b), Infinity),
+  );
+}
+
 export function instantiatePart(def: AnyPartDef, type: string): ShipPart {
   const part = match<string, ShipPart>(
     type,
@@ -56,16 +93,6 @@ export default function randomParts(
     .map((k) => makeSlots.get(k) as number)
     .reduce((a, b) => a + b, 0);
 
-  const smallestRarity = new Map<string, number>();
-
-  makeSlots.forEach((_, parttype) => {
-    const defs = PARTDEFS[parttype] as AnyPartDef[];
-    const smallest = Math.min(
-      ...defs.map((def) => def.rarity).filter((rarity) => rarity !== "always"),
-    );
-    smallestRarity.set(parttype, smallest);
-  });
-
   // Start with the parts of rarity 'always'
   const res = (Object.keys(PARTDEFS) as (keyof typeof PARTDEFS)[]).reduce<
     ShipPart[]
@@ -84,6 +111,10 @@ export default function randomParts(
     [],
   );
 
+  // console.log(
+  //   `Allocated ${allocRarity.toString()} rarity for spawning a ${forMake != null ? forMake.name + " " : ""}ship, w/ temperature ${temperature.toString()}`,
+  // );
+
   while (
     availableSlots > 0 &&
     available >
@@ -98,13 +129,32 @@ export default function randomParts(
 
     if (available < (smallestRarity.get(type) ?? 0)) continue;
 
+    // Calculate extra temperature (based on points exceeding mean rarity)
+    const myMeanRarity = meanRarity.get(type) as number;
+    const myMaxRarity = maxRarity.get(type) as number;
+    const extraTemperature = Math.max(
+      0,
+      Math.min(
+        1,
+        0.5 * ((available - myMeanRarity) / (myMaxRarity / myMeanRarity)),
+      ),
+    );
+
     const def = pickByRarity<AnyPartDef>(
       PARTDEFS[type] as AnyPartDef[],
       available,
       temperature,
     );
 
+    if (def == null) throw new Error("Could not pick a definition, when should be guaranteed by smallestRarity");
+
     const part: ShipPart = instantiatePart(def, type);
+    // console.log(
+    //   "* " + part.getItemLabel(),
+    //   extraTemperature === 0
+    //     ? ""
+    //     : `(extra temperature: ${extraTemperature.toFixed(3)})`,
+    // );
 
     res.push(part);
     available -= def.rarity as number;
@@ -113,6 +163,8 @@ export default function randomParts(
     makeSlots.set(type, (makeSlots.get(type) as number) - 1);
     if (makeSlots.get(type) === 0) makeSlots.delete(type);
   }
+
+  // console.log();
 
   return res;
 }
