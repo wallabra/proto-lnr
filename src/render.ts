@@ -1325,7 +1325,7 @@ class Hud extends CanvasPanel {
         font: "bold $Hpx sans-serif",
         dockMarginY: 90,
         color: "#fecd",
-        label: i18next.t("hud.leave"),
+        label: i18next.t("hud.status.leave"),
       });
 
       this.damageBar = new HudDamageBar({
