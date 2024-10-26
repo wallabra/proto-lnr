@@ -4,6 +4,7 @@ export const TR_EN: TranslationTable = {
   translation: {
     "main.title": "Loot & Roam",
     "main.version": "Prototype v{{gameVersion}}",
+    "en": "English",
 
     "ship.namegen": {
       adjectives: [

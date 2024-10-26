@@ -4,6 +4,8 @@ export const TR_PT_BR: TranslationTable = {
   translation: {
     "main.title": "Loot & Roam",
     "main.version": "Protótipo v{{gameVersion}}",
+    "pt": "Português",
+    "pt-BR": "Português Brasileiro",
 
     "ship.namegen": {
       adjectives: [
