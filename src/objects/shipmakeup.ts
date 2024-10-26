@@ -812,17 +812,28 @@ export class Armor extends ShipPart implements Required<ArmorArgs> {
   public modifyDamage(
     makeup: ShipMakeup,
     incomingDamage: number,
+    deltaTime: number | null = null,
   ): { outDamage: number; extraWear: number } {
+    deltaTime ??= 1;
+
     const pool = this.basePool(makeup);
 
-    if (incomingDamage < pool * this.deflectFactor) {
+    if (pool < 0) {
+      console.warn("Found armor that should have been destroyed");
+      return { outDamage: incomingDamage, extraWear: 0 };
+    }
+
+    if (incomingDamage < pool * this.deflectFactor * deltaTime) {
       return { outDamage: 0, extraWear: incomingDamage * this.wearFactor };
     }
 
     const durability = this.durability();
     const overwhelm = Math.max(
       0,
-      Math.min(incomingDamage - pool * this.overwhelmFactor, durability),
+      Math.min(
+        incomingDamage - pool * this.overwhelmFactor * deltaTime,
+        durability,
+      ),
     );
 
     if (overwhelm === durability) {
@@ -839,8 +850,13 @@ export class Armor extends ShipPart implements Required<ArmorArgs> {
     );
     const absorption = absorbable * this.defenseFactor;
 
+    if (deltaTime === 1)
+      console.log(
+        `Armor absorption logic: ${incomingDamage.toFixed(0)} - ${absorption.toFixed(0)} (min(${incomingDamage.toFixed(0)} - ${overwhelm.toFixed(0)} | ${newDurability.toFixed(0)} / ${this.defenseFactor.toFixed(0)} / ${this.wearFactor.toFixed(0)})) = ${(incomingDamage - absorbable).toFixed(0)}`,
+      );
+
     return {
-      outDamage: incomingDamage - overwhelm - absorption + overwhelm,
+      outDamage: incomingDamage - absorption,
       extraWear: absorption * this.wearFactor + overwhelm,
     };
   }
@@ -1356,16 +1372,29 @@ export class ShipMakeup {
     }
   }
 
-  damageShip(amount: number) {
+  damageShip(amount: number, deltaTime: number | null = null) {
     // apply armor defenses
+    const origDamage = amount;
     const armorOnShip = this.getPartsOf("armor") as Armor[];
     for (const armor of armorOnShip) {
       armor.takeDamage(amount);
-      const result = armor.modifyDamage(this, amount);
+      if (armor.damage > armor.maxDamage) continue;
+      const result = armor.modifyDamage(this, amount, deltaTime);
       amount = result.outDamage;
       armor.damagePart(result.extraWear);
     }
+
+    // if (origDamage !== amount) {
+    //   console.log(
+    //     `Ship armor modified damage:  ${origDamage.toFixed(1)} -> ${amount.toFixed(1)}`,
+    //   );
+    // }
+
     this.pruneDestroyedParts();
+
+    if (amount === 0) {
+      return false;
+    }
 
     // damage hull and non-armor parts
     this.hullDamage += amount;

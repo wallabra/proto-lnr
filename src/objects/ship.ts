@@ -638,7 +638,7 @@ export class Ship implements Tickable, Renderable, Damageable {
   private applyEffectDamage(deltaTime: number) {
     for (const effect of this.effects) {
       if (effect.damagePerSecond != null && effect.damagePerSecond > 0) {
-        this.takeDamage(effect.damagePerSecond * deltaTime);
+        this.takeDamage(effect.damagePerSecond * deltaTime, deltaTime);
         if (this.dying && effect.instigator != null) {
           effect.instigator.scoreKill();
         }
@@ -941,11 +941,11 @@ export class Ship implements Tickable, Renderable, Damageable {
     this.setInstigator(instigator);
   }
 
-  public takeDamage(damage: number) {
+  public takeDamage(damage: number, deltaTime: number | null = null) {
     damage = Math.max(0, damage);
     if (damage === 0) return;
 
-    const die = this.makeup.damageShip(damage);
+    const die = this.makeup.damageShip(damage, deltaTime);
 
     if (this.game.player != null && this.game.player.possessed === this) {
       this.game.player.damage = this.damage;
@@ -1441,13 +1441,13 @@ export class Ship implements Tickable, Renderable, Damageable {
 
   checkTerrainDamage(deltaTime: number) {
     if (this.phys.isOnLand()) {
-      this.takeDamage(1000 * deltaTime);
+      this.takeDamage(1000 * deltaTime, deltaTime);
     }
   }
 
   checkSubmergedDamage(deltaTime: number) {
     if (this.phys.isSubmerged()) {
-      this.takeDamage(200 * deltaTime);
+      this.takeDamage(200 * deltaTime, deltaTime);
     }
   }
 
