@@ -2536,7 +2536,7 @@ export class IntermissionState extends Superstate {
             return i18next.t("intermission.drydock.stats.repairs.info.intact");
 
           return i18next.t(
-            "intermission.drydock.stats.repair.info." +
+            "intermission.drydock.stats.repairs.info." +
               (totalRepairCost > this.player.money
                 ? "insufficient"
                 : "sufficient"),
