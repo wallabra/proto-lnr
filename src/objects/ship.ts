@@ -301,7 +301,7 @@ export class ShipRenderContext {
     );
   }
 
-  private drawDebug() {
+  drawDebug() {
     const { ctx, info, ship, scale } = this;
 
     const from = ship.pos
@@ -322,6 +322,36 @@ export class ShipRenderContext {
         ),
     );
     const angmom = ship.phys.orbitalVelocityAt(from).multiplyScalar(scale);
+
+    // Draw AI soonPos offset
+    ctx.strokeStyle = "#60FB";
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 2]);
+    ctx.moveTo(fromDraw.x, fromDraw.y);
+    const toSoonPos = info.toScreen(
+      from
+        .clone()
+        .add(
+          ship.vel
+            .clone()
+            .divideScalar(Math.sqrt(ship.makeup.maxAcceleration() || 1)),
+        ),
+    );
+    ctx.lineTo(toSoonPos.x, toSoonPos.y);
+    ctx.setLineDash([]);
+
+    // Draw # engines available
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillStyle = "#82FD";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      "E: " + ship.makeup.getReadyEngines().length.toString(),
+      toSoonPos.x + 10,
+      toSoonPos.y,
+    );
+
+    return;
 
     // Draw buoyancy & submersion
     ctx.strokeStyle = "#F00";
@@ -539,7 +569,7 @@ export class ShipRenderContext {
     this.drawCrosshairs();
 
     // DEBUG
-    // this.drawDebug();
+    //this.drawDebug();
   }
 }
 

@@ -1453,10 +1453,12 @@ export class ShipMakeup {
   }
 
   maxEngineThrust(enginesList?: Engine[]): number {
-    const engines = enginesList ?? this.getReadyEngines();
+    const engines =
+      (enginesList && enginesList.filter((e) => e.available(this))) ??
+      this.getReadyEngines();
     if (engines.length === 0) return 0;
     return match(
-      engines.filter((e) => e.available(this)),
+      engines,
       match.fn((a) => a.length === 0, 0),
       match._((engines: Engine[]) =>
         engines.map((e) => e.getThrust()).reduce((a, b) => a + b, 0),
@@ -1468,9 +1470,11 @@ export class ShipMakeup {
     return (
       this.maxEngineThrust() /
       this.totalWeight() /
-      this.drag /
-      this.make.size /
-      (1 + (this.make.lateralCrossSection - 1) / 2)
+      Math.sqrt(
+        this.drag *
+          this.make.size *
+          (1 + (this.make.lateralCrossSection - 1) / 2),
+      )
     );
   }
 

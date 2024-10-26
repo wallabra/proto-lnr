@@ -56,10 +56,7 @@ class AIStateMachine<S extends AIStartArgs = AIStartArgs> {
   }
 
   protected soonPosForwardSecs(): number {
-    return (
-      (1.5 * this.ai.possessed.maxEngineThrust()) /
-      this.ai.possessed.phys.weight
-    );
+    return 1 / Math.sqrt(this.ai.possessed.makeup.maxAcceleration() || 1);
   }
 
   tick(deltaTime: number) {
