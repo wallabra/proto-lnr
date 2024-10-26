@@ -83,7 +83,7 @@ export const PARTDEFS: {
   armor: [
     {
       name: "basicIronCladding",
-      maxDamage: 1300,
+      maxDamage: 6080,
       defenseFactor: 0.35,
       rarity: 2,
       weight: 300,
@@ -94,7 +94,7 @@ export const PARTDEFS: {
     },
     {
       name: "basicSteelCladding",
-      maxDamage: 1900,
+      maxDamage: 12820,
       defenseFactor: 0.6,
       rarity: 5,
       weight: 700,
@@ -105,7 +105,7 @@ export const PARTDEFS: {
     },
     {
       name: "flangedCladding",
-      maxDamage: 1150,
+      maxDamage: 9220,
       defenseFactor: 0.4,
       rarity: 4.5,
       weight: 600,
@@ -117,7 +117,7 @@ export const PARTDEFS: {
     },
     {
       name: "reinforcedCladding",
-      maxDamage: 2500,
+      maxDamage: 30200,
       defenseFactor: 0.65,
       rarity: 6,
       weight: 1200,
@@ -128,7 +128,7 @@ export const PARTDEFS: {
     },
     {
       name: "paddedCladding",
-      maxDamage: 1200,
+      maxDamage: 4600,
       defenseFactor: 0.8,
       rarity: 4,
       weight: 500,
