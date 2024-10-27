@@ -121,18 +121,6 @@ export class Blackhole
     const center = toScreen(this.phys.pos);
     const size = this.phys.size * scale * this.ageWane();
 
-    // draw body
-    ctx.fillStyle = "#508";
-    ctx.save();
-    ctx.globalAlpha = 0.1;
-    ctx.globalCompositeOperation = "color-burn";
-    for (let width = 1.0; width > 0.7; width -= 0.02) {
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, width * size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-
     // draw tentacles
     const numTentacles = 5;
     const angle = Math.PI * 0.25 * this.phys.age;
@@ -143,12 +131,13 @@ export class Blackhole
 
     for (let tentacle = 0; tentacle < numTentacles; tentacle++) {
       ctx.save();
-      ctx.globalAlpha = 0.04;
-      ctx.globalCompositeOperation = "overlay";
+      ctx.globalAlpha = 0.06;
+      ctx.globalCompositeOperation = "color-burn";
       ctx.rotate((tentacle / numTentacles) * Math.PI * 2);
 
       for (let width = 1.0; width > 0.8; width -= 0.04) {
-        ctx.lineWidth = (width * size * 0.6) / numTentacles;
+        ctx.lineWidth = (width * size * 1.8) / numTentacles * Math.PI;
+        ctx.lineCap = 'round';
         ctx.strokeStyle = "#A9D";
 
         ctx.beginPath();
@@ -156,21 +145,34 @@ export class Blackhole
         ctx.bezierCurveTo(
           // cp 1
           size * 1.2, // x
-          -size * 0.2, // y
+          -size * 0.2 * (1 - width), // y
 
           // cp 2
-          size * 2, // x
-          size * 0.5, // y
+          size * 2 * width, // x
+          size * 0.6, // y
 
           // end
-          size * 2.5, // x
-          size * 0.5, // y
+          size * 2.5 * width, // x
+          size * 0.8, // y
         );
         ctx.stroke();
       }
       ctx.restore();
     }
     ctx.restore();
+
+    // draw body
+    ctx.fillStyle = "#508";
+    ctx.save();
+    ctx.globalAlpha = 0.1;
+    ctx.globalCompositeOperation = "color-burn";
+    for (let width = 1.0; width > 0.4; width -= 0.05) {
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, width * size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
   }
 
   /**
