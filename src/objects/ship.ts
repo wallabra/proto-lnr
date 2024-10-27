@@ -473,11 +473,20 @@ export class ShipRenderContext {
     const available = cannon.cooldown <= 0;
 
     if (game.mouse == null) return;
-    const fromPos = info.toScreen(ship.cannonballSpawnSpot());
+    const shootFrom = ship.cannonballSpawnSpot();
     const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(mouseDist, ship.maxShootRange ?? Infinity);
+    const shootExpect = shootFrom
+      .clone()
+      .add(ship.phys.angNorm.multiplyScalar(shootDist));
     const spread = cannon.spread;
     const angle = ship.phys.angle;
+    const baseSize = Math.tan(spread) * shootDist * 0.3;
+    const shootPos = cannon.hitLocation(ship, shootDist);
+    const hitDist = shootPos.clone().subtract(shootFrom).length();
+    const crosshairArcCenter = info.toScreen(
+      shootFrom.clone().add(shootPos).subtract(shootExpect),
+    );
 
     const color = available
       ? cannon.locked
@@ -490,17 +499,41 @@ export class ShipRenderContext {
     ctx.fillStyle = color;
 
     // draw spread arcs
-    ctx.globalAlpha = 0.6;
-    for (const width of [0.1, 0.12, 0.18, 0.24, 0.32, 0.56, 0.71, 0.87, 1.0]) {
-      ctx.lineWidth = (1.2 * cannon.caliber) / width;
+    ctx.globalAlpha = 0.7;
+    for (const width of [0.15, 0.18, 0.24, 0.32, 0.56, 0.71, 0.87, 1.0]) {
+      ctx.lineWidth = (0.8 * Math.max(2, cannon.caliber)) / width;
       ctx.beginPath();
       ctx.arc(
-        fromPos.x,
-        fromPos.y,
-        shootDist,
+        crosshairArcCenter.x,
+        crosshairArcCenter.y,
+        hitDist * info.scale,
         angle - spread * width,
         angle + spread * width,
       );
+      ctx.stroke();
+    }
+
+    // draw cool crosshair streak
+    ctx.globalAlpha = 1;
+
+    const streakVec = shootPos
+      .clone()
+      .subtract(shootFrom)
+      .norm()
+      .multiplyScalar(baseSize);
+
+    for (const width of [0.3, 0.45, 0.6, 0.85, 1]) {
+      const from = info.toScreen(
+        streakVec.clone().invert().multiplyScalar(width).add(shootPos),
+      );
+      const to = info.toScreen(
+        streakVec.clone().multiplyScalar(width).add(shootPos),
+      );
+
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
       ctx.stroke();
     }
     ctx.restore();

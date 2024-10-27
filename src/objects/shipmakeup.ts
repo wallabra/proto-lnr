@@ -608,6 +608,14 @@ export class Cannon extends ShipPart {
     return cball;
   }
 
+  public cannonballMomentumFactor(ship: Ship): number {
+    const tempCannonball = this.shootCannonball(ship, this.range, null, 0);
+    const drag = tempCannonball.phys.airDrag() / tempCannonball.weight;
+    const airtime = tempCannonball.airtime();
+    tempCannonball.destroy();
+    return (1 - Math.exp(-airtime * drag)) / drag;
+  }
+
   public airtime(ship: Ship, dist: number) {
     const tempCannonball = this.shootCannonball(ship, dist, null);
     const airtime = tempCannonball.airtime();
