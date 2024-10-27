@@ -123,7 +123,7 @@ export class Blackhole
 
     // draw tentacles
     const numTentacles = 9;
-    const angle = Math.PI * 0.25 * this.phys.age;
+    const angle = Math.PI * 0.08 * this.phys.age;
 
     ctx.save();
     ctx.translate(center.x, center.y);
