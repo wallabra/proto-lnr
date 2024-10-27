@@ -20,7 +20,7 @@ export const DEFAULT_MAKE: ShipMakeDef = {
     { type: "engine" },
     { type: "engine" },
     { type: "armor" },
-      { type: "armor" },
+    { type: "armor" },
   ],
   maxDamage: 5000,
   drag: 50,

@@ -13,6 +13,7 @@ import { INCENDIARY } from "./modifiers/incendiary";
 import { NOXIOUS_GAS } from "./modifiers/noxious";
 import { REPULSION_DISC } from "./modifiers/repulsion";
 import { SPIN_CHARGE } from "./modifiers/spincharge";
+import { BLACKHOLE } from "./modifiers/blackhole";
 
 export interface Projectile extends Physicable {
   game: Game | PlayState;
@@ -80,6 +81,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: EXPLOSIVES, weight: 2 },
   { item: INCENDIARY, weight: 2 },
   { item: HOMING, weight: 1 },
+  { item: BLACKHOLE, weight: 0.3 },
 ];
 
 const MAX_MODIFIERS = 3;
