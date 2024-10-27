@@ -584,8 +584,11 @@ export class Cannon extends ShipPart {
       weight: this.cannonballSphericalVolume() * CANNONBALL_DENSITY,
     });
     cball.phys.vspeed = dist / 350;
-    const distrib = random.uniform(-spread, spread);
-    cball.phys.angle += (distrib() + distrib()) / 2;
+    if (spread > 0)
+      cball.phys.angle += Math.max(
+        -spread,
+        Math.min(spread, random.normal(0, this.spread / 2)()),
+      );
     const airtime = cball.airtime();
 
     const velComp = ship.angNorm.dot(ship.vel);
