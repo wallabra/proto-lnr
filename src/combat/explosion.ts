@@ -24,7 +24,7 @@ export function aoeExplosion(
     const expInfo = { pos: at, height: atHeight ?? state.waterLevel + 0.001 };
 
     const rel3D = obj.phys.rel3DInfo(expInfo);
-    const dist = Math.max(1, rel3D.dist);
+    const dist = Math.max(10, rel3D.dist);
 
     if (dist > radius) continue;
     
@@ -53,5 +53,12 @@ export function aoeExplosion(
       deltaTime,
       (power * knockback * Math.sqrt(obj.phys.weight)) / 100,
     );
+
+    if (myKnockback) {
+      if (isNaN(obj.phys.height) || isNaN(obj.phys.vspeed)) {
+        console.log(obj.phys.height, obj.phys.vspeed)
+        console.log(dist, normXY, normZ, power, myKnockback);
+      }
+    }
   }
 }
