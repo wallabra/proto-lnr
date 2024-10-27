@@ -1519,7 +1519,8 @@ export class ShipMakeup {
     // just return the cannon that's closest to ready to fire again
     const cannons = (this.getPartsOf("cannon") as Cannon[])
       .filter((c) => c.alreadyManned())
-      .sort((a, b) => a.cooldown - b.cooldown);
+      .sort((a, b) => a.cooldown - b.cooldown)
+      .sort((a, b) => (a.locked || !b.locked ? -1 : 1));
     return cannons[0] || null;
   }
 
