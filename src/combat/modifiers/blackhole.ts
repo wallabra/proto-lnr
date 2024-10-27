@@ -91,8 +91,8 @@ class BlackholeModifier implements ProjectileModifier {
       ctx.rotate((tentacle / numTentacles) * Math.PI * 2);
 
       for (let width = 1.0; width > 0.3; width -= 0.1) {
-        ctx.lineWidth = (width * size * 0.6) * Math.PI / numTentacles;
-        ctx.lineCap = 'round';
+        ctx.lineWidth = (width * size * 0.6 * Math.PI) / numTentacles;
+        ctx.lineCap = "round";
         ctx.strokeStyle = "#A9D";
 
         ctx.beginPath();
