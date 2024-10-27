@@ -95,7 +95,7 @@ export class Blackhole
     this.objectWeightExponent = args.objectWeightExponent ?? 0.8;
     this.instigator = args.instigator ?? null;
     this.phys = state.makePhysObj(pos, {
-      size: this.damageRadius * 0.95,
+      size: this.damageRadius * 0.4,
       immovable: true,
       height: state.waterLevel * 2.5,
       ...args,
