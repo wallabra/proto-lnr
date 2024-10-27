@@ -473,33 +473,37 @@ export class ShipRenderContext {
     const available = cannon.cooldown <= 0;
 
     if (game.mouse == null) return;
+    const fromPos = info.toScreen(ship.cannonballSpawnSpot());
     const mouseDist = game.mouse.pos.length();
     const shootDist = Math.min(mouseDist, ship.maxShootRange ?? Infinity);
-    const shootPos = info.toScreen(cannon.hitLocation(ship, shootDist));
-    const shootRadius = Math.tan(cannon.spread) * shootDist * info.scale;
+    const spread = cannon.spread;
+    const angle = ship.phys.angle;
 
-    const color = available ? "#FFFF0008" : "#88000018";
+    const color = available
+      ? cannon.locked
+        ? "#EE990012"
+        : "#FFFF0008"
+      : "#88000018";
+    ctx.save();
+    ctx.globalCompositeOperation = "hard-light";
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
-    // draw circles
-    ctx.beginPath();
-    ctx.arc(shootPos.x, shootPos.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fill();
-
-    ctx.lineWidth = 1.2 * cannon.caliber;
-    ctx.beginPath();
-    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(shootPos.x, shootPos.y, shootRadius, 0, Math.PI * 2);
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    // draw spread arcs
+    ctx.globalAlpha = 0.6;
+    for (const width of [0.1, 0.12, 0.18, 0.24, 0.32, 0.56, 0.71, 0.87, 1.0]) {
+      ctx.lineWidth = (1.2 * cannon.caliber) / width;
+      ctx.beginPath();
+      ctx.arc(
+        fromPos.x,
+        fromPos.y,
+        shootDist,
+        angle - spread * width,
+        angle + spread * width,
+      );
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   private drawCrosshairs() {
