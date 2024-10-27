@@ -11,7 +11,7 @@ export class Wave implements Renderable, Tickable, Physicable {
   play: PlayState;
   dying = false;
   growth: number;
-  renderOrder = -1;
+  renderOrder = -50;
   type = "fx";
 
   constructor(play: PlayState, from: Ship) {

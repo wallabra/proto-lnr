@@ -12,7 +12,7 @@ export class Smoke implements Renderable, Tickable, Physicable {
   dying = false;
   growth: number;
   opacity: number;
-  renderOrder = 1;
+  renderOrder = 20;
   type = "fx";
 
   constructor(play: PlayState, from: Ship, color: number[], opacity: number) {

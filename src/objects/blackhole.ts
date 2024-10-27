@@ -73,7 +73,7 @@ export class Blackhole
   state: PlayState;
   dying: boolean = false;
   phys: PhysicsObject;
-  renderOrder = 1;
+  renderOrder = -5;
   type = "blackhole";
 
   // Blackhole parameters
