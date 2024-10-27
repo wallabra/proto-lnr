@@ -491,7 +491,9 @@ export class ShipRenderContext {
     const color = available
       ? cannon.locked
         ? "#EE990012"
-        : "#FFFF0008"
+        : !ship.makeup.hasAmmo(cannon.caliber)
+          ? "#22408818"
+          : "#FFFF0008"
       : "#88000018";
     ctx.save();
     ctx.globalCompositeOperation = "hard-light";
