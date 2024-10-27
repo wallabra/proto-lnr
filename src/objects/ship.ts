@@ -154,7 +154,7 @@ export class ShipRenderContext {
     const drawPos = info.base
       .clone()
       .add(ship.pos.clone().subtract(info.cam).multiply(info.scaleVec));
-    const camheight = 4;
+    const camheight = 9;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - ship.height * 0.1;

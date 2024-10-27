@@ -60,7 +60,7 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     const drawPos = info.base
       .clone()
       .add(this.phys.pos.clone().subtract(info.cam).multiply(info.scaleVec));
-    const camheight = 4;
+    const camheight = 9;
     const cdist =
       (drawPos.clone().subtract(info.base).length() / info.largeEdge) * 0.5;
     const hdist = camheight - this.phys.height - this.phys.verticalSize() / 2;
