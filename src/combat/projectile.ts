@@ -29,7 +29,7 @@ export interface Projectile extends Physicable {
 export function isProjectile(obj: Physicable): obj is Projectile {
   return (
     "airtime" in obj &&
-    typeof obj.airtime === "number" &&
+    typeof obj.airtime === "function" &&
     "modifiers" in obj &&
     obj.modifiers instanceof Set &&
     "projectileFlag" in obj &&
