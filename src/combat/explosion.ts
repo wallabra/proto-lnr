@@ -24,7 +24,7 @@ export function aoeExplosion(
     const expInfo = { pos: at, height: atHeight ?? state.waterLevel + 0.001 };
 
     const rel3D = obj.phys.rel3DInfo(expInfo);
-    const dist = rel3D.dist;
+    const dist = Math.max(1, rel3D.dist);
     const normXY = rel3D.normXY;
     const normZ = rel3D.normZ;
 
