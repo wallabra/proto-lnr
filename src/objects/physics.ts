@@ -492,10 +492,10 @@ export class PhysicsObject {
   }
 
   tick(deltaTime: number) {
-    if (this.frozen) return;
-
     this.age += deltaTime;
     this.tickAge++;
+
+    if (this.frozen) return;
 
     this.physAngle(deltaTime);
     this.physGravity(deltaTime);
