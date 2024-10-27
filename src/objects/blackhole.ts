@@ -87,10 +87,10 @@ export class Blackhole
 
   constructor(state: PlayState, pos: Victor, args: BlackholeArgs) {
     this.state = state;
-    this.attractRadius = args.attractRadius ?? 800;
-    this.damageRadius = args.damageRadius ?? 200;
+    this.attractRadius = args.attractRadius ?? 1200;
+    this.damageRadius = args.damageRadius ?? 500;
     this.attractStrength = args.attractStrength ?? 20000;
-    this.damagePerSecond = args.damagePerSecond ?? 2000;
+    this.damagePerSecond = args.damagePerSecond ?? 12000;
     this.maxDuration = args.maxDuration ?? 30;
     this.objectWeightExponent = args.objectWeightExponent ?? 0.8;
     this.instigator = args.instigator ?? null;

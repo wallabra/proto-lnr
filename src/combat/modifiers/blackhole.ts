@@ -15,17 +15,19 @@ const DEFAULT_BLACKHOLE_PARAMS: WeightedItem<
   {
     weight: 10,
     item: {
-      attractRadius: 300,
+      attractRadius: 400,
       attractStrength: 80000,
-      damageRadius: 120,
+      damageRadius: 200,
+      damagePerSecond: 4000,
     },
   },
   {
     weight: 4,
     item: {
-      attractRadius: 500,
+      attractRadius: 700,
       attractStrength: 140000,
-      damageRadius: 220,
+      damageRadius: 400,
+      damagePerSecond: 6000,
     },
   },
   {
