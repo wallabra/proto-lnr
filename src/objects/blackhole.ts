@@ -136,8 +136,8 @@ export class Blackhole
       ctx.rotate((tentacle / numTentacles) * Math.PI * 2);
 
       for (let width = 1.0; width > 0.8; width -= 0.04) {
-        ctx.lineWidth = (width * size * 1.8) / numTentacles * Math.PI;
-        ctx.lineCap = 'round';
+        ctx.lineWidth = ((width * size * 1.8) / numTentacles) * Math.PI;
+        ctx.lineCap = "round";
         ctx.strokeStyle = "#A9D";
 
         ctx.beginPath();
@@ -172,7 +172,6 @@ export class Blackhole
       ctx.fill();
     }
     ctx.restore();
-
   }
 
   /**
