@@ -52,6 +52,7 @@ export interface ShipPartArgs {
   dropChance?: number;
   shopChance?: number;
   weight: number;
+  canUninstall?: boolean;
 }
 
 export class ShipPart implements ShipItem {
@@ -69,6 +70,7 @@ export class ShipPart implements ShipItem {
   mannedBy: Crew[];
   dropChance: number;
   shopChance: number;
+  canUninstall: boolean;
 
   constructor(args: ShipPartArgs) {
     this.type = args.type;
@@ -85,6 +87,7 @@ export class ShipPart implements ShipItem {
     this.dying = false;
     this.integerAmounts = true;
     this.mannedBy = [];
+    this.canUninstall = args.canUninstall ?? true;
   }
 
   public durability(): number {
@@ -124,14 +127,14 @@ export class ShipPart implements ShipItem {
   }
 
   shopInfo(makeup?: ShipMakeup): string[] {
-    return makeup != null && this.manned && !this.alreadyManned()
-      ? [
-          "Needs to be manned" +
-            (typeof this.manned !== "number"
-              ? ""
-              : ` (min. crew strength ${this.manned.toString()})`),
-        ]
-      : [];
+    return [
+      ...(makeup != null && this.manned && !this.alreadyManned()
+      ? [typeof this.manned === 'number' ? i18next.t('shopinfo.manning.needsInterp', { manned: this.manned.toString() }) : i18next.t('shopinfo.manning.needsAny')]
+      : []),
+      ...(this.canUninstall ? [] : [
+        i18next.t('shopinfo.cannotUninstall')
+      ])
+      ];
   }
 
   repairCost() {
@@ -850,11 +853,6 @@ export class Armor extends ShipPart implements Required<ArmorArgs> {
     );
     const absorption = absorbable * this.defenseFactor;
 
-    if (deltaTime === 1)
-      console.log(
-        `Armor absorption logic: ${incomingDamage.toFixed(0)} - ${absorption.toFixed(0)} (min(${incomingDamage.toFixed(0)} - ${overwhelm.toFixed(0)} | ${newDurability.toFixed(0)} / ${this.defenseFactor.toFixed(0)} / ${this.wearFactor.toFixed(0)})) = ${(incomingDamage - absorbable).toFixed(0)}`,
-      );
-
     return {
       outDamage: incomingDamage - absorption,
       extraWear: absorption * this.wearFactor + overwhelm,
@@ -1274,6 +1272,10 @@ export class ShipMakeup {
     const idx = this.parts.indexOf(part);
     if (idx === -1) return false;
     this.parts.splice(idx, 1);
+    if (!part.canUninstall) {
+      part.dying = true;
+      this.inventory.pruneItems();
+    }
     return true;
   }
 
@@ -1317,13 +1319,6 @@ export class ShipMakeup {
     const compatible = this.ammo
       .filter((a) => a.caliber === caliber)
       .sort((a, b) => b.modifiers.size - a.modifiers.size);
-
-    // DEBUG
-    // console.log(
-    //   compatible.map(
-    //     (a) => a.getItemLabel() + " (" + a.modifiers.size + " mods)",
-    //   ),
-    // );
 
     return compatible[0] ?? null;
   }
@@ -1374,7 +1369,6 @@ export class ShipMakeup {
 
   damageShip(amount: number, deltaTime: number | null = null) {
     // apply armor defenses
-    // const origDamage = amount;
     const armorOnShip = this.getPartsOf("armor") as Armor[];
     for (const armor of armorOnShip) {
       armor.takeDamage(amount);
@@ -1383,12 +1377,6 @@ export class ShipMakeup {
       amount = result.outDamage;
       armor.damagePart(result.extraWear);
     }
-
-    // if (origDamage !== amount) {
-    //   console.log(
-    //     `Ship armor modified damage:  ${origDamage.toFixed(1)} -> ${amount.toFixed(1)}`,
-    //   );
-    // }
 
     this.pruneDestroyedParts();
 

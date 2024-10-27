@@ -249,7 +249,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
       callback: this.tryUninstall.bind(this) as UICallback,
       bgColor: "#f02020c0",
     }).label(
-      i18next.t("intermission.drydock.part.action.uninstall"),
+      i18next.t(this.part.canUninstall ? "intermission.drydock.part.action.uninstall" : "intermission.drydock.part.action.destroy"),
       this.labelArgs,
     );
   }
