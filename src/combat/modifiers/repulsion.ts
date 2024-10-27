@@ -18,7 +18,10 @@ class RepulsionDiscModifier implements ProjectileModifier {
       0,
       2000,
       (obj) => obj !== projectile && obj !== projectile.instigator,
-      (obj) => Math.pow(obj.phys.weight, 0.9),
+      null,
+      null,
+      projectile.phys.height,
+      0.8,
     );
   }
 
