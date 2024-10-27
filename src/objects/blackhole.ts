@@ -89,7 +89,7 @@ export class Blackhole
     this.state = state;
     this.attractRadius = args.attractRadius ?? 800;
     this.damageRadius = args.damageRadius ?? 200;
-    this.attractStrength = args.attractStrength ?? 200000;
+    this.attractStrength = args.attractStrength ?? 20000;
     this.damagePerSecond = args.damagePerSecond ?? 2000;
     this.maxDuration = args.maxDuration ?? 30;
     this.objectWeightExponent = args.objectWeightExponent ?? 0.8;
@@ -102,15 +102,17 @@ export class Blackhole
   }
 
   /**
-   * The scale to apply to self rendering, affected by 'waning' (shrinkage
-   * when approaching end of lifetime).
+   * Scale, both visual and effective, between 0 and 1.
+   *
+   * Should be 1 except at the end of lifetime, where it should linearly
+   * wane towards 0.
    */
   private ageWane(): number {
     if (this.phys.age < this.maxDuration * 0.8) {
       return 1;
     }
 
-    return unlerp(this.maxDuration, this.maxDuration * 0.8, this.phys.age);
+    return 1 - unlerp(this.maxDuration * 0.8, this.maxDuration, this.phys.age);
   }
 
   public render(info: ObjectRenderInfo): void {
@@ -185,12 +187,28 @@ export class Blackhole
    * Uses the [[aoeExplosion]] utility under the hood.
    */
   private objectInteractions(deltaTime: number): void {
+    // attract
     aoeExplosion(
       this.state,
       this.phys.pos,
-      this.attractRadius,
-      this.damagePerSecond,
-      -this.attractStrength,
+      this.attractRadius * this.ageWane(),
+      0,
+      -this.attractStrength * this.ageWane(),
+      (obj) => obj !== this.instigator && !isProjectile(obj),
+      null,
+      this.instigator,
+      this.phys.height,
+      this.objectWeightExponent,
+      deltaTime,
+    );
+
+    // damage
+    aoeExplosion(
+      this.state,
+      this.phys.pos,
+      this.damageRadius * this.ageWane(),
+      this.damagePerSecond * this.ageWane(),
+      undefined,
       (obj) => obj !== this.instigator && !isProjectile(obj),
       null,
       this.instigator,
