@@ -13,14 +13,28 @@ import { INCENDIARY } from "./modifiers/incendiary";
 import { NOXIOUS_GAS } from "./modifiers/noxious";
 import { REPULSION_DISC } from "./modifiers/repulsion";
 import { SPIN_CHARGE } from "./modifiers/spincharge";
+import { BLACKHOLE } from "./modifiers/blackhole";
 
 export interface Projectile extends Physicable {
+  projectileFlag: null;
+
   game: Game | PlayState;
   modifiers: Set<ProjectileModifier>;
   instigator?: Physicable & Damageable;
 
   airtime(): number;
   predictFall?(): Victor;
+}
+
+export function isProjectile(obj: Physicable): obj is Projectile {
+  return (
+    "airtime" in obj &&
+    typeof obj.airtime === "function" &&
+    "modifiers" in obj &&
+    obj.modifiers instanceof Set &&
+    "projectileFlag" in obj &&
+    obj.projectileFlag === null
+  );
 }
 
 export function getPlayStateFromProj(proj: Projectile): PlayState {
@@ -80,6 +94,7 @@ export const ALL_MODIFIERS: WeightedItem<ProjectileModifier>[] = [
   { item: EXPLOSIVES, weight: 2 },
   { item: INCENDIARY, weight: 2 },
   { item: HOMING, weight: 1 },
+  { item: BLACKHOLE, weight: 0.3 },
 ];
 
 const MAX_MODIFIERS = 3;

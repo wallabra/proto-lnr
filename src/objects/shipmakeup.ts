@@ -35,6 +35,7 @@ import {
   translatePartName,
 } from "../internationalization";
 import i18next from "i18next";
+import { BLACKHOLE } from "../combat/modifiers/blackhole";
 
 export function slots(make: ShipMake): Map<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
@@ -129,12 +130,16 @@ export class ShipPart implements ShipItem {
   shopInfo(makeup?: ShipMakeup): string[] {
     return [
       ...(makeup != null && this.manned && !this.alreadyManned()
-      ? [typeof this.manned === 'number' ? i18next.t('shopinfo.manning.needsInterp', { manned: this.manned.toString() }) : i18next.t('shopinfo.manning.needsAny')]
-      : []),
-      ...(this.canUninstall ? [] : [
-        i18next.t('shopinfo.cannotUninstall')
-      ])
-      ];
+        ? [
+            typeof this.manned === "number"
+              ? i18next.t("shopinfo.manning.needsInterp", {
+                  manned: this.manned.toString(),
+                })
+              : i18next.t("shopinfo.manning.needsAny"),
+          ]
+        : []),
+      ...(this.canUninstall ? [] : [i18next.t("shopinfo.cannotUninstall")]),
+    ];
   }
 
   repairCost() {
@@ -1211,7 +1216,7 @@ export class ShipMakeup {
     }
 
     this.ammo.forEach((ammo) => {
-      ammo.modifiers = new Set(/*stripWeights(ALL_MODIFIERS)*/);
+      ammo.modifiers = new Set([BLACKHOLE]);
     });
 
     return this;

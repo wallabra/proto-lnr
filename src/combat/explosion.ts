@@ -13,7 +13,11 @@ export function aoeExplosion(
   knockbackModifier: null | ((obj: Physicable) => number) = null,
   instigator: Ship | null = null,
   atHeight: number | null = null,
+  objectWeightExponent: number = 0.5,
+  deltaTime: number | null = null,
 ) {
+  deltaTime ??= 1;
+
   for (const { obj } of state.objectsInRadius(at, radius)) {
     if (filter != null && !filter(obj)) continue;
 
@@ -29,20 +33,21 @@ export function aoeExplosion(
     const myKnockback =
       power *
       knockback *
-      (knockbackModifier == null ? 1 : knockbackModifier(obj));
+      (knockbackModifier == null ? 1 : knockbackModifier(obj)) *
+      obj.phys.weight ** objectWeightExponent;
 
     if (damage > 0 && isDamageable(obj)) {
-      obj.takeDamage(damage * power);
+      obj.takeDamage(damage * power * deltaTime, deltaTime);
       if (instigator != null && obj instanceof Ship) obj.aggro(instigator);
     }
 
     // deal knockback
-    obj.phys.applyForce(null, normXY.clone().multiplyScalar(myKnockback));
+    obj.phys.applyForce(deltaTime, normXY.clone().multiplyScalar(myKnockback));
 
-    obj.phys.applyForceVert(null, normZ * myKnockback);
+    obj.phys.applyForceVert(deltaTime, normZ * myKnockback);
 
     obj.phys.applyForceVert(
-      null,
+      deltaTime,
       (power * knockback * Math.sqrt(obj.phys.weight)) / 100,
     );
   }

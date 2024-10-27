@@ -4,7 +4,7 @@ export const TR_PT_BR: TranslationTable = {
   translation: {
     "main.title": "Loot & Roam",
     "main.version": "Protótipo v{{gameVersion}}",
-    "pt": "Português",
+    pt: "Português",
     "pt-BR": "Português Brasileiro",
 
     "ship.namegen": {
@@ -436,6 +436,7 @@ export const TR_PT_BR: TranslationTable = {
     "projectile.modifier.plasmaField": "bomba de campo plasmático",
     "projectile.modifier.smokescreen": "bomba de fumaça",
     "projectile.modifier.acid": "ácido corroedor de armadura",
+    "projectile.modifier.blackhole": "carga de buraco negro!",
 
     "fueltype.coal": "carvão",
     "fueltype.diesel": "díesel",

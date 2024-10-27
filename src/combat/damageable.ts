@@ -1,7 +1,25 @@
+/**
+ * A game object capable of taking damage.
+ */
 export interface Damageable {
-  takeDamage(damage: number): void;
+  /**
+   * Take damage.
+   *
+   * deltaTime allows the damage to be interpreted as a continuous damage by
+   * underlying logic. It should NOT scale the damage taken - this must be
+   * done by the caller instead.
+   */
+  takeDamage(damage: number, deltaTime?: number): void;
+
+  /**
+   * Get how much damage this object already has.
+   */
   getDamage(): number;
-  getMaxDamage(): number;
+
+  /**
+   * Get how much damage this object can receive before being destroyed.
+   */
+  getMaxDamage(): number | null;
 }
 
 export function isDamageable(other: object): other is Damageable {
@@ -16,5 +34,8 @@ export function isDamageable(other: object): other is Damageable {
 }
 
 export function damageOutOfMax(damageable: Damageable): number {
-  return damageable.getDamage() / damageable.getMaxDamage();
+  const maxDamage = damageable.getMaxDamage();
+  if (maxDamage === null) return 0;
+
+  return damageable.getDamage() / maxDamage;
 }
