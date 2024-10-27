@@ -82,16 +82,17 @@ export class Blackhole
   instigator: Ship | null;
 
   constructor(state: PlayState, pos: Victor, args: BlackholeArgs) {
+    this.state = state;
     this.attractRadius = args.attractRadius ?? 800;
     this.damageRadius = args.damageRadius ?? 200;
-    this.attractStrength = args.attractStrength ?? 20000;
+    this.attractStrength = args.attractStrength ?? 200000;
     this.damagePerSecond = args.damagePerSecond ?? 2000;
     this.maxDuration = args.maxDuration ?? 30;
-    this.objectWeightExponent = args.objectWeightExponent ?? 0.5;
+    this.objectWeightExponent = args.objectWeightExponent ?? 0.3;
     this.instigator = args.instigator ?? null;
     this.phys = state.makePhysObj(pos, {
       size: this.damageRadius * 0.95,
-      frozen: true,
+      immovable: true,
       ...args,
     });
   }
@@ -129,12 +130,15 @@ export class Blackhole
     const numTentacles = 5;
     const angle = Math.PI * 0.25 * this.phys.age;
 
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.rotate(angle);
+
     for (let tentacle = 0; tentacle < numTentacles; tentacle++) {
       ctx.save();
       ctx.globalAlpha = 0.04;
-      ctx.globalCompositeOperation = "color-burn";
-      ctx.translate(center.x, center.y);
-      ctx.rotate(angle + (tentacle / numTentacles) * Math.PI * 2);
+      ctx.globalCompositeOperation = "overlay";
+      ctx.rotate((tentacle / numTentacles) * Math.PI * 2);
 
       for (let width = 1.0; width > 0.8; width -= 0.04) {
         ctx.lineWidth = (width * size * 0.6) / numTentacles;
@@ -159,6 +163,7 @@ export class Blackhole
       }
       ctx.restore();
     }
+    ctx.restore();
   }
 
   /**
@@ -181,7 +186,7 @@ export class Blackhole
       this.phys.pos,
       this.attractRadius,
       this.damagePerSecond,
-      this.attractStrength,
+      -this.attractStrength,
       (obj) => obj !== this.instigator,
       (obj) => (obj === this.instigator ? 0 : 1),
       this.instigator,
