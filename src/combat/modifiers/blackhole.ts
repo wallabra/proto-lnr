@@ -60,20 +60,20 @@ class BlackholeModifier implements ProjectileModifier {
   render(info: ObjectRenderInfo, projectile: Projectile): void {
     const { ctx, toScreen, scale } = info;
     const center = toScreen(projectile.phys.pos);
-    const size = projectile.phys.size * scale * 3;
+    const size = projectile.phys.size * scale * 8;
 
     // draw "event horizon"
     ctx.save();
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 3.2;
     ctx.globalAlpha = 0.8;
-    ctx.globalCompositeOperation = "overlay";
+    ctx.globalCompositeOperation = "color-dodge";
     ctx.strokeStyle = "#802";
     ctx.beginPath();
-    ctx.arc(center.x, center.y, size, 0, Math.PI);
+    ctx.arc(center.x, center.y, size * 0.6, 0, Math.PI);
     ctx.stroke();
     ctx.strokeStyle = "#30A";
     ctx.beginPath();
-    ctx.arc(center.x, center.y, size + 1, 0, Math.PI);
+    ctx.arc(center.x, center.y, size * 0.6 + 2, 0, Math.PI);
     ctx.stroke();
     ctx.restore();
 
@@ -95,10 +95,10 @@ class BlackholeModifier implements ProjectileModifier {
         ctx.strokeStyle = "#A9D";
 
         ctx.beginPath();
-        ctx.moveTo(size * 0.5, 0);
+        ctx.moveTo(size, 0);
         ctx.bezierCurveTo(
           // cp 1
-          size * 1.2, // x
+          size * 1.4, // x
           -size * 0.2, // y
 
           // cp 2
@@ -106,7 +106,7 @@ class BlackholeModifier implements ProjectileModifier {
           size * 0.5, // y
 
           // end
-          size * 2.5, // x
+          size * 3, // x
           size * 0.5, // y
         );
         ctx.stroke();
