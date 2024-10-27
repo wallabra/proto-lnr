@@ -97,6 +97,7 @@ export class Blackhole
     this.phys = state.makePhysObj(pos, {
       size: this.damageRadius * 0.95,
       immovable: true,
+      height: state.waterLevel * 2.5,
       ...args,
     });
   }
