@@ -452,7 +452,18 @@ export class PhysicsObject {
   }
 
   physGravity(deltaTime: number) {
-    this.height += this.vspeed * deltaTime;
+    if (isNaN(this.height + this.vspeed * deltaTime)) {
+      console.log('Warning Context -----')
+      console.log('Physics object: ', this);
+      console.log('height: ', this.height);
+      console.log('vspeed: ', this.vspeed);
+      console.warn("Physics object almost reached NaN height in physGravity!");
+      console.log('Activating safeguard: reversing vspeed.');
+      this.vspeed *= -0.5;
+    }
+    else {
+      this.height += this.vspeed * deltaTime;
+    }
 
     const floor = this.floor;
     const inWater = this.inWater();
