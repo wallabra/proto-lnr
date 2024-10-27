@@ -53,12 +53,5 @@ export function aoeExplosion(
       deltaTime,
       (power * knockback * Math.sqrt(obj.phys.weight)) / 100,
     );
-
-    if (myKnockback) {
-      if (isNaN(obj.phys.height) || isNaN(obj.phys.vspeed)) {
-        console.log(obj.phys.height, obj.phys.vspeed)
-        console.log(dist, normXY, normZ, power, myKnockback);
-      }
-    }
   }
 }

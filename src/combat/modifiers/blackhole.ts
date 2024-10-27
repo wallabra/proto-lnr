@@ -66,12 +66,12 @@ class BlackholeModifier implements ProjectileModifier {
     ctx.save();
     ctx.lineWidth = 3.2;
     ctx.globalAlpha = 0.8;
-    ctx.globalCompositeOperation = "color-dodge";
-    ctx.strokeStyle = "#802";
+    ctx.globalCompositeOperation = "hard-light";
+    ctx.strokeStyle = "#702";
     ctx.beginPath();
     ctx.arc(center.x, center.y, size * 0.6, 0, Math.PI);
     ctx.stroke();
-    ctx.strokeStyle = "#30A";
+    ctx.strokeStyle = "#308";
     ctx.beginPath();
     ctx.arc(center.x, center.y, size * 0.6 + 2, 0, Math.PI);
     ctx.stroke();
@@ -86,12 +86,13 @@ class BlackholeModifier implements ProjectileModifier {
 
     for (let tentacle = 0; tentacle < numTentacles; tentacle++) {
       ctx.save();
-      ctx.globalAlpha = 0.3;
+      ctx.globalAlpha = 0.02;
       ctx.globalCompositeOperation = "hard-light";
       ctx.rotate((tentacle / numTentacles) * Math.PI * 2);
 
-      for (let width = 1.0; width > 0.8; width -= 0.08) {
-        ctx.lineWidth = (width * size * 0.6) / numTentacles;
+      for (let width = 1.0; width > 0.3; width -= 0.1) {
+        ctx.lineWidth = (width * size * 0.6) * Math.PI / numTentacles;
+        ctx.lineCap = 'round';
         ctx.strokeStyle = "#A9D";
 
         ctx.beginPath();
@@ -103,11 +104,11 @@ class BlackholeModifier implements ProjectileModifier {
 
           // cp 2
           size * 2, // x
-          size * 0.5, // y
+          size * 1.2, // y
 
           // end
           size * 3, // x
-          size * 0.5, // y
+          size * 2, // y
         );
         ctx.stroke();
       }
