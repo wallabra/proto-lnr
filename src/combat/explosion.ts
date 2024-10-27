@@ -25,6 +25,9 @@ export function aoeExplosion(
 
     const rel3D = obj.phys.rel3DInfo(expInfo);
     const dist = Math.max(1, rel3D.dist);
+
+    if (dist > radius) continue;
+    
     const normXY = rel3D.normXY;
     const normZ = rel3D.normZ;
 
