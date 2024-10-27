@@ -91,7 +91,7 @@ export class Blackhole
     this.damageRadius = args.damageRadius ?? 500;
     this.attractStrength = args.attractStrength ?? 50000;
     this.damagePerSecond = args.damagePerSecond ?? 60000;
-    this.maxDuration = args.maxDuration ?? 30;
+    this.maxDuration = args.maxDuration ?? 20;
     this.objectWeightExponent = args.objectWeightExponent ?? 0.8;
     this.instigator = args.instigator ?? null;
     this.phys = state.makePhysObj(pos, {
