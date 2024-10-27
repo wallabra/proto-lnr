@@ -79,7 +79,7 @@ class BlackholeModifier implements ProjectileModifier {
 
     // draw tentacles
     const numTentacles = 5;
-    const angle = Math.PI * 0.25 * projectile.phys.age;
+    const angle = Math.PI * 0.8 * projectile.phys.age;
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(angle);
