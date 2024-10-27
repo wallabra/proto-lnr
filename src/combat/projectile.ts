@@ -16,12 +16,25 @@ import { SPIN_CHARGE } from "./modifiers/spincharge";
 import { BLACKHOLE } from "./modifiers/blackhole";
 
 export interface Projectile extends Physicable {
+  projectileFlag: null;
+
   game: Game | PlayState;
   modifiers: Set<ProjectileModifier>;
   instigator?: Physicable & Damageable;
 
   airtime(): number;
   predictFall?(): Victor;
+}
+
+export function isProjectile(obj: Physicable): obj is Projectile {
+  return (
+    "airtime" in obj &&
+    typeof obj.airtime === "number" &&
+    "modifiers" in obj &&
+    obj.modifiers instanceof Set &&
+    "projectileFlag" in obj &&
+    obj.projectileFlag === null
+  );
 }
 
 export function getPlayStateFromProj(proj: Projectile): PlayState {

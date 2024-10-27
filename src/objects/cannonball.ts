@@ -25,6 +25,7 @@ export class Cannonball implements Tickable, Renderable, Projectile {
   public predictedFall: Victor | null = null;
   public type = "cannonball";
   public modifiers = new Set<ProjectileModifier>();
+  public projectileFlag = null; // as opposed to undefined
 
   constructor(
     game: PlayState,

@@ -6,6 +6,7 @@ import type { Optional } from "utility-types";
 import { unlerp } from "../util";
 import { aoeExplosion } from "../combat/explosion";
 import type { Ship } from "./ship";
+import { isProjectile } from "../combat/projectile";
 
 export interface BlackholeParams {
   /*
@@ -33,8 +34,11 @@ export interface BlackholeParams {
    *
    * This allows, for instance, to apply more attraction to heavy objects, to
    * smooth out the difference between those and small objects. Otherwise,
-   * [[Ship]]s get sucked in very weakly and [[Pickup]] crates very strongly, or
-   * ships not at all.
+   * [[Ship]]s get sucked in very weakly and [[Pickup]] crates very strongly,
+   * or ships not at all.
+   *
+   * For instance, 0 applies forces normally, while 1 scales them all by object
+   * weights, rendering them completely meaningless and the acceleration equal.
    *
    * Defaults to 0.5 (a square root).
    */
@@ -88,7 +92,7 @@ export class Blackhole
     this.attractStrength = args.attractStrength ?? 200000;
     this.damagePerSecond = args.damagePerSecond ?? 2000;
     this.maxDuration = args.maxDuration ?? 30;
-    this.objectWeightExponent = args.objectWeightExponent ?? 0.3;
+    this.objectWeightExponent = args.objectWeightExponent ?? 0.8;
     this.instigator = args.instigator ?? null;
     this.phys = state.makePhysObj(pos, {
       size: this.damageRadius * 0.95,
@@ -187,8 +191,8 @@ export class Blackhole
       this.attractRadius,
       this.damagePerSecond,
       -this.attractStrength,
-      (obj) => obj !== this.instigator,
-      (obj) => (obj === this.instigator ? 0 : 1),
+      (obj) => obj !== this.instigator && !isProjectile(obj),
+      null,
       this.instigator,
       this.phys.height,
       this.objectWeightExponent,
