@@ -1550,7 +1550,7 @@ class StatusTicker {
 
   private updateGainLabel() {
     console.log(this.totalGain);
-    if (Math.abs(this.totalGain) < 0.001) {
+    if (Math.abs(this.totalGain) < 0.001 || this.messages.length === 0) {
       this.totalGain = 0;
       this.gainLabel.label = "";
       this.gainLabel.hidden = true;
@@ -1563,10 +1563,7 @@ class StatusTicker {
   private removeMessage(toRemove: TickerMessage, addBounce = true) {
     if (this.messages.indexOf(toRemove) !== -1) {
       this.messages.splice(this.messages.indexOf(toRemove), 1);
-      if (toRemove.amount != null) {
-        this.totalGain -= toRemove.amount;
-        this.updateGainLabel();
-      }
+      this.updateGainLabel();
     }
 
     const el = this.messageMap.get(toRemove);
