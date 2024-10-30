@@ -1565,6 +1565,11 @@ class StatusTicker {
 
   private unbounce(deltaTime: number) {
     if (this.bounce > 0) {
+      if (this.messages.length === 0) {
+        this.bounce = 0;
+        this.panel.y = 0;
+        return;
+      }
       this.bounce -= deltaTime * this.unbounceSpeed;
       if (this.bounce < 0) this.bounce = 0;
       this.panel.y = this.bounce;
