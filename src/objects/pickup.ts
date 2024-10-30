@@ -206,7 +206,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
               ? this.item.getInventoryLabel(ship.makeup)
               : this.item.getItemLabel(),
         }),
-        color: "#0F0",
+        color: "#36A",
       },
       8,
     );

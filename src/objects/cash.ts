@@ -36,7 +36,7 @@ export class CashPickup extends Pickup<CashPickupParams> {
     ship.play.addTickerMessage(
       {
         amount: this.cash,
-        color: "#0F0",
+        color: "#8C2",
       },
       8,
     );
