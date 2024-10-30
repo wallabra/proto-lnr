@@ -1457,6 +1457,7 @@ interface TickerMessage {
   color: string;
   message?: string | null;
   amount?: number | null;
+  scale?: number;
   expiry: number;
 }
 
@@ -1481,8 +1482,7 @@ class StatusTicker {
     font: "bold $Hpx sans-serif",
     dockY: "center",
     alignY: "center",
-    height: 16,
-    maxHeight: 15,
+    fillY: 1,
   };
   private bounce = 0;
   private unbounceSpeed = 60;
@@ -1503,17 +1503,14 @@ class StatusTicker {
   }
 
   private pruneMessages() {
-    this.messages = this.messages
-      .filter((message) => message.expiry > Date.now());
-
     for (const old of this.messages.slice(0, -this.maxMessages)) {
       this.removeMessage(old, false);
     }
 
     this.messageMap.forEach((group, message) => {
-      const timeLeft = Date.now() - message.expiry;
+      const timeLeft = message.expiry - Date.now();
       
-      if (this.messages.indexOf(message) === -1) {
+      if (timeLeft < 0) {
         this.removeMessage(message);
       }
       else if (timeLeft < 1000) {
@@ -1553,6 +1550,7 @@ class StatusTicker {
         label: message.message == null ? string : `(${string})`,
         color: message.message == null ? message.color : "#580",
         ...this.standardLabelArgs,
+        height: 16 * (message.scale ?? 1),
       });
     }
 
@@ -1562,6 +1560,7 @@ class StatusTicker {
         label: message.message,
         color: message.color,
         ...this.standardLabelArgs,
+        height: 16 * (message.scale ?? 1),
       });
     }
 
