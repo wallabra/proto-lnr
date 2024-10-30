@@ -164,7 +164,7 @@ export const TR_EN: TranslationTable = {
       ],
     ],
 
-    "hud.pickup": "Picked up a {{pickup}}",
+    "hud.pickup": "Picked up {{countIfPlural}} {{pickup}}",
 
     "hud.cannons": "Cannons",
     "hud.cannon.locked": "(Locked)",

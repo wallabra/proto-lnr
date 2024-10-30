@@ -293,7 +293,7 @@ export const TR_PT_BR: TranslationTable = {
       ],
     ],
 
-    "hud.pickup": "Pegou um {{pickup}}",
+    "hud.pickup": "Pegou {{countIfPlural}} {{pickup}}",
 
     "hud.cannons": "Canhões",
     "hud.cannon.locked": "(Trancado)",
