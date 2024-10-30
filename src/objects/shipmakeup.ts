@@ -1466,12 +1466,15 @@ export class ShipMakeup {
 
     if (engines.length === 0) return 0;
 
-    return 500 + match(
-      engines,
-      match.fn((a) => a.length === 0, 0),
-      match._((engines: Engine[]) =>
-        engines.map((e) => e.getThrust()).reduce((a, b) => a + b, 0),
-      ),
+    return (
+      500 +
+      match(
+        engines,
+        match.fn((a) => a.length === 0, 0),
+        match._((engines: Engine[]) =>
+          engines.map((e) => e.getThrust()).reduce((a, b) => a + b, 0),
+        ),
+      )
     );
   }
 

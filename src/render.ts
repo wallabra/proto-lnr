@@ -1467,13 +1467,20 @@ interface TickerMessageBox extends CanvasUIGroup {
   children: [CanvasLabel] | [CanvasLabel, CanvasLabel];
 }
 
-interface TickerPanel extends CanvasPanel {
+interface TickerRows extends CanvasUIGroup {
   children: TickerMessageBox[];
 }
 
+interface TickerPanel extends CanvasPanel {
+  children: [CanvasLabel, TickerRows];
+}
+
 class StatusTicker {
+  private gainLabel: CanvasLabel;
+  private totalGain = 0;
   private messages: TickerMessage[] = [];
   private panel: TickerPanel;
+  private tickerRows: TickerRows;
   private messageMap = new Map<TickerMessage, CanvasUIGroup>();
   private standardLabelArgs: Partial<CanvasLabelArgs> = {
     childOrdering: "horizontal",
@@ -1500,6 +1507,29 @@ class StatusTicker {
       paddingX: 25,
       paddingY: 10,
     }) as TickerPanel;
+
+    this.gainLabel = new CanvasLabel({
+      parent: this.panel,
+      hidden: true,
+      label: "",
+      autoFont: true,
+      height: 20,
+      maxHeight: 20,
+      font: "bold $Hpx sans-serif",
+      x: 25,
+      color: "#55DA",
+      childOrdering: "vertical",
+      childMargin: 20,
+    });
+
+    this.tickerRows = new CanvasUIGroup({
+      parent: this.panel,
+      childOrdering: "vertical",
+      childMargin: 10,
+      childFill: 1,
+      fillX: true,
+      bgColor: "#0000",
+    }) as TickerRows;
   }
 
   private pruneMessages() {
@@ -1518,9 +1548,26 @@ class StatusTicker {
     });
   }
 
+  private updateGainLabel() {
+    console.log(this.totalGain);
+    if (Math.abs(this.totalGain) < 0.001) {
+      this.totalGain = 0;
+      this.gainLabel.label = "";
+      this.gainLabel.hidden = true;
+    } else {
+      this.gainLabel.label = costString(-this.totalGain);
+      this.gainLabel.hidden = false;
+    }
+  }
+
   private removeMessage(toRemove: TickerMessage, addBounce = true) {
-    if (this.messages.indexOf(toRemove) !== -1)
+    if (this.messages.indexOf(toRemove) !== -1) {
       this.messages.splice(this.messages.indexOf(toRemove), 1);
+      if (toRemove.amount != null) {
+        this.totalGain -= toRemove.amount;
+        this.updateGainLabel();
+      }
+    }
 
     const el = this.messageMap.get(toRemove);
 
@@ -1533,7 +1580,7 @@ class StatusTicker {
 
   private addMessageChild(message: TickerMessage): TickerMessageBox {
     const group: TickerMessageBox = new CanvasUIGroup({
-      parent: this.panel,
+      parent: this.tickerRows,
       fillX: true,
       paddingX: 10,
       paddingY: 5,
@@ -1572,6 +1619,10 @@ class StatusTicker {
       ...message,
       expiry: Date.now() + duration * 1000,
     };
+    if (message.amount != null) {
+      this.totalGain += message.amount;
+      this.updateGainLabel();
+    }
     this.messages.push(messageItem);
     this.messageMap.set(messageItem, this.addMessageChild(messageItem));
   }
@@ -1584,13 +1635,13 @@ class StatusTicker {
     if (this.bounce > 0) {
       if (this.messages.length === 0) {
         this.bounce = 0;
-        this.panel.y = 0;
+        this.tickerRows.y = 0;
         return;
       }
       this.bounce -= deltaTime * this.unbounceSpeed;
       if (this.bounce < 0) this.bounce = 0;
-      this.panel.y = this.bounce;
-      this.panel.updateCache();
+      this.tickerRows.y = this.bounce;
+      this.tickerRows.updateCache();
     }
   }
 
