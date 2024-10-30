@@ -3,7 +3,8 @@ import type { ObjectRenderInfo } from "../render";
 import type { PhysicsObject, PhysicsParams } from "./physics";
 import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
-import type { ShipItem } from "../inventory";
+import { computeResellCost, type ShipItem } from "../inventory";
+import i18next from "i18next";
 
 export function isPickup<T extends Partial<PhysicsParams>>(
   item: Tickable,
@@ -34,8 +35,11 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
     this.dying = false;
   }
 
-  /// Callback for when this crate item is collected.
+  /* Callback for when this crate item is collected. */
   protected abstract collect(ship: Ship): void;
+
+  /* Callback for when a player ship collects this crate. */
+  protected doCollectMessage(_ship: Ship): void {}
 
   public init(_ship: Ship): void {}
 
@@ -103,6 +107,11 @@ export abstract class Pickup<P extends Partial<PhysicsParams>> {
 
     this.phys.playSound("pickup", 0.2);
     this.collect(ship);
+
+    if (ship.isPlayer) {
+      this.doCollectMessage(ship);
+    }
+
     this.destroy();
     return true;
   }
@@ -185,5 +194,21 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
 
   protected override collect(ship: Ship): void {
     ship.makeup.inventory.addItem(this.item);
+  }
+
+  protected override doCollectMessage(ship: Ship): void {
+    ship.play.addTickerMessage(
+      {
+        amount: computeResellCost(this.item),
+        message: i18next.t("hud.pickup", {
+          label:
+            this.item.getInventoryLabel != null
+              ? this.item.getInventoryLabel(ship.makeup)
+              : this.item.getItemLabel(),
+        }),
+        color: "#0F0",
+      },
+      8,
+    );
   }
 }

@@ -11,7 +11,7 @@ import { Superstate } from "./base";
 import Victor from "victor";
 import { AIController } from "../ai/ai";
 import { GameRenderer } from "../render";
-import type { Renderable } from "../render";
+import type { Renderable, TickerMessageArgs } from "../render";
 import type { Game } from "../game";
 import { PlayMouseHandler } from "../mouse";
 import { PlayKeyHandler } from "../keyinput";
@@ -73,6 +73,10 @@ export class PlayState extends Superstate {
     super(game);
     this.setTerrain(new Terrain(terraDef));
     this.reloadSoundEngine();
+  }
+
+  addTickerMessage(message: TickerMessageArgs, duration: number) {
+    this.renderer.r_hud.addMessage(message, duration);
   }
 
   reloadSoundEngine() {

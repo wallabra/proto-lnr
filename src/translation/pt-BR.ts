@@ -293,6 +293,8 @@ export const TR_PT_BR: TranslationTable = {
       ],
     ],
 
+    "hud.pickup": "Pegou um {{pickup}}",
+
     "hud.cannons": "Canhões",
     "hud.cannon.locked": "(Trancado)",
     "hud.cannon.noCrew": "(Sem Operador!)",

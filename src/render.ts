@@ -7,7 +7,14 @@ import {
   SECTOR_RES,
 } from "./terrain";
 import { isPhysicable, type PlayState } from "./superstates/play";
-import { rgbString, interpColor, lerp, moneyString, unlerp } from "./util";
+import {
+  rgbString,
+  interpColor,
+  lerp,
+  moneyString,
+  unlerp,
+  costString,
+} from "./util";
 import type {
   CanvasLabelArgs,
   CanvasPanelArgs,
@@ -1446,18 +1453,148 @@ class Hud extends CanvasPanel {
   }
 }
 
+interface TickerMessage {
+  color: string;
+  message?: string | null;
+  amount?: number | null;
+  expiry: number;
+}
+
+export type TickerMessageArgs = Omit<TickerMessage, "expiry">;
+
+interface TickerMessageBox extends CanvasUIGroup {
+  children: [CanvasLabel] | [CanvasLabel, CanvasLabel];
+}
+
+interface TickerPanel extends CanvasPanel {
+  children: TickerMessageBox[];
+}
+
+class StatusTicker {
+  private messages: TickerMessage[] = [];
+  private panel: TickerPanel;
+  private messageMap = new Map<TickerMessage, CanvasUIGroup>();
+  private standardLabelArgs: Partial<CanvasLabelArgs> = {
+    childOrdering: "horizontal",
+    autoFont: true,
+    font: "bold $Hpx sans-serif",
+    dockY: "center",
+    alignY: "center",
+    height: 16,
+    maxHeight: 15,
+  };
+  private bounce = 0;
+  private unbounceSpeed = 12;
+
+  public maxMessages = 8;
+
+  constructor(parent: CanvasUIElement) {
+    this.panel = new CanvasPanel({
+      parent: parent,
+      fillX: 0.35,
+      fillY: 0.2,
+      width: 400,
+      height: 200,
+      bgColor: '#0000',
+      paddingX: 25,
+      paddingY: 10,
+    }) as TickerPanel;
+  }
+
+  private pruneMessages() {
+    const messages = this.messages;
+    this.messages = messages
+      .filter((message) => message.expiry > Date.now())
+      .slice(-this.maxMessages);
+
+    this.messageMap.forEach((group, message) => {
+      if (message.expiry <= Date.now()) {
+        this.bounce += group.realHeight + group.childMargin;
+        group.remove();
+        this.messageMap.delete(message);
+      }
+    });
+  }
+
+  private addMessageChild(message: TickerMessage): TickerMessageBox {
+    const group: TickerMessageBox = new CanvasUIGroup({
+      parent: this.panel,
+      fillX: true,
+      paddingX: 10,
+      paddingY: 5,
+      height: 24,
+      bgColor: "#111",
+      childOrdering: "vertical",
+      childMargin: 8,
+    }) as TickerMessageBox;
+
+    if (message.amount != null) {
+      const string = costString(-message.amount);
+      new CanvasLabel({
+        parent: group,
+        label: message.message == null ? string : `(${string})`,
+        color: message.message == null ? message.color : "#580",
+        ...this.standardLabelArgs,
+      });
+    }
+
+    if (message.message != null) {
+      new CanvasLabel({
+        parent: group,
+        label: message.message,
+        color: message.color,
+        ...this.standardLabelArgs,
+      });
+    }
+
+    return group;
+  }
+
+  public addMessage(message: TickerMessageArgs, duration: number) {
+    const messageItem: TickerMessage = {
+      ...message,
+      expiry: Date.now() + duration * 1000,
+    };
+    this.messages.push(messageItem);
+    this.messageMap.set(messageItem, this.addMessageChild(messageItem));
+  }
+
+  private update() {
+    this.pruneMessages();
+  }
+
+  private unbounce(deltaTime: number) {
+    if (this.bounce > 0) {
+      this.bounce -= deltaTime * this.unbounceSpeed;
+      if (this.bounce < 0) this.bounce = 0;
+      this.panel.y = this.bounce;
+    }
+  }
+
+  public tick(deltaTime: number) {
+    this.update();
+    this.unbounce(deltaTime);
+  }
+}
+
 class HudRenderer {
   public game: PlayState;
   protected fpsCounter: FpsCounter;
   protected root: CanvasRoot;
   protected hud: Hud;
   protected hudMessage: CanvasLabel;
+  protected statusTicker: StatusTicker;
 
   constructor(game: PlayState) {
     this.game = game;
     this.root = new CanvasRoot(game.game);
     this.fpsCounter = new FpsCounter({ parent: this.root });
     this.hud = new Hud({ parent: this.root, renderer: this });
+    this.statusTicker = new StatusTicker(this.root);
+  }
+
+  public addMessage(message: TickerMessageArgs, duration: number) {
+    this.statusTicker.addMessage(message, duration);
   }
 
   public toggleHud() {
@@ -1522,6 +1659,7 @@ class HudRenderer {
 
   public tick(deltaTime: number) {
     this.fpsCounter.tick(deltaTime);
+    this.statusTicker.tick(deltaTime);
     if (!this.game.game.paused) this.hud.tick(deltaTime);
   }
 

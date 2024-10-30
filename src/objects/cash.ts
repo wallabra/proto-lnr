@@ -28,7 +28,17 @@ export class CashPickup extends Pickup<CashPickupParams> {
     this.cash = params.cash ?? 10;
   }
 
-  collect(ship: Ship): void {
+  protected override collect(ship: Ship): void {
     ship.giveMoney(this.cash);
+  }
+
+  protected override doCollectMessage(ship: Ship): void {
+    ship.play.addTickerMessage(
+      {
+        amount: this.cash,
+        color: "#0F0",
+      },
+      8,
+    );
   }
 }
