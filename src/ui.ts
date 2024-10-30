@@ -95,6 +95,7 @@ export interface CanvasUIArgs {
   childFill?: number;
   layer?: number;
   cullOutOfBounds?: boolean;
+  opacity?: number;
 }
 
 export interface Point {
@@ -166,6 +167,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
   cullOutOfBounds: boolean;
   cached: CachedInfo;
   modified: boolean;
+  opacity: number;
 
   constructor(args: CanvasUIArgs & ExtraProps) {
     this.parent = args.parent ?? null;
@@ -193,6 +195,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
     this.childFill = args.childFill ?? 0;
     this.layer = args.layer ?? 0;
     this.cullOutOfBounds = args.cullOutOfBounds ?? false;
+    this.opacity = args.opacity ?? 1;
 
     this.modified = true;
     this.updateCache();
@@ -597,7 +600,16 @@ export abstract class CanvasUIElement<ExtraProps = object> {
       return;
     }
 
+    if (this.opacity !== 1) {
+      ctx.ctx.save();
+      ctx.ctx.globalAlpha = this.opacity;
+    }
+
     this._render(ctx);
+
+    if (this.opacity !== 1) {
+      ctx.ctx.restore();
+    }
 
     this.preChildrenRender(ctx);
     for (const child of this.children.sort((a, b) => a.layer - b.layer)) {

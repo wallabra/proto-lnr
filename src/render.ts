@@ -1503,16 +1503,20 @@ class StatusTicker {
   }
 
   private pruneMessages() {
-    const messages = this.messages;
-    this.messages = messages
+    this.messages = this.messages
       .filter((message) => message.expiry > Date.now())
       .slice(-this.maxMessages);
 
     this.messageMap.forEach((group, message) => {
-      if (message.expiry <= Date.now()) {
+      const timeLeft = Date.now() - message.expiry;
+      
+      if (this.messages.indexOf(message) === -1) {
         this.bounce += group.realHeight + group.childMargin;
         group.remove();
         this.messageMap.delete(message);
+      }
+      else if (timeLeft < 1000) {
+        group.opacity = 1 - timeLeft / 1000;
       }
     });
   }
