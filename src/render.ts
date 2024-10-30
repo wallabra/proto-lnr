@@ -1591,6 +1591,7 @@ class StatusTicker {
       this.bounce -= deltaTime * this.unbounceSpeed;
       if (this.bounce < 0) this.bounce = 0;
       this.panel.y = this.bounce;
+      this.panel.updateCache();
     }
   }
 
