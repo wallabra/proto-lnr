@@ -607,15 +607,15 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 
     this._render(ctx);
 
-    if (this.opacity !== 1) {
-      ctx.ctx.restore();
-    }
-
     this.preChildrenRender(ctx);
     for (const child of this.children.sort((a, b) => a.layer - b.layer)) {
       if (this.childIsVisible(child)) child.render(ctx);
     }
     this.postChildrenRender(ctx);
+    
+    if (this.opacity !== 1) {
+      ctx.ctx.restore();
+    }
   }
 }
 
