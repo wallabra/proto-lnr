@@ -201,7 +201,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
       {
         amount: computeResellCost(this.item),
         message: i18next.t("hud.pickup", {
-          label:
+          pickup:
             this.item.getInventoryLabel != null
               ? this.item.getInventoryLabel(ship.makeup)
               : this.item.getItemLabel(),
