@@ -1509,18 +1509,18 @@ class StatusTicker {
 
     this.messageMap.forEach((group, message) => {
       const timeLeft = message.expiry - Date.now();
-      
+
       if (timeLeft < 0) {
         this.removeMessage(message);
-      }
-      else if (timeLeft < 1000) {
+      } else if (timeLeft < 1000) {
         group.opacity = timeLeft / 1000;
       }
     });
   }
 
   private removeMessage(toRemove: TickerMessage, addBounce = true) {
-    if (this.messages.indexOf(toRemove) !== -1) this.messages.splice(this.messages.indexOf(toRemove), 1);
+    if (this.messages.indexOf(toRemove) !== -1)
+      this.messages.splice(this.messages.indexOf(toRemove), 1);
 
     const el = this.messageMap.get(toRemove);
 
@@ -1682,7 +1682,7 @@ class HudRenderer {
 
   public tick(deltaTime: number) {
     this.fpsCounter.tick(deltaTime);
-    
+
     if (!this.game.game.paused) {
       this.hud.tick(deltaTime);
       this.statusTicker.tick(deltaTime);

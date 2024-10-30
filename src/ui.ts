@@ -612,7 +612,7 @@ export abstract class CanvasUIElement<ExtraProps = object> {
       if (this.childIsVisible(child)) child.render(ctx);
     }
     this.postChildrenRender(ctx);
-    
+
     if (this.opacity !== 1) {
       ctx.ctx.restore();
     }

@@ -22,8 +22,7 @@ import random from "random";
 import { CREWDEFS } from "../shop/crewdefs";
 import { FOODDEFS } from "../shop/fooddefs";
 import { isPickup } from "./pickup";
-import type { Pickup } from "./pickup";
-import type { PlayState } from "../superstates/play";
+import { isTickable } from "../superstates/play";
 import randomParts from "../shop/randomparts";
 import { DEFAULT_MAKE } from "../shop/makedefs";
 import type { ProjectileModifier } from "../combat/projectile";
@@ -35,6 +34,7 @@ import {
   translatePartName,
 } from "../internationalization";
 import i18next from "i18next";
+import { aoeExplosion } from "../combat/explosion";
 
 export function slots(make: ShipMake): Map<string, number> {
   return arrayCounter(make.slots.map((s) => s.type));
@@ -710,48 +710,24 @@ export class Vacuum extends ShipPart implements VacuumArgs {
     ];
   }
 
-  findCrates(ship: Ship): Pickup<ShipItem>[] {
-    const res: Pickup<ShipItem>[] = [];
-
-    for (const item of (ship.game.state as PlayState).tickables) {
-      if (!isPickup(item)) continue;
-      const crate = item as Pickup<ShipItem>;
-
-      const dist = crate.phys.pos.distance(ship.pos);
-      if (dist > ship.size * ship.lateralCrossSection + this.suckRadius)
-        continue;
-
-      res.push(item);
-    }
-
-    return res;
-  }
-
   static default() {
     return new Vacuum(DEFAULT_VACUUM);
   }
 
-  suckCrate(deltaTime: number, ship: Ship, crate: Pickup<ShipItem>) {
-    crate.phys.applyForce(
+  private suckCrates(deltaTime: number, ship: Ship) {
+    aoeExplosion(
+      ship.play,
+      ship.phys.pos,
+      this.suckRadius + ship.phys.size * ship.lateralCrossSection,
+      0,
+      -this.suckStrength,
+      (obj) => isTickable(obj) && isPickup(obj),
+      null,
+      null,
+      ship.phys.height + ship.phys.verticalSize() * 0.6,
+      0.0,
       deltaTime,
-      ship.pos
-        .clone()
-        .subtract(crate.phys.pos)
-        .norm()
-        .multiplyScalar(this.suckStrength)
-        .divideScalar(
-          Math.max(
-            400,
-            ship.pos.distanceSq(crate.phys.pos) -
-              ship.lateralCrossSection * ship.size,
-          ),
-        ),
     );
-  }
-
-  suckCrates(deltaTime: number, ship: Ship) {
-    for (const crate of this.findCrates(ship))
-      this.suckCrate(deltaTime, ship, crate);
   }
 
   override tick(deltaTime: number, owner: Ship): void {
