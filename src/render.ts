@@ -1682,8 +1682,11 @@ class HudRenderer {
 
   public tick(deltaTime: number) {
     this.fpsCounter.tick(deltaTime);
-    this.statusTicker.tick(deltaTime);
-    if (!this.game.game.paused) this.hud.tick(deltaTime);
+    
+    if (!this.game.game.paused) {
+      this.hud.tick(deltaTime);
+      this.statusTicker.tick(deltaTime);
+    }
   }
 
   public renderUI(ctx: UIDrawContext) {
