@@ -1514,7 +1514,7 @@ class StatusTicker {
         this.removeMessage(message);
       }
       else if (timeLeft < 1000) {
-        group.opacity = 1 - timeLeft / 1000;
+        group.opacity = timeLeft / 1000;
       }
     });
   }
