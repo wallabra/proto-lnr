@@ -1476,6 +1476,7 @@ class StatusTicker {
   private messageMap = new Map<TickerMessage, CanvasUIGroup>();
   private standardLabelArgs: Partial<CanvasLabelArgs> = {
     childOrdering: "horizontal",
+    childMargin: 30,
     autoFont: true,
     font: "bold $Hpx sans-serif",
     dockY: "center",
