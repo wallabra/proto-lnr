@@ -1496,7 +1496,7 @@ class StatusTicker {
       fillY: 0.2,
       width: 400,
       height: 200,
-      bgColor: '#0000',
+      bgColor: "#0000",
       paddingX: 25,
       paddingY: 10,
     }) as TickerPanel;
