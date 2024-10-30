@@ -258,9 +258,9 @@ export function spawnShipOnDef(
       ? random.uniform(0, 1)() < def.armed
       : def.armed,
     bonus * maybeRange(def.bonusFactor ?? 1) + maybeRange(def.extraBonus ?? 0),
-    maybeRange(def.ammoFactor ?? 0),
-    maybeRange(def.fuelFactor ?? 0),
-    maybeRange(def.foodFactor ?? 0),
+    maybeRange(def.ammoFactor ?? 1),
+    maybeRange(def.fuelFactor ?? 1),
+    maybeRange(def.foodFactor ?? 1),
   );
 
   // apply extra loot
