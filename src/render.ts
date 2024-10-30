@@ -1523,7 +1523,7 @@ class StatusTicker {
       paddingX: 10,
       paddingY: 5,
       height: 24,
-      bgColor: "#111",
+      bgColor: "#1117",
       childOrdering: "vertical",
       childMargin: 8,
     }) as TickerMessageBox;
