@@ -26,29 +26,32 @@ export function translateItemType(
   itemType: string,
   options?: TOptions,
 ): string {
-  return i18next.t("itemtype." + itemType, options);
+  return i18next.t("itemtype." + itemType, { count: 1, ...options });
 }
 
 export function translateFuelType(
   fuelType: string,
   options?: TOptions,
 ): string {
-  return i18next.t("fueltype." + fuelType, options);
+  return i18next.t("fueltype." + fuelType, { count: 1, ...options });
 }
 
 export function translatePartName(part: ShipPart, options?: TOptions): string {
-  return i18next.t(`partdefs.${part.type}.${part.name}`, options);
+  return i18next.t(`partdefs.${part.type}.${part.name}`, {
+    count: 1,
+    ...options,
+  });
 }
 
 export function translateFoodName(food: FoodItem, options?: TOptions): string {
-  return i18next.t("fooddefs." + food.name, options);
+  return i18next.t("fooddefs." + food.name, { count: food.amount, ...options });
 }
 
 export function translateValuableName(
   loot: ValuableItem,
   options?: TOptions,
 ): string {
-  return i18next.t("lootdefs." + loot.name, options);
+  return i18next.t("lootdefs." + loot.name, { count: loot.amount, ...options });
 }
 
 export function translateEngineFuelType(

@@ -201,13 +201,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
       {
         amount: computeResellCost(this.item),
         message: i18next.t("hud.pickup", {
-          count: this.item.amount,
-          countIfPlural:
-            this.item.amount == null || this.item.amount === 1
-              ? ""
-              : this.item.integerAmounts
-                ? this.item.amount.toFixed(0)
-                : this.item.amount.toFixed(2),
+          count: this.item.amount ?? 1,
           pickup:
             this.item.getInventoryLabel != null
               ? this.item.getInventoryLabel(ship.makeup)

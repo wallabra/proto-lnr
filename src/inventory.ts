@@ -145,7 +145,7 @@ export class FuelItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `${translateItemType("fuel")} ${translateFuelType(this.name)}`;
+    return `${translateItemType("fuel", { count: this.amount })} ${translateFuelType(this.name)}`;
   }
 
   autoResell(makeup: ShipMakeup): boolean {
@@ -216,7 +216,7 @@ export class FoodItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `${translateItemType("food")} ${translateFoodName(this)}`;
+    return `${translateItemType("food", { amount: this.amount })} ${translateFoodName(this)}`;
   }
 
   autoResell(makeup: ShipMakeup): boolean {

@@ -2117,7 +2117,7 @@ class PaneDrydockShip extends Pane<
 
     for (const name of makeSlots.keys()) {
       labelParts.push(
-        `${translateItemType(name)} (${(partTypes.get(name) ?? 0).toString() || "0"}/${(makeSlots.get(name) as number).toString()})`,
+        `${translateItemType(name, { count: makeSlots.get(name) ?? 0 })} (${(partTypes.get(name) ?? 0).toString() || "0"}/${(makeSlots.get(name) as number).toString()})`,
       );
     }
 

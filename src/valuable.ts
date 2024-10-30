@@ -1,9 +1,11 @@
-import i18next from "i18next";
 import type { ShipItem } from "./inventory";
 import type { RandomRange, WeightedItem } from "./util";
 import { maybeRangeInt, rwc } from "./util";
 import random from "random";
-import { translateValuableName } from "./internationalization";
+import {
+  translateItemType,
+  translateValuableName,
+} from "./internationalization";
 
 export interface ValuableArgs {
   name: string;
@@ -29,7 +31,7 @@ export class ValuableItem implements ShipItem {
   }
 
   getItemLabel() {
-    return `${i18next.t("itemtype.valuable")} ${translateValuableName(this)}`;
+    return `${translateItemType("valuable", { count: this.amount })} ${translateValuableName(this)}`;
   }
 
   autoResell(): boolean {
