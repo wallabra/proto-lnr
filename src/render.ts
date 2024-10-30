@@ -1504,21 +1504,34 @@ class StatusTicker {
 
   private pruneMessages() {
     this.messages = this.messages
-      .filter((message) => message.expiry > Date.now())
-      .slice(-this.maxMessages);
+      .filter((message) => message.expiry > Date.now());
+
+    for (const old of this.messages.slice(0, -this.maxMessages)) {
+      this.removeMessage(old, false);
+    }
 
     this.messageMap.forEach((group, message) => {
       const timeLeft = Date.now() - message.expiry;
       
       if (this.messages.indexOf(message) === -1) {
-        this.bounce += group.realHeight + group.childMargin;
-        group.remove();
-        this.messageMap.delete(message);
+        this.removeMessage(message);
       }
       else if (timeLeft < 1000) {
         group.opacity = 1 - timeLeft / 1000;
       }
     });
+  }
+
+  private removeMessage(toRemove: TickerMessage, addBounce = true) {
+    if (this.messages.indexOf(toRemove) !== -1) this.messages.splice(this.messages.indexOf(toRemove), 1);
+
+    const el = this.messageMap.get(toRemove);
+
+    if (el != null) {
+      if (addBounce) this.bounce += el.realHeight + el.childMargin;
+      el.remove();
+      this.messageMap.delete(toRemove);
+    }
   }
 
   private addMessageChild(message: TickerMessage): TickerMessageBox {
