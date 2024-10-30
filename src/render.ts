@@ -1485,7 +1485,7 @@ class StatusTicker {
     maxHeight: 15,
   };
   private bounce = 0;
-  private unbounceSpeed = 12;
+  private unbounceSpeed = 60;
 
   public maxMessages = 8;
 
