@@ -1626,6 +1626,9 @@ class StatusTicker {
 
   private update() {
     this.pruneMessages();
+    this.gainLabel.opacity = Math.max(
+      ...this.tickerRows.children.map((child) => child.opacity),
+    );
   }
 
   private unbounce(deltaTime: number) {
