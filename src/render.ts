@@ -1616,12 +1616,12 @@ class StatusTicker {
       ...message,
       expiry: Date.now() + duration * 1000,
     };
+    this.messages.push(messageItem);
+    this.messageMap.set(messageItem, this.addMessageChild(messageItem));
     if (message.amount != null) {
       this.totalGain += message.amount;
       this.updateGainLabel();
     }
-    this.messages.push(messageItem);
-    this.messageMap.set(messageItem, this.addMessageChild(messageItem));
   }
 
   private update() {
