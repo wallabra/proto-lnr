@@ -1463,8 +1463,10 @@ export class ShipMakeup {
     const engines =
       (enginesList && enginesList.filter((e) => e.available(this))) ??
       this.getReadyEngines();
+
     if (engines.length === 0) return 0;
-    return match(
+
+    return 500 + match(
       engines,
       match.fn((a) => a.length === 0, 0),
       match._((engines: Engine[]) =>
