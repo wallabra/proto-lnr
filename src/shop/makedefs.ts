@@ -8,7 +8,7 @@ export interface ShipMakeDef extends ShipMake {
 export function pickRandomDef() {}
 
 export const DEFAULT_MAKE: ShipMakeDef = {
-  name: "Dependable Dave",
+  name: "dependableDave",
   cost: 2600,
   rarity: 5,
   shopChance: 0.4,
