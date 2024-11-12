@@ -126,11 +126,10 @@ type RGB = [number, number, number];
 
 export class TerrainRenderer {
   game: PlayState;
-  renderedSectors: Map<string, HTMLImageElement>;
+  renderedSectors: Map<string, HTMLCanvasElement> = new Map();
 
   constructor(game: PlayState) {
     this.game = game;
-    this.renderedSectors = new Map();
   }
 
   get terrain(): Terrain | null {
@@ -241,13 +240,8 @@ export class TerrainRenderer {
       renderCtx.imageSmoothingEnabled = false;
 
       this.renderTerrainSector(renderCtx, x, y, sector, zoom);
-
-      const imgData = renderCanvas.toDataURL("image/png", "image/octet-scream");
-      const imgEl = document.createElement("img");
-      imgEl.src = imgData;
-      this.renderedSectors.set(key, imgEl);
-      image = imgEl;
-      renderCanvas.remove();
+      this.renderedSectors.set(key, renderCanvas);
+      image = renderCanvas;
     }
 
     ctx.imageSmoothingEnabled = false;
