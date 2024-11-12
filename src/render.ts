@@ -1086,6 +1086,17 @@ class HudCounters {
       bgColor: "#0001",
     });
 
+    this.addRow(
+      i18next.t("hud.info.day", { day: this.player.game.difficulty + 1 }),
+    );
+    this.addRow(i18next.t("hud.info.dayTime"), (label) => {
+      const dayTime = new Date(
+        (this.player.game.state as PlayState).now * 1000,
+      );
+      label.label = dayTime.toISOString().slice(11, 19);
+    });
+    this.addRow("---");
+
     const statValue = (value: (player: Player) => number) => {
       return (label: CanvasLabel, player: Player) => {
         const money = value(player);
