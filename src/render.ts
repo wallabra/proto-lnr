@@ -1710,10 +1710,14 @@ class HudRenderer {
     ctx.font = "40px serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("paused", game.width / 2, game.height / 4);
+    ctx.fillText(i18next.t("hud.paused"), game.width / 2, game.height / 4);
     ctx.font = "18px sans-serif";
     ctx.textBaseline = "top";
-    ctx.fillText("(Press P to unpause)", game.width / 2, game.height / 4 + 55);
+    ctx.fillText(
+      i18next.t("hud.pauseMessage"),
+      game.width / 2,
+      game.height / 4 + 55,
+    );
 
     return true;
   }

@@ -177,6 +177,8 @@ export const TR_EN: TranslationTable = {
     "hud.fuel": "Fuel",
     "hud.ammo": "Ammo",
     "hud.hull": "Hull: {{percent}}%",
+    "hud.paused": "paused",
+    "hud.pauseMessage": "(press P to unpause)",
     "hud.info.day": "Day  {{day, number}}",
     "hud.info.dayTime": "Day Time",
     "hud.info.totalTime": "Total Time",

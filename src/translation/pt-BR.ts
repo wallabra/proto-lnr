@@ -306,6 +306,8 @@ export const TR_PT_BR: TranslationTable = {
     "hud.fuel": "Combustível",
     "hud.ammo": "Munição",
     "hud.hull": "Casco: {{percent}}%",
+    "hud.paused": "pausado",
+    "hud.pauseMessage": "(aperte P para despausar)",
     "hud.info.day": "Dia  {{day, number}}",
     "hud.info.dayTime": "Tempo Hoje",
     "hud.info.totalTime": "Tempo Total",
