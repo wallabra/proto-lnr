@@ -44,11 +44,11 @@ export function computeDock(
 }
 
 export function getTextAlign(align: UIAlign): CanvasTextAlign {
-  return align === 'start' ? 'start' : align === 'end' ? 'end' : 'center';
+  return align === "start" ? "start" : align === "end" ? "end" : "center";
 }
 
 export function getTextBaseline(align: UIAlign): CanvasTextBaseline {
-  return align === 'start' ? 'top' : align === 'end' ? 'bottom' : 'middle';
+  return align === "start" ? "top" : align === "end" ? "bottom" : "middle";
 }
 
 export function computeAlign(align: UIAlign, base: number, offset: number) {
@@ -816,11 +816,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     pos.x = computeDock(this.dockX, pos.x, this.innerWidth, 0);
     pos.y = computeDock(this.dockY, pos.y, this.innerHeight, 0);
 
-    ctx.fillText(
-      this.label,
-      pos.x,
-      pos.y,
-    );
+    ctx.fillText(this.label, pos.x, pos.y);
   }
 
   event() {

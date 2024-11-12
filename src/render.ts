@@ -326,7 +326,6 @@ class FpsCounter extends CanvasLabel {
       dockY: "start",
       dockMarginX: 25,
       dockMarginY: 20,
-      textAlign: "end",
       color: "#ff08",
       ...args,
     });
@@ -1191,7 +1190,6 @@ class HudCounters {
       autoFont: true,
       font: "$Hpx sans-serif",
       height: 12,
-      textAlign: "start",
     };
 
     new CanvasLabel({
