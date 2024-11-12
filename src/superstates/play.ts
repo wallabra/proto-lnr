@@ -21,6 +21,7 @@ import { SoundEngine } from "../sfx";
 import { Decor } from "../objects/props/decor";
 import type { Nullish } from "utility-types";
 import { getRandomSpawnClass } from "../spawn";
+import i18next from "i18next";
 
 export interface GameObject {
   dying: boolean;
@@ -488,6 +489,15 @@ export class PlayState extends Superstate {
     console.log("Selected gamemode would be " + this.game.gamemode);
 
     this.startContinuousSpawns();
+
+    this.addTickerMessage(
+      {
+        message: i18next.t("hud.startDay", { day: this.game.difficulty + 1 }),
+        color: "#FF9",
+        scale: 1.5,
+      },
+      30,
+    );
   }
 
   override deinit() {

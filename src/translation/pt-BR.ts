@@ -308,6 +308,7 @@ export const TR_PT_BR: TranslationTable = {
     "hud.hull": "Casco: {{percent}}%",
     "hud.paused": "pausado",
     "hud.pauseMessage": "(aperte P para despausar)",
+    "hud.startDay": "Você alcança a ilha no começo do dia {{day, number}}.",
     "hud.info.day": "Dia  {{day, number}}",
     "hud.info.dayTime": "Tempo Hoje",
     "hud.info.totalTime": "Tempo Total",
