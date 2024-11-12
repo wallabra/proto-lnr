@@ -253,14 +253,13 @@ export class TerrainRenderer {
     const maxX = this.game.width / 2 / zoom + cam.x;
     const maxY = this.game.height / 2 / zoom + cam.y;
 
-    const zoomedSectorSize = SECTOR_REAL_SIZE * zoom;
-
     const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
     const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
     const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
     const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
     const minDrawX = minSectorX * SECTOR_REAL_SIZE + this.game.width / 2 / zoom;
-    const minDrawY = minSectorY * SECTOR_REAL_SIZE + this.game.height / 2 / zoom;
+    const minDrawY =
+      minSectorY * SECTOR_REAL_SIZE + this.game.height / 2 / zoom;
 
     // draw sectors as diversely coloured squares
     const sectorW = maxSectorX - minSectorX;
