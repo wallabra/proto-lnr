@@ -463,11 +463,11 @@ class HudCannon {
       fillX: true,
       autoFont: true,
       font: "$Hpx sans-serif",
-      dockX: "start",
+      dockX: "center",
       dockY: "center",
       dockMarginX: 10,
       paddingY: 4,
-      maxHeight: 15,
+      maxHeight: 20,
       label: "-",
       color: "#fff",
     });
@@ -654,11 +654,11 @@ class HudEngine {
       fillX: true,
       autoFont: true,
       font: "$Hpx sans-serif",
-      dockX: "start",
+      dockX: "center",
       dockY: "center",
       dockMarginX: 10,
       paddingY: 4,
-      maxHeight: 15,
+      maxHeight: 20,
       label: this.getLabel(),
       color: "#fff",
     });
@@ -1191,6 +1191,7 @@ class HudCounters {
       autoFont: true,
       font: "$Hpx sans-serif",
       height: 12,
+      textAlign: "start",
     };
 
     new CanvasLabel({

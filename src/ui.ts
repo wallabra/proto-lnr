@@ -43,6 +43,14 @@ export function computeDock(
   return base;
 }
 
+export function getTextAlign(align: UIAlign): CanvasTextAlign {
+  return align === 'start' ? 'start' : align === 'end' ? 'end' : 'center';
+}
+
+export function getTextBaseline(align: UIAlign): CanvasTextBaseline {
+  return align === 'start' ? 'top' : align === 'end' ? 'bottom' : 'middle';
+}
+
 export function computeAlign(align: UIAlign, base: number, offset: number) {
   if (align == "center") {
     base -= offset / 2;
@@ -716,8 +724,6 @@ export interface CanvasLabelSpecificArgs {
   label: string;
   color?: string | null;
   font?: string | null;
-  textAlign?: CanvasTextAlign | null;
-  textBaseline?: CanvasTextBaseline | null;
   autoFont?: boolean | null;
   maxHeight?: number | null;
 }
@@ -728,8 +734,6 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
   label: string;
   color: string;
   font: string;
-  textAlign: CanvasTextAlign;
-  textBaseline: CanvasTextBaseline;
   autoFont: boolean;
   textWidth: number | null = null;
   bgColor: string | null;
@@ -741,8 +745,6 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
     this.label = args.label;
     this.color = args.color || "black";
     this.font = args.font || `${this.height.toString()}px sans-serif`;
-    this.textAlign = args.textAlign || "start";
-    this.textBaseline = args.textBaseline || "top";
     this.autoFont = args.autoFont || false;
   }
 
@@ -778,8 +780,8 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
 
     ctx.fillStyle = this.color;
     ctx.font = font;
-    ctx.textAlign = this.textAlign;
-    ctx.textBaseline = this.textBaseline;
+    ctx.textAlign = getTextAlign(this.dockX);
+    ctx.textBaseline = getTextBaseline(this.dockY);
 
     const measures = ctx.measureText(this.label);
     const oldWidth = this.textWidth;
@@ -811,7 +813,14 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
       this.updateCache();
     }
 
-    ctx.fillText(this.label, pos.x, pos.y);
+    pos.x = computeDock(this.dockX, pos.x, this.innerWidth, 0);
+    pos.y = computeDock(this.dockY, pos.y, this.innerHeight, 0);
+
+    ctx.fillText(
+      this.label,
+      pos.x,
+      pos.y,
+    );
   }
 
   event() {

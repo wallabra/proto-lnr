@@ -77,10 +77,13 @@ export class MainMenuState extends Superstate {
       childFill: 0.05,
       bgColor: "#555",
       height: 80,
+      paddingY: 10,
     };
 
     const buttonLabelArgs: Partial<CanvasLabelArgs> = {
-      fillY: 0.5,
+      fillY: 1,
+      height: 12,
+      maxHeight: 50,
       autoFont: true,
       font: "%Hpx bold sans-serif",
       color: "#fff",
@@ -209,7 +212,7 @@ export class MainMenuState extends Superstate {
             this.a_newGame(code);
           },
         }).label(i18next.t("submenu.newgame." + code), { ...buttonLabelArgs });
-      }
+      };
 
       addGamemode("freeplay");
 
