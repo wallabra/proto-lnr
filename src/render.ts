@@ -1559,8 +1559,8 @@ class StatusTicker {
 
       if (timeLeft < 0) {
         this.removeMessage(message);
-      } else if (timeLeft < 1000) {
-        group.opacity = timeLeft / 1000;
+      } else if (timeLeft < 1) {
+        group.opacity = timeLeft;
       }
     });
   }
@@ -1631,7 +1631,7 @@ class StatusTicker {
   public addMessage(message: TickerMessageArgs, duration: number) {
     const messageItem: TickerMessage = {
       ...message,
-      expiry: this.now() + duration * 1000,
+      expiry: this.now() + duration,
     };
     this.messages.push(messageItem);
     this.messageMap.set(messageItem, this.addMessageChild(messageItem));
