@@ -124,9 +124,12 @@ export class ObjectRenderer {
 
 type RGB = [number, number, number];
 
+const DEFAULT_TERRAIN_CACHE_SIZE = 10;
+
 export class TerrainRenderer {
   game: PlayState;
-  renderedSectors: Map<string, HTMLCanvasElement> = new Map();
+  protected renderedSectors: Map<string, HTMLCanvasElement> = new Map();
+  public terrainCacheSize: number | null = DEFAULT_TERRAIN_CACHE_SIZE;
 
   constructor(game: PlayState) {
     this.game = game;
@@ -230,7 +233,30 @@ export class TerrainRenderer {
       this.renderTerrainSector(renderCtx, x, y, sector);
 
       this.renderedSectors.set(key, renderCanvas);
+
+      while (
+        this.terrainCacheSize != null &&
+        this.renderedSectors.size > this.terrainCacheSize
+      )
+        this.renderedSectors.delete(
+          this.renderedSectors.keys().next().value as string,
+        );
+
+      console.log(
+        "New terrain cache size: " +
+          this.renderedSectors.size.toString() +
+          "/" +
+          (this.terrainCacheSize ?? "inf").toString(),
+      );
       image = renderCanvas;
+    } else {
+      // refresh position in Map (for LRU)
+      /*this.renderedSectors.delete(key);
+      this.renderedSectors.set(key, image);*/
+      // NOTE: we aren't refreshing the position of drawn sectors because
+      // this would be called on every frame for every drawn sector
+      // (worst that can happen without this, is a sector gets deleted and
+      // re-rendered right after, a small price to pay for smooth gameplay)
     }
 
     ctx.save();
