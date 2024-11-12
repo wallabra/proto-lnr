@@ -183,8 +183,8 @@ export class TerrainRenderer {
       const drawY = ty * SECTOR_RES;
 
       const gradient = this.terrain.gradientAt(
-        cx + tx * SECTOR_RES,
-        cy + ty * SECTOR_RES,
+        cx + (tx + 0.5) * SECTOR_RES,
+        cy + (ty + 0.5) * SECTOR_RES,
       );
       const shadowEffect = unlerp(
         this.game.waterLevel * 0.3,
