@@ -1475,9 +1475,10 @@ interface TickerMessage {
   amount?: number | null;
   scale?: number;
   expiry: number;
+  offset: number;
 }
 
-export type TickerMessageArgs = Omit<TickerMessage, "expiry">;
+export type TickerMessageArgs = Omit<TickerMessage, "expiry" | "offset">;
 
 interface TickerMessageBox extends CanvasUIGroup {
   children: [CanvasLabel] | [CanvasLabel, CanvasLabel];
@@ -1507,7 +1508,6 @@ class StatusTicker {
     alignY: "center",
     fillY: 1,
   };
-  private bounce = 0;
   private unbounceSpeed = 60;
   private state: PlayState;
 
@@ -1583,15 +1583,29 @@ class StatusTicker {
   }
 
   private removeMessage(toRemove: TickerMessage, addBounce = true) {
-    if (this.messages.indexOf(toRemove) !== -1) {
-      this.messages.splice(this.messages.indexOf(toRemove), 1);
-      this.updateGainLabel();
+    const idx = this.messages.indexOf(toRemove);
+
+    if (idx === -1) return;
+
+    if (addBounce) {
+      const bounceAmount =
+        this.tickerRows.children[idx].realHeight + this.tickerRows.childMargin;
+      for (
+        let bounceIdx = idx + 1;
+        bounceIdx < this.messages.length;
+        bounceIdx++
+      ) {
+        this.messages[bounceIdx].offset += bounceAmount;
+        this.updateRowOffsetAtIndex(bounceIdx);
+      }
     }
+
+    this.messages.splice(idx, 1);
+    this.updateGainLabel();
 
     const el = this.messageMap.get(toRemove);
 
     if (el != null) {
-      if (addBounce) this.bounce += el.realHeight + el.childMargin;
       el.remove();
       this.messageMap.delete(toRemove);
     }
@@ -1630,6 +1644,8 @@ class StatusTicker {
       });
     }
 
+    this.updateRowOffset(group, message.offset);
+
     return group;
   }
 
@@ -1637,6 +1653,7 @@ class StatusTicker {
     const messageItem: TickerMessage = {
       ...message,
       expiry: this.now() + duration,
+      offset: 0,
     };
     this.messages.push(messageItem);
     this.messageMap.set(messageItem, this.addMessageChild(messageItem));
@@ -1653,17 +1670,27 @@ class StatusTicker {
     );
   }
 
+  private updateRowOffsetAtIndex(idx: number) {
+    this.updateRowOffset(
+      this.tickerRows.children[idx],
+      this.messages[idx].offset,
+    );
+  }
+
+  private updateRowOffset(group: TickerMessageBox, offset: number) {
+    group.y = offset;
+  }
+
   private unbounce(deltaTime: number) {
-    if (this.bounce > 0) {
-      if (this.messages.length === 0) {
-        this.bounce = 0;
-        this.tickerRows.y = 0;
-        return;
+    for (let i = 0; i < this.messages.length; i++) {
+      const message = this.messages[i];
+      const group = this.tickerRows.children[i];
+
+      if (message.offset > 0) {
+        message.offset -= this.unbounceSpeed * deltaTime;
+        if (message.offset < 0) message.offset = 0;
+        this.updateRowOffset(group, message.offset);
       }
-      this.bounce -= deltaTime * this.unbounceSpeed;
-      if (this.bounce < 0) this.bounce = 0;
-      this.tickerRows.y = this.bounce;
-      this.tickerRows.updateCache();
     }
   }
 
