@@ -242,12 +242,6 @@ export class TerrainRenderer {
           this.renderedSectors.keys().next().value as string,
         );
 
-      console.log(
-        "New terrain cache size: " +
-          this.renderedSectors.size.toString() +
-          "/" +
-          (this.terrainCacheSize ?? "inf").toString(),
-      );
       image = renderCanvas;
     } else {
       // refresh position in Map (for LRU)
