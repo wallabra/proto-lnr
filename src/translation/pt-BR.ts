@@ -467,7 +467,7 @@ export const TR_PT_BR: TranslationTable = {
     "cannonball.plural": "bolas de canhão calibre {{caliber}}",
 
     "food.spoiled": "(spoiled)",
-    "food.info.shelfLife": "days until spoiled: {{spoilDays}}",
+    "food.info.shelfLife": "dias até estragar: {{spoilDays}}",
 
     "lootdefs.vase": "Vaso da Monarquia",
     "lootdefs.gold": "Barra de Ouro",
