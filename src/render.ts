@@ -169,14 +169,10 @@ export class TerrainRenderer {
     cx: number,
     cy: number,
     sector: TerraSector,
-    zoom: number,
   ) {
     if (this.terrain == null) {
       return;
     }
-
-    const gcx = cx / zoom;
-    const gcy = cy / zoom;
 
     for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
       const tx = tileIdx % SECTOR_SIZE;
@@ -187,8 +183,8 @@ export class TerrainRenderer {
       const drawY = ty * SECTOR_RES;
 
       const gradient = this.terrain.gradientAt(
-        gcx + tx * SECTOR_RES,
-        gcy + ty * SECTOR_RES,
+        cx + tx * SECTOR_RES,
+        cy + ty * SECTOR_RES,
       );
       const shadowEffect = unlerp(
         this.game.waterLevel * 0.3,
@@ -209,17 +205,10 @@ export class TerrainRenderer {
     }
   }
 
-  drawTerrainSector(
-    sx: number,
-    sy: number,
-    sdlef: number,
-    sdtop: number,
-    sector: TerraSector,
-    zoom: number,
-  ) {
+  drawTerrainSector(sx: number, sy: number, sector: TerraSector) {
     const ctx = this.game.drawCtx;
     const key = `${sx.toString()},${sy.toString()}`;
-    const sectorSize = SECTOR_REAL_SIZE * zoom;
+    const sectorSize = SECTOR_REAL_SIZE;
     let image = this.renderedSectors.get(key);
 
     if (image == null) {
@@ -227,8 +216,8 @@ export class TerrainRenderer {
       const y = sy * sectorSize;
 
       const renderCanvas = document.createElement("canvas");
-      renderCanvas.width = SECTOR_REAL_SIZE;
-      renderCanvas.height = SECTOR_REAL_SIZE;
+      renderCanvas.width = SECTOR_REAL_SIZE + 1;
+      renderCanvas.height = SECTOR_REAL_SIZE + 1;
       const renderCtx = renderCanvas.getContext("2d");
 
       if (renderCtx == null) {
@@ -238,15 +227,16 @@ export class TerrainRenderer {
       }
 
       renderCtx.imageSmoothingEnabled = false;
+      this.renderTerrainSector(renderCtx, x, y, sector);
 
-      this.renderTerrainSector(renderCtx, x, y, sector, zoom);
       this.renderedSectors.set(key, renderCanvas);
       image = renderCanvas;
     }
 
+    ctx.save();
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(image, sdlef, sdtop, sectorSize + 1, sectorSize + 1);
-    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(image, 0, 0, SECTOR_REAL_SIZE + 1, SECTOR_REAL_SIZE + 1);
+    ctx.restore();
   }
 
   renderTerrain() {
@@ -263,37 +253,39 @@ export class TerrainRenderer {
     const maxX = this.game.width / 2 / zoom + cam.x;
     const maxY = this.game.height / 2 / zoom + cam.y;
 
-    const sectorSize = SECTOR_REAL_SIZE * zoom;
+    const zoomedSectorSize = SECTOR_REAL_SIZE * zoom;
 
     const minSectorX = Math.floor(minX / SECTOR_REAL_SIZE);
     const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
     const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
     const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
-    const minDrawX = minSectorX * sectorSize + this.game.width / 2;
-    const minDrawY = minSectorY * sectorSize + this.game.height / 2;
+    const minDrawX = minSectorX * SECTOR_REAL_SIZE + this.game.width / 2 / zoom;
+    const minDrawY = minSectorY * SECTOR_REAL_SIZE + this.game.height / 2 / zoom;
 
     // draw sectors as diversely coloured squares
     const sectorW = maxSectorX - minSectorX;
     const sectorH = maxSectorY - minSectorY;
     const sectorArea = sectorW * sectorH;
 
+    const ctx = this.game.drawCtx;
+    ctx.save();
+    ctx.scale(zoom, zoom);
+
     for (let si = 0; si < sectorArea; si++) {
       const sx = si % sectorW;
       const sy = (si - sx) / sectorW;
-      const sdlef = minDrawX - cam.x * zoom + sx * sectorSize;
-      const sdtop = minDrawY - cam.y * zoom + sy * sectorSize;
+      const sdlef = minDrawX - cam.x + sx * SECTOR_REAL_SIZE;
+      const sdtop = minDrawY - cam.y + sy * SECTOR_REAL_SIZE;
+      ctx.save();
+      ctx.translate(sdlef, sdtop);
 
       const sector = this.terrain.getSector(minSectorX + sx, minSectorY + sy);
 
-      this.drawTerrainSector(
-        minSectorX + sx,
-        minSectorY + sy,
-        sdlef,
-        sdtop,
-        sector,
-        zoom,
-      );
+      this.drawTerrainSector(minSectorX + sx, minSectorY + sy, sector);
+      ctx.restore();
     }
+
+    ctx.restore();
   }
 }
 
