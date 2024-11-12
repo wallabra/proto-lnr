@@ -2,8 +2,8 @@ import Victor from "victor";
 import random from "random";
 //import { lerp } from "./util";
 
-export const SECTOR_SIZE = 32;
-export const SECTOR_RES = 8;
+export const SECTOR_SIZE = 128;
+export const SECTOR_RES = 10;
 export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
