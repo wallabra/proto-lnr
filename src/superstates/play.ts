@@ -68,6 +68,7 @@ export class PlayState extends Superstate {
   physics: PhysicsSimulation = new PhysicsSimulation(this);
   public sfx: SoundEngine | null;
   continuousSpawnTimer: number | null = null;
+  public now: number = 0;
 
   constructor(game: Game, terraDef: TerraDef) {
     super(game);
@@ -415,6 +416,7 @@ export class PlayState extends Superstate {
       this.pruneDestroyedTickables();
       this.pruneDestroyedPhysicables();
       this.pruneDestroyedAllObjects();
+      this.now += deltaTime;
     }
     this.renderer.tick(deltaTime);
     if (this.sfx != null) {

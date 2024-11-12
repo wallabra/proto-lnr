@@ -1479,10 +1479,12 @@ class StatusTicker {
   };
   private bounce = 0;
   private unbounceSpeed = 60;
+  private state: PlayState;
 
   public maxMessages = 8;
 
-  constructor(parent: CanvasUIElement) {
+  constructor(state: PlayState, parent: CanvasUIElement) {
+    this.state = state;
     this.panel = new CanvasPanel({
       parent: parent,
       fillX: 0.35,
@@ -1518,13 +1520,17 @@ class StatusTicker {
     }) as TickerRows;
   }
 
+  private now() {
+    return this.state.now;
+  }
+
   private pruneMessages() {
     for (const old of this.messages.slice(0, -this.maxMessages)) {
       this.removeMessage(old, false);
     }
 
     this.messageMap.forEach((group, message) => {
-      const timeLeft = message.expiry - Date.now();
+      const timeLeft = message.expiry - this.now();
 
       if (timeLeft < 0) {
         this.removeMessage(message);
@@ -1600,7 +1606,7 @@ class StatusTicker {
   public addMessage(message: TickerMessageArgs, duration: number) {
     const messageItem: TickerMessage = {
       ...message,
-      expiry: Date.now() + duration * 1000,
+      expiry: this.now() + duration * 1000,
     };
     this.messages.push(messageItem);
     this.messageMap.set(messageItem, this.addMessageChild(messageItem));
@@ -1650,7 +1656,7 @@ class HudRenderer {
     this.root = new CanvasRoot(game.game);
     this.fpsCounter = new FpsCounter({ parent: this.root });
     this.hud = new Hud({ parent: this.root, renderer: this });
-    this.statusTicker = new StatusTicker(this.root);
+    this.statusTicker = new StatusTicker(game, this.root);
   }
 
   public addMessage(message: TickerMessageArgs, duration: number) {
