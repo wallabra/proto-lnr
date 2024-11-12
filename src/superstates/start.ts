@@ -200,14 +200,18 @@ export class MainMenuState extends Superstate {
         color: "#ddd",
       });
 
-      new CanvasButton({
-        // free play mode button
-        ...buttonArgs,
-        parent: holder,
-        callback: () => {
-          this.a_newGame("freeplay");
-        },
-      }).label(i18next.t("submenu.newgame.freeplay"), { ...buttonLabelArgs });
+      const addGamemode = (code: string) => {
+        new CanvasButton({
+          // free play mode button
+          ...buttonArgs,
+          parent: holder,
+          callback: () => {
+            this.a_newGame(code);
+          },
+        }).label(i18next.t("submenu.newgame." + code), { ...buttonLabelArgs });
+      }
+
+      addGamemode("freeplay");
 
       new CanvasLabel({
         parent: holder,
