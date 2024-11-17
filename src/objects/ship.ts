@@ -1457,10 +1457,10 @@ export class Ship implements Tickable, Renderable, Damageable {
     this.aggro(ship);
 
     this.takeDamage(
-      ship.phys.kineticEnergyRelativeTo(this.phys) * directionality * 0.0001,
+      ship.phys.momentumRelativeTo(this.phys) * directionality * 0.001,
     );
     ship.takeDamage(
-      this.phys.kineticEnergyRelativeTo(ship.phys) * directionality * 0.0001,
+      this.phys.momentumRelativeTo(ship.phys) * directionality * 0.001,
     );
   }
 
