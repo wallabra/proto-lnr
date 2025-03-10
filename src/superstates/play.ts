@@ -70,6 +70,14 @@ export class PlayState extends Superstate {
   public sfx: SoundEngine | null;
   continuousSpawnTimer: number | null = null;
   public now: number = 0;
+  private currCameraPos: Victor = new Victor(0, 0);
+
+  /** The speed at which the camera scrolls towards targetCameraPos.
+   *
+   * This value is a multiplier on the distance, per second. It MUST be
+   * a value between 0 and 1.
+   */
+  public cameraScrollSpeed: number = 0.85;
 
   constructor(game: Game, terraDef: TerraDef) {
     super(game);
@@ -317,6 +325,7 @@ export class PlayState extends Superstate {
 
     this.reloadSoundEngine();
     player.updateMoneyFromFleet();
+    this.updateCameraPos(0);
 
     return ships;
   }
@@ -393,7 +402,21 @@ export class PlayState extends Superstate {
     this.allObjects = this.allObjects.filter((o) => !o.dying);
   }
 
+  private updateCameraPos(deltaTime: number) {
+    if (deltaTime == 0) {
+      // Instant reset
+      this.currCameraPos = this.targetCameraPos();
+    } else {
+      // Smooth update
+      this.currCameraPos.add(this.targetCameraPos().subtract(this.currCameraPos).multiplyScalar(1 - Math.pow(1 - this.cameraScrollSpeed, deltaTime)));
+    }
+  }
+
   public cameraPos(): Victor {
+    return this.currCameraPos;
+  }
+
+  public targetCameraPos(): Victor {
     if (this.player?.possessed != null) {
       return this.player.possessed.pos.clone();
     } else {
@@ -417,6 +440,7 @@ export class PlayState extends Superstate {
       this.pruneDestroyedTickables();
       this.pruneDestroyedPhysicables();
       this.pruneDestroyedAllObjects();
+      this.updateCameraPos(deltaTime);
       this.now += deltaTime;
     }
     this.renderer.tick(deltaTime);
@@ -483,6 +507,7 @@ export class PlayState extends Superstate {
 
     if (this.player?.possessed != null) {
       this.addShip(this.player.possessed);
+      this.updateCameraPos(0);
     }
 
     // WIP: add other gamemodes beside Free Play
