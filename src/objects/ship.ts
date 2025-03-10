@@ -481,7 +481,6 @@ export class ShipRenderContext {
       .add(ship.phys.angNorm.multiplyScalar(shootDist));
     const spread = cannon.spread;
     const angle = ship.phys.angle;
-    const baseSize = Math.tan(spread) * shootDist * 0.3;
     const shootPos = cannon.hitLocation(ship, shootDist);
     const hitDist = shootPos.clone().subtract(shootFrom).length();
     const crosshairArcCenter = info.toScreen(
@@ -490,18 +489,18 @@ export class ShipRenderContext {
 
     const color = available
       ? cannon.locked
-        ? "#EE990012"
+        ? "#EE990030"
         : !ship.makeup.hasAmmo(cannon.caliber)
-          ? "#22408818"
-          : "#FFFF0008"
-      : "#88000018";
+          ? "#22408840"
+          : "#FFFF0020"
+      : "#88000040";
     ctx.save();
     ctx.globalCompositeOperation = "hard-light";
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
     // draw spread arcs
-    ctx.globalAlpha = 0.7;
+    ctx.globalAlpha = 0.2;
     for (const width of [0.15, 0.18, 0.24, 0.32, 0.56, 0.71, 0.87, 1.0]) {
       ctx.lineWidth = (0.8 * Math.max(2, cannon.caliber)) / width;
       ctx.beginPath();
@@ -513,31 +512,26 @@ export class ShipRenderContext {
         angle + spread * width,
       );
       ctx.stroke();
-    }
-
-    // draw cool crosshair streak
-    ctx.globalAlpha = 1;
-
-    const streakVec = shootPos
-      .clone()
-      .subtract(shootFrom)
-      .norm()
-      .multiplyScalar(baseSize);
-
-    for (const width of [0.3, 0.45, 0.6, 0.85, 1]) {
-      const from = info.toScreen(
-        streakVec.clone().invert().multiplyScalar(width).add(shootPos),
-      );
-      const to = info.toScreen(
-        streakVec.clone().multiplyScalar(width).add(shootPos),
-      );
-
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(from.x, from.y);
-      ctx.lineTo(to.x, to.y);
+      ctx.save();
+      ctx.lineWidth *= 0.8;
       ctx.stroke();
+      ctx.restore();
     }
+
+    // draw predicted cannonball fall pos
+    ctx.globalAlpha = 1.0;
+    const hitPos = info.toScreen(cannon.hitLocation(ship, hitDist));
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(
+      hitPos.x,
+      hitPos.y,
+      cannon.caliber * info.scale * 1.2,
+      0,
+      Math.PI * 2,
+    );
+    ctx.stroke();
+    
     ctx.restore();
   }
 
