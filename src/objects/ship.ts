@@ -531,7 +531,7 @@ export class ShipRenderContext {
       Math.PI * 2,
     );
     ctx.stroke();
-    
+
     ctx.restore();
   }
 

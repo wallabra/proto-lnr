@@ -408,7 +408,11 @@ export class PlayState extends Superstate {
       this.currCameraPos = this.targetCameraPos();
     } else {
       // Smooth update
-      this.currCameraPos.add(this.targetCameraPos().subtract(this.currCameraPos).multiplyScalar(1 - Math.pow(1 - this.cameraScrollSpeed, deltaTime)));
+      this.currCameraPos.add(
+        this.targetCameraPos()
+          .subtract(this.currCameraPos)
+          .multiplyScalar(1 - Math.pow(1 - this.cameraScrollSpeed, deltaTime)),
+      );
     }
   }
 
