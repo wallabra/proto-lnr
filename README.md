@@ -1,13 +1,16 @@
 # Loot & Roam prototype
 
+> :pushpin: If you're looking for the main Loot & Roam repository, see https://codeberg.org/GameCircular/loot-and-roam
+
 Loot & Roam is a physics action game, where you're a pirate ship, tasked with
 invading islands, looting them and evading defenders, all while upgrading your
 ship between islands, growing your fleet, and taking on ever dauntier challenges
 and combat situations.
 
-For now, we are going to use HTML5 Canvas to do a test version of the game. This
-prototype will be used to test different aspects of gameplay, game design, and
-physics simulation.
+This is the prototype, which is written for the Web in TypeScript, using HTML5
+Canvas. Note that it is not optimized for performance or cross-platform access,
+serving more as a proof-of-concept and as a testing ground for features and
+game design, as opposed to a full-fledged game.
 
 ## How to Play
 
@@ -46,3 +49,7 @@ Before commiting, make sure to prettify and lint:
 ```sh
 pnpm prettify && pnpm lint
 ```
+
+The prototype is not being prioritized for development. If you want to
+contribute to the Loot & Roam project, see the [main repository](https://codeberg.org/GameCircular/loot-and-roam),
+and in particular its [Contribution Guidelines](https://codeberg.org/GameCircular/loot-and-roam/src/branch/main/CONTRIBUTING.md).
