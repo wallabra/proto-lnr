@@ -1,4 +1,3 @@
-p;
 import type { TranslationTable } from "../internationalization";
 
 export const TR_PT_BR: TranslationTable = {
