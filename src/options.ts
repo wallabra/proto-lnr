@@ -1,7 +1,3 @@
-export interface OptionsType {
-  staticTickrate: number | null;
-}
+export interface OptionsType {}
 
-export const Options: OptionsType = {
-  staticTickrate: null,
-};
+export const Options: OptionsType = {};

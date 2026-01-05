@@ -1,4 +1,4 @@
-import { tickLoop } from "./tick";
+import { Ticker } from "./tick";
 import { Game } from "./game";
 import * as internationalization from "./internationalization";
 
@@ -13,7 +13,8 @@ function main() {
   const game = new Game(canvas);
   (window as Window & typeof globalThis & { game?: Game }).game = game;
 
-  requestAnimationFrame(tickLoop.bind(null, game) as (when: number) => void);
+  const ticker = new Ticker(game);
+  ticker.start();
 }
 
 main();

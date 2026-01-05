@@ -382,22 +382,7 @@ export class MainMenuState extends Superstate {
 			};
 
 			addSwitcherOption(
-				"submenu.options.tickMode",
-				[
-					{
-						name: "submenu.options.tickMode.dynamic",
-						callback: () => {
-							Options.staticTickrate = null;
-						},
 					},
-					{
-						name: "submenu.options.tickMode.fixed",
-						callback: () => {
-							Options.staticTickrate = 30;
-						},
-					},
-				],
-				() => +(Options.staticTickrate != null),
 			);
 
 			return null;
