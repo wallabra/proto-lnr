@@ -21,6 +21,7 @@ import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
 import type { HelpCommand } from "../internationalization";
 import { Options } from "../options";
+import i18next from "i18next";
 
 export class MainMenuState extends Superstate {
 	ui: CanvasRoot;
@@ -381,8 +382,16 @@ export class MainMenuState extends Superstate {
 				);
 			};
 
+			const langs = i18next.languages;
 			addSwitcherOption(
+				"submenu.options.language",
+				langs.map((lang) => ({
+					name: `submenu.options.language.${lang}`,
+					callback: () => {
+						i18next.changeLanguage(lang);
 					},
+				})),
+				() => langs.indexOf(i18next.language),
 			);
 
 			return null;
