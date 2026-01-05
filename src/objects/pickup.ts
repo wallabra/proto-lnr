@@ -1,10 +1,10 @@
+import * as intl from "../internationalization";
 import Victor from "victor";
 import type { ObjectRenderInfo } from "../render";
 import type { PhysicsObject, PhysicsParams } from "./physics";
 import type { Ship } from "./ship";
 import type { PlayState, Tickable } from "../superstates/play";
 import { computeResellCost, type ShipItem } from "../inventory";
-import i18next from "i18next";
 
 export function isPickup<T extends Partial<PhysicsParams>>(
   item: Tickable,
@@ -200,7 +200,7 @@ export class ItemPickup<I extends ShipItem> extends Pickup<
     ship.play.addTickerMessage(
       {
         amount: computeResellCost(this.item),
-        message: i18next.t("hud.pickup", {
+        message: intl.t("hud.pickup", {
           count: this.item.amount ?? 1,
           pickup:
             this.item.getInventoryLabel != null

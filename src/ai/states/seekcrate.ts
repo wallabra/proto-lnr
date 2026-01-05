@@ -27,7 +27,7 @@ export class SeekCrateState implements AIHandler<SeekCrateStartArgs> {
     }
 
     const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
+    if (commonNext != null && commonNext.next !== this.name) return commonNext;
 
     const { ship, deltaTime, soonPos } = args;
     const seekAngle = this.crate.phys.pos.clone().subtract(soonPos).angle();

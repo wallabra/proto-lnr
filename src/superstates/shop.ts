@@ -1,3 +1,4 @@
+import * as intl from "../internationalization";
 import type { Game } from "../game";
 import type { FuelItemArgs, ShipItem } from "../inventory";
 import { FoodItem, FuelItem, computeResellCost } from "../inventory";
@@ -45,7 +46,6 @@ import type { Class, Optional } from "utility-types";
 import { MAKEDEFS } from "../shop/makedefs";
 import { arrayCounter } from "../util";
 import { addModifiersToAmmo } from "../combat/projectile";
-import i18next from "i18next";
 import {
   translateFuelType,
   translateItemType,
@@ -63,9 +63,9 @@ export const DEFAULT_RESELL_FACTOR = 0.6;
 
 function allOrNone(amount: number, outOf: number) {
   return amount >= outOf
-    ? i18next.t("all")
+    ? intl.t("all")
     : amount === 0
-      ? i18next.t("none")
+      ? intl.t("none")
       : amount.toString();
 }
 
@@ -73,7 +73,7 @@ function weightInfo(item: ShipItem) {
   const amount = item.amount ?? 1;
   const weight = amount * item.weight;
 
-  return i18next.t("intermission.drydock.item.weight", {
+  return intl.t("intermission.drydock.item.weight", {
     weight: weightString(weight),
   });
 }
@@ -98,10 +98,10 @@ function manningRequirements(part: ShipPart) {
   if (!part.manned) return [];
 
   if (typeof part.manned !== "number") {
-    return [i18next.t("shopinfo.manning.needs")];
+    return [intl.t("shopinfo.manning.needs")];
   } else {
     return [
-      i18next.t("shopinfo.manning.needsInterp", {
+      intl.t("shopinfo.manning.needsInterp", {
         manned: part.manned.toFixed(0),
       }),
     ];
@@ -249,7 +249,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
       callback: this.tryUninstall.bind(this) as UICallback,
       bgColor: "#f02020c0",
     }).label(
-      i18next.t(
+      intl.t(
         this.part.canUninstall
           ? "intermission.drydock.part.action.uninstall"
           : "intermission.drydock.part.action.destroy",
@@ -280,7 +280,7 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
 
   private updateCrewButtonLabel() {
     if (this.assignCrewButton == null || this.assignCrewLabel == null) return;
-    this.assignCrewLabel.label = i18next.t(
+    this.assignCrewLabel.label = intl.t(
       "intermission.drydock.part.action." +
         (this.part.alreadyManned() ? "unassignCrew" : "assignCrew"),
     );
@@ -336,10 +336,10 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     if (!this.part.manned) return [];
 
     if (!this.part.alreadyManned()) {
-      return [i18next.t("intermission.drydock.part.info.unmanned")];
+      return [intl.t("intermission.drydock.part.info.unmanned")];
     } else {
       return [
-        i18next.t("intermission.drydock.part.info.manned", {
+        intl.t("intermission.drydock.part.info.manned", {
           mannedBy: this.part.mannedBy
             .map((c) => c.getInventoryLabel(this.makeup))
             .join(", "),
@@ -396,8 +396,8 @@ class DrydockPartWidget extends Pane<DrydockPartWidgetArgs> {
     this.damageMeter.setProgress(this.part.damage / this.part.maxDamage);
     this.damageLabel.label =
       this.part.damage <= 0
-        ? i18next.t("intermission.drydock.part.notDamaged")
-        : i18next.t("intermission.drydock.part.damaged", {
+        ? intl.t("intermission.drydock.part.notDamaged")
+        : intl.t("intermission.drydock.part.damaged", {
             percent:
               ((100 * this.part.damage) / this.part.maxDamage).toFixed(0) + "%",
             repairCost: costString(this.part.repairCost()),
@@ -504,7 +504,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
           color: "#fff",
           childOrdering: "vertical",
           childMargin: 2,
-          label: i18next.t("intermission.drydock.item.damage", {
+          label: intl.t("intermission.drydock.item.damage", {
             damagePerc: (100 * this.damageFactor()).toFixed(0) + "%",
             repairCost: moneyString(this.item.repairCost()),
           }),
@@ -566,7 +566,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       callback: this.openMoveDropdown.bind(this, false) as () => void,
     });
     this.moveButton.label(
-      i18next.t("intermission.drydock.item.action.fleetMove"),
+      intl.t("intermission.drydock.item.action.fleetMove"),
       labelArgs,
     );
 
@@ -582,7 +582,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       callback: this.openMoveDropdown.bind(this, true) as () => void,
     });
     this.moveHalfButton.label(
-      i18next.t("intermission.drydock.item.action.fleetMoveHalf"),
+      intl.t("intermission.drydock.item.action.fleetMoveHalf"),
       labelArgs,
     );
 
@@ -598,7 +598,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       callback: this.setCaptain.bind(this) as UICallback,
     });
     this.setCaptainButton.label(
-      i18next.t("intermission.drydock.item.action.appoint"),
+      intl.t("intermission.drydock.item.action.appoint"),
       labelArgs,
     );
 
@@ -613,7 +613,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         height: 12,
         callback: this.installPart.bind(this) as UICallback,
       }).label(
-        i18next.t("intermission.drydock.item.action.install"),
+        intl.t("intermission.drydock.item.action.install"),
         labelArgs,
       );
     }
@@ -660,7 +660,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
       },
     });
     nevermindButton.label(
-      i18next.t("intermission.drydock.item.action.fleetMove.dropdown.cancel"),
+      intl.t("intermission.drydock.item.action.fleetMove.dropdown.cancel"),
       { color: "#ffa", height: 12 },
     );
 
@@ -678,7 +678,7 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
         callback: this.moveCallback.bind(this, member, half) as () => void,
       });
       moveButton.label(
-        i18next.t("intermission.drydock.item.action.fleetMove.dropdown.to", {
+        intl.t("intermission.drydock.item.action.fleetMove.dropdown.to", {
           shipName: member.makeup.name,
         }),
         {
@@ -846,11 +846,11 @@ class DrydockInventoryItemWidget extends Pane<DrydockInventoryItemWidgetArgs> {
     this.itemLabel.label = itemLabel(this.item, this.makeup);
     this.resellLabel.label =
       this.item.type === "crew"
-        ? i18next.t("intermission.drydock.item.action.fireCrew")
-        : i18next.t("intermission.drydock.item.action.resell", {
+        ? intl.t("intermission.drydock.item.action.fireCrew")
+        : intl.t("intermission.drydock.item.action.resell", {
             value: costString(-this.resellCost()),
           }); //`Resell (${moneyString(this.resellCost())})`;
-    this.resellHalfLabel.label = i18next.t(
+    this.resellHalfLabel.label = intl.t(
       "intermission.drydock.item.action.resellHalf",
       { value: costString(-this.resellCost(0.5)) },
     );
@@ -911,7 +911,7 @@ class DrydockInventoryWidget extends Pane<DrydockInventoryWidgetArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: i18next.t("intermission.drydock.inventory"),
+      label: intl.t("intermission.drydock.inventory"),
       height: 20,
       autoFont: true,
       color: "#fddc",
@@ -1067,7 +1067,7 @@ class ShopItemWidget extends Pane<
       childMargin: 3,
       height: 24,
     }).label(
-      i18next.t(
+      intl.t(
         "intermission.shop." + (this.item.type === "crew" ? "hire" : "buy"),
       ),
       {
@@ -1108,7 +1108,7 @@ class PaneShop extends Pane<PaneShopArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: i18next.t("intermission.shop"),
+      label: intl.t("intermission.shop"),
       color: "#e8e8ff",
       dockX: "center",
       height: 30,
@@ -1255,7 +1255,7 @@ class PaneStats extends Pane<PaneStatsArgs> {
   private _buildPane(args: PaneStatsArgs) {
     new CanvasLabel({
       parent: this.pane,
-      label: i18next.t("intermission.drydock.stats"),
+      label: intl.t("intermission.drydock.stats"),
       autoFont: true,
       height: 30,
       font: "bold $Hpx sans-serif",
@@ -1429,14 +1429,14 @@ class ShipMakeWidget extends Pane<
 
   private constructSwitchLabel() {
     const cost = this.getSwitchCost();
-    return i18next.t("intermission.harbor.ship.action.switch", {
+    return intl.t("intermission.harbor.ship.action.switch", {
       cost: costString(cost),
     });
   }
 
   private constructBuyLabel() {
     const cost = this.getCost();
-    return i18next.t("intermission.harbor.ship.action.buy", {
+    return intl.t("intermission.harbor.ship.action.buy", {
       cost: costString(cost),
     });
   }
@@ -1447,7 +1447,7 @@ class ShipMakeWidget extends Pane<
     const cost = this.getCost();
 
     if (this.player.money < cost) {
-      this.statusLabel.label = i18next.t(
+      this.statusLabel.label = intl.t(
         "intermission.harbor.ship.status.cannotAfford",
       );
       return;
@@ -1461,7 +1461,7 @@ class ShipMakeWidget extends Pane<
     this.statusLabel.label = "";
 
     if (this.makeup.parts.length > 0) {
-      this.statusLabel.label = i18next.t(
+      this.statusLabel.label = intl.t(
         "intermission.harbor.ship.status.mustUninstall",
       );
       return;
@@ -1470,7 +1470,7 @@ class ShipMakeWidget extends Pane<
     const cost = this.getSwitchCost();
 
     if (this.player.money < cost) {
-      this.statusLabel.label = i18next.t(
+      this.statusLabel.label = intl.t(
         "intermission.harbor.ship.status.cannotAfford",
       );
       return;
@@ -1502,10 +1502,10 @@ class ShipMakeWidget extends Pane<
 
   private populateDetail(): void {
     const info = [
-      i18next.t("intermission.harbor.ship.hp", {
+      intl.t("intermission.harbor.ship.hp", {
         maxDamage: this.make.maxDamage.toFixed(1),
       }),
-      i18next.t("intermission.harbor.ship.size", {
+      intl.t("intermission.harbor.ship.size", {
         size:
           ((this.make.size * this.make.lateralCrossSection) / 10).toFixed(2) +
           "m",
@@ -1514,7 +1514,7 @@ class ShipMakeWidget extends Pane<
     ];
 
     const info2 = [
-      i18next.t("intermission.harbor.slots"),
+      intl.t("intermission.harbor.slots"),
       ...this.make.slots.map((s) => this.slotInfo(s)),
     ];
 
@@ -1570,7 +1570,7 @@ class PaneHarbor extends Pane<PaneHarborArgs> {
       autoFont: true,
       height: 30,
       font: "bold $Hpx sans-serif",
-      label: i18next.t("intermission.harbor"),
+      label: intl.t("intermission.harbor"),
       color: "#fff",
     });
 
@@ -1785,7 +1785,7 @@ class PaneDrydockShip extends Pane<
 
     new CanvasLabel({
       parent: partsPane,
-      label: i18next.t("intermission.drydock.parts"),
+      label: intl.t("intermission.drydock.parts"),
       color: "#fddc",
       font: "$Hpx sans-serif",
       height: 20,
@@ -1859,7 +1859,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoInstall();
       },
-    }).label(i18next.t("intermission.drydock.autoInstall"), {
+    }).label(intl.t("intermission.drydock.autoInstall"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -1876,7 +1876,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoResell();
       },
-    }).label(i18next.t("intermission.drydock.autoResell"), {
+    }).label(intl.t("intermission.drydock.autoResell"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -1893,7 +1893,7 @@ class PaneDrydockShip extends Pane<
       callback: () => {
         this.autoRepair();
       },
-    }).label(i18next.t("intermission.drydock.autoRepair"), {
+    }).label(intl.t("intermission.drydock.autoRepair"), {
       color: "#ccdd",
       height: 12,
       autoFont: true,
@@ -2121,7 +2121,7 @@ class PaneDrydockShip extends Pane<
       );
     }
 
-    this.slotsLabel.label = i18next.t("intermission.drydock.slots", {
+    this.slotsLabel.label = intl.t("intermission.drydock.slots", {
       slots: labelParts.join(", "),
     });
   }
@@ -2152,11 +2152,11 @@ class PaneDrydockShip extends Pane<
 
   private updateRepairLabel() {
     if (this.makeup.hullDamage === 0) {
-      this.repairHullButtonLabel.label = i18next.t(
+      this.repairHullButtonLabel.label = intl.t(
         "intermission.drydock.repair.healthy",
       );
     } else {
-      this.repairHullButtonLabel.label = i18next.t(
+      this.repairHullButtonLabel.label = intl.t(
         "intermission.drydock.repair.damaged",
         { repairCost: moneyString(this.repairCost()) },
       );
@@ -2188,7 +2188,7 @@ class PaneCartography extends Pane {
     this.pane = new CanvasPanel(args);
     new CanvasLabel({
       parent: this.pane,
-      label: i18next.t("intermission.cartography"),
+      label: intl.t("intermission.cartography"),
       color: "#e8e8ff",
       font: "25px sans-serif",
       dockX: "center",
@@ -2203,7 +2203,7 @@ class PaneCartography extends Pane {
       height: 100,
       callback: this.doNextLevel.bind(this) as () => void,
     });
-    nextLevelButton.label(i18next.t("intermission.cartography.invade"), {
+    nextLevelButton.label(intl.t("intermission.cartography.invade"), {
       color: "#ccd",
       height: 18,
       autoFont: true,
@@ -2229,7 +2229,7 @@ class PaneDrydock extends Pane<PaneDrydockArgs> {
 
     new CanvasLabel({
       parent: this.pane,
-      label: i18next.t("intermission.drydock"),
+      label: intl.t("intermission.drydock"),
       color: "#e8e8ff",
       dockX: "center",
       height: 30,
@@ -2462,7 +2462,7 @@ export class IntermissionState extends Superstate {
   private statsRows(): StatRowOptions[] {
     return [
       {
-        name: i18next.t("intermission.drydock.stats.salary.name"),
+        name: intl.t("intermission.drydock.stats.salary.name"),
         stat: function (this: StatRow) {
           const totalSalary = this.makeup.totalSalary();
           if (this.player.money < totalSalary) {
@@ -2473,20 +2473,20 @@ export class IntermissionState extends Superstate {
               ),
             );
             return (
-              i18next.t("intermission.drydock.stats.salary.info.insufficient", {
+              intl.t("intermission.drydock.stats.salary.info.insufficient", {
                 money: costString(this.player.money - totalSalary),
                 salary: moneyString(totalSalary),
               }) +
               (hasUnhappy
                 ? ""
-                : i18next.t(
+                : intl.t(
                     "intermission.drydock.stats.salary.info.strikeSoon",
                     { strikesIn: soonestRevolt.toString() },
                   ))
             );
           } else {
             const salaryDays = Math.floor(this.player.money / totalSalary);
-            return i18next.t(
+            return intl.t(
               "intermission.drydock.stats.salary.info.sufficient" +
                 (salaryDays === 1 ? "" : ".pluralDays"),
               {
@@ -2498,7 +2498,7 @@ export class IntermissionState extends Superstate {
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.food.name"),
+        name: intl.t("intermission.drydock.stats.food.name"),
         stat: function (this: StatRow) {
           const totalConsumption = this.makeup.crew
             .map((c) => c.caloricIntake)
@@ -2514,12 +2514,12 @@ export class IntermissionState extends Superstate {
           };
 
           const message = [
-            i18next.t(
+            intl.t(
               "intermission.drydock.stats.food.info.head" +
                 (totalAvailable === 1 ? "" : ".plural"),
               info,
             ),
-            i18next.t(
+            intl.t(
               "intermission.drydock.stats.food.info." +
                 (totalAvailable < totalConsumption
                   ? "insufficient"
@@ -2532,14 +2532,14 @@ export class IntermissionState extends Superstate {
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.repairs.name"),
+        name: intl.t("intermission.drydock.stats.repairs.name"),
         stat: function (this: StatRow) {
           const totalRepairCost = this.makeup.totalRepairCost();
 
           if (totalRepairCost === 0)
-            return i18next.t("intermission.drydock.stats.repairs.info.intact");
+            return intl.t("intermission.drydock.stats.repairs.info.intact");
 
-          return i18next.t(
+          return intl.t(
             "intermission.drydock.stats.repairs.info." +
               (totalRepairCost > this.player.money
                 ? "insufficient"
@@ -2553,19 +2553,19 @@ export class IntermissionState extends Superstate {
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.weight.name"),
+        name: intl.t("intermission.drydock.stats.weight.name"),
         stat: function (this: StatRow) {
-          return i18next.t("intermission.drydock.stats.weight.info", {
+          return intl.t("intermission.drydock.stats.weight.info", {
             totalWeight: weightString(this.makeup.totalWeight()),
             hullWeight: weightString(this.makeup.hullWeight()),
           });
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.engines.name"),
+        name: intl.t("intermission.drydock.stats.engines.name"),
         stat: function (this: StatRow) {
           const thrust = this.makeup.maxEngineThrust();
-          return i18next.t(
+          return intl.t(
             "intermission.drydock.stats.engines.info" +
               (thrust === 0 ? ".none" : ""),
             {
@@ -2575,7 +2575,7 @@ export class IntermissionState extends Superstate {
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.fuel.name"),
+        name: intl.t("intermission.drydock.stats.fuel.name"),
         stat: function (this: StatRow) {
           const engines = this.makeup.getPartsOf("engine") as Engine[];
           const fueled = engines.filter(
@@ -2623,16 +2623,16 @@ export class IntermissionState extends Superstate {
           };
 
           return [
-            i18next.t("intermission.drydock.stats.fuel.info.head", info),
-            i18next.t("intermission.drydock.stats.fuel.info.quickest", info),
+            intl.t("intermission.drydock.stats.fuel.info.head", info),
+            intl.t("intermission.drydock.stats.fuel.info.quickest", info),
             ...(fueled.length === engines.length
               ? []
-              : [i18next.t("intermission.drydock.stats.fuel.info.need", info)]),
+              : [intl.t("intermission.drydock.stats.fuel.info.need", info)]),
           ].join(" ");
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.ammo.name"),
+        name: intl.t("intermission.drydock.stats.ammo.name"),
         stat: function (this: StatRow) {
           const cannons = this.makeup.getPartsOf("cannon") as Cannon[];
           const loaded = cannons.filter((c) => this.makeup.hasAmmo(c.caliber));
@@ -2655,21 +2655,21 @@ export class IntermissionState extends Superstate {
           };
 
           return [
-            i18next.t("intermission.drydock.stats.ammo.info.head", info),
+            intl.t("intermission.drydock.stats.ammo.info.head", info),
             ...(missingCalibers.size === 0
               ? []
-              : [i18next.t("intermission.drydock.stats.ammo.info.need", info)]),
+              : [intl.t("intermission.drydock.stats.ammo.info.need", info)]),
           ].join(" ");
         },
       },
       {
-        name: i18next.t("intermission.drydock.stats.manned.name"),
+        name: intl.t("intermission.drydock.stats.manned.name"),
         stat: function (this: StatRow) {
           const parts = this.makeup.parts;
           const manned = parts.filter((p) => p.manned !== false);
           const satisfied = manned.filter((p) => p.alreadyManned());
 
-          return i18next.t("intermission.drydock.stats.manned.info", {
+          return intl.t("intermission.drydock.stats.manned.info", {
             numParts: parts.length.toString(),
             numNeedManned: allOrNone(manned.length, parts.length).toLowerCase(),
             numManned: allOrNone(satisfied.length, manned.length).toLowerCase(),
@@ -2681,7 +2681,7 @@ export class IntermissionState extends Superstate {
 
   buildUI() {
     this.paneDrydock = this.addPane<PaneDrydock, PaneDrydockArgs>(
-      i18next.t("intermission.drydock"),
+      intl.t("intermission.drydock"),
       PaneDrydock,
       {
         paddingX: 20,
@@ -2690,7 +2690,7 @@ export class IntermissionState extends Superstate {
       },
     );
     this.addPane<PaneShop, PaneShopArgs>(
-      i18next.t("intermission.shop"),
+      intl.t("intermission.shop"),
       PaneShop,
       {
         paddingX: 20,
@@ -2699,7 +2699,7 @@ export class IntermissionState extends Superstate {
       },
     );
     this.addPane<PaneHarbor, PaneHarborArgs>(
-      i18next.t("intermission.harbor"),
+      intl.t("intermission.harbor"),
       PaneHarbor,
       {
         paddingX: 20,
@@ -2709,7 +2709,7 @@ export class IntermissionState extends Superstate {
         ),
       },
     );
-    this.addPane(i18next.t("intermission.cartography"), PaneCartography, {
+    this.addPane(intl.t("intermission.cartography"), PaneCartography, {
       paddingX: 20,
       bgColor: "#2222",
     });
@@ -2748,7 +2748,7 @@ export class IntermissionState extends Superstate {
       this.cashCounter.label = "";
       return;
     }
-    this.cashCounter.label = i18next.t("intermission.moneyCounter", {
+    this.cashCounter.label = intl.t("intermission.moneyCounter", {
       money: moneyString(this.player.money),
     });
   }

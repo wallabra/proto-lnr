@@ -1,4 +1,4 @@
-import i18next from "i18next";
+import * as intl from "./internationalization";
 import random from "random";
 
 export const umod = (a: number, b: number): number => ((a % b) + b) % b;
@@ -38,7 +38,7 @@ export function moneyString(cash: number) {
 }
 
 export function costString(cost: number) {
-  if (cost === 0) return i18next.t("nocost", { defaultValue: "free" });
+  if (cost === 0) return intl.t("nocost", { defaultValue: "free" });
 
   const costStr = (cost > 0 ? "-" : "+") + "$" + Math.abs(cost).toFixed(2);
 

@@ -11,7 +11,7 @@ export class FollowState implements AIHandler<AIStartArgs> {
     if (ship.following == null) return { next: "start", immediate: true };
 
     const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
+    if (commonNext != null && commonNext.next !== this.name) return commonNext;
 
     const following = ship.following;
     const offs = following.pos.clone().subtract(ship.pos);

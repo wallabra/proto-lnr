@@ -1,3 +1,4 @@
+import * as intl from "../internationalization";
 import { Cannonball } from "../objects/cannonball";
 import type { CannonballParams } from "../objects/cannonball";
 import { Ship } from "../objects/ship";
@@ -21,7 +22,6 @@ import { SoundEngine } from "../sfx";
 import { Decor } from "../objects/props/decor";
 import type { Nullish } from "utility-types";
 import { getRandomSpawnClass } from "../spawn";
-import i18next from "i18next";
 
 export interface GameObject {
   dying: boolean;
@@ -521,7 +521,7 @@ export class PlayState extends Superstate {
 
     this.addTickerMessage(
       {
-        message: i18next.t("hud.startDay", { day: this.game.difficulty + 1 }),
+        message: intl.t("hud.startDay", { day: this.game.difficulty + 1 }),
         color: "#FF9",
         scale: 1.5,
       },

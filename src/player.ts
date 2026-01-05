@@ -131,21 +131,21 @@ export class Player {
       whichCannon.locked = !whichCannon.locked;
     }
 
-    if (name == "shoot") {
+    if (name === "shoot") {
       this.inputState = "shoot";
     }
 
-    if (name == "hud") {
+    if (name === "hud") {
       const state = this.game.state as PlayState;
       const renderer = state.renderer;
       renderer.toggleHud();
     }
 
-    if (name == "pause") {
+    if (name === "pause") {
       this.game.togglePaused();
     }
 
-    if (name == "shop") {
+    if (name === "shop") {
       if (!this.canShop()) {
         return;
       }
@@ -175,7 +175,7 @@ export class Player {
 
   registerAction(name: string, callback: (deltaTime: number) => void) {
     this.actions.push((deltaTime) => {
-      if (this.inputState == name) {
+      if (this.inputState === name) {
         this.inputState = null;
         callback(deltaTime);
       }

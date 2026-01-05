@@ -1,3 +1,4 @@
+import * as intl from "./internationalization";
 import { Engine, type ShipMakeup } from "./objects/shipmakeup";
 import type { Player } from "./player";
 import { DEFAULT_RESELL_FACTOR } from "./superstates/shop";
@@ -6,7 +7,6 @@ import {
   translateFuelType,
   translateItemType,
 } from "./internationalization";
-import i18next from "i18next";
 
 export interface InventoryItem {
   name: string;
@@ -192,7 +192,7 @@ export class FoodItem implements ShipItem {
 
   private spoil() {
     this.amount = 0;
-    this.name += " " + i18next.t("food.spoiled");
+    this.name += " " + intl.t("food.spoiled");
     this.dying = true;
   }
 
@@ -209,7 +209,7 @@ export class FoodItem implements ShipItem {
 
   shopInfo(): string[] {
     return [
-      i18next.t("food.info.shelfLife", {
+      intl.t("food.info.shelfLife", {
         spoilDays: Math.ceil(this.spoilDays).toString(),
       }),
     ];

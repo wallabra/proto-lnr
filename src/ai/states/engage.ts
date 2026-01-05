@@ -25,7 +25,7 @@ export class EngageState implements AIHandler<EngageStartArgs> {
     const { ship, deltaTime, soonPos } = args;
 
     const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
+    if (commonNext != null && commonNext.next !== this.name) return commonNext;
 
     if (
       target == null ||

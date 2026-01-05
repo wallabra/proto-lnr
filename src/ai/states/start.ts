@@ -34,7 +34,7 @@ export class StartState implements AIHandler<AIStartArgs> {
     const { ship, deltaTime } = args;
 
     const commonNext = commonPaths(args);
-    if (commonNext != null && commonNext.next != this.name) return commonNext;
+    if (commonNext != null && commonNext.next !== this.name) return commonNext;
 
     if (ship.pos.length() > 1500) return { next: "backToLand" };
 
