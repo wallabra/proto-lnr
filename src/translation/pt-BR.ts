@@ -1,3 +1,4 @@
+p;
 import type { TranslationTable } from "../internationalization";
 
 export const TR_PT_BR: TranslationTable = {
@@ -216,15 +217,15 @@ export const TR_PT_BR: TranslationTable = {
 		"menu.help": "Ajuda",
 		"menu.options": "Opções",
 
-		"submenu.options.title": "Opções",
-		"submenu.options.language": "Idioma",
-		"submenu.options.language.en": "English",
-		"submenu.options.language.pt": "Português",
-
 		"submenu.newgame.title": "Novo Jogo",
 		"submenu.newgame.gamemode": "Selecione um Modo de Jogo",
 		"submenu.newgame.freeplay": "Modo Livre",
 		"submenu.newgame.comingsoon": "(Outros modos virão logo, logo!)",
+
+		"submenu.options.title": "Opções",
+		"submenu.options.language": "Idioma",
+		"submenu.options.language.en": "English",
+		"submenu.options.language.pt": "Português",
 
 		strike: "(greveando por {{reason}})",
 		"strike.reason.food": "fome",

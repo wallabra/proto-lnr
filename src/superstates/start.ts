@@ -20,13 +20,71 @@ import type { GameMouseInfo } from "../mouse";
 import { GUIKeyHandler } from "../keyinput";
 import { GAME_VERSION } from "../info";
 import type { HelpCommand } from "../internationalization";
-import { Options } from "../options";
+// import { Options } from "../options";
 import i18next from "i18next";
+import type { Game } from "../game";
 
 export class MainMenuState extends Superstate {
 	ui: CanvasRoot;
 	states = new Map<string, CanvasUIElement>();
 	stateStack: string[] = [];
+	patternCanvas: HTMLCanvasElement;
+
+	constructor(game: Game) {
+		super(game);
+
+		// Draw balls pattern (hehe balls)
+		this.patternCanvas = document.createElement("canvas");
+		this.patternCanvas.width = 200;
+		this.patternCanvas.height = 100;
+		const pctx = this.patternCanvas.getContext("2d");
+		if (pctx == null) return;
+		pctx.fillStyle = "#AA11C860";
+		pctx.beginPath();
+		pctx.arc(
+			50,
+			50 + ((this.backgroundCounter * 50) % 100),
+			30,
+			0,
+			Math.PI * 2,
+		);
+		pctx.fill();
+		pctx.beginPath();
+		pctx.arc(
+			50,
+			-50 + ((this.backgroundCounter * 50) % 100),
+			30,
+			0,
+			Math.PI * 2,
+		);
+		pctx.fill();
+		pctx.beginPath();
+		pctx.arc(
+			150,
+			-100 + ((this.backgroundCounter * 50) % 100),
+			30,
+			0,
+			Math.PI * 2,
+		);
+		pctx.fill();
+		pctx.beginPath();
+		pctx.arc(
+			150,
+			0 + ((this.backgroundCounter * 50) % 100),
+			30,
+			0,
+			Math.PI * 2,
+		);
+		pctx.fill();
+		pctx.beginPath();
+		pctx.arc(
+			150,
+			100 + ((this.backgroundCounter * 50) % 100),
+			30,
+			0,
+			Math.PI * 2,
+		);
+	}
 
 	private setState(stateName: string) {
 		// Does NOT update the stack, do not use this in user code
@@ -558,60 +616,7 @@ export class MainMenuState extends Superstate {
 		dctx.fillStyle = "#441878";
 		dctx.fillRect(0, 0, this.game.width, this.game.height);
 
-		// Draw balls pattern (hehe balls)
-		const patternCanvas = document.createElement("canvas");
-		patternCanvas.width = 200;
-		patternCanvas.height = 100;
-		const pctx = patternCanvas.getContext("2d");
-		if (pctx == null) return;
-		pctx.fillStyle = "#AA11C860";
-		pctx.beginPath();
-		pctx.arc(
-			50,
-			50 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			50,
-			-50 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			150,
-			-100 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			150,
-			0 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			150,
-			100 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-
-		const patternFill = dctx.createPattern(patternCanvas, "repeat");
+		const patternFill = dctx.createPattern(this.patternCanvas, "repeat");
 		if (patternFill == null) return;
 		dctx.save();
 		dctx.fillStyle = patternFill;
