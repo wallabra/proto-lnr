@@ -92,3 +92,11 @@ export function init() {
       throw err;
     });
 }
+
+export const t: typeof i18next.t = (...args: unknown[]) => {
+  const o = {
+    _t: 'translate',
+  };
+  o.toString = () => i18next.t(...args);
+  return o as unknown as { toString: () => string };
+};
