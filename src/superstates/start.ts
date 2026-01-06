@@ -465,25 +465,11 @@ export class MainMenuState extends Superstate {
 							label.label = (Math.round(remapped * 10) / 10).toString();
 						};
 
-						const handleMouseDelta = (e: UIEvent): undefined => {
-							const mouseEvent = e as UIMouseEvent;
-							let progress = slider.progress * slider.realWidth;
-							progress += mouseEvent.delta.x;
-							progress = progress / slider.realWidth;
-							progress = Math.max(0, Math.min(1, progress));
-
-							const remapped = range[0] + progress * (range[1] - range[0]);
-
-							setValue(remapped);
-							slider.setProgress(progress);
-							label.label = (Math.round(remapped * 10) / 10).toString();
-						};
-
 						slider.on("click", handleMouse);
 						slider.on("canvasdrag", (e): undefined => {
 							const mouseEvent = e as UIMouseEvent;
 							if (mouseEvent.buttons === 1) {
-								handleMouseDelta(e);
+								handleMouse(e);
 							}
 						});
 					},
