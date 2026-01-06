@@ -1,5 +1,12 @@
+// import { Options } from "../options";
+import i18next from "i18next";
+import type { Game } from "../game";
+import { GAME_VERSION } from "../info";
+import type { HelpCommand } from "../internationalization";
 import * as intl from "../internationalization";
-import { Superstate } from "./base";
+import { GUIKeyHandler } from "../keyinput";
+import type { GameMouseInfo } from "../mouse";
+import { GUIMouseHandler } from "../mouse";
 import type {
 	CanvasButtonArgs,
 	CanvasLabelArgs,
@@ -15,14 +22,7 @@ import {
 	CanvasScroller,
 	CanvasUIGroup,
 } from "../ui";
-import { GUIMouseHandler } from "../mouse";
-import type { GameMouseInfo } from "../mouse";
-import { GUIKeyHandler } from "../keyinput";
-import { GAME_VERSION } from "../info";
-import type { HelpCommand } from "../internationalization";
-// import { Options } from "../options";
-import i18next from "i18next";
-import type { Game } from "../game";
+import { Superstate } from "./base";
 
 export class MainMenuState extends Superstate {
 	ui: CanvasRoot;
@@ -34,56 +34,29 @@ export class MainMenuState extends Superstate {
 		super(game);
 
 		// Draw balls pattern (hehe balls)
+		this.setupPatternCanvas();
+	}
+
+	private setupPatternCanvas() {
 		this.patternCanvas = document.createElement("canvas");
 		this.patternCanvas.width = 200;
 		this.patternCanvas.height = 100;
 		const pctx = this.patternCanvas.getContext("2d");
 		if (pctx == null) return;
+
 		pctx.fillStyle = "#AA11C860";
+
 		pctx.beginPath();
-		pctx.arc(
-			50,
-			50 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
+		pctx.arc(50, 50, 30, 0, Math.PI * 2);
 		pctx.fill();
+
 		pctx.beginPath();
-		pctx.arc(
-			50,
-			-50 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
+		pctx.arc(150, 0, 30, 0, Math.PI * 2);
 		pctx.fill();
+
 		pctx.beginPath();
-		pctx.arc(
-			150,
-			-100 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
+		pctx.arc(150, 100, 30, 0, Math.PI * 2);
 		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			150,
-			0 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
-		pctx.fill();
-		pctx.beginPath();
-		pctx.arc(
-			150,
-			100 + ((this.backgroundCounter * 50) % 100),
-			30,
-			0,
-			Math.PI * 2,
-		);
 	}
 
 	private setState(stateName: string) {
@@ -619,6 +592,13 @@ export class MainMenuState extends Superstate {
 		const patternFill = dctx.createPattern(this.patternCanvas, "repeat");
 		if (patternFill == null) return;
 		dctx.save();
+
+		const offsetX = (this.backgroundCounter * 50) % 200;
+		const offsetY = (this.backgroundCounter * 50) % 100;
+
+		const matrix = new DOMMatrix();
+		patternFill.setTransform(matrix.translate(offsetX, offsetY));
+
 		dctx.fillStyle = patternFill;
 		dctx.fillRect(0, 0, this.game.width, this.game.height);
 		dctx.restore();
