@@ -433,7 +433,7 @@ export class MainMenuState extends Superstate {
 							childOrdering: "horizontal",
 						});
 
-						new CanvasLabel({
+						const label = new CanvasLabel({
 							parent: button,
 							dockY: "center",
 							childMargin: 8,
@@ -462,6 +462,7 @@ export class MainMenuState extends Superstate {
 
 							setValue(remapped);
 							slider.setProgress(progress);
+							label.label = (Math.round(remapped * 10) / 10).toString();
 						};
 
 						const handleMouseDelta = (e: UIEvent): undefined => {
@@ -475,6 +476,7 @@ export class MainMenuState extends Superstate {
 
 							setValue(remapped);
 							slider.setProgress(progress);
+							label.label = (Math.round(remapped * 10) / 10).toString();
 						};
 
 						slider.on("click", handleMouse);
