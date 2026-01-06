@@ -184,13 +184,13 @@ export class Game {
 	}
 
 	/// Order of tick operations
-	tick(deltaTime: number) {
+	tick(deltaTime: number, frameTime: number) {
 		if (!this.paused) {
 			this.tickPlayer(deltaTime);
 			if (this.keyboard != null) this.keyboard.tick();
 			this.intervalLoop.tick(deltaTime);
 		}
-		this.state.tick(deltaTime);
+		this.state.tick(deltaTime, frameTime);
 	}
 
 	/**

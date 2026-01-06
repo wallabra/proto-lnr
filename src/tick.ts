@@ -25,12 +25,12 @@ export class Ticker {
 		const deltaTime = +current - +this.lastTime;
 		this.lastTime = current;
 
-		const cappedDelta = Math.min(deltaTime, 250);
+		const cappedDelta = Math.min(deltaTime, 200);
 		this.accumulator += cappedDelta;
 
 		try {
 			while (this.accumulator >= fixedStep) {
-				this.game.tick(fixedStep / 1000);
+				this.game.tick(fixedStep / 1000, this.accumulator / 1000); // also pass real frame time
 				this.accumulator -= fixedStep;
 			}
 			const alpha = this.accumulator / fixedStep;

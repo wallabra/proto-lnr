@@ -333,8 +333,10 @@ class FpsCounter extends CanvasLabel {
 		this.refreshRate = args.refreshRate || 1;
 	}
 
-	public tick(deltaTime: number) {
-		const immediateFps = 1 / deltaTime;
+	public tick(deltaTime: number, frameTime: number) {
+		if (frameTime <= 0) return;
+
+		const immediateFps = 1 / frameTime;
 
 		if (this.fps == null) {
 			this.fps = immediateFps;
@@ -342,8 +344,12 @@ class FpsCounter extends CanvasLabel {
 			this.fps = lerp(this.fps, immediateFps, this.refreshRate * deltaTime);
 
 			// fix FPS counter on some weird circumstances
-			if (isNaN(this.fps) || this.fps < 0) {
+			if (Number.isNaN(this.fps) || this.fps < 0) {
 				this.fps = immediateFps;
+			}
+
+			if (Number.isNaN(this.fps)) {
+				this.fps = 0;
 			}
 		}
 
@@ -1783,8 +1789,8 @@ class HudRenderer {
 		return true;
 	}
 
-	public tick(deltaTime: number) {
-		this.fpsCounter.tick(deltaTime);
+	public tick(deltaTime: number, frameTime: number) {
+		this.fpsCounter.tick(deltaTime, frameTime);
 
 		if (!this.game.game.paused) {
 			this.hud.tick(deltaTime);
@@ -1832,8 +1838,8 @@ export class GameRenderer {
 		ctx.fillRect(0, 0, this.game.width, this.game.height);
 	}
 
-	public tick(deltaTime: number) {
-		this.r_hud.tick(deltaTime);
+	public tick(deltaTime: number, frameTime: number) {
+		this.r_hud.tick(deltaTime, frameTime);
 	}
 
 	private makeUIDrawContext(): UIDrawContext {

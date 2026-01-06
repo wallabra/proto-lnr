@@ -716,7 +716,7 @@ export class MainMenuState extends Superstate {
 		this.ui.render(ctx);
 	}
 
-	public tick(deltaTime: number) {
+	public tick(deltaTime: number, frameTime: number) {
 		this.tickBackground(deltaTime);
 	}
 

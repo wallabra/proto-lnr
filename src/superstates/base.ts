@@ -19,7 +19,7 @@ export abstract class Superstate {
 		return this.game.player;
 	}
 
-	public abstract tick(deltaTime: number): void;
+	public abstract tick(deltaTime: number, frameTime: number): void;
 	public abstract render(alpha: number): void;
 	public deinit() {}
 	public init() {}
