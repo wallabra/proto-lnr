@@ -1,4 +1,4 @@
-name: ESLint and unit tests
+name: Lints and unit tests
 
 on:
   push:
@@ -69,5 +69,3 @@ jobs:
       - name: Test
         run: |
           pnpm test
-
-

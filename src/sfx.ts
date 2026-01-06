@@ -49,13 +49,13 @@ export interface SoundObject {
 }
 
 class SoundSource {
-	private from: SoundObject;
+	// private from: SoundObject;
 	private soundSrc: Howl;
 	private soundId: number;
 	private finished = false;
 
-	constructor(from: SoundObject, src: Howl, volume = 1.0) {
-		this.from = from;
+	constructor(_from: SoundObject, src: Howl, volume = 1.0) {
+		// this.from = from;
 		this.soundSrc = src;
 		this.soundId = src.play();
 		const soundId = this.soundId;

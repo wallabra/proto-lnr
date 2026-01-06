@@ -4,7 +4,7 @@
 	"description": "Prototype version of Loot & Roam",
 	"scripts": {
 		"prettify": "prettier src/ --write",
-		"lint": "eslint src/ --fix && tsc --noEmit",
+		"lint": "biome check src/ && tsc --noEmit",
 		"check": "npm run lint && npm run test",
 		"server": "parcel serve src/index.html",
 		"build": "parcel build src/index.html --public-url=."
@@ -12,16 +12,14 @@
 	"author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
 	"license": "GPL-3.0",
 	"devDependencies": {
-		"@eslint/js": "^9.39.2",
+		"@biomejs/biome": "^2.3.11",
 		"@parcel/optimizer-data-url": "2.16.3",
 		"@parcel/transformer-inline-string": "2.16.3",
 		"@types/howler": "^2.2.12",
-		"eslint": "^9.39.2",
 		"globals": "^17.0.0",
 		"parcel": "^2.16.3",
 		"prettier": "^3.7.4",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.52.0"
+		"typescript": "^5.9.3"
 	},
 	"dependencies": {
 		"@types/victor": "^1.1.5",
