@@ -30,14 +30,7 @@ import {
 	CanvasRoot,
 	CanvasUIGroup,
 } from "./ui";
-import {
-	costString,
-	interpColor,
-	lerp,
-	moneyString,
-	rgbString,
-	unlerp,
-} from "./util";
+import { costString, interpColor, lerp, moneyString, unlerp } from "./util";
 
 export interface ObjectRenderInfo {
 	scale: number;
@@ -131,6 +124,9 @@ export class TerrainRenderer {
 	protected renderedSectors: Map<string, ImageBitmap> = new Map();
 	public terrainCacheSize: number | null = DEFAULT_TERRAIN_CACHE_SIZE;
 
+	/** Direction of shade. */
+	shadowDir: Victor = new Victor(0, -10);
+
 	constructor(game: PlayState) {
 		this.game = game;
 	}
@@ -177,17 +173,14 @@ export class TerrainRenderer {
 			return;
 		}
 
-		const smoothing = ctx.imageSmoothingEnabled;
-		ctx.imageSmoothingEnabled = false;
+		const imgData = ctx.createImageData(SECTOR_REAL_SIZE, SECTOR_REAL_SIZE);
+		const data = imgData.data;
 
-		ctx.lineWidth = 0;
 		for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
 			const tx = tileIdx % SECTOR_SIZE;
 			const ty = (tileIdx - tx) / SECTOR_SIZE;
 
 			const height = sector.heights[tileIdx];
-			const drawX = tx * SECTOR_RES;
-			const drawY = ty * SECTOR_RES;
 
 			const gradient = this.terrain.gradientAt(
 				cx + (tx + 0.5) * SECTOR_RES,
@@ -198,19 +191,29 @@ export class TerrainRenderer {
 				this.game.waterLevel * 1.1,
 				height,
 			);
-			const shadowness = lerp(
-				0,
-				gradient.dot(new Victor(0, -10)),
-				shadowEffect,
+			const shadowness = lerp(0, gradient.dot(this.shadowDir), shadowEffect);
+
+			const color = interpColor(
+				this.interpTerrainColor(height),
+				[12, 12, 12],
+				shadowness,
 			);
 
-			ctx.fillStyle = rgbString(
-				interpColor(this.interpTerrainColor(height), [12, 12, 12], shadowness),
-			);
-			ctx.fillRect(drawX, drawY, SECTOR_RES + 1, SECTOR_RES + 1);
+			for (let py = 0; py < SECTOR_RES; py++) {
+				for (let px = 0; px < SECTOR_RES; px++) {
+					const pixelIdx =
+						((ty * SECTOR_RES + py) * SECTOR_REAL_SIZE +
+							(tx * SECTOR_RES + px)) *
+						4;
+					data[pixelIdx] = color[0]; // R
+					data[pixelIdx + 1] = color[1]; // G
+					data[pixelIdx + 2] = color[2]; // B
+					data[pixelIdx + 3] = 255; // A
+				}
+			}
 		}
 
-		ctx.imageSmoothingEnabled = smoothing;
+		ctx.putImageData(imgData, 0, 0);
 	}
 
 	drawTerrainSector(
@@ -329,6 +332,10 @@ export class TerrainRenderer {
 		}
 
 		ctx.imageSmoothingEnabled = smoothing;
+	}
+
+	tick(deltaTime: number) {
+		this.shadowDir.rotateBy(0.01 * deltaTime);
 	}
 }
 
