@@ -2,57 +2,57 @@ import type { Game } from "./game";
 import { Options } from "./options";
 
 export class Ticker {
-  lastTime: number | null = null;
-  accumulator = 0;
-  errored = false;
-  game: Game;
+	lastTime: number | null = null;
+	accumulator = 0;
+	errored = false;
+	game: Game;
 
-  constructor(game: Game) {
-    this.game = game;
-  }
+	constructor(game: Game) {
+		this.game = game;
+	}
 
-  getFixedStep() {
-    return 1000 / (Options.staticTickrate ?? 30);
-  }
+	getFixedStep() {
+		return 1000 / (Options.staticTickrate ?? 30);
+	}
 
-  stepTick(current: number | null) {
-    if (this.lastTime === null || current == null) {
-      this.lastTime = current;
-      return;
-    }
-    
-    const fixedStep = this.getFixedStep();
-    const deltaTime = +current - +this.lastTime;
-    this.lastTime = current;
+	stepTick(current: number | null) {
+		if (this.lastTime === null || current == null) {
+			this.lastTime = current;
+			return;
+		}
 
-    const cappedDelta = Math.min(deltaTime, 250);
-    this.accumulator += cappedDelta;
+		const fixedStep = this.getFixedStep();
+		const deltaTime = +current - +this.lastTime;
+		this.lastTime = current;
 
-    try {
-      while (this.accumulator >= fixedStep) {
-        this.game.tick(fixedStep / 1000);
-        this.accumulator -= fixedStep;
-      }
-      const alpha = this.accumulator / fixedStep;
-      this.game.render(alpha);
-    } catch (e) {
-      this.errored = true;
-      throw e;
-    }
-  }
+		const cappedDelta = Math.min(deltaTime, 250);
+		this.accumulator += cappedDelta;
 
-  private tickLoop = (current: number | null) => {
-    if (this.errored) return;
-    
-    requestAnimationFrame(this.tickLoop);
+		try {
+			while (this.accumulator >= fixedStep) {
+				this.game.tick(fixedStep / 1000);
+				this.accumulator -= fixedStep;
+			}
+			const alpha = this.accumulator / fixedStep;
+			this.game.render(alpha);
+		} catch (e) {
+			this.errored = true;
+			throw e;
+		}
+	}
 
-    this.stepTick(current);
-  }
+	protected tickLoop = (current: number | null) => {
+		if (this.errored) return;
 
-  start() {
-    this.errored = false;
-    this.lastTime = null;
-    this.accumulator = 0;
-    requestAnimationFrame(this.tickLoop);
-  }
+		requestAnimationFrame(this.tickLoop);
+
+		this.stepTick(current);
+	};
+
+	start() {
+		this.errored = false;
+		this.lastTime = null;
+		this.accumulator = 0;
+		requestAnimationFrame(this.tickLoop);
+	}
 }
