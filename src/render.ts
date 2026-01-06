@@ -128,7 +128,7 @@ const DEFAULT_TERRAIN_CACHE_SIZE = 10;
 
 export class TerrainRenderer {
 	game: PlayState;
-	protected renderedSectors: Map<string, HTMLCanvasElement> = new Map();
+	protected renderedSectors: Map<string, ImageBitmap> = new Map();
 	public terrainCacheSize: number | null = DEFAULT_TERRAIN_CACHE_SIZE;
 
 	constructor(game: PlayState) {
@@ -177,6 +177,10 @@ export class TerrainRenderer {
 			return;
 		}
 
+		const smoothing = ctx.imageSmoothingEnabled;
+		ctx.imageSmoothingEnabled = false;
+
+		ctx.lineWidth = 0;
 		for (let tileIdx = 0; tileIdx < SECTOR_AREA; tileIdx++) {
 			const tx = tileIdx % SECTOR_SIZE;
 			const ty = (tileIdx - tx) / SECTOR_SIZE;
@@ -200,27 +204,36 @@ export class TerrainRenderer {
 				shadowEffect,
 			);
 
-			ctx.lineWidth = 0;
 			ctx.fillStyle = rgbString(
 				interpColor(this.interpTerrainColor(height), [12, 12, 12], shadowness),
 			);
 			ctx.fillRect(drawX, drawY, SECTOR_RES + 1, SECTOR_RES + 1);
 		}
+
+		ctx.imageSmoothingEnabled = smoothing;
 	}
 
-	drawTerrainSector(sx: number, sy: number, sector: TerraSector) {
+	drawTerrainSector(
+		sectorX: number,
+		sectorY: number,
+		screenX: number,
+		screenY: number,
+		zoom: number,
+		sector: TerraSector,
+	) {
 		const ctx = this.game.drawCtx;
-		const key = `${sx.toString()},${sy.toString()}`;
+		const key = `${sectorX.toString()},${sectorY.toString()}`;
 		const sectorSize = SECTOR_REAL_SIZE;
-		let image = this.renderedSectors.get(key);
+		let image: HTMLCanvasElement | ImageBitmap | undefined =
+			this.renderedSectors.get(key);
 
 		if (image == null) {
-			const x = sx * sectorSize;
-			const y = sy * sectorSize;
+			const x = sectorX * sectorSize;
+			const y = sectorY * sectorSize;
 
 			const renderCanvas = document.createElement("canvas");
-			renderCanvas.width = SECTOR_REAL_SIZE + 1;
-			renderCanvas.height = SECTOR_REAL_SIZE + 1;
+			renderCanvas.width = SECTOR_REAL_SIZE;
+			renderCanvas.height = SECTOR_REAL_SIZE;
 			const renderCtx = renderCanvas.getContext("2d");
 
 			if (renderCtx == null) {
@@ -232,7 +245,9 @@ export class TerrainRenderer {
 			renderCtx.imageSmoothingEnabled = false;
 			this.renderTerrainSector(renderCtx, x, y, sector);
 
-			this.renderedSectors.set(key, renderCanvas);
+			createImageBitmap(renderCanvas).then((bitmap) => {
+				this.renderedSectors.set(key, bitmap);
+			});
 
 			while (
 				this.terrainCacheSize != null &&
@@ -253,10 +268,13 @@ export class TerrainRenderer {
 			// re-rendered right after, a small price to pay for smooth gameplay)
 		}
 
-		ctx.save();
-		ctx.imageSmoothingEnabled = false;
-		ctx.drawImage(image, 0, 0, SECTOR_REAL_SIZE + 1, SECTOR_REAL_SIZE + 1);
-		ctx.restore();
+		ctx.drawImage(
+			image,
+			screenX,
+			screenY,
+			Math.ceil(zoom * SECTOR_REAL_SIZE),
+			Math.ceil(zoom * SECTOR_REAL_SIZE),
+		);
 	}
 
 	renderTerrain() {
@@ -277,9 +295,6 @@ export class TerrainRenderer {
 		const minSectorY = Math.floor(minY / SECTOR_REAL_SIZE);
 		const maxSectorX = Math.ceil(maxX / SECTOR_REAL_SIZE);
 		const maxSectorY = Math.ceil(maxY / SECTOR_REAL_SIZE);
-		const minDrawX = minSectorX * SECTOR_REAL_SIZE + this.game.width / 2 / zoom;
-		const minDrawY =
-			minSectorY * SECTOR_REAL_SIZE + this.game.height / 2 / zoom;
 
 		// draw sectors as diversely coloured squares
 		const sectorW = maxSectorX - minSectorX;
@@ -287,24 +302,33 @@ export class TerrainRenderer {
 		const sectorArea = sectorW * sectorH;
 
 		const ctx = this.game.drawCtx;
-		ctx.save();
-		ctx.scale(zoom, zoom);
+		const smoothing = ctx.imageSmoothingEnabled;
+		ctx.imageSmoothingEnabled = false; // Disable for the main canvas scaling
 
 		for (let si = 0; si < sectorArea; si++) {
 			const sx = si % sectorW;
 			const sy = (si - sx) / sectorW;
-			const sdlef = minDrawX - cam.x + sx * SECTOR_REAL_SIZE;
-			const sdtop = minDrawY - cam.y + sy * SECTOR_REAL_SIZE;
-			ctx.save();
-			ctx.translate(sdlef, sdtop);
-
+			const sectorWorldX = (minSectorX + sx) * SECTOR_REAL_SIZE;
+			const sectorWorldY = (minSectorY + sy) * SECTOR_REAL_SIZE;
+			const screenX = Math.round(
+				(sectorWorldX - cam.x) * zoom + this.game.width / 2,
+			);
+			const screenY = Math.round(
+				(sectorWorldY - cam.y) * zoom + this.game.height / 2,
+			);
 			const sector = this.terrain.getSector(minSectorX + sx, minSectorY + sy);
 
-			this.drawTerrainSector(minSectorX + sx, minSectorY + sy, sector);
-			ctx.restore();
+			this.drawTerrainSector(
+				minSectorX + sx,
+				minSectorY + sy,
+				screenX,
+				screenY,
+				zoom,
+				sector,
+			);
 		}
 
-		ctx.restore();
+		ctx.imageSmoothingEnabled = smoothing;
 	}
 }
 
