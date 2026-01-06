@@ -2663,8 +2663,12 @@ export class IntermissionState extends Superstate {
 
 					return intl.t("intermission.drydock.stats.manned.info", {
 						numParts: parts.length.toString(),
-						numNeedManned: allOrNone(manned.length, parts.length).toLowerCase(),
-						numManned: allOrNone(satisfied.length, manned.length).toLowerCase(),
+						numNeedManned: allOrNone(manned.length, parts.length)
+							.toString()
+							.toLowerCase(),
+						numManned: allOrNone(satisfied.length, manned.length)
+							.toString()
+							.toLowerCase(),
 					});
 				},
 			},
