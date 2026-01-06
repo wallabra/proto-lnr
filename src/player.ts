@@ -1,259 +1,259 @@
 import Victor from "victor";
-import type { Ship } from "./objects/ship";
-import type { PlayMouseHandler } from "./mouse";
 import type { Game } from "./game";
-import { IntermissionState } from "./superstates/shop";
-import { PlayState } from "./superstates/play";
+import type { PlayMouseHandler } from "./mouse";
+import type { Ship } from "./objects/ship";
 import type { Cannon } from "./objects/shipmakeup";
 import { ShipMakeup } from "./objects/shipmakeup";
-import { angDiff, lerp } from "./util";
 import { DEFAULT_MAKE } from "./shop/makedefs";
+import { PlayState } from "./superstates/play";
+import { IntermissionState } from "./superstates/shop";
+import { angDiff, lerp } from "./util";
 
 export type PlayerAction = (deltaTime: number) => void;
 
 export interface FleetMember {
-  makeup: ShipMakeup;
-  ship?: Ship;
+	makeup: ShipMakeup;
+	ship?: Ship;
 }
 
 export type InputEvent =
-  | ({ type: "keyboard" } & KeyboardEvent)
-  | ({ type: "mouse" } & MouseEvent)
-  | ({ type: "ui" } & UIEvent);
+	| ({ type: "keyboard" } & KeyboardEvent)
+	| ({ type: "mouse" } & MouseEvent)
+	| ({ type: "ui" } & UIEvent);
 
 export class Player {
-  possessed: Ship | null;
-  inputState: string | null;
-  actions: PlayerAction[];
-  game: Game;
-  money: number;
-  makeup: ShipMakeup;
-  fleet: FleetMember[];
-  kills = 0;
+	possessed: Ship | null;
+	inputState: string | null;
+	actions: PlayerAction[];
+	game: Game;
+	money: number;
+	makeup: ShipMakeup;
+	fleet: FleetMember[];
+	kills = 0;
 
-  constructor(game: Game, makeup: ShipMakeup | null = null, money = 0) {
-    makeup ??= ShipMakeup.defaultMakeup({ make: DEFAULT_MAKE });
-    this.game = game;
-    this.possessed = null;
-    this.inputState = null;
-    this.actions = [];
-    this.money = money;
-    this.makeup = makeup;
-    this.fleet = [{ makeup: this.makeup }];
-    this.registerActions();
-    console.log(this.makeup);
-  }
+	constructor(game: Game, makeup: ShipMakeup | null = null, money = 0) {
+		makeup ??= ShipMakeup.defaultMakeup({ make: DEFAULT_MAKE });
+		this.game = game;
+		this.possessed = null;
+		this.inputState = null;
+		this.actions = [];
+		this.money = money;
+		this.makeup = makeup;
+		this.fleet = [{ makeup: this.makeup }];
+		this.registerActions();
+		console.log(this.makeup);
+	}
 
-  public updateMoneyFromFleet() {
-    this.money = this.fleet
-      .filter((m): m is FleetMember & { ship: Ship } => m.ship != null)
-      .reduce((a, b) => a + b.ship.money, 0);
-  }
+	public updateMoneyFromFleet() {
+		this.money = this.fleet
+			.filter((m): m is FleetMember & { ship: Ship } => m.ship != null)
+			.reduce((a, b) => a + b.ship.money, 0);
+	}
 
-  public totalSalary() {
-    return this.fleet.reduce(
-      (accum, member) => accum + member.makeup.totalSalary(),
-      0,
-    );
-  }
+	public totalSalary() {
+		return this.fleet.reduce(
+			(accum, member) => accum + member.makeup.totalSalary(),
+			0,
+		);
+	}
 
-  public totalHullRepairCost() {
-    return this.fleet.reduce(
-      (accum, member) => accum + member.makeup.hullRepairCost(),
-      0,
-    );
-  }
+	public totalHullRepairCost() {
+		return this.fleet.reduce(
+			(accum, member) => accum + member.makeup.hullRepairCost(),
+			0,
+		);
+	}
 
-  public totalRepairCost() {
-    return this.fleet.reduce(
-      (accum, member) => accum + member.makeup.totalRepairCost(),
-      0,
-    );
-  }
+	public totalRepairCost() {
+		return this.fleet.reduce(
+			(accum, member) => accum + member.makeup.totalRepairCost(),
+			0,
+		);
+	}
 
-  public totalInventoryValue() {
-    return this.fleet.reduce(
-      (accum, member) => accum + member.makeup.inventoryValue(),
-      0,
-    );
-  }
+	public totalInventoryValue() {
+		return this.fleet.reduce(
+			(accum, member) => accum + member.makeup.inventoryValue(),
+			0,
+		);
+	}
 
-  get damage() {
-    return this.makeup.hullDamage;
-  }
+	get damage() {
+		return this.makeup.hullDamage;
+	}
 
-  set damage(damage) {
-    this.makeup.hullDamage = damage;
-  }
+	set damage(damage) {
+		this.makeup.hullDamage = damage;
+	}
 
-  get mouse() {
-    return this.game.mouse;
-  }
+	get mouse() {
+		return this.game.mouse;
+	}
 
-  steer(offs: Victor) {
-    if (this.possessed == null) throw new Error("Player has no ship");
-    const targ =
-      (angDiff(this.possessed.phys.angle, offs.angle()) * 2) / Math.PI;
-    this.possessed.trySteer(targ);
-  }
+	steer(offs: Victor) {
+		if (this.possessed == null) throw new Error("Player has no ship");
+		const targ =
+			(angDiff(this.possessed.phys.angle, offs.angle()) * 2) / Math.PI;
+		this.possessed.trySteer(targ);
+	}
 
-  approach(offs: Victor, throttle = 1.0) {
-    if (this.possessed == null) throw new Error("Player has no ship");
-    const dot = new Victor(1, 0)
-      .rotateBy(this.possessed.angle)
-      .dot(offs.norm());
-    this.possessed.tryThrustForward((dot + 1 / 2) * throttle);
-  }
+	approach(offs: Victor, throttle = 1.0) {
+		if (this.possessed == null) throw new Error("Player has no ship");
+		const dot = new Victor(1, 0)
+			.rotateBy(this.possessed.angle)
+			.dot(offs.norm());
+		this.possessed.tryThrustForward((dot + 1 / 2) * throttle);
+	}
 
-  inShopRange() {
-    if (this.possessed == null) throw new Error("Player has no ship");
-    return !this.possessed.dying && this.possessed.pos.length() >= 2500;
-  }
+	inShopRange() {
+		if (this.possessed == null) throw new Error("Player has no ship");
+		return !this.possessed.dying && this.possessed.pos.length() >= 2500;
+	}
 
-  canShop() {
-    if (this.possessed == null) throw new Error("Player has no ship");
-    return this.inShopRange() && !this.possessed.inDanger();
-  }
+	canShop() {
+		if (this.possessed == null) throw new Error("Player has no ship");
+		return this.inShopRange() && !this.possessed.inDanger();
+	}
 
-  inputEvent(name: string, _event: InputEvent) {
-    if (this.possessed == null || this.possessed.dying) {
-      return;
-    }
+	inputEvent(name: string, _event: InputEvent) {
+		if (this.possessed == null || this.possessed.dying) {
+			return;
+		}
 
-    if (name.startsWith("cannon lock ")) {
-      const whichStr = name.replace(/^cannon lock /, "");
-      if (!whichStr.match(/^\d+$/)) return;
-      const which = parseInt(whichStr, 10);
+		if (name.startsWith("cannon lock ")) {
+			const whichStr = name.replace(/^cannon lock /, "");
+			if (!whichStr.match(/^\d+$/)) return;
+			const which = parseInt(whichStr, 10);
 
-      const cannons = this.possessed.makeup.getPartsOf("cannon") as Cannon[];
-      if (which >= cannons.length) return;
-      const whichCannon = cannons[which];
-      whichCannon.locked = !whichCannon.locked;
-    }
+			const cannons = this.possessed.makeup.getPartsOf("cannon") as Cannon[];
+			if (which >= cannons.length) return;
+			const whichCannon = cannons[which];
+			whichCannon.locked = !whichCannon.locked;
+		}
 
-    if (name === "shoot") {
-      this.inputState = "shoot";
-    }
+		if (name === "shoot") {
+			this.inputState = "shoot";
+		}
 
-    if (name === "hud") {
-      const state = this.game.state as PlayState;
-      const renderer = state.renderer;
-      renderer.toggleHud();
-    }
+		if (name === "hud") {
+			const state = this.game.state as PlayState;
+			const renderer = state.renderer;
+			renderer.toggleHud();
+		}
 
-    if (name === "pause") {
-      this.game.togglePaused();
-    }
+		if (name === "pause") {
+			this.game.togglePaused();
+		}
 
-    if (name === "shop") {
-      if (!this.canShop()) {
-        return;
-      }
+		if (name === "shop") {
+			if (!this.canShop()) {
+				return;
+			}
 
-      for (const member of this.fleet) {
-        member.makeup.endLevelUpdate(this);
-      }
-      this.game.setState(IntermissionState);
-    }
+			for (const member of this.fleet) {
+				member.makeup.endLevelUpdate(this);
+			}
+			this.game.setState(IntermissionState);
+		}
 
-    if (name === "steerLeft") {
-      this.possessed.trySteer(-1);
-    }
+		if (name === "steerLeft") {
+			this.possessed.trySteer(-1);
+		}
 
-    if (name === "steerRight") {
-      this.possessed.trySteer(1);
-    }
+		if (name === "steerRight") {
+			this.possessed.trySteer(1);
+		}
 
-    if (name === "thrustForward") {
-      this.possessed.tryThrustForward(1.0);
-    }
+		if (name === "thrustForward") {
+			this.possessed.tryThrustForward(1.0);
+		}
 
-    if (name === "thrustBackward") {
-      this.possessed.tryThrustForward(-1.0);
-    }
-  }
+		if (name === "thrustBackward") {
+			this.possessed.tryThrustForward(-1.0);
+		}
+	}
 
-  registerAction(name: string, callback: (deltaTime: number) => void) {
-    this.actions.push((deltaTime) => {
-      if (this.inputState === name) {
-        this.inputState = null;
-        callback(deltaTime);
-      }
-    });
-  }
+	registerAction(name: string, callback: (deltaTime: number) => void) {
+		this.actions.push((deltaTime) => {
+			if (this.inputState === name) {
+				this.inputState = null;
+				callback(deltaTime);
+			}
+		});
+	}
 
-  registerActions() {
-    this.registerAction("shoot", () => {
-      if (this.possessed == null || this.mouse == null) return;
-      this.possessed.tryShoot(this.mouse.pos.length());
-    });
-  }
+	registerActions() {
+		this.registerAction("shoot", () => {
+			if (this.possessed == null || this.mouse == null) return;
+			this.possessed.tryShoot(this.mouse.pos.length());
+		});
+	}
 
-  doAction(deltaTime: number) {
-    this.actions.forEach((act) => {
-      act(deltaTime);
-    });
-  }
+	doAction(deltaTime: number) {
+		this.actions.forEach((act) => {
+			act(deltaTime);
+		});
+	}
 
-  doMouseShoot(_deltaTime: number) {
-    if (this.possessed == null || this.mouse == null) return;
+	doMouseShoot(_deltaTime: number) {
+		if (this.possessed == null || this.mouse == null) return;
 
-    const mouse = this.mouse as PlayMouseHandler;
+		const mouse = this.mouse as PlayMouseHandler;
 
-    if (!mouse.shooting) return;
+		if (!mouse.shooting) return;
 
-    this.possessed.tryShoot(this.mouse.pos.length());
-  }
+		this.possessed.tryShoot(this.mouse.pos.length());
+	}
 
-  doSteer(_deltaTime: number) {
-    if (
-      this.possessed == null ||
-      this.mouse == null ||
-      !(this.mouse as PlayMouseHandler).steering
-    ) {
-      return;
-    }
+	doSteer(_deltaTime: number) {
+		if (
+			this.possessed == null ||
+			this.mouse == null ||
+			!(this.mouse as PlayMouseHandler).steering
+		) {
+			return;
+		}
 
-    const offs = this.mouse.pos.clone();
+		const offs = this.mouse.pos.clone();
 
-    if (
-      offs.length() <
-      this.possessed.size * this.possessed.lateralCrossSection
-    ) {
-      // close enough
-      return;
-    } else if (
-      offs.length() <
-      this.possessed.size * this.possessed.lateralCrossSection * 3
-    ) {
-      this.approach(
-        offs,
-        lerp(
-          0,
-          1,
-          (offs.length() -
-            this.possessed.size * this.possessed.lateralCrossSection) /
-            (this.possessed.size * this.possessed.lateralCrossSection * 2),
-        ),
-      );
-    } else {
-      this.approach(offs);
-    }
+		if (
+			offs.length() <
+			this.possessed.size * this.possessed.lateralCrossSection
+		) {
+			// close enough
+			return;
+		} else if (
+			offs.length() <
+			this.possessed.size * this.possessed.lateralCrossSection * 3
+		) {
+			this.approach(
+				offs,
+				lerp(
+					0,
+					1,
+					(offs.length() -
+						this.possessed.size * this.possessed.lateralCrossSection) /
+						(this.possessed.size * this.possessed.lateralCrossSection * 2),
+				),
+			);
+		} else {
+			this.approach(offs);
+		}
 
-    this.steer(offs);
-  }
+		this.steer(offs);
+	}
 
-  tick(deltaTime: number) {
-    if (!(this.game.state instanceof PlayState)) {
-      return;
-    }
+	tick(deltaTime: number) {
+		if (!(this.game.state instanceof PlayState)) {
+			return;
+		}
 
-    if (this.possessed == null || this.possessed.dying) {
-      return;
-    }
+		if (this.possessed == null || this.possessed.dying) {
+			return;
+		}
 
-    this.doSteer(deltaTime);
-    this.doMouseShoot(deltaTime);
-    this.doAction(deltaTime);
-  }
+		this.doSteer(deltaTime);
+		this.doMouseShoot(deltaTime);
+		this.doAction(deltaTime);
+	}
 }

@@ -1,8 +1,6 @@
 import i18next from "i18next";
 import type { Game } from "./game";
 
-(window as any).i18next = i18next;
-
 export type InputCallback = (event: KeyboardEvent) => void;
 
 interface KeyRegister {
@@ -21,7 +19,7 @@ export abstract class KeyHandler {
 
 	protected registerKey(key: string, callback: InputCallback) {
 		const listener = (event: KeyboardEvent) => {
-			if (event.key == key) {
+			if (event.key === key) {
 				callback(event);
 			}
 		};
@@ -35,13 +33,13 @@ export abstract class KeyHandler {
 
 	protected registerHeldKey(key: string, callback: InputCallback) {
 		const listenerDown: InputCallback = (event: KeyboardEvent) => {
-			if (event.key == key) {
+			if (event.key === key) {
 				this.heldKeys.set(key, callback.bind(this, event) as () => void);
 			}
 		};
 
 		const listenerUp: InputCallback = (event: KeyboardEvent) => {
-			if (event.key == key) {
+			if (event.key === key) {
 				this.heldKeys.delete(key);
 			}
 		};
@@ -83,7 +81,7 @@ export abstract class KeyHandler {
 }
 
 export class PlayKeyHandler extends KeyHandler {
-	register() {
+	override register() {
 		super.register();
 		this.registerKey(
 			"r",
@@ -132,7 +130,7 @@ export class PlayKeyHandler extends KeyHandler {
 				number.toString(),
 				this.game.inputHandler.bind(
 					this.game,
-					"cannon lock " + (number - 1).toString(),
+					`cannon lock ${(number - 1).toString()}`,
 				) as InputCallback,
 			);
 		}
@@ -140,7 +138,7 @@ export class PlayKeyHandler extends KeyHandler {
 }
 
 export class GUIKeyHandler extends KeyHandler {
-	register() {
+	override register() {
 		super.register();
 		//this.registerKey("r", this.game.inputHandler.bind(this.game, "tryRepair"));
 	}

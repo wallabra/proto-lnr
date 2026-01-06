@@ -1,5 +1,5 @@
-import type Victor from "victor";
 import { Howl, Howler } from "howler";
+import type Victor from "victor";
 
 const audioCache: Record<string, Howl> = {};
 
@@ -12,131 +12,138 @@ import s_shotbigness from "data-url:./sound/shotbigness.opus";
 import s_waterimpact from "data-url:./sound/waterimpact.opus";
 
 export const ALL_EFFECTS: Record<string, string> = {
-  engine_coal: s_engine_coal,
-  engine_diesel: s_engine_diesel,
-  impactblast: s_impactblast,
-  pickup: s_pickup,
-  shotbase: s_shotbase,
-  shotbigness: s_shotbigness,
-  waterimpact: s_waterimpact,
+	engine_coal: s_engine_coal,
+	engine_diesel: s_engine_diesel,
+	impactblast: s_impactblast,
+	pickup: s_pickup,
+	shotbase: s_shotbase,
+	shotbigness: s_shotbigness,
+	waterimpact: s_waterimpact,
 };
 
 function loadAudio(name: string): Howl {
-  if (name in audioCache) {
-    return audioCache[name];
-  }
-  const audio = new Howl({ src: [decodeURIComponent(ALL_EFFECTS[name])] });
-  audio.load();
-  audioCache[name] = audio;
-  return audio;
+	if (name in audioCache) {
+		return audioCache[name];
+	}
+	const audio = new Howl({ src: [decodeURIComponent(ALL_EFFECTS[name])] });
+	audio.load();
+	audioCache[name] = audio;
+	return audio;
 }
 
 // preload SFX
 function preloader() {
-  for (const effect of Object.keys(ALL_EFFECTS)) {
-    loadAudio(effect);
-  }
-  console.log("Audio preloaded");
-  document.removeEventListener("click", preloader);
+	for (const effect of Object.keys(ALL_EFFECTS)) {
+		loadAudio(effect);
+	}
+	console.log("Audio preloaded");
+	document.removeEventListener("click", preloader);
 }
 // (use click event to mitigate browser warning about user interaction)
 document.addEventListener("click", preloader);
 
 export interface SoundObject {
-  pos: Victor;
-  angle: number;
-  height?: number;
+	pos: Victor;
+	angle: number;
+	height?: number;
 }
 
 class SoundSource {
-  private from: SoundObject;
-  private soundSrc: Howl;
-  private soundId: number;
-  private finished = false;
+	private from: SoundObject;
+	private soundSrc: Howl;
+	private soundId: number;
+	private finished = false;
 
-  constructor(from: SoundObject, src: Howl, volume = 1.0) {
-    this.from = from;
-    this.soundSrc = src;
-    const soundId = (this.soundId = src.play());
-    src.volume(volume, soundId);
-    this.update();
-    src.pannerAttr(
-      {
-        panningModel: "HRTF",
-        rolloffFactor: 0.012,
-      },
-      soundId,
-    );
-    src.once("play", () => {}, soundId);
-    src.on("end", () => (this.finished = true), soundId);
-  }
+	constructor(from: SoundObject, src: Howl, volume = 1.0) {
+		this.from = from;
+		this.soundSrc = src;
+		this.soundId = src.play();
+		const soundId = this.soundId;
+		src.volume(volume, soundId);
+		this.update();
+		src.pannerAttr(
+			{
+				panningModel: "HRTF",
+				rolloffFactor: 0.012,
+			},
+			soundId,
+		);
+		src.once("play", () => {}, soundId);
+		src.on(
+			"end",
+			() => {
+				this.finished = true;
+			},
+			soundId,
+		);
+	}
 
-  public update() {
-    const { from, soundSrc, soundId } = this;
-    if (isNaN(from.pos.x) || isNaN(from.pos.y)) {
-      console.log("Caught NaN in sound object: ", from);
-      return;
-    }
-    soundSrc.pos(from.pos.x, from.height ?? 0, from.pos.y, soundId);
-  }
+	public update() {
+		const { from, soundSrc, soundId } = this;
+		if (Number.isNaN(from.pos.x) || Number.isNaN(from.pos.y)) {
+			console.log("Caught NaN in sound object: ", from);
+			return;
+		}
+		soundSrc.pos(from.pos.x, from.height ?? 0, from.pos.y, soundId);
+	}
 
-  public isDone() {
-    return this.finished;
-  }
+	public isDone() {
+		return this.finished;
+	}
 
-  public stop() {
-    this.soundSrc.stop(this.soundId);
-  }
+	public stop() {
+		this.soundSrc.stop(this.soundId);
+	}
 
-  public rate(vel: number) {
-    this.soundSrc.rate(vel, this.soundId);
-  }
+	public rate(vel: number) {
+		this.soundSrc.rate(vel, this.soundId);
+	}
 }
 
 export class SoundEngine {
-  public perspective: SoundObject;
-  private sources: SoundSource[];
+	public perspective: SoundObject;
+	private sources: SoundSource[];
 
-  constructor(perspective: SoundObject) {
-    this.perspective = perspective;
-    this.sources = [];
-    this.update();
-  }
+	constructor(perspective: SoundObject) {
+		this.perspective = perspective;
+		this.sources = [];
+		this.update();
+	}
 
-  public play(from: SoundObject, name: string, volume = 1.0) {
-    const asrc = loadAudio(name);
-    const source = new SoundSource(from, asrc, volume);
-    this.sources.push(source);
-    return source;
-  }
+	public play(from: SoundObject, name: string, volume = 1.0) {
+		const asrc = loadAudio(name);
+		const source = new SoundSource(from, asrc, volume);
+		this.sources.push(source);
+		return source;
+	}
 
-  private updatePerspective() {
-    const persp = this.perspective;
+	private updatePerspective() {
+		const persp = this.perspective;
 
-    if (isNaN(persp.pos.x) || isNaN(persp.pos.y)) {
-      console.log("Caught NaN in sound perspective:", this.perspective);
-      return;
-    }
+		if (Number.isNaN(persp.pos.x) || Number.isNaN(persp.pos.y)) {
+			console.log("Caught NaN in sound perspective:", this.perspective);
+			return;
+		}
 
-    const dx = Math.cos(persp.angle);
-    const dy = Math.sin(persp.angle);
-    Howler.orientation(dx, 0, dy, 0, 1, 0);
-    Howler.pos(persp.pos.x, persp.height ?? 0, persp.pos.y);
-  }
+		const dx = Math.cos(persp.angle);
+		const dy = Math.sin(persp.angle);
+		Howler.orientation(dx, 0, dy, 0, 1, 0);
+		Howler.pos(persp.pos.x, persp.height ?? 0, persp.pos.y);
+	}
 
-  private cullSources() {
-    this.sources = this.sources.filter((s) => !s.isDone());
-  }
+	private cullSources() {
+		this.sources = this.sources.filter((s) => !s.isDone());
+	}
 
-  private updateSources() {
-    for (const source of this.sources) {
-      source.update();
-    }
-  }
+	private updateSources() {
+		for (const source of this.sources) {
+			source.update();
+		}
+	}
 
-  public update() {
-    this.updatePerspective();
-    this.cullSources();
-    this.updateSources();
-  }
+	public update() {
+		this.updatePerspective();
+		this.cullSources();
+		this.updateSources();
+	}
 }

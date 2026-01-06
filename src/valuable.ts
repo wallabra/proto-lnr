@@ -1,11 +1,11 @@
-import type { ShipItem } from "./inventory";
-import type { RandomRange, WeightedItem } from "./util";
-import { maybeRangeInt, rwc } from "./util";
 import random from "random";
 import {
 	translateItemType,
 	translateValuableName,
 } from "./internationalization";
+import type { ShipItem } from "./inventory";
+import type { RandomRange, WeightedItem } from "./util";
+import { maybeRangeInt, rwc } from "./util";
 
 export interface ValuableArgs {
 	name: string;

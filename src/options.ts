@@ -1,7 +1,7 @@
 export interface OptionsType {
-  staticTickrate: number,
+	staticTickrate: number;
 }
 
 export const Options: OptionsType = {
-  staticTickrate: 30
+	staticTickrate: 30,
 };

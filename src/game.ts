@@ -1,15 +1,15 @@
-import type { Superstate } from "./superstates/base";
-import { Player } from "./player";
-import type { InputEvent } from "./player";
-import type { TerraDef } from "./terrain";
-import { landfillGenerator } from "./terrain";
-import { PlayState } from "./superstates/play";
-import type { MouseHandler } from "./mouse";
-import type { KeyHandler } from "./keyinput";
 import random from "random";
-import { MainMenuState } from "./superstates/start";
 import type { Callback } from "./interval";
 import { IntervalLoop } from "./interval";
+import type { KeyHandler } from "./keyinput";
+import type { MouseHandler } from "./mouse";
+import type { InputEvent } from "./player";
+import { Player } from "./player";
+import type { Superstate } from "./superstates/base";
+import { PlayState } from "./superstates/play";
+import { MainMenuState } from "./superstates/start";
+import type { TerraDef } from "./terrain";
+import { landfillGenerator } from "./terrain";
 
 const DEFAULT_GAMEMODE = "freeplay";
 
@@ -90,7 +90,8 @@ export class Game {
 			this.mouse.deregister();
 		}
 
-		const res = (this.mouse = new handlerType(this));
+		this.mouse = new handlerType(this);
+		const res = this.mouse as M;
 		res.register();
 		return res;
 	}
@@ -102,7 +103,8 @@ export class Game {
 			this.keyboard.deregister();
 		}
 
-		const res = (this.keyboard = new handlerType(this));
+		this.keyboard = new handlerType(this);
+		const res = this.keyboard as K;
 		res.register();
 		return res;
 	}

@@ -1,21 +1,21 @@
-import * as intl from "./internationalization";
+import type { Optional } from "utility-types";
 import Victor from "victor";
-import type { TerraSector, Terrain } from "./terrain";
+import * as intl from "./internationalization";
+import {
+	translateEngineFuelType,
+	translateFuelType,
+	translatePartName,
+} from "./internationalization";
+import type { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
+import type { Player } from "./player";
+import { isPhysicable, type PlayState } from "./superstates/play";
+import type { Terrain, TerraSector } from "./terrain";
 import {
 	SECTOR_AREA,
-	SECTOR_SIZE,
 	SECTOR_REAL_SIZE,
 	SECTOR_RES,
+	SECTOR_SIZE,
 } from "./terrain";
-import { isPhysicable, type PlayState } from "./superstates/play";
-import {
-	rgbString,
-	interpColor,
-	lerp,
-	moneyString,
-	unlerp,
-	costString,
-} from "./util";
 import type {
 	CanvasLabelArgs,
 	CanvasPanelArgs,
@@ -30,14 +30,14 @@ import {
 	CanvasRoot,
 	CanvasUIGroup,
 } from "./ui";
-import type { Optional } from "utility-types";
-import type { Player } from "./player";
-import type { Cannon, Engine, ShipMakeup } from "./objects/shipmakeup";
 import {
-	translateEngineFuelType,
-	translateFuelType,
-	translatePartName,
-} from "./internationalization";
+	costString,
+	interpColor,
+	lerp,
+	moneyString,
+	rgbString,
+	unlerp,
+} from "./util";
 
 export interface ObjectRenderInfo {
 	scale: number;
@@ -498,7 +498,7 @@ class HudCannon {
 
 	protected updateLocked() {
 		if (!this.cannon.locked) return;
-		this.label.label += " " + intl.t("hud.cannon.locked");
+		this.label.label += ` ${intl.t("hud.cannon.locked")}`;
 		this.label.color = "#ee4";
 		this.pane.bgColor = "#aa25";
 		this.pane.border = { color: "#FF0B", width: 2.5, dashes: [4, 2] };
@@ -980,7 +980,7 @@ class HudAmmo {
 
 		new CanvasLabel({
 			...labelOpts,
-			label: (this.caliber * 10).toFixed(0) + "mm",
+			label: `${(this.caliber * 10).toFixed(0)}mm`,
 		});
 
 		this.label = new CanvasLabel({
@@ -1105,7 +1105,7 @@ class HudCounters {
 		const statValue = (value: (player: Player) => number) => {
 			return (label: CanvasLabel, player: Player) => {
 				const money = value(player);
-				label.label = money == 0 ? "-" : moneyString(money);
+				label.label = money === 0 ? "-" : moneyString(money);
 				label.color = money >= 0 ? "#aaf" : "#f98";
 			};
 		};
@@ -1135,7 +1135,7 @@ class HudCounters {
 			"finance.minusSalary",
 			"finance.minusHullRepair",
 			"finance.minusOtherRepair",
-		].map((n) => intl.t("hud.info." + n));
+		].map((n) => intl.t(`hud.info.${n}`));
 		this.addRow(headers[0], ...headers.slice(1));
 		addStat(intl.t("hud.info.finance.cash"), (player) => player.money);
 		addStat(intl.t("hud.info.finance.inventoryValue"), (player) =>
@@ -1824,8 +1824,7 @@ export class GameRenderer {
 
 	public toggleHud() {
 		if (this.game.player == null) return;
-		if (this.game.player.possessed != null && this.game.player.possessed.dying)
-			return;
+		if (this.game.player.possessed?.dying) return;
 		this.r_hud.toggleHud();
 	}
 

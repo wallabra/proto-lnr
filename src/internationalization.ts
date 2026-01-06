@@ -1,11 +1,11 @@
+import universalLanguageDetect from "@unly/universal-language-detector";
 import type { TOptions } from "i18next";
 import i18next from "i18next";
+import type { FoodItem } from "./inventory";
+import type { Crew, Engine, ShipMake, ShipPart } from "./objects/shipmakeup";
 import { TR_EN } from "./translation/en";
 import { TR_PT_BR } from "./translation/pt-BR";
-import type { Crew, Engine, ShipMake, ShipPart } from "./objects/shipmakeup";
-import type { FoodItem } from "./inventory";
 import type { ValuableItem } from "./valuable";
-import universalLanguageDetect from "@unly/universal-language-detector";
 
 export type HelpCommand =
 	| string
@@ -26,14 +26,14 @@ export function translateItemType(
 	itemType: string,
 	options?: TOptions,
 ): string {
-	return i18next.t("itemtype." + itemType, { count: 1, ...options });
+	return i18next.t(`itemtype.${itemType}`, { count: 1, ...options });
 }
 
 export function translateFuelType(
 	fuelType: string,
 	options?: TOptions,
 ): string {
-	return i18next.t("fueltype." + fuelType, { count: 1, ...options });
+	return i18next.t(`fueltype.${fuelType}`, { count: 1, ...options });
 }
 
 export function translatePartName(part: ShipPart, options?: TOptions): string {
@@ -44,14 +44,14 @@ export function translatePartName(part: ShipPart, options?: TOptions): string {
 }
 
 export function translateFoodName(food: FoodItem, options?: TOptions): string {
-	return i18next.t("fooddefs." + food.name, { count: food.amount, ...options });
+	return i18next.t(`fooddefs.${food.name}`, { count: food.amount, ...options });
 }
 
 export function translateValuableName(
 	loot: ValuableItem,
 	options?: TOptions,
 ): string {
-	return i18next.t("lootdefs." + loot.name, { count: loot.amount, ...options });
+	return i18next.t(`lootdefs.${loot.name}`, { count: loot.amount, ...options });
 }
 
 export function translateEngineFuelType(
@@ -64,14 +64,14 @@ export function translateEngineFuelType(
 }
 
 export function translateCrewName(crew: Crew, options?: TOptions): string {
-	return i18next.t("crewdefs." + crew.name, options);
+	return i18next.t(`crewdefs.${crew.name}`, options);
 }
 
 export function translateShipMakeName(
 	make: ShipMake,
 	options?: TOptions,
 ): string {
-	return i18next.t("makedefs." + make.name, options);
+	return i18next.t(`makedefs.${make.name}`, options);
 }
 
 export function init() {

@@ -1,20 +1,20 @@
-import { Ticker } from "./tick";
 import { Game } from "./game";
 import * as internationalization from "./internationalization";
+import { Ticker } from "./tick";
 
 function main() {
-  internationalization.init();
+	internationalization.init();
 
-  const canvas = document.querySelector("#game-canvas");
-  if (canvas == null || !(canvas instanceof HTMLCanvasElement)) {
-    return;
-  }
+	const canvas = document.querySelector("#game-canvas");
+	if (canvas == null || !(canvas instanceof HTMLCanvasElement)) {
+		return;
+	}
 
-  const game = new Game(canvas);
-  (window as Window & typeof globalThis & { game?: Game }).game = game;
+	const game = new Game(canvas);
+	(window as Window & typeof globalThis & { game?: Game }).game = game;
 
-  const ticker = new Ticker(game);
-  ticker.start();
+	const ticker = new Ticker(game);
+	ticker.start();
 }
 
 main();

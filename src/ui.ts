@@ -1,11 +1,11 @@
 // UI utilities for the canv
 // do nothing;
 
-import type { Omit, Optional, Nullish } from "utility-types";
+import type { Nullish, Omit, Optional } from "utility-types";
+import Victor from "victor";
 import type { Game } from "./game";
 import type { GameMouseInfo } from "./mouse";
 import { lerp } from "./util";
-import Victor from "victor";
 
 export interface UIEvent {
 	name: string;
@@ -32,9 +32,9 @@ export function computeDock(
 	offset: number,
 	dockMargin: number,
 ) {
-	if (align == "center") {
+	if (align === "center") {
 		base += offset / 2;
-	} else if (align == "end") {
+	} else if (align === "end") {
 		base += offset - dockMargin;
 	} else {
 		base += dockMargin;
@@ -52,9 +52,9 @@ export function getTextBaseline(align: UIAlign): CanvasTextBaseline {
 }
 
 export function computeAlign(align: UIAlign, base: number, offset: number) {
-	if (align == "center") {
+	if (align === "center") {
 		base -= offset / 2;
-	} else if (align == "end") {
+	} else if (align === "end") {
 		base -= offset;
 	}
 
@@ -67,13 +67,13 @@ export function computeAlignCheckDock(
 	base: number,
 	offset: number,
 ) {
-	if (dock == "end") {
+	if (dock === "end") {
 		base -= offset;
-	} else if (dock == "center") {
+	} else if (dock === "center") {
 		base -= offset / 2;
-	} else if (align == "center") {
+	} else if (align === "center") {
 		base -= offset / 2;
-	} else if (align == "end") {
+	} else if (align === "end") {
 		base -= offset;
 	}
 
@@ -477,12 +477,12 @@ export abstract class CanvasUIElement<ExtraProps = object> {
 	checkChangeDimensions(width: number, height: number) {
 		let changed = false;
 
-		if (width != this.width) {
+		if (width !== this.width) {
 			this.width = width;
 			changed = true;
 		}
 
-		if (height != this.height) {
+		if (height !== this.height) {
 			this.height = height;
 			changed = true;
 		}
@@ -724,7 +724,7 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
 			Partial<CanvasUIArgs>,
 	) {
 		if (this._label != null) this._label.remove();
-		return (this._label = new CanvasLabel({
+		this._label = new CanvasLabel({
 			label: label,
 			dockX: "center",
 			dockY: "center",
@@ -733,7 +733,8 @@ export class CanvasButton extends CanvasUIElement<CanvasButtonArgs> {
 			font: `$Hpx sans-serif`,
 			parent: this,
 			...(labelOpts || {}),
-		}));
+		});
+		return this._label;
 	}
 
 	_render(uictx: UIDrawContext) {
@@ -833,7 +834,7 @@ export class CanvasLabel extends CanvasUIElement<CanvasLabelArgs> {
 			this.textWidth *= factor;
 		}
 
-		const remeasured = oldWidth != this.textWidth;
+		const remeasured = oldWidth !== this.textWidth;
 		if (remeasured) {
 			this.cached.dims.width = measures.width;
 			this.updateCache();
@@ -923,11 +924,11 @@ export class CanvasSplitPanel extends CanvasPanel {
 		pos.y += this.margin;
 
 		if (this.parent != null) {
-			if (this.axis == "horizontal") {
+			if (this.axis === "horizontal") {
 				pos.x += (this.parent.innerWidth / this.totalSplits) * this.index;
 			}
 
-			if (this.axis == "vertical") {
+			if (this.axis === "vertical") {
 				pos.y += (this.parent.innerHeight / this.totalSplits) * this.index;
 			}
 		}
@@ -940,7 +941,7 @@ export class CanvasSplitPanel extends CanvasPanel {
 
 		let width: number;
 
-		if (this.axis == "horizontal") {
+		if (this.axis === "horizontal") {
 			width = this.parent.innerWidth / this.totalSplits;
 		} else {
 			width = this.parent.innerWidth;
@@ -954,7 +955,7 @@ export class CanvasSplitPanel extends CanvasPanel {
 
 		let height: number;
 
-		if (this.axis == "horizontal") {
+		if (this.axis === "horizontal") {
 			height = this.parent.innerHeight;
 		} else {
 			height = this.parent.innerHeight / this.totalSplits;
@@ -1048,7 +1049,7 @@ class Scrollbar extends CanvasUIElement<ScrollbarArgs> {
 	event(e: UIEvent) {
 		const ev = e as UIEvent & { dragStart: Victor };
 		if (
-			e.name == "canvasdrag" &&
+			e.name === "canvasdrag" &&
 			this.isInside(ev.dragStart.x, ev.dragStart.y)
 		) {
 			const ev = e as UIEvent & UIMouseEvent;

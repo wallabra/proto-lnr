@@ -1,40 +1,40 @@
-import * as intl from "../internationalization";
-import type { Optional } from "utility-types";
-import type { ShipItem } from "../inventory";
-import {
-	FoodItem,
-	FuelItem,
-	ShipInventory,
-	computeResellCost,
-} from "../inventory";
-import type { Cannonball } from "./cannonball";
-import type { Ship } from "./ship";
-import Victor from "victor";
-import type { Player } from "../player";
-import {
-	DEFAULT_CANNON,
-	DEFAULT_ENGINE,
-	DEFAULT_VACUUM,
-	OARS,
-} from "../shop/partdefs";
-import { arrayCounter, moneyString } from "../util";
-import match from "rustmatchjs";
 import random from "random";
-import { CREWDEFS } from "../shop/crewdefs";
-import { FOODDEFS } from "../shop/fooddefs";
-import { isPickup } from "./pickup";
-import { isTickable } from "../superstates/play";
-import randomParts from "../shop/randomparts";
-import { DEFAULT_MAKE } from "../shop/makedefs";
+import match from "rustmatchjs";
+import type { Optional } from "utility-types";
+import Victor from "victor";
+import { aoeExplosion } from "../combat/explosion";
 import type { ProjectileModifier } from "../combat/projectile";
 import { addModifiersToAmmo } from "../combat/projectile";
+import * as intl from "../internationalization";
 import {
 	translateCrewName,
 	translateEngineFuelType,
 	translateItemType,
 	translatePartName,
 } from "../internationalization";
-import { aoeExplosion } from "../combat/explosion";
+import type { ShipItem } from "../inventory";
+import {
+	computeResellCost,
+	FoodItem,
+	FuelItem,
+	ShipInventory,
+} from "../inventory";
+import type { Player } from "../player";
+import { CREWDEFS } from "../shop/crewdefs";
+import { FOODDEFS } from "../shop/fooddefs";
+import { DEFAULT_MAKE } from "../shop/makedefs";
+import {
+	DEFAULT_CANNON,
+	DEFAULT_ENGINE,
+	DEFAULT_VACUUM,
+	OARS,
+} from "../shop/partdefs";
+import randomParts from "../shop/randomparts";
+import { isTickable } from "../superstates/play";
+import { arrayCounter, moneyString } from "../util";
+import type { Cannonball } from "./cannonball";
+import { isPickup } from "./pickup";
+import type { Ship } from "./ship";
 
 export function slots(make: ShipMake): Map<string, number> {
 	return arrayCounter(make.slots.map((s) => s.type));
@@ -268,7 +268,7 @@ export class Crew implements ShipItem {
 			makeup.crew.filter((c) => c.name === this.name).indexOf(this) + 1;
 
 		return (
-			translateCrewName(this) + (which === 1 ? "" : " " + which.toString())
+			translateCrewName(this) + (which === 1 ? "" : ` ${which.toString()}`)
 		);
 	}
 
@@ -376,7 +376,7 @@ export class Crew implements ShipItem {
 			res +=
 				" " +
 				intl.t("strike", {
-					reason: intl.t("strike.reason." + this.strikeReason()),
+					reason: intl.t(`strike.reason.${this.strikeReason()}`),
 				});
 		return res;
 	}
@@ -417,7 +417,7 @@ export class Crew implements ShipItem {
 	}
 
 	tick(_deltaTime: number): void {
-		if (this.manningPart != null && this.manningPart.dying) {
+		if (this.manningPart?.dying) {
 			this.manningPart = null;
 		}
 	}
@@ -478,7 +478,7 @@ export class CannonballAmmo implements ShipItem {
 	}
 
 	sphericalVolume() {
-		return (4 / 3) * Math.PI * Math.pow(this.caliber, 3);
+		return (4 / 3) * Math.PI * this.caliber ** 3;
 	}
 
 	estimateCost() {
@@ -488,14 +488,14 @@ export class CannonballAmmo implements ShipItem {
 	getItemLabel() {
 		return intl.t(
 			this.amount === 1 ? "cannonball" : ["cannonball.plural", "cannonball"],
-			{ caliber: (this.caliber * 10).toFixed(0) + "mm" },
+			{ caliber: `${(this.caliber * 10).toFixed(0)}mm` },
 		);
 	}
 
 	shopInfo(): string[] {
 		return Array.from(this.modifiers).map((mod) =>
 			intl.t("shopinfo.projectileModifier", {
-				modifierName: intl.t("projectile.modifier." + mod.name),
+				modifierName: intl.t(`projectile.modifier.${mod.name}`),
 			}),
 		);
 	}
@@ -537,16 +537,16 @@ export class Cannon extends ShipPart {
 	override shopInfo(): string[] {
 		return [
 			intl.t("shopinfo.cannon.caliber", {
-				caliber: (this.caliber * 10).toFixed(0) + "mm",
+				caliber: `${(this.caliber * 10).toFixed(0)}mm`,
 			}),
 			intl.t("shopinfo.cannon.shootRate", {
 				spm: (60 / this.shootRate).toFixed(2),
 			}),
 			intl.t("shopinfo.cannon.range", {
-				rangeMeters: (this.range / 10).toFixed(1) + "m",
+				rangeMeters: `${(this.range / 10).toFixed(1)}m`,
 			}),
 			intl.t("shopinfo.cannon.spread", {
-				spread: ((this.spread * 360) / Math.PI).toFixed(1) + "°",
+				spread: `${((this.spread * 360) / Math.PI).toFixed(1)}°`,
 			}),
 		];
 	}
@@ -568,7 +568,7 @@ export class Cannon extends ShipPart {
 	}
 
 	cannonballSphericalVolume() {
-		return (4 / 3) * Math.PI * Math.pow(this.caliber / 2, 3);
+		return (4 / 3) * Math.PI * (this.caliber / 2) ** 3;
 	}
 
 	private shootCannonball(
@@ -594,7 +594,7 @@ export class Cannon extends ShipPart {
 		const velComp = ship.angNorm.dot(ship.vel);
 
 		const targSpeed = Math.min(
-			(dist - velComp + cball.phys.airDrag() * Math.pow(airtime, 2)) / airtime,
+			(dist - velComp + cball.phys.airDrag() * airtime ** 2) / airtime,
 			this.range,
 		);
 		cball.phys.vel = new Victor(targSpeed, 0)
@@ -662,15 +662,11 @@ export class Cannon extends ShipPart {
 
 	public override rateSelf(): number {
 		return (
-			Math.pow(
-				Math.pow((4 / 3) * Math.PI * this.caliber, DPS_CALIBER_EXPONENT) /
-					this.shootRate,
-				DPS_CALIBER_EXPONENT_INVERSE,
-			) +
-			Math.pow(
-				(this.range * 0.05 * (Math.PI / 6)) / this.spread,
-				DPS_CALIBER_EXPONENT_INVERSE / 4,
-			)
+			(((4 / 3) * Math.PI * this.caliber) ** DPS_CALIBER_EXPONENT /
+				this.shootRate) **
+				DPS_CALIBER_EXPONENT_INVERSE +
+			((this.range * 0.05 * (Math.PI / 6)) / this.spread) **
+				(DPS_CALIBER_EXPONENT_INVERSE / 4)
 		);
 	}
 
@@ -702,7 +698,7 @@ export class Vacuum extends ShipPart implements VacuumArgs {
 	override shopInfo(): string[] {
 		return [
 			intl.t("shopinfo.vacuum.range", {
-				suckRadiusMeters: (this.suckRadius / 10).toFixed(0) + "m",
+				suckRadiusMeters: `${(this.suckRadius / 10).toFixed(0)}m`,
 			}),
 			intl.t("shopinfo.vacuum.strength", {
 				strength: (this.suckStrength / 1000).toFixed(2),
@@ -1135,7 +1131,7 @@ export class ShipMakeup {
 			}),
 			match._(() => {
 				throw new Error(
-					"Cannot add default item for part of type: " + part.type,
+					`Cannot add default item for part of type: ${part.type}`,
 				);
 			}),
 		);
@@ -1461,8 +1457,7 @@ export class ShipMakeup {
 
 	maxEngineThrust(enginesList?: Engine[]): number {
 		const engines =
-			(enginesList && enginesList.filter((e) => e.available(this))) ??
-			this.getReadyEngines();
+			enginesList?.filter((e) => e.available(this)) ?? this.getReadyEngines();
 
 		if (engines.length === 0) return 0;
 
@@ -1534,7 +1529,7 @@ export class ShipMakeup {
 	}
 
 	public hullWeight() {
-		const volumeDm3 = (Math.PI * Math.pow(this.make.size, 3) * 4) / 3;
+		const volumeDm3 = (Math.PI * this.make.size ** 3 * 4) / 3;
 		const waterWeight = volumeDm3 * 0.997;
 		return waterWeight * this.make.weight;
 	}

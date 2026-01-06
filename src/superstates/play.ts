@@ -1,27 +1,26 @@
-import * as intl from "../internationalization";
-import { Cannonball } from "../objects/cannonball";
-import type { CannonballParams } from "../objects/cannonball";
-import { Ship } from "../objects/ship";
-import type { ShipParams } from "../objects/ship";
-import { PhysicsSimulation } from "../objects/physics";
-import type { PhysicsParams } from "../objects/physics";
-import { PhysicsObject } from "../objects/physics";
-import { Terrain } from "../terrain";
-import type { TerraDef } from "../terrain";
-import { Superstate } from "./base";
+import random from "random";
+import type { Nullish } from "utility-types";
 import Victor from "victor";
 import { AIController } from "../ai/ai";
-import { GameRenderer } from "../render";
-import type { Renderable, TickerMessageArgs } from "../render";
 import type { Game } from "../game";
-import { PlayMouseHandler } from "../mouse";
+import * as intl from "../internationalization";
 import { PlayKeyHandler } from "../keyinput";
-import random from "random";
-import type { ShipMakeup } from "../objects/shipmakeup";
-import { SoundEngine } from "../sfx";
+import { PlayMouseHandler } from "../mouse";
+import type { CannonballParams } from "../objects/cannonball";
+import { Cannonball } from "../objects/cannonball";
+import type { PhysicsParams } from "../objects/physics";
+import { PhysicsObject, PhysicsSimulation } from "../objects/physics";
 import { Decor } from "../objects/props/decor";
-import type { Nullish } from "utility-types";
+import type { ShipParams } from "../objects/ship";
+import { Ship } from "../objects/ship";
+import type { ShipMakeup } from "../objects/shipmakeup";
+import type { Renderable, TickerMessageArgs } from "../render";
+import { GameRenderer } from "../render";
+import { SoundEngine } from "../sfx";
 import { getRandomSpawnClass } from "../spawn";
+import type { TerraDef } from "../terrain";
+import { Terrain } from "../terrain";
+import { Superstate } from "./base";
 
 export interface GameObject {
 	dying: boolean;
@@ -411,7 +410,7 @@ export class PlayState extends Superstate {
 			this.currCameraPos.add(
 				this.targetCameraPos()
 					.subtract(this.currCameraPos)
-					.multiplyScalar(1 - Math.pow(1 - this.cameraScrollSpeed, deltaTime)),
+					.multiplyScalar(1 - (1 - this.cameraScrollSpeed) ** deltaTime),
 			);
 		}
 	}
@@ -515,7 +514,7 @@ export class PlayState extends Superstate {
 		}
 
 		// WIP: add other gamemodes beside Free Play
-		console.log("Selected gamemode would be " + this.game.gamemode);
+		console.log(`Selected gamemode would be ${this.game.gamemode}`);
 
 		this.startContinuousSpawns();
 

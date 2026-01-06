@@ -1,5 +1,5 @@
-import Victor from "victor";
 import random from "random";
+import Victor from "victor";
 //import { lerp } from "./util";
 
 export const SECTOR_SIZE = 128;
@@ -8,278 +8,278 @@ export const SECTOR_AREA = SECTOR_SIZE * SECTOR_SIZE;
 export const SECTOR_REAL_SIZE = SECTOR_SIZE * SECTOR_RES;
 
 interface LRUItem2D<T> {
-  x: number;
-  y: number;
-  item: T;
+	x: number;
+	y: number;
+	item: T;
 }
 
 class LRUMap2D<T> {
-  private cache: LRUItem2D<T>[];
-  private index: Map<number, Map<number, number>>;
-  private order: number[];
-  private maxLen: number | null;
+	private cache: LRUItem2D<T>[];
+	private index: Map<number, Map<number, number>>;
+	private order: number[];
+	private maxLen: number | null;
 
-  constructor(maxLen: number | null = null) {
-    this.clear();
-    this.maxLen = maxLen;
-  }
+	constructor(maxLen: number | null = null) {
+		this.clear();
+		this.maxLen = maxLen;
+	}
 
-  public clear() {
-    this.cache = [];
-    this.index = new Map();
-    this.order = [];
-  }
+	public clear() {
+		this.cache = [];
+		this.index = new Map();
+		this.order = [];
+	}
 
-  private _delete(idx: number) {
-    const item = this.cache[idx];
-    const sub = this.index.get(item.x);
-    if (sub) sub.delete(item.y);
-    this.cache.splice(idx, 1);
-  }
+	private _delete(idx: number) {
+		const item = this.cache[idx];
+		const sub = this.index.get(item.x);
+		if (sub) sub.delete(item.y);
+		this.cache.splice(idx, 1);
+	}
 
-  private _setItem(item: LRUItem2D<T>, idx: number) {
-    const sub = this.index.get(item.x);
-    if (sub) {
-      sub.set(item.y, idx);
-    } else {
-      this.index.set(item.x, new Map([[item.y, idx]]));
-    }
-    this.order.push(idx);
-  }
+	private _setItem(item: LRUItem2D<T>, idx: number) {
+		const sub = this.index.get(item.x);
+		if (sub) {
+			sub.set(item.y, idx);
+		} else {
+			this.index.set(item.x, new Map([[item.y, idx]]));
+		}
+		this.order.push(idx);
+	}
 
-  private setItem(item: LRUItem2D<T>) {
-    if (this.maxLen != null && this.cache.length > this.maxLen) {
-      const idx = this.order.shift();
-      if (idx === undefined) {
-        throw new Error(
-          "Empty order array when item has to be set in terrain LRU",
-        );
-      }
-      this._delete(idx);
-    }
-    const newIdx = this.cache.push(item) - 1;
-    this._setItem(item, newIdx);
-    return this;
-  }
+	private setItem(item: LRUItem2D<T>) {
+		if (this.maxLen != null && this.cache.length > this.maxLen) {
+			const idx = this.order.shift();
+			if (idx === undefined) {
+				throw new Error(
+					"Empty order array when item has to be set in terrain LRU",
+				);
+			}
+			this._delete(idx);
+		}
+		const newIdx = this.cache.push(item) - 1;
+		this._setItem(item, newIdx);
+		return this;
+	}
 
-  public set(x: number, y: number, item: T) {
-    this.setItem({
-      x,
-      y,
-      item,
-    });
-  }
+	public set(x: number, y: number, item: T) {
+		this.setItem({
+			x,
+			y,
+			item,
+		});
+	}
 
-  public get(x: number, y: number): T | null {
-    const row = this.index.get(x);
-    if (row == null) return null;
-    const idx = row.get(y);
-    if (idx == null) return null;
+	public get(x: number, y: number): T | null {
+		const row = this.index.get(x);
+		if (row == null) return null;
+		const idx = row.get(y);
+		if (idx == null) return null;
 
-    const orderIdx = this.order.indexOf(idx);
-    if (orderIdx > 0)
-      this.order[0] = this.order.splice(orderIdx, 1, this.order[0])[0];
+		const orderIdx = this.order.indexOf(idx);
+		if (orderIdx > 0)
+			this.order[0] = this.order.splice(orderIdx, 1, this.order[0])[0];
 
-    return this.cache[idx].item;
-  }
+		return this.cache[idx].item;
+	}
 
-  public size() {
-    return this.cache.length;
-  }
+	public size() {
+		return this.cache.length;
+	}
 }
 
 export class TerraSector {
-  heights: number[];
+	heights: number[];
 
-  constructor() {
-    this.heights = new Array(SECTOR_AREA).fill(0) as number[];
-  }
+	constructor() {
+		this.heights = new Array(SECTOR_AREA).fill(0) as number[];
+	}
 }
 
 export interface TerraDef {
-  (x: number, y: number): number;
-  boundingBox: BoundingBox;
+	(x: number, y: number): number;
+	boundingBox: BoundingBox;
 }
 
 interface LandfillDef {
-  center: Victor;
-  radius: number;
-  height: number;
+	center: Victor;
+	radius: number;
+	height: number;
 }
 
 function landfill(def: LandfillDef) {
-  const cx = def.center.x;
-  const cy = def.center.y;
-  const { radius, height } = def;
-  return function (x: number, y: number): number {
-    const ox = (x - cx) / radius;
-    const oy = (y - cy) / radius;
-    const distSq = ox * ox + oy * oy;
-    return height - distSq * height;
-  };
+	const cx = def.center.x;
+	const cy = def.center.y;
+	const { radius, height } = def;
+	return (x: number, y: number): number => {
+		const ox = (x - cx) / radius;
+		const oy = (y - cy) / radius;
+		const distSq = ox * ox + oy * oy;
+		return height - distSq * height;
+	};
 }
 
 function randomLandfill(scale = 1): LandfillDef {
-  return {
-    center: new Victor(random.uniform(0, 500 * scale)(), 0).rotateBy(
-      Math.PI * Math.random() * 2,
-    ),
-    radius: random.uniform(100, 250 * scale)(),
-    height: random.uniform(0.4, 1.0)(),
-  };
+	return {
+		center: new Victor(random.uniform(0, 500 * scale)(), 0).rotateBy(
+			Math.PI * Math.random() * 2,
+		),
+		radius: random.uniform(100, 250 * scale)(),
+		height: random.uniform(0.4, 1.0)(),
+	};
 }
 
 function randomLandfills(scale = 1): LandfillDef[] {
-  return new Array(random.uniformInt(5, 20)())
-    .fill(null)
-    .map(() => randomLandfill(scale));
+	return new Array(random.uniformInt(5, 20)())
+		.fill(null)
+		.map(() => randomLandfill(scale));
 }
 
 function landfills(
-  landfills: LandfillDef[] = randomLandfills(),
-  roughness = 20,
+	landfills: LandfillDef[] = randomLandfills(),
+	roughness = 20,
 ) {
-  const funcs = landfills.map((def) => landfill(def));
+	const funcs = landfills.map((def) => landfill(def));
 
-  return (x: number, y: number) => {
-    const vals = funcs.map((f) => f(x, y));
-    return Math.max(
-      0,
-      Math.log(
-        Math.max(
-          0.000001,
-          vals.map((v) => Math.exp(v * roughness)).reduce((a, b) => a + b, 0),
-        ),
-      ) / roughness,
-    );
-  };
+	return (x: number, y: number) => {
+		const vals = funcs.map((f) => f(x, y));
+		return Math.max(
+			0,
+			Math.log(
+				Math.max(
+					0.000001,
+					vals.map((v) => Math.exp(v * roughness)).reduce((a, b) => a + b, 0),
+				),
+			) / roughness,
+		);
+	};
 }
 
 interface BoundingBox {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
 }
 
 function isInBoundingBox(x: number, y: number, box: BoundingBox): boolean {
-  return x >= box.left && x <= box.right && y >= box.top && y <= box.bottom;
+	return x >= box.left && x <= box.right && y >= box.top && y <= box.bottom;
 }
 
 function boxUnion(...boxes: BoundingBox[]): BoundingBox {
-  return boxes.reduce(
-    (bounds, box) => ({
-      left: Math.min(box.left, box.right, bounds.left),
-      right: Math.max(box.left, box.right, bounds.right),
-      top: Math.min(box.top, box.bottom, bounds.top),
-      bottom: Math.max(box.top, box.bottom, bounds.bottom),
-    }),
-    { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity },
-  );
+	return boxes.reduce(
+		(bounds, box) => ({
+			left: Math.min(box.left, box.right, bounds.left),
+			right: Math.max(box.left, box.right, bounds.right),
+			top: Math.min(box.top, box.bottom, bounds.top),
+			bottom: Math.max(box.top, box.bottom, bounds.bottom),
+		}),
+		{ left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity },
+	);
 }
 
 function landfillBoundingBox(landfill: LandfillDef): BoundingBox {
-  return {
-    left: landfill.center.x - landfill.radius,
-    right: landfill.center.x + landfill.radius,
-    top: landfill.center.y - landfill.radius,
-    bottom: landfill.center.y + landfill.radius,
-  };
+	return {
+		left: landfill.center.x - landfill.radius,
+		right: landfill.center.x + landfill.radius,
+		top: landfill.center.y - landfill.radius,
+		bottom: landfill.center.y + landfill.radius,
+	};
 }
 
 function multiLandfillBoundingBox(...landfills: LandfillDef[]): BoundingBox {
-  return boxUnion(...landfills.map((l) => landfillBoundingBox(l)));
+	return boxUnion(...landfills.map((l) => landfillBoundingBox(l)));
 }
 
 export function landfillGenerator(distFactor = 1): TerraDef {
-  const ldefs = randomLandfills(distFactor);
-  return Object.assign(landfills(ldefs), {
-    boundingBox: multiLandfillBoundingBox(...ldefs),
-  });
+	const ldefs = randomLandfills(distFactor);
+	return Object.assign(landfills(ldefs), {
+		boundingBox: multiLandfillBoundingBox(...ldefs),
+	});
 }
 
 export class Terrain {
-  definition: TerraDef;
-  sectors: LRUMap2D<TerraSector>;
-  cached: LRUMap2D<number[]>;
-  cacheSize: number;
-  cacheRes: number;
+	definition: TerraDef;
+	sectors: LRUMap2D<TerraSector>;
+	cached: LRUMap2D<number[]>;
+	cacheSize: number;
+	cacheRes: number;
 
-  constructor(definition: TerraDef, cacheSize = 512, cacheRes = 4) {
-    this.definition = definition;
-    this.sectors = new LRUMap2D();
-    this.cached = new LRUMap2D();
-    this.cacheSize = cacheSize;
-    this.cacheRes = cacheRes;
-  }
+	constructor(definition: TerraDef, cacheSize = 512, cacheRes = 4) {
+		this.definition = definition;
+		this.sectors = new LRUMap2D();
+		this.cached = new LRUMap2D();
+		this.cacheSize = cacheSize;
+		this.cacheRes = cacheRes;
+	}
 
-  get cacheRowLen() {
-    return this.cacheSize / this.cacheRes;
-  }
+	get cacheRowLen() {
+		return this.cacheSize / this.cacheRes;
+	}
 
-  gradientAt(x: number, y: number): Victor {
-    return new Victor(
-      this.heightAt(x + 0.5, y) - this.heightAt(x - 0.5, y),
-      this.heightAt(x, y + 0.5) - this.heightAt(x, y - 0.5),
-    );
-  }
+	gradientAt(x: number, y: number): Victor {
+		return new Victor(
+			this.heightAt(x + 0.5, y) - this.heightAt(x - 0.5, y),
+			this.heightAt(x, y + 0.5) - this.heightAt(x, y - 0.5),
+		);
+	}
 
-  realHeightAt(x: number, y: number) {
-    if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
-    return this.definition(x, y);
-  }
+	realHeightAt(x: number, y: number) {
+		if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
+		return this.definition(x, y);
+	}
 
-  private genCache(cx: number, cy: number): number[] {
-    const bx = cx * this.cacheSize + this.cacheRes / 2;
-    const by = cy * this.cacheSize + this.cacheRes / 2;
-    const len = this.cacheRowLen;
-    const area = len * len;
-    return new Array(area).fill(0).map((_, idx) => {
-      const ix = idx % len;
-      const iy = (idx - ix) / len;
-      return this.realHeightAt(
-        bx + ix * this.cacheRes,
-        by + iy * this.cacheRes,
-      );
-    });
-  }
+	private genCache(cx: number, cy: number): number[] {
+		const bx = cx * this.cacheSize + this.cacheRes / 2;
+		const by = cy * this.cacheSize + this.cacheRes / 2;
+		const len = this.cacheRowLen;
+		const area = len * len;
+		return new Array(area).fill(0).map((_, idx) => {
+			const ix = idx % len;
+			const iy = (idx - ix) / len;
+			return this.realHeightAt(
+				bx + ix * this.cacheRes,
+				by + iy * this.cacheRes,
+			);
+		});
+	}
 
-  getCache(cx: number, cy: number) {
-    let res = this.cached.get(cx, cy);
-    if (res != null) {
-      return res;
-    }
-    res = this.genCache(cx, cy);
-    this.cached.set(cx, cy, res);
-    return res;
-  }
+	getCache(cx: number, cy: number) {
+		let res = this.cached.get(cx, cy);
+		if (res != null) {
+			return res;
+		}
+		res = this.genCache(cx, cy);
+		this.cached.set(cx, cy, res);
+		return res;
+	}
 
-  cacheCoords(x: number, y: number) {
-    return {
-      x: Math.floor(x / this.cacheSize),
-      y: Math.floor(y / this.cacheSize),
-    };
-  }
+	cacheCoords(x: number, y: number) {
+		return {
+			x: Math.floor(x / this.cacheSize),
+			y: Math.floor(y / this.cacheSize),
+		};
+	}
 
-  heightAt(x: number, y: number) {
-    if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
+	heightAt(x: number, y: number) {
+		if (!isInBoundingBox(x, y, this.definition.boundingBox)) return 0;
 
-    const csize = this.cacheSize;
-    const cres = this.cacheRes;
-    const clen = this.cacheRowLen;
-    const ccoord = this.cacheCoords(x, y);
-    //console.debug('terrain cache size:', this.cached.size());
-    const cached = this.getCache(ccoord.x, ccoord.y);
-    const cx = x - ccoord.x * csize;
-    const cy = y - ccoord.y * csize;
-    const ix = Math.floor(cx / cres);
-    const iy = Math.floor(cy / cres);
+		const csize = this.cacheSize;
+		const cres = this.cacheRes;
+		const clen = this.cacheRowLen;
+		const ccoord = this.cacheCoords(x, y);
+		//console.debug('terrain cache size:', this.cached.size());
+		const cached = this.getCache(ccoord.x, ccoord.y);
+		const cx = x - ccoord.x * csize;
+		const cy = y - ccoord.y * csize;
+		const ix = Math.floor(cx / cres);
+		const iy = Math.floor(cy / cres);
 
-    // no longer use bilinear
-    return cached[iy * clen + ix];
+		// no longer use bilinear
+		return cached[iy * clen + ix];
 
-    // bilinear interpolation
-    /*
+		// bilinear interpolation
+		/*
     const alpha_x = ix % 1;
     const alpha_y = iy % 1;
     const ix2 = Math.min(ix + 1, clen - 1);
@@ -292,29 +292,29 @@ export class Terrain {
     );
     return lerp(ltop, lbottom, alpha_y);
     */
-  }
+	}
 
-  getSector(x: number, y: number): TerraSector {
-    return this.sectors.get(x, y) ?? this.renderSector(x, y);
-  }
+	getSector(x: number, y: number): TerraSector {
+		return this.sectors.get(x, y) ?? this.renderSector(x, y);
+	}
 
-  setSector(x: number, y: number, sector: TerraSector) {
-    this.sectors.set(x, y, sector);
-  }
+	setSector(x: number, y: number, sector: TerraSector) {
+		this.sectors.set(x, y, sector);
+	}
 
-  renderSector(x: number, y: number): TerraSector {
-    const sector = new TerraSector();
-    const baseX = x * SECTOR_REAL_SIZE;
-    const baseY = y * SECTOR_REAL_SIZE;
-    for (let i = 0; i < SECTOR_AREA; i++) {
-      const cx = i % SECTOR_SIZE;
-      const cy = (i - cx) / SECTOR_SIZE;
-      sector.heights[i] = this.definition(
-        baseX + cx * SECTOR_RES,
-        baseY + cy * SECTOR_RES,
-      );
-    }
-    this.setSector(x, y, sector);
-    return sector;
-  }
+	renderSector(x: number, y: number): TerraSector {
+		const sector = new TerraSector();
+		const baseX = x * SECTOR_REAL_SIZE;
+		const baseY = y * SECTOR_REAL_SIZE;
+		for (let i = 0; i < SECTOR_AREA; i++) {
+			const cx = i % SECTOR_SIZE;
+			const cy = (i - cx) / SECTOR_SIZE;
+			sector.heights[i] = this.definition(
+				baseX + cx * SECTOR_RES,
+				baseY + cy * SECTOR_RES,
+			);
+		}
+		this.setSector(x, y, sector);
+		return sector;
+	}
 }

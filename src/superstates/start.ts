@@ -6,25 +6,23 @@ import * as intl from "../internationalization";
 import { GUIKeyHandler } from "../keyinput";
 import type { GameMouseInfo } from "../mouse";
 import { GUIMouseHandler } from "../mouse";
-import {
-	CanvasButtonArgs,
-	CanvasLabelArgs,
-	CanvasProgressBar,
-	CanvasUIElement,
-	UIDrawContext,
-	UIEvent,
-	UIMouseEvent,
-} from "../ui";
+import { Options } from "../options";
 import {
 	CanvasButton,
+	type CanvasButtonArgs,
 	CanvasLabel,
+	type CanvasLabelArgs,
 	CanvasPanel,
+	CanvasProgressBar,
 	CanvasRoot,
 	CanvasScroller,
+	type CanvasUIElement,
 	CanvasUIGroup,
+	type UIDrawContext,
+	type UIEvent,
+	type UIMouseEvent,
 } from "../ui";
 import { Superstate } from "./base";
-import { Options } from "../options";
 
 export class MainMenuState extends Superstate {
 	ui: CanvasRoot;
@@ -245,7 +243,7 @@ export class MainMenuState extends Superstate {
 					callback: () => {
 						this.a_newGame(code);
 					},
-				}).label(intl.t("submenu.newgame." + code), { ...buttonLabelArgs });
+				}).label(intl.t(`submenu.newgame.${code}`), { ...buttonLabelArgs });
 			};
 
 			addGamemode("freeplay");
@@ -483,7 +481,7 @@ export class MainMenuState extends Superstate {
 						slider.on("canvasdrag", (e): undefined => {
 							const mouseEvent = e as UIMouseEvent;
 							if (mouseEvent.buttons === 1) {
-								handleMouse(e);
+								handleMouseDelta(e);
 							}
 						});
 					},
@@ -716,7 +714,7 @@ export class MainMenuState extends Superstate {
 		this.ui.render(ctx);
 	}
 
-	public tick(deltaTime: number, frameTime: number) {
+	public tick(deltaTime: number, _frameTime: number) {
 		this.tickBackground(deltaTime);
 	}
 
