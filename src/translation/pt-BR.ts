@@ -225,6 +225,7 @@ export const TR_PT_BR: TranslationTable = {
 		"submenu.options.language": "Idioma",
 		"submenu.options.language.en": "English",
 		"submenu.options.language.pt": "Português",
+		"submenu.options.tickrate": "Tick Rate da Simulação",
 
 		strike: "(greveando por {{reason}})",
 		"strike.reason.food": "fome",

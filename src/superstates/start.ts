@@ -1,4 +1,3 @@
-// import { Options } from "../options";
 import i18next from "i18next";
 import type { Game } from "../game";
 import { GAME_VERSION } from "../info";
@@ -7,12 +6,14 @@ import * as intl from "../internationalization";
 import { GUIKeyHandler } from "../keyinput";
 import type { GameMouseInfo } from "../mouse";
 import { GUIMouseHandler } from "../mouse";
-import type {
+import {
 	CanvasButtonArgs,
 	CanvasLabelArgs,
+	CanvasProgressBar,
 	CanvasUIElement,
 	UIDrawContext,
 	UIEvent,
+	UIMouseEvent,
 } from "../ui";
 import {
 	CanvasButton,
@@ -23,6 +24,7 @@ import {
 	CanvasUIGroup,
 } from "../ui";
 import { Superstate } from "./base";
+import { Options } from "../options";
 
 export class MainMenuState extends Superstate {
 	ui: CanvasRoot;
@@ -413,6 +415,90 @@ export class MainMenuState extends Superstate {
 				);
 			};
 
+			const addSliderOption = (
+				name: string,
+				range: [number, number],
+				getValue: () => number,
+				setValue: (val: number) => void,
+			) => {
+				addOption(
+					name,
+					(button) => {
+						const slider = new CanvasProgressBar({
+							parent: button,
+							childFill: 1,
+							fillY: true,
+							bgColor: "#090702",
+							progressColor: "#AAF",
+							progress: getValue(),
+							childMargin: 8,
+							childOrdering: "horizontal",
+						});
+
+						new CanvasLabel({
+							parent: button,
+							dockY: "center",
+							childMargin: 8,
+							paddingX: 9,
+							childFill: 0.1,
+							childOrdering: "horizontal",
+							alignX: "center",
+							alignY: "center",
+							height: 16,
+							maxHeight: 16,
+							label: "-",
+							autoFont: true,
+							font: "$Hpx bold monospace",
+							color: "#fff",
+						});
+
+						const handleMouse = (e: UIEvent): undefined => {
+							const mouseEvent = e as UIMouseEvent;
+							const rectPos = slider.pos();
+							const localX = mouseEvent.x - rectPos.x;
+
+							let progress = localX / slider.realWidth;
+							progress = Math.max(0, Math.min(1, progress));
+
+							const remapped = range[0] + progress * (range[1] - range[0]);
+
+							setValue(remapped);
+							slider.setProgress(progress);
+						};
+
+						const handleMouseDelta = (e: UIEvent): undefined => {
+							const mouseEvent = e as UIMouseEvent;
+							let progress = slider.progress * slider.realWidth;
+							progress += mouseEvent.delta.x;
+							progress = progress / slider.realWidth;
+							progress = Math.max(0, Math.min(1, progress));
+
+							const remapped = range[0] + progress * (range[1] - range[0]);
+
+							setValue(remapped);
+							slider.setProgress(progress);
+						};
+
+						slider.on("click", handleMouse);
+						slider.on("canvasdrag", (e): undefined => {
+							const mouseEvent = e as UIMouseEvent;
+							if (mouseEvent.buttons === 1) {
+								handleMouse(e);
+							}
+						});
+					},
+					() => {},
+					(button) => {
+						const value = getValue();
+						const valueNorm = (value - range[0]) / (range[1] - range[0]);
+						const slider = button.children[0] as CanvasProgressBar;
+						slider.setProgress(valueNorm);
+						const label = button.children[1] as CanvasLabel;
+						label.label = (Math.round(value * 10) / 10).toString();
+					},
+				);
+			};
+
 			const langs = i18next.languages;
 			addSwitcherOption(
 				"submenu.options.language",
@@ -423,6 +509,15 @@ export class MainMenuState extends Superstate {
 					},
 				})),
 				() => langs.indexOf(i18next.language),
+			);
+
+			addSliderOption(
+				"submenu.options.tickrate",
+				[10, 60],
+				() => Options.staticTickrate,
+				(value) => {
+					Options.staticTickrate = value;
+				},
 			);
 
 			return null;

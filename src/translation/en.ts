@@ -103,6 +103,7 @@ export const TR_EN: TranslationTable = {
 		"submenu.options.language": "Language",
 		"submenu.options.language.en": "English",
 		"submenu.options.language.pt": "Português",
+		"submenu.options.tickrate": "Simulation Tick Rate",
 
 		strike: "(on strike for ({{reason}}))",
 		"strike.reason.food": "hunger",
