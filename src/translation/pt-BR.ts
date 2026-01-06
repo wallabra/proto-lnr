@@ -546,9 +546,9 @@ export const TR_PT_BR: TranslationTable = {
 			"Você tem comida suficiente para {{days}} dias.",
 		"intermission.drydock.stats.repairs.info.intact":
 			"Seu navio está completamente em boa condição e não precisa de reparos.",
-		"intermission.drydock.stats.repairs.info.damaged.insufficient":
+		"intermission.drydock.stats.repairs.info.insufficient":
 			"Seu navio está danificado, e você vai precisar de mais {{missingMoney}} para consertar tudo, o que custará {{totalCost}}.",
-		"intermission.drydock.stats.repairs.info.damaged.sufficient":
+		"intermission.drydock.stats.repairs.info.sufficient":
 			"Seu navio está danificado, e você tem dinheiro o suficiente para todos os consertos - que juntos custarão {{totalCost}}, e te sobrará {{remaining}}.",
 		"intermission.drydock.stats.weight.info":
 			"Seu navio pesa, ao todo, {{totalWeight}}; {{hullWeight}} disso é o casco.",

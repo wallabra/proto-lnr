@@ -417,9 +417,9 @@ export const TR_EN: TranslationTable = {
 			"You have enough for {{days}} days.",
 		"intermission.drydock.stats.repairs.info.intact":
 			"Your ship is completely fine and needs no repairs.",
-		"intermission.drydock.stats.repairs.info.damaged.insufficient":
+		"intermission.drydock.stats.repairs.info.insufficient":
 			"Your ship has damages, and you will need {{missingMoney}} more to fix everything, at {{totalCost}}.",
-		"intermission.drydock.stats.repairs.info.damaged.sufficient":
+		"intermission.drydock.stats.repairs.info.sufficient":
 			"Your ship has damages, and you have enough money to fix everything - it will cost you {{totalCost}}, leaving you with {{remaining}}.",
 		"intermission.drydock.stats.weight.info":
 			"Your ship weights {{totalWeight}}; {{hullWeight}} of that is the hull.",
