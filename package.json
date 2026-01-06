@@ -7,7 +7,8 @@
 		"lint": "biome check src/ && tsc --noEmit",
 		"check": "npm run lint && npm run test",
 		"server": "parcel serve src/index.html",
-		"build": "parcel build src/index.html --public-url=."
+		"build": "parcel build src/index.html --public-url=.",
+		"test": "true"
 	},
 	"author": "Gustavo Ramos Rehermann <rehermann6046@gmail.com>",
 	"license": "GPL-3.0",
