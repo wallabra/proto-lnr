@@ -2,6 +2,8 @@ import type { Nullish } from "utility-types";
 import { commonPaths } from "../commonpaths";
 import type { AIHandler, AIJump, AIStartArgs, AITickArgs } from "../defs";
 
+const TERRAIN_PANIC_SCALE = 5;
+
 export class AvoidTerrainState implements AIHandler<AIStartArgs> {
 	name = "avoidTerrain";
 
@@ -19,13 +21,11 @@ export class AvoidTerrainState implements AIHandler<AIStartArgs> {
 
 		const { ship, deltaTime } = args;
 
-		if (play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.9) {
-			ship.thrustForward(deltaTime, -0.5); // Back up!
-		}
-
 		const { dHeight } = args;
 		const dir = dHeight.clone().invert();
 		ship.steer(deltaTime, dir.angle());
-		ship.thrustForward(deltaTime, ship.angNorm.dot(dir.norm()));
+		const dot = ship.angNorm.dot(dir.norm());
+		const thrust = Math.tanh(dot * TERRAIN_PANIC_SCALE);
+		ship.thrustForward(deltaTime, thrust);
 	}
 }
