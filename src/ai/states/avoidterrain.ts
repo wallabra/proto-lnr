@@ -13,11 +13,17 @@ export class AvoidTerrainState implements AIHandler<AIStartArgs> {
 
 		if (
 			play.terrain == null ||
-			play.terrain.heightAt(soonPos.x, soonPos.y) < play.waterLevel * 0.4
+			play.terrain.heightAt(soonPos.x, soonPos.y) < play.waterLevel * -0.2
 		)
 			return { next: "start" };
 
-		const { ship, deltaTime, dHeight } = args;
+		const { ship, deltaTime } = args;
+
+		if (play.terrain.heightAt(soonPos.x, soonPos.y) > play.waterLevel * 0.9) {
+			ship.thrustForward(deltaTime, -0.5); // Back up!
+		}
+
+		const { dHeight } = args;
 		const dir = dHeight.clone().invert();
 		ship.steer(deltaTime, dir.angle());
 		ship.thrustForward(deltaTime, ship.angNorm.dot(dir.norm()));
